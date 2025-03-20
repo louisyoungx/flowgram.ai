@@ -5,6 +5,7 @@ import {
   useNodeRender,
   WorkflowNodeRenderer,
 } from '@flowgram.ai/free-layout-editor';
+import { useNodeSize } from '@flowgram.ai/free-container-plugin';
 import { ConfigProvider } from '@douyinfe/semi-ui';
 
 import { NodeRenderContext } from '../../context';
@@ -16,6 +17,8 @@ export const BaseNode = ({ node }: { node: FlowNodeEntity }) => {
    * 提供节点渲染相关的方法
    */
   const nodeRender = useNodeRender();
+  const nodeSize = useNodeSize();
+  const { width, height } = nodeSize ?? {};
   /**
    * It can only be used when nodeEngine is enabled
    * 只有在节点引擎开启时候才能使用表单
@@ -30,15 +33,22 @@ export const BaseNode = ({ node }: { node: FlowNodeEntity }) => {
 
   return (
     <ConfigProvider getPopupContainer={getPopupContainer}>
-      <WorkflowNodeRenderer node={node}>
+      <WorkflowNodeRenderer className="flowgram-node" node={node}>
         {form?.state.invalid && <ErrorIcon />}
         <BaseNodeStyle
-          className={nodeRender.selected ? 'selected' : ''}
+          className={`flowgram-node-render ${nodeRender.selected ? 'selected' : ''}`}
           style={{
             outline: form?.state.invalid ? '1px solid red' : 'none',
+            width,
+            height,
           }}
         >
-          <NodeRenderContext.Provider value={nodeRender}>
+          <NodeRenderContext.Provider
+            value={{
+              ...nodeRender,
+              nodeSize,
+            }}
+          >
             {form?.render()}
           </NodeRenderContext.Provider>
         </BaseNodeStyle>

@@ -8,7 +8,7 @@ export const BaseNodeStyle = styled.div`
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
   width: 360px;
 
