@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import {
-  useNodeRender,
+  useCurrentEntity,
   WorkflowNodeMeta,
   WorkflowNodePortsData,
 } from '@flowgram.ai/free-layout-core';
@@ -13,7 +13,7 @@ interface NodeSize {
 }
 
 export const useNodeSize = (): NodeSize | undefined => {
-  const { node } = useNodeRender();
+  const node = useCurrentEntity();
   const nodeMeta = node.getNodeMeta<WorkflowNodeMeta>();
   const { size = { width: 300, height: 200 }, isContainer } = nodeMeta;
 

@@ -10,7 +10,9 @@ export const BaseNodeStyle = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   position: relative;
-  width: 360px;
+  min-width: 360px;
+  width: 100%;
+  height: 100%;
 
   &.selected {
     border: 1px solid var(--coz-stroke-hglt, #4e40e5);
