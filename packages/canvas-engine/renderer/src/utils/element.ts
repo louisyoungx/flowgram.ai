@@ -1,6 +1,6 @@
 import { isNil } from 'lodash';
 export const isHidden = (dom?: HTMLElement) => {
-  if (isNil(dom?.offsetParent)) {
+  if (!dom || isNil(dom?.offsetParent)) {
     return true;
   }
   const style = window.getComputedStyle(dom);
