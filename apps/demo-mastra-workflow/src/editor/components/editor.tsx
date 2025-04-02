@@ -13,5 +13,3 @@ export const Editor = () => {
     </FreeLayoutEditorProvider>
   );
 };
-
-export default Editor;
