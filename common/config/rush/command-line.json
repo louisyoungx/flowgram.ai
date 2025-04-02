@@ -300,12 +300,12 @@
           "shellCommand": "concurrently --kill-others --prefix \"{name}\" --names [watch],[demo] -c white,blue \"rush build:watch --to-except @flowgram.ai/demo-free-layout-simple\" \"cd apps/demo-free-layout-simple && rushx dev\""
       },
       {
-          "name": "dev:demo-mastra-workflow",
+          "name": "dev:demo-workflow-runtime",
           "commandKind": "global",
-          "summary": "⭐️️ run dev in app/demo-mastra-workflow",
+          "summary": "⭐️️ run dev in app/demo-workflow-runtime",
           "autoinstallerName": "rush-commands",
           "safeForSimultaneousRushProcesses": true,
-          "shellCommand": "concurrently --kill-others --prefix \"{name}\" --names [watch],[demo] -c white,blue \"rush build:watch --to-except @flowgram.ai/demo-mastra-workflow\" \"cd apps/demo-mastra-workflow && rushx dev\""
+          "shellCommand": "concurrently --kill-others --prefix \"{name}\" --names [watch],[demo] -c white,blue \"rush build:watch --to-except @flowgram.ai/demo-workflow-runtime\" \"cd apps/demo-workflow-runtime && rushx dev\""
       }
   ],
 

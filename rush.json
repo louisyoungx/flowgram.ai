@@ -755,8 +755,8 @@
           "tags": ["level-1", "team-flow", "demo"]
       },
       {
-          "packageName": "@flowgram.ai/demo-mastra-workflow",
-          "projectFolder": "apps/demo-mastra-workflow",
+          "packageName": "@flowgram.ai/demo-workflow-runtime",
+          "projectFolder": "apps/demo-workflow-runtime",
           "versionPolicyName": "appPolicy",
           "tags": ["level-1", "team-flow", "demo"]
       }
