@@ -9,11 +9,11 @@ const nextConfig: NextConfig = {
   transpilePackages: ['@douyinfe/semi-ui', '@douyinfe/semi-icons', '@douyinfe/semi-illustrations'],
   webpack: (config) => {
     config.resolve.alias = {
-      ...config.resolve.alias,
-      '@app': path.resolve(__dirname, 'src/app'),
-      '@editor': path.resolve(__dirname, 'src/editor'),
-      '@runtime': path.resolve(__dirname, 'src/runtime'),
-    };
+        ...config.resolve.alias,
+        '@app': path.resolve(__dirname, 'src/app'),
+        '@editor': path.resolve(__dirname, 'src/editor'),
+        '@runtime': path.resolve(__dirname, 'src/runtime'),
+    }
     return config;
   },
 };

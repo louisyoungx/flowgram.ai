@@ -755,8 +755,8 @@
           "tags": ["level-1", "team-flow", "demo"]
       },
       {
-          "packageName": "@flowgram.ai/demo-mastra-workflow",
-          "projectFolder": "apps/demo-mastra-workflow",
+          "packageName": "@flowgram.ai/demo-nextjs",
+          "projectFolder": "apps/demo-nextjs",
           "versionPolicyName": "appPolicy",
           "tags": ["level-1", "team-flow", "demo"]
       }
