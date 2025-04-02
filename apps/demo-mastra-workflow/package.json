@@ -13,6 +13,7 @@
         "react-dom": "^18",
         "next": "15.2.4",
         "lodash-es": "^4.17.21",
+        "classnames": "^2.5.1",
         "@flowgram.ai/free-layout-editor": "workspace:*",
         "@flowgram.ai/free-snap-plugin": "workspace:*",
         "@flowgram.ai/free-lines-plugin": "workspace:*",

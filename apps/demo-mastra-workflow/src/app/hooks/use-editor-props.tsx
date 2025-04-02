@@ -2,16 +2,11 @@ import { useMemo } from 'react';
 
 import { createMinimapPlugin } from '@flowgram.ai/minimap-plugin';
 import { createFreeSnapPlugin } from '@flowgram.ai/free-snap-plugin';
-import {
-  FreeLayoutProps,
-  WorkflowNodeProps,
-  WorkflowNodeRenderer,
-  Field,
-  useNodeRender,
-} from '@flowgram.ai/free-layout-editor';
+import { Field, FreeLayoutProps } from '@flowgram.ai/free-layout-editor';
 
 import { nodeRegistries } from '../data/node-registries';
 import { initialData } from '../data/initial-data';
+import { NodeRender } from '../components/node-render';
 
 export const useEditorProps = () =>
   useMemo<FreeLayoutProps>(
@@ -67,14 +62,7 @@ export const useEditorProps = () =>
         /**
          * Render Node
          */
-        renderDefaultNode: (props: WorkflowNodeProps) => {
-          const { form } = useNodeRender();
-          return (
-            <WorkflowNodeRenderer className="demo-free-node" node={props.node}>
-              {form?.render()}
-            </WorkflowNodeRenderer>
-          );
-        },
+        renderDefaultNode: NodeRender,
       },
       /**
        * Content change
