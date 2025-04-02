@@ -1,4 +1,3 @@
-import { Editor } from './components/editor';
 import './style/index.css';
 
-export default Editor;
+export { EditorClient } from './components/editor-client';

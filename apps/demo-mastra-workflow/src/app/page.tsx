@@ -1,10 +1,6 @@
 'use client';
-import dynamic from 'next/dynamic';
-
-const Editor = dynamic(() => import('@editor') as any, {
-  ssr: false,
-});
+import { EditorClient } from '@editor/index';
 
 export default function Home() {
-  return <Editor />;
+  return <EditorClient />;
 }
