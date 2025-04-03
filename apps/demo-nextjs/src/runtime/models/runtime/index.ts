@@ -1,2 +1,2 @@
-export { WorkflowRuntimeModel } from './model'
-export type { IWorkflowRuntimeModel } from './type'
+export { WorkflowRuntimeModel } from './model';
+export type { IWorkflowRuntimeModel } from './type';

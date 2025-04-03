@@ -1,3 +1,3 @@
 export interface IWorkflowRuntimeModel {
-    run: () => Promise<void>
+  run: () => Promise<void>;
 }

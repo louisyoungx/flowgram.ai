@@ -12,4 +12,5 @@ module.exports = defineConfig({
       version: 'detect', // 自动检测 React 版本
     },
   },
+  extends: ['next'],
 });

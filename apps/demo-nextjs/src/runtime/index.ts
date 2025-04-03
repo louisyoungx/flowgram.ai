@@ -1,3 +1,3 @@
-export * from './models'
+export * from './models';
 
-export { main } from './main'
+export { main } from './main';
