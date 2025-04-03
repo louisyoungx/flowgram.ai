@@ -11,8 +11,8 @@ export const EditorClient = () => {
   }, []);
 
   if (!isMounted) {
-    // 确保只在客户端渲染 Editor
-    return null;
+      // only render <Editor /> in browser client
+      return null
   }
 
   return <Editor />;

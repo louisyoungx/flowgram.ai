@@ -21,7 +21,7 @@ export const Tools = () => {
       const data = await response.json();
 
       if (!data.success) {
-        throw new Error(data.error || '处理失败');
+        throw new Error(data.error || 'process failed')
       }
 
       console.log('run success', data.data);
