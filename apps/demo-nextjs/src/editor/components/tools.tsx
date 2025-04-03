@@ -1,43 +1,46 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-import { Button } from '@douyinfe/semi-ui'
-import { useService, WorkflowDocument } from '@flowgram.ai/free-layout-editor'
+import { useService, WorkflowDocument } from '@flowgram.ai/free-layout-editor';
 
 export const Tools = () => {
-    const [isLoading, setIsLoading] = useState(false)
-    const document = useService(WorkflowDocument)
+  const [isLoading, setIsLoading] = useState(false);
+  const document = useService(WorkflowDocument);
 
-    const handleRun = async () => {
-        try {
-            setIsLoading(true)
-            const response = await fetch('/api/runtime', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    json: document.toJSON(),
-                }),
-            })
-            const data = await response.json()
+  const handleRun = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/runtime', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          json: document.toJSON(),
+        }),
+      });
+      const data = await response.json();
 
-            if (!data.success) {
-                throw new Error(data.error || '处理失败')
-            }
+      if (!data.success) {
+        throw new Error(data.error || '处理失败');
+      }
 
-            console.log('run success', data.data)
-        } catch (error) {
-            console.error(error instanceof Error ? error.message : 'run failed')
-        } finally {
-            setIsLoading(false)
-        }
+      console.log('run success', data.data);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : 'run failed');
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    return (
-        <div className='mastra-workflow-tools absolute z-999'>
-            <Button onClick={handleRun} loading={isLoading}>
-                run
-            </Button>
-        </div>
-    )
-}
+  return (
+    <div className="mastra-workflow-tools absolute z-999 bottom-4 left-1/2">
+      <button
+        className="bg-blue-400 cursor-pointer active:bg-blue-500 p-2 rounded"
+        onClick={handleRun}
+        disabled={isLoading}
+      >
+        <p className="text-white">TEST RUN</p>
+      </button>
+    </div>
+  );
+};
