@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { delay, DisposableCollection } from '@flowgram.ai/utils';
+import { DisposableCollection } from '@flowgram.ai/utils';
 import type { PositionSchema } from '@flowgram.ai/utils';
 import {
   WorkflowDocument,
@@ -13,7 +13,12 @@ import { HistoryService } from '@flowgram.ai/free-history-plugin';
 import { PlaygroundConfigEntity } from '@flowgram.ai/core';
 
 import { WorkflowNodePanelUtils } from './utils';
-import type { CallNodePanel, NodePanelCallParams, NodePanelResult } from './type';
+import type {
+  CallNodePanel,
+  CallNodePanelParams,
+  NodePanelCallParams,
+  NodePanelResult,
+} from './type';
 
 /**
  * 添加节点面板服务
@@ -89,6 +94,24 @@ export class WorkflowNodePanelService {
         onClose: () => {
           resolve(enableMultiAdd ? nodes : undefined);
         },
+      });
+    });
+  }
+
+  /**
+   * 唤起单选面板
+   */
+  public async singleSelectNodePanel(
+    params: Omit<CallNodePanelParams, 'onSelect' | 'onClose' | 'enableMultiAdd'>
+  ): Promise<NodePanelResult | undefined> {
+    return new Promise((resolve) => {
+      this.callNodePanel({
+        ...params,
+        enableMultiAdd: false,
+        onSelect: async (panelParams?: NodePanelResult) => {
+          resolve(panelParams);
+        },
+        onClose: () => {},
       });
     });
   }
@@ -179,7 +202,7 @@ export class WorkflowNodePanelService {
     }
 
     // 等待节点渲染
-    await delay(20);
+    await WorkflowNodePanelUtils.waitNodeRender();
 
     // 重建连线（需先让端口完成渲染）
     if (enableBuildLine) {

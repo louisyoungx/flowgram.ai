@@ -1,3 +1,4 @@
+import { IWaitNodeRender, waitNodeRender } from './wait-node-render';
 import {
   updateSubSequentNodesPosition,
   IUpdateSubSequentNodesPosition,
@@ -21,6 +22,7 @@ export interface IWorkflowNodePanelUtils {
   subNodesAutoOffset: ISubNodesAutoOffset;
   subPositionOffset: ISubPositionOffset;
   updateSubSequentNodesPosition: IUpdateSubSequentNodesPosition;
+  waitNodeRender: IWaitNodeRender;
 }
 
 export const WorkflowNodePanelUtils: IWorkflowNodePanelUtils = {
@@ -33,4 +35,5 @@ export const WorkflowNodePanelUtils: IWorkflowNodePanelUtils = {
   subNodesAutoOffset,
   subPositionOffset,
   updateSubSequentNodesPosition,
+  waitNodeRender,
 };
