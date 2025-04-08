@@ -43,7 +43,7 @@ export class WorkflowNodePanelService {
 
   private readonly toDispose = new DisposableCollection();
 
-  private callNodePanel: CallNodePanel = async () => undefined;
+  public callNodePanel: CallNodePanel = async () => undefined;
 
   /** 销毁 */
   public dispose(): void {
