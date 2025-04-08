@@ -52,7 +52,7 @@ export class WorkflowNodePanelLayer extends Layer<NodePanelLayerOptions> {
 
   private async call(params: CallNodePanelParams): Promise<void> {
     const taskId = nanoid();
-    const { onSelect, onClose = () => {}, enableMultiAdd = false, panelProps = {} } = params;
+    const { onSelect, onClose, enableMultiAdd = false, panelProps = {} } = params;
     return new Promise((resolve) => {
       const unmount = () => {
         // 清理挂载的组件

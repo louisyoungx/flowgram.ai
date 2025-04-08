@@ -47,7 +47,7 @@ export interface CallNodePanelParams {
   onSelect: (params?: NodePanelResult) => void;
   position: PositionSchema;
   onClose: () => void;
-  panelProps: Record<string, any>;
+  panelProps?: Record<string, any>;
   enableMultiAdd?: boolean;
   containerNode?: WorkflowNodeEntity;
 }
