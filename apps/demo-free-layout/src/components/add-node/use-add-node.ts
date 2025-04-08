@@ -5,7 +5,6 @@ import {
   useService,
   WorkflowDocument,
   usePlayground,
-  getAntiOverlapPosition,
   PositionSchema,
   WorkflowNodeEntity,
   WorkflowSelectService,
@@ -38,34 +37,11 @@ const useSelectNode = () => {
   );
 };
 
-const useCustomPosition = () => {
-  const workflowDocument = useService(WorkflowDocument);
-  const playground = usePlayground();
-  return useCallback(
-    (params: { selectPosition: PositionSchema; panelPosition: PositionSchema }) => {
-      const { selectPosition, panelPosition } = params;
-      const nodeWidth = 360;
-      const nodePanelOffset = 150 / playground.config.zoom;
-      const customPositionX = panelPosition.x + nodeWidth / 2 + nodePanelOffset;
-      const customNodePosition = getAntiOverlapPosition(workflowDocument, {
-        x: customPositionX,
-        y: selectPosition.y,
-      });
-      return {
-        x: customNodePosition.x,
-        y: customNodePosition.y,
-      };
-    },
-    []
-  );
-};
-
 export const useAddNode = () => {
   const workflowDocument = useService(WorkflowDocument);
   const nodePanelService = useService<WorkflowNodePanelService>(WorkflowNodePanelService);
   const playground = usePlayground();
   const getPanelPosition = useGetPanelPosition();
-  const customPosition = useCustomPosition();
   const select = useSelectNode();
 
   return useCallback(
@@ -81,15 +57,10 @@ export const useAddNode = () => {
             if (!panelParams) {
               return;
             }
-            const { selectEvent, nodeType, nodeJSON } = panelParams;
-            const selectPosition = playground.config.getPosFromMouseEvent(selectEvent);
-            const nodePosition = customPosition({
-              selectPosition,
-              panelPosition,
-            });
+            const { nodeType, nodeJSON } = panelParams;
             const node: WorkflowNodeEntity = workflowDocument.createWorkflowNodeByType(
               nodeType,
-              nodePosition,
+              undefined,
               nodeJSON ?? ({} as WorkflowNodeJSON)
             );
             select(node);
