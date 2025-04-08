@@ -7,4 +7,4 @@ export type {
   NodePanelLayerOptions as NodePanelServiceOptions,
   NodePanelPluginOptions,
 } from './type';
-export { type IWorkflowNodePanelUtils, WorkflowNodePanelUtils} from './utils'
+export { type IWorkflowNodePanelUtils, WorkflowNodePanelUtils } from './utils';

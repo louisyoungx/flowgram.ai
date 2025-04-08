@@ -14,32 +14,26 @@ export type ISubNodesAutoOffset = (params: {
   node: WorkflowNodeEntity;
   fromPort: WorkflowPortEntity;
   toPort: WorkflowPortEntity;
-  padding: XYSchema;
+  padding?: XYSchema;
   linesManager: WorkflowLinesManager;
   historyService: HistoryService;
   dragService: WorkflowDragService;
   containerNode?: WorkflowNodeEntity;
 }) => void;
 
-export const subNodesAutoOffset: ISubNodesAutoOffset = (params: {
-  node: WorkflowNodeEntity;
-  fromPort: WorkflowPortEntity;
-  toPort: WorkflowPortEntity;
-  padding: XYSchema;
-  linesManager: WorkflowLinesManager;
-  historyService: HistoryService;
-  dragService: WorkflowDragService;
-  containerNode?: WorkflowNodeEntity;
-}) => {
+export const subNodesAutoOffset: ISubNodesAutoOffset = (params) => {
   const {
     node,
     fromPort,
     toPort,
-    padding,
     linesManager,
     historyService,
     dragService,
     containerNode,
+    padding = {
+      x: 100,
+      y: 100,
+    },
   } = params;
   const subOffset = subPositionOffset({
     node,

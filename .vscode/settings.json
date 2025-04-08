@@ -130,7 +130,7 @@
   // "stylelint.stylelintPath": "config/stylelint-config/node_modules/stylelint",
   "emmet.triggerExpansionOnTab": true,
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
