@@ -111,7 +111,9 @@ export class WorkflowNodePanelService {
         onSelect: async (panelParams?: NodePanelResult) => {
           resolve(panelParams);
         },
-        onClose: () => {},
+        onClose: () => {
+          resolve(undefined);
+        },
       });
     });
   }
