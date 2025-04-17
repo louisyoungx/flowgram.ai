@@ -1,8 +1,8 @@
 import { interfaces } from 'inversify';
 import { fireEvent, waitFor } from '@testing-library/react';
-import { IPoint, logger } from '@flowgram.ai/utils';
+import { IPoint } from '@flowgram.ai/utils';
 import { FlowNodeBaseType } from '@flowgram.ai/document';
-import { CommandRegistry, PlaygroundConfigEntity, PositionData } from '@flowgram.ai/core';
+import { PlaygroundConfigEntity, PositionData } from '@flowgram.ai/core';
 import { TransformData } from '@flowgram.ai/core';
 
 import { createWorkflowContainer, baseJSON, nestJSON } from '../mocks';
@@ -13,7 +13,6 @@ import {
   WorkflowLineEntity,
   WorkflowSelectService,
   WorkflowNodeEntity,
-  WorkflowCommands,
   WorkflowLinesManager,
   WorkflowPortEntity,
 } from '../../src';
