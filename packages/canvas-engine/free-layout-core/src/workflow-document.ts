@@ -576,7 +576,6 @@ export class WorkflowDocument extends FlowDocument {
     nodes: WorkflowNodeEntity[];
     edges: WorkflowLineEntity[];
   } {
-    // await delay(0); // Loop 节点 onCreate 存在异步创建子画布
     const { parent = this.root, isClone = false } = options ?? {};
     // 创建节点
     const containerID = this.getNodeSubCanvas(parent)?.canvasNode.id ?? parent.id;

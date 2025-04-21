@@ -67,6 +67,8 @@ export class Entity<OPTS extends EntityOpts = EntityOpts> implements Disposable 
    */
   readonly toDispose = new DisposableCollection();
 
+  readonly preDispose = new DisposableCollection();
+
   // /**
   //  * able 管理
   //  */
@@ -252,6 +254,7 @@ export class Entity<OPTS extends EntityOpts = EntityOpts> implements Disposable 
    * 销毁实体
    */
   dispose(): void {
+    this.preDispose.dispose();
     this.toDispose.dispose();
   }
 
