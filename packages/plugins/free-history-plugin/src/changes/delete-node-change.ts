@@ -1,4 +1,4 @@
-import { WorkflowDocument, WorkflowContentChangeType, delay } from '@flowgram.ai/free-layout-core';
+import { WorkflowDocument, WorkflowContentChangeType } from '@flowgram.ai/free-layout-core';
 import { type FlowNodeEntity } from '@flowgram.ai/document';
 
 import {
