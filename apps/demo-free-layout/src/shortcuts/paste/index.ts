@@ -1,4 +1,5 @@
 import {
+  delay,
   EntityManager,
   FlowNodeTransformData,
   FreeLayoutPluginContext,
@@ -6,6 +7,7 @@ import {
   Rectangle,
   ShortcutsHandler,
   WorkflowDocument,
+  WorkflowDragService,
   WorkflowHoverService,
   WorkflowJSON,
   WorkflowNodeEntity,
@@ -31,11 +33,14 @@ export class PasteShortcut implements ShortcutsHandler {
 
   private hoverService: WorkflowHoverService;
 
+  private dragService: WorkflowDragService;
+
   constructor(context: FreeLayoutPluginContext) {
     this.document = context.get(WorkflowDocument);
     this.selectService = context.get(WorkflowSelectService);
     this.entityManager = context.get(EntityManager);
     this.hoverService = context.get(WorkflowHoverService);
+    this.dragService = context.get(WorkflowDragService);
   }
 
   public async execute(): Promise<WorkflowNodeEntity[] | undefined> {
@@ -46,12 +51,13 @@ export class PasteShortcut implements ShortcutsHandler {
     if (!this.isValidData(data)) {
       return;
     }
-    const nodes = await this.apply(data);
+    const nodes = this.apply(data);
     if (nodes.length > 0) {
       Toast.success({
         content: 'Copy successfully',
         showClose: false,
       });
+      await this.nextTick();
       // 滚动到可视区域
       this.scrollToNodes(nodes);
     }
@@ -89,7 +95,7 @@ export class PasteShortcut implements ShortcutsHandler {
   }
 
   /** 应用剪切板数据 */
-  private async apply(data: WorkflowClipboardData): Promise<WorkflowNodeEntity[]> {
+  private apply(data: WorkflowClipboardData): WorkflowNodeEntity[] {
     const { json: rawJSON } = data;
     const json = generateUniqueWorkflow({
       json: rawJSON,
@@ -97,8 +103,8 @@ export class PasteShortcut implements ShortcutsHandler {
     });
 
     const offset = this.calcPasteOffset(data.bounds);
-    this.applyOffset(json, offset);
     const parent = this.getSelectedContainer();
+    this.applyOffset({ json, offset, parent });
     const { nodes } = this.document.renderJSON(json, {
       parent,
     });
@@ -118,13 +124,28 @@ export class PasteShortcut implements ShortcutsHandler {
     };
   }
 
-  private applyOffset(json: WorkflowJSON, offset: IPoint): void {
+  private applyOffset(params: {
+    json: WorkflowJSON;
+    offset: IPoint;
+    parent?: WorkflowNodeEntity;
+  }): void {
+    const { json, offset, parent } = params;
     json.nodes.forEach((nodeJSON) => {
       if (!nodeJSON.meta?.position) {
         return;
       }
-      nodeJSON.meta.position.x += offset.x;
-      nodeJSON.meta.position.y += offset.y;
+      let position = {
+        x: nodeJSON.meta.position.x + offset.x,
+        y: nodeJSON.meta.position.y + offset.y,
+      };
+      if (parent) {
+        position = this.dragService.adjustSubNodePosition(
+          nodeJSON.type as string,
+          parent,
+          position
+        );
+      }
+      nodeJSON.meta.position = position;
     });
   }
 
@@ -145,5 +166,12 @@ export class PasteShortcut implements ShortcutsHandler {
     await this.document.playgroundConfig.scrollToView({
       bounds: Rectangle.enlarge(nodeBounds),
     });
+  }
+
+  /** 等待下一帧 */
+  private async nextTick(): Promise<void> {
+    const frameTime = 16; // 16ms 为一个渲染帧
+    await delay(frameTime);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
   }
 }
