@@ -1,0 +1,102 @@
+import { customAlphabet } from 'nanoid';
+import type { WorkflowJSON, WorkflowNodeJSON } from '@flowgram.ai/free-layout-editor';
+
+import { traverse, TraverseContext } from './traverse';
+
+namespace UniqueWorkflowUtils {
+  /** 生成唯一ID */
+  const generateUniqueId = customAlphabet('1234567890', 6);
+  /** 获取所有节点ID */
+  export const getAllNodeIds = (json: WorkflowJSON): string[] => {
+    const nodeIds = new Set<string>();
+    const addNodeId = (node: WorkflowNodeJSON) => {
+      nodeIds.add(node.id);
+      if (node.blocks?.length) {
+        node.blocks.forEach((child) => addNodeId(child));
+      }
+    };
+    json.nodes.forEach((node) => addNodeId(node));
+    return Array.from(nodeIds);
+  };
+  /** 生成节点替换映射 */
+  export const generateNodeReplaceMap = (
+    nodeIds: string[],
+    isUniqueId: (id: string) => boolean
+  ): Map<string, string> => {
+    const nodeReplaceMap = new Map<string, string>();
+    nodeIds.forEach((id) => {
+      if (isUniqueId(id)) {
+        nodeReplaceMap.set(id, id);
+      } else {
+        let newId: string;
+        do {
+          newId = generateUniqueId();
+        } while (!isUniqueId(newId));
+        nodeReplaceMap.set(id, newId);
+      }
+    });
+    return nodeReplaceMap;
+  };
+  /** 是否存在 */
+  const isExist = (value: unknown): boolean => value !== null && value !== undefined;
+  /** 是否需要处理 */
+  const shouldHandle = (context: TraverseContext): boolean => {
+    const { node } = context;
+    // 线条数据
+    if (
+      node?.key &&
+      ['sourceNodeID', 'targetNodeID'].includes(node.key) &&
+      node.parent?.parent?.key === 'edges'
+    ) {
+      return true;
+    }
+    // 节点数据
+    if (
+      node?.key === 'id' &&
+      isExist(node.container?.type) &&
+      isExist(node.container?.meta) &&
+      isExist(node.container?.data)
+    ) {
+      return true;
+    }
+    // 变量数据
+    if (
+      node?.key === 'blockID' &&
+      isExist(node.container?.name) &&
+      node.container?.source === 'block-output'
+    ) {
+      return true;
+    }
+    return false;
+  };
+  /**
+   * 替换节点ID
+   * NOTICE: 该方法有副作用，会修改传入的json，防止深拷贝造成额外性能开销
+   */
+  export const replaceNodeId = (
+    json: WorkflowJSON,
+    nodeReplaceMap: Map<string, string>
+  ): WorkflowJSON => {
+    traverse(json, (context) => {
+      if (!shouldHandle(context)) {
+        return;
+      }
+      const { node } = context;
+      if (nodeReplaceMap.has(node.value)) {
+        context.setValue(nodeReplaceMap.get(node.value));
+      }
+    });
+    return json;
+  };
+}
+
+/** 生成唯一工作流JSON */
+export const generateUniqueWorkflow = (params: {
+  json: WorkflowJSON;
+  isUniqueId: (id: string) => boolean;
+}): WorkflowJSON => {
+  const { json, isUniqueId } = params;
+  const nodeIds = UniqueWorkflowUtils.getAllNodeIds(json);
+  const nodeReplaceMap = UniqueWorkflowUtils.generateNodeReplaceMap(nodeIds, isUniqueId);
+  return UniqueWorkflowUtils.replaceNodeId(json, nodeReplaceMap);
+};

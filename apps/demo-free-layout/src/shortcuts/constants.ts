@@ -1,4 +1,3 @@
-export const WorkflowExportDataID = 'flowgram-workflow-export-data';
 export const WorkflowClipboardDataID = 'flowgram-workflow-clipboard-data';
 
 export enum FlowCommandId {

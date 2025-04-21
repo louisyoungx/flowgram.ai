@@ -1,6 +1,6 @@
 import type { WorkflowJSON } from '@flowgram.ai/free-layout-editor';
 
-import type { WorkflowClipboardDataID, WorkflowExportDataID } from './constants';
+import type { WorkflowClipboardDataID } from './constants';
 
 export interface WorkflowClipboardSource {
   host: string;
@@ -12,12 +12,6 @@ export interface WorkflowClipboardRect {
   y: number;
   width: number;
   height: number;
-}
-
-export interface WorkflowExportData {
-  type: typeof WorkflowExportDataID;
-  json: WorkflowJSON;
-  source: WorkflowClipboardSource;
 }
 
 export interface WorkflowClipboardData {

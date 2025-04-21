@@ -566,22 +566,28 @@ export class WorkflowDocument extends FlowDocument {
   /**
    * 逐层创建节点和线条
    */
-  private renderJSON(
+  public renderJSON(
     json: WorkflowJSON,
     options?: {
       parent?: WorkflowNodeEntity;
       isClone?: boolean;
     }
-  ) {
+  ): {
+    nodes: WorkflowNodeEntity[];
+    edges: WorkflowLineEntity[];
+  } {
     // await delay(0); // Loop 节点 onCreate 存在异步创建子画布
     const { parent = this.root, isClone = false } = options ?? {};
     // 创建节点
     const containerID = this.getNodeSubCanvas(parent)?.canvasNode.id ?? parent.id;
-    json.nodes.forEach((nodeJSON: WorkflowNodeJSON) => {
-      this.createWorkflowNode(nodeJSON, isClone, containerID);
-    }),
-      // 创建线条
-      json.edges.forEach((edge) => this.createWorkflowLine(edge, containerID));
+    const nodes = json.nodes.map((nodeJSON: WorkflowNodeJSON) =>
+      this.createWorkflowNode(nodeJSON, isClone, containerID)
+    );
+    // 创建线条
+    const edges = json.edges
+      .map((edge) => this.createWorkflowLine(edge, containerID))
+      .filter(Boolean) as WorkflowLineEntity[];
+    return { nodes, edges };
   }
 
   private getNodeSubCanvas(node: WorkflowNodeEntity): WorkflowSubCanvas | undefined {
