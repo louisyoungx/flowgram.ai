@@ -35,6 +35,9 @@ export class PasteShortcut implements ShortcutsHandler {
 
   private dragService: WorkflowDragService;
 
+  /**
+   * initialize paste shortcut handler - 初始化粘贴快捷键处理器
+   */
   constructor(context: FreeLayoutPluginContext) {
     this.document = context.get(WorkflowDocument);
     this.selectService = context.get(WorkflowSelectService);
@@ -43,6 +46,9 @@ export class PasteShortcut implements ShortcutsHandler {
     this.dragService = context.get(WorkflowDragService);
   }
 
+  /**
+   * execute paste action - 执行粘贴操作
+   */
   public async execute(): Promise<WorkflowNodeEntity[] | undefined> {
     const data = await this.tryReadClipboard();
     if (!data) {
@@ -57,22 +63,23 @@ export class PasteShortcut implements ShortcutsHandler {
         content: 'Copy successfully',
         showClose: false,
       });
+      // wait for nodes to render - 等待节点渲染
       await this.nextTick();
-      // 滚动到可视区域
-      this.scrollToNodes(nodes);
+      // scroll to visible area - 滚动到可视区域
+      this.scrollNodesToView(nodes);
     }
     return nodes;
   }
 
-  /** 尝试读取剪贴板 */
+  /** try to read clipboard - 尝试读取剪贴板 */
   private async tryReadClipboard(): Promise<WorkflowClipboardData | undefined> {
     try {
-      // 需要用户授予网页剪贴板读取权限, 如果用户没有授予权限, 代码可能会抛出异常 NotAllowedError
+      // need user permission to access clipboard, may throw NotAllowedError - 需要用户授予网页剪贴板读取权限, 如果用户没有授予权限, 代码可能会抛出异常 NotAllowedError
       const text: string = (await navigator.clipboard.readText()) || '';
       const clipboardData: WorkflowClipboardData = JSON.parse(text);
       return clipboardData;
     } catch (e) {
-      // 这里本身剪贴板里的数据就不固定，所以没必要报错
+      // clipboard data is not fixed, no need to show error - 这里本身剪贴板里的数据就不固定，所以没必要报错
       return;
     }
   }
@@ -94,8 +101,9 @@ export class PasteShortcut implements ShortcutsHandler {
     return true;
   }
 
-  /** 应用剪切板数据 */
+  /** apply clipboard data - 应用剪切板数据 */
   private apply(data: WorkflowClipboardData): WorkflowNodeEntity[] {
+    // extract raw json from clipboard data - 从剪贴板数据中提取原始JSON
     const { json: rawJSON } = data;
     const json = generateUniqueWorkflow({
       json: rawJSON,
@@ -112,8 +120,9 @@ export class PasteShortcut implements ShortcutsHandler {
     return nodes;
   }
 
-  /** 计算粘贴偏移 */
+  /** calculate paste offset - 计算粘贴偏移 */
   private calcPasteOffset(boundsData: WorkflowClipboardRect): IPoint {
+    // extract bounds data - 提取边界数据
     const { x, y, width, height } = boundsData;
     const rect = new Rectangle(x, y, width, height);
     const { center } = rect;
@@ -124,6 +133,9 @@ export class PasteShortcut implements ShortcutsHandler {
     };
   }
 
+  /**
+   * apply offset to node positions - 应用偏移到节点位置
+   */
   private applyOffset(params: {
     json: WorkflowJSON;
     offset: IPoint;
@@ -134,6 +146,7 @@ export class PasteShortcut implements ShortcutsHandler {
       if (!nodeJSON.meta?.position) {
         return;
       }
+      // calculate new position - 计算新位置
       let position = {
         x: nodeJSON.meta.position.x + offset.x,
         y: nodeJSON.meta.position.y + offset.y,
@@ -149,28 +162,29 @@ export class PasteShortcut implements ShortcutsHandler {
     });
   }
 
-  /** 获取鼠标选中的容器 */
+  /** get selected container node - 获取鼠标选中的容器 */
   private getSelectedContainer(): WorkflowNodeEntity | undefined {
     const { activatedNode } = this.selectService;
     return activatedNode?.getNodeMeta<WorkflowNodeMeta>().isContainer ? activatedNode : undefined;
   }
 
-  /** 选中节点 */
+  /** select nodes - 选中节点 */
   private selectNodes(nodes: WorkflowNodeEntity[]): void {
     this.selectService.selection = nodes;
   }
 
-  /** 滚动到节点 */
-  private async scrollToNodes(nodes: WorkflowNodeEntity[]): Promise<void> {
+  /** scroll to nodes - 滚动到节点 */
+  private async scrollNodesToView(nodes: WorkflowNodeEntity[]): Promise<void> {
     const nodeBounds = nodes.map((node) => node.getData(FlowNodeTransformData).bounds);
     await this.document.playgroundConfig.scrollToView({
       bounds: Rectangle.enlarge(nodeBounds),
     });
   }
 
-  /** 等待下一帧 */
+  /** wait for next frame - 等待下一帧 */
   private async nextTick(): Promise<void> {
-    const frameTime = 16; // 16ms 为一个渲染帧
+    // 16ms is one render frame - 16ms 为一个渲染帧
+    const frameTime = 16;
     await delay(frameTime);
     await new Promise((resolve) => requestAnimationFrame(resolve));
   }

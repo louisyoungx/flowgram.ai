@@ -67,6 +67,9 @@ export class Entity<OPTS extends EntityOpts = EntityOpts> implements Disposable 
    */
   readonly toDispose = new DisposableCollection();
 
+  /**
+   * 销毁前事件管理
+   */
   readonly preDispose = new DisposableCollection();
 
   // /**

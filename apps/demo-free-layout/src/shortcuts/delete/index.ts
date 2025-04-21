@@ -21,16 +21,22 @@ export class DeleteShortcut implements ShortcutsHandler {
 
   private selectService: WorkflowSelectService;
 
+  /**
+   * initialize delete shortcut - 初始化删除快捷键
+   */
   constructor(context: FreeLayoutPluginContext) {
     this.document = context.get(WorkflowDocument);
     this.selectService = context.get(WorkflowSelectService);
   }
 
+  /**
+   * execute delete operation - 执行删除操作
+   */
   public async execute(): Promise<void> {
     if (!this.isValid(this.selectService.selectedNodes)) {
       return;
     }
-    // 删除选中实体
+    // delete selected entities - 删除选中实体
     this.selectService.selection.forEach((entity) => {
       if (entity instanceof WorkflowNodeEntity) {
         this.removeNode(entity);
@@ -40,10 +46,13 @@ export class DeleteShortcut implements ShortcutsHandler {
         entity.dispose();
       }
     });
-    // 过滤掉已删除的实体
+    // filter out disposed entities - 过滤掉已删除的实体
     this.selectService.selection = this.selectService.selection.filter((s) => !s.disposed);
   }
 
+  /**
+   * validate if nodes can be deleted - 验证节点是否可以删除
+   */
   private isValid(nodes: WorkflowNodeEntity[]): boolean {
     const hasSystemNodes = nodes.some((n) =>
       [WorkflowNodeType.Start, WorkflowNodeType.End].includes(n.flowNodeType as WorkflowNodeType)
@@ -58,7 +67,9 @@ export class DeleteShortcut implements ShortcutsHandler {
     return true;
   }
 
-  /** 删除节点 */
+  /**
+   * remove node from workflow - 从工作流中删除节点
+   */
   private removeNode(node: WorkflowNodeEntity): void {
     if (!this.document.canRemove(node)) {
       return;
@@ -72,7 +83,9 @@ export class DeleteShortcut implements ShortcutsHandler {
     node.dispose();
   }
 
-  /** 删除连线 */
+  /**
+   * remove line from workflow - 从工作流中删除连线
+   */
   private removeLine(line: WorkflowLineEntity): void {
     if (!this.document.linesManager.canRemove(line)) {
       return;

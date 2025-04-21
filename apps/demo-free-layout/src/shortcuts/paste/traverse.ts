@@ -1,27 +1,32 @@
+// traverse value type - 遍历值类型
 export type TraverseValue = any;
+
+// traverse node interface - 遍历节点接口
 export interface TraverseNode {
-  value: TraverseValue;
-  container?: TraverseValue;
-  parent?: TraverseNode;
-  key?: string;
-  index?: number;
+  value: TraverseValue; // node value - 节点值
+  container?: TraverseValue; // parent container - 父容器
+  parent?: TraverseNode; // parent node - 父节点
+  key?: string; // object key - 对象键名
+  index?: number; // array index - 数组索引
 }
 
+// traverse context interface - 遍历上下文接口
 export interface TraverseContext {
-  node: TraverseNode;
-  setValue: (value: TraverseValue) => void;
-  getParents: () => TraverseNode[];
-  getPath: () => Array<string | number>;
-  getStringifyPath: () => string;
-  deleteSelf: () => void;
+  node: TraverseNode; // current node - 当前节点
+  setValue: (value: TraverseValue) => void; // set value function - 设置值函数
+  getParents: () => TraverseNode[]; // get parents function - 获取父节点函数
+  getPath: () => Array<string | number>; // get path function - 获取路径函数
+  getStringifyPath: () => string; // get string path function - 获取字符串路径函数
+  deleteSelf: () => void; // delete self function - 删除自身函数
 }
 
+// traverse handler type - 遍历处理器类型
 export type TraverseHandler = (context: TraverseContext) => void;
 
 /**
- * 深度遍历对象，对每个值做处理
- * @param value 遍历对象
- * @param handle 处理函数
+ * traverse object deeply and handle each value - 深度遍历对象并处理每个值
+ * @param value traverse target - 遍历目标
+ * @param handle handler function - 处理函数
  */
 export const traverse = <T extends TraverseValue = TraverseValue>(
   value: T,
@@ -38,18 +43,18 @@ export const traverse = <T extends TraverseValue = TraverseValue>(
 
 namespace TraverseUtils {
   /**
-   * 深度遍历对象，对每个值做处理
-   * @param node 遍历节点
-   * @param handle 处理函数
+   * traverse nodes deeply and handle each value - 深度遍历节点并处理每个值
+   * @param node traverse node - 遍历节点
+   * @param handle handler function - 处理函数
    */
   export const traverseNodes = (node: TraverseNode, handle: TraverseHandler): void => {
     const { value } = node;
     if (!value) {
-      // 异常处理
+      // handle null value - 处理空值
       return;
     }
     if (Object.prototype.toString.call(value) === '[object Object]') {
-      // 对象，遍历对象的每个属性
+      // traverse object properties - 遍历对象属性
       Object.entries(value).forEach(([key, item]) =>
         traverseNodes(
           {
@@ -62,8 +67,7 @@ namespace TraverseUtils {
         )
       );
     } else if (Array.isArray(value)) {
-      // 数组，遍历数组的每个元素
-      // 从数组的末尾开始遍历，这样即使中途移除了某个元素，也不会影响到未处理的元素的索引
+      // traverse array elements from end to start - 从末尾开始遍历数组元素
       for (let index = value.length - 1; index >= 0; index--) {
         const item: string = value[index];
         traverseNodes(
@@ -81,6 +85,10 @@ namespace TraverseUtils {
     handle(context);
   };
 
+  /**
+   * create traverse context - 创建遍历上下文
+   * @param node traverse node - 遍历节点
+   */
   const createContext = ({ node }: { node: TraverseNode }): TraverseContext => ({
     node,
     setValue: (value: unknown) => setValue(node, value),
@@ -90,15 +98,18 @@ namespace TraverseUtils {
     deleteSelf: () => deleteSelf(node),
   });
 
+  /**
+   * set node value - 设置节点值
+   * @param node traverse node - 遍历节点
+   * @param value new value - 新值
+   */
   const setValue = (node: TraverseNode, value: unknown) => {
-    // 设置值函数
-    // 引用类型，需要借助父元素修改值
-    // 由于是递归遍历，所以需要根据node来判断是给对象的哪个属性赋值，还是给数组的哪个元素赋值
+    // handle empty value - 处理空值
     if (!value || !node) {
       return;
     }
     node.value = value;
-    // 从上级作用域node中取出container，key，index
+    // get container info from parent scope - 从父作用域获取容器信息
     const { container, key, index } = node;
     if (key && container) {
       container[key] = value;
@@ -107,6 +118,10 @@ namespace TraverseUtils {
     }
   };
 
+  /**
+   * get parent nodes - 获取父节点列表
+   * @param node traverse node - 遍历节点
+   */
   const getParents = (node: TraverseNode): TraverseNode[] => {
     const parents: TraverseNode[] = [];
     let currentNode: TraverseNode | undefined = node;
@@ -117,6 +132,10 @@ namespace TraverseUtils {
     return parents;
   };
 
+  /**
+   * get node path - 获取节点路径
+   * @param node traverse node - 遍历节点
+   */
   const getPath = (node: TraverseNode): Array<string | number> => {
     const path: Array<string | number> = [];
     const parents = getParents(node);
@@ -130,13 +149,17 @@ namespace TraverseUtils {
     return path;
   };
 
+  /**
+   * get stringify path - 获取字符串路径
+   * @param node traverse node - 遍历节点
+   */
   const getStringifyPath = (node: TraverseNode): string => {
     const path = getPath(node);
     return path.reduce((stringifyPath: string, pathItem: string | number) => {
       if (typeof pathItem === 'string') {
         const re = /\W/g;
         if (re.test(pathItem)) {
-          // 包含特殊字符
+          // handle special characters - 处理特殊字符
           return `${stringifyPath}["${pathItem}"]`;
         }
         return `${stringifyPath}.${pathItem}`;
@@ -146,6 +169,10 @@ namespace TraverseUtils {
     }, '');
   };
 
+  /**
+   * delete current node - 删除当前节点
+   * @param node traverse node - 遍历节点
+   */
   const deleteSelf = (node: TraverseNode): void => {
     const { container, key, index } = node;
     if (key && container) {
