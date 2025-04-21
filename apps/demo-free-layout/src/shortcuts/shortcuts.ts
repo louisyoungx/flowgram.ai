@@ -5,13 +5,13 @@ import {
   ShortcutsRegistry,
   WorkflowDocument,
   WorkflowDragService,
-  WorkflowNodeEntity,
   WorkflowNodeJSON,
   WorkflowSelectService,
   getAntiOverlapPosition,
 } from '@flowgram.ai/free-layout-editor';
 import { Toast } from '@douyinfe/semi-ui';
 
+import { CopyShortcut } from './copy';
 import { FlowCommandId } from './constants';
 
 export function shortcuts(shortcutsRegistry: ShortcutsRegistry, ctx: FreeLayoutPluginContext) {
@@ -23,60 +23,7 @@ export function shortcuts(shortcutsRegistry: ShortcutsRegistry, ctx: FreeLayoutP
       ctx.playground.selectionService.selection = allNodes;
     },
   });
-  shortcutsRegistry.addHandlers({
-    commandId: FlowCommandId.COPY,
-    shortcuts: ['meta c', 'ctrl c'],
-    execute: async (node) => {
-      const document = ctx.get<WorkflowDocument>(WorkflowDocument);
-      const selectService = ctx.get<WorkflowSelectService>(WorkflowSelectService);
-
-      if (window.getSelection()?.toString()) {
-        navigator.clipboard.writeText(window.getSelection()?.toString() ?? '').then(() => {
-          Toast.success({
-            content: 'Text copied',
-          });
-        });
-      }
-      let selectedNodes = node instanceof WorkflowNodeEntity ? [node] : [];
-      if (selectedNodes.length == 0) {
-        selectedNodes = selectService.selectedNodes;
-      }
-
-      if (selectedNodes.length === 0) {
-        return;
-      }
-      const nodeEntities = selectedNodes.filter(
-        (n) => n.flowNodeType !== 'start' && n.flowNodeType !== 'end'
-      );
-      const nodes = await Promise.all(
-        nodeEntities.map(async (nodeEntity) => {
-          const nodeJSON = await document.toNodeJSON(nodeEntity);
-          return {
-            nodeJSON,
-            nodeType: nodeEntity.flowNodeType,
-          };
-        })
-      );
-      navigator.clipboard
-        .writeText(
-          JSON.stringify({
-            nodes,
-            fromHost: window.location.host,
-          })
-        )
-        .then(() => {
-          Toast.success({
-            content: 'Nodes copied',
-          });
-        })
-        .catch((err) => {
-          Toast.error({
-            content: 'Failed to copy nodes',
-          });
-          console.error('Failed to write text: ', err);
-        });
-    },
-  });
+  shortcutsRegistry.addHandlers(new CopyShortcut(ctx));
   shortcutsRegistry.addHandlers({
     commandId: FlowCommandId.PASTE,
     shortcuts: ['meta v', 'ctrl v'],
@@ -170,7 +117,7 @@ export function shortcuts(shortcutsRegistry: ShortcutsRegistry, ctx: FreeLayoutP
     commandDetail: {
       label: 'Expand',
     },
-    shortcuts: ['meta alt closebracket', 'ctrol alt openbracket'],
+    shortcuts: ['meta alt closebracket', 'ctrl alt openbracket'],
     isEnabled: () => !ctx.playground.config.readonlyOrDisabled,
     execute: () => {
       const selection = ctx.selection;
