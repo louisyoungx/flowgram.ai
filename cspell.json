@@ -13,7 +13,9 @@
     "rsbuild",
     "rspack",
     "rspress",
-    "Sandpack"
+    "Sandpack",
+    "zoomin",
+    "zoomout"
   ],
   "ignoreWords": [],
   "import": []
