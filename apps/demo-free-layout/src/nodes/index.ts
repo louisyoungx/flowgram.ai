@@ -4,6 +4,7 @@ import { LoopNodeRegistry } from './loop';
 import { LLMNodeRegistry } from './llm';
 import { EndNodeRegistry } from './end';
 import { ConditionNodeRegistry } from './condition';
+import { CommentNodeRegistry } from './comment';
 export { WorkflowNodeType } from './constants';
 
 export const nodeRegistries: FlowNodeRegistry[] = [
@@ -12,4 +13,5 @@ export const nodeRegistries: FlowNodeRegistry[] = [
   EndNodeRegistry,
   LLMNodeRegistry,
   LoopNodeRegistry,
+  CommentNodeRegistry,
 ];

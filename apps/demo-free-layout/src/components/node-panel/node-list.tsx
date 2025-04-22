@@ -75,7 +75,9 @@ export const NodeList: FC<NodeListProps> = (props) => {
         <Node
           key={registry.type}
           disabled={!(registry.canAdd?.(context) ?? true)}
-          icon={<img style={{ width: 10, height: 10, borderRadius: 4 }} src={registry.info.icon} />}
+          icon={
+            <img style={{ width: 10, height: 10, borderRadius: 4 }} src={registry.info?.icon} />
+          }
           label={registry.type as string}
           onClick={(e) => handleClick(e, registry)}
         />
