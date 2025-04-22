@@ -26,14 +26,14 @@ export const ContentDragArea: FC<IContentDragArea> = (props) => {
   }, [focused]);
 
   const handleWheel: WheelEventHandler<HTMLDivElement> = (e) => {
-    const containerElement = model.element?.parentElement;
-    if (active || !overflow || !containerElement) {
+    const editorElement = model.element;
+    if (active || !overflow || !editorElement) {
       return;
     }
     e.stopPropagation();
-    const maxScroll = containerElement.scrollHeight - containerElement.clientHeight;
-    const newScrollTop = Math.min(Math.max(containerElement.scrollTop + e.deltaY, 0), maxScroll);
-    containerElement.scroll(0, newScrollTop);
+    const maxScroll = editorElement.scrollHeight - editorElement.clientHeight;
+    const newScrollTop = Math.min(Math.max(editorElement.scrollTop + e.deltaY, 0), maxScroll);
+    editorElement.scroll(0, newScrollTop);
   };
 
   const handleMouseDown = (mouseDownEvent: React.MouseEvent) => {

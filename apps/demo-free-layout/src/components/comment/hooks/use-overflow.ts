@@ -15,9 +15,7 @@ export const useOverflow = (params: { model: CommentEditorModel; height: number 
     if (!model.element) {
       return false;
     }
-    const containerHeight = height * playground.config.zoom;
-    const { height: editorHeight } = model.element.getBoundingClientRect();
-    return editorHeight > containerHeight;
+    return model.element.scrollHeight > model.element.clientHeight;
   }, [model, height, playground]);
 
   // 更新 overflow

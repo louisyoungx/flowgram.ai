@@ -2,12 +2,13 @@ import type { ReactNode, FC, CSSProperties } from 'react';
 
 interface ICommentContainer {
   focused: boolean;
+  overflow: boolean;
   children?: ReactNode;
   style?: React.CSSProperties;
 }
 
 export const CommentContainer: FC<ICommentContainer> = (props) => {
-  const { focused, children, style } = props;
+  const { focused, overflow, children, style } = props;
 
   const scrollbarStyle = {
     // 滚动条样式
@@ -35,6 +36,7 @@ export const CommentContainer: FC<ICommentContainer> = (props) => {
         // tailwind 不支持 outline 的样式，所以这里需要使用 style 来设置
         outline: focused ? '1px solid #FF811A' : '1px solid #F2B600',
         backgroundColor: focused ? '#FFF3EA' : '#FFFBED',
+        // paddingRight: overflow ? 0 : undefined,
         ...scrollbarStyle,
         ...style,
       }}
