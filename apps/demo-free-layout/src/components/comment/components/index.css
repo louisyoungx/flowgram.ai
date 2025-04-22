@@ -44,7 +44,15 @@
     height: 100%;
 }
 
-.workflow-comment-editor textarea {
+.workflow-comment-editor-placeholder {
+    margin: 0;
+    position: absolute;
+    pointer-events: none;
+    color: rgba(55, 67, 106, 0.38);
+    font-weight: 500;
+}
+
+.workflow-comment-editor-textarea {
     width: 100%;
     height: 100%;
     box-sizing: border-box;

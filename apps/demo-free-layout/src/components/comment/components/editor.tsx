@@ -1,4 +1,4 @@
-import { type FC, type CSSProperties, useEffect, useRef } from 'react';
+import { type FC, type CSSProperties, useEffect, useRef, useState, useMemo } from 'react';
 
 import { usePlayground } from '@flowgram.ai/free-layout-editor';
 
@@ -16,6 +16,15 @@ export const CommentEditor: FC<ICommentEditor> = (props) => {
   const { model, style, onChange } = props;
   const playground = usePlayground();
   const editorRef = useRef<HTMLTextAreaElement | null>(null);
+  const [value, setValue] = useState(model.value);
+  const [focused, setFocus] = useState(false);
+
+  const placeholder: string | undefined = useMemo(() => {
+    if (value || focused) {
+      return;
+    }
+    return 'Enter a comment...';
+  }, [value, focused]);
 
   // 同步编辑器内部值变化
   useEffect(() => {
@@ -37,13 +46,25 @@ export const CommentEditor: FC<ICommentEditor> = (props) => {
 
   return (
     <div className="workflow-comment-editor">
+      <p className="workflow-comment-editor-placeholder">{placeholder}</p>
       <textarea
+        className="workflow-comment-editor-textarea"
         ref={editorRef}
         style={style}
         readOnly={playground.config.readonly}
-        onChange={(e) => model.setValue(e.target.value)}
-        onFocus={() => model.setFocus(true)}
-        onBlur={() => model.setFocus(false)}
+        onChange={(e) => {
+          const { value } = e.target;
+          model.setValue(value);
+          setValue(value);
+        }}
+        onFocus={() => {
+          model.setFocus(true);
+          setFocus(true);
+        }}
+        onBlur={() => {
+          model.setFocus(false);
+          setFocus(false);
+        }}
       />
     </div>
   );
