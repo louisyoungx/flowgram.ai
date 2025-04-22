@@ -72,7 +72,7 @@ export const ContentDragArea: FC<IContentDragArea> = (props) => {
       onMouseDown={handleMouseDown}
       onWheel={handleWheel}
       style={{
-        display: active ? 'inherit' : 'none',
+        display: active ? 'none' : undefined,
       }}
     >
       <DragArea

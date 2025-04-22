@@ -38,3 +38,25 @@
     width: 10px;
     height: 10px;
 }
+
+.workflow-comment-editor {
+    width: 100%;
+    height: 100%;
+}
+
+.workflow-comment-editor textarea {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: 16px;
+    resize: none;
+    outline: none;
+}

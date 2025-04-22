@@ -15,7 +15,7 @@ interface ICommentEditor {
 export const CommentEditor: FC<ICommentEditor> = (props) => {
   const { model, style, onChange } = props;
   const playground = usePlayground();
-  const editorRef = useRef<HTMLDivElement | null>(null);
+  const editorRef = useRef<HTMLTextAreaElement | null>(null);
 
   // 同步编辑器内部值变化
   useEffect(() => {
@@ -36,8 +36,15 @@ export const CommentEditor: FC<ICommentEditor> = (props) => {
   }, [editorRef]);
 
   return (
-    <div className="workflow-comment-editor" ref={editorRef}>
-      <textarea style={style} readOnly={playground.config.readonly} />
+    <div className="workflow-comment-editor">
+      <textarea
+        ref={editorRef}
+        style={style}
+        readOnly={playground.config.readonly}
+        onChange={(e) => model.setValue(e.target.value)}
+        onFocus={() => model.setFocus(true)}
+        onBlur={() => model.setFocus(false)}
+      />
     </div>
   );
 };

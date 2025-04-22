@@ -17,7 +17,7 @@ export const BorderArea: FC<IBorderArea> = (props) => {
   const { model, overflow, onResize } = props;
 
   return (
-    <div style={{ position: 'relative', zIndex: 999 }}>
+    <div style={{ zIndex: 999 }}>
       {/* 左边 */}
       <DragArea
         style={{
