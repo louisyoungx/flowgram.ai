@@ -1,0 +1,40 @@
+.workflow-comment {
+    width: auto;
+    height: auto;
+    min-width: 120px;
+    min-height: 80px;
+}
+
+.workflow-comment-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    outline: 1px solid;
+    padding: 6px 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.workflow-comment-drag-area {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move;
+}
+
+.workflow-comment-content-drag-area {
+    position: absolute;
+    height: 100%;
+    width: calc(100% - 20px);
+}
+
+.workflow-comment-resize-area {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+}
