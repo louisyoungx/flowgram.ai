@@ -14,8 +14,7 @@ import { EntityManager, PipelineRegistry, PipelineRenderer } from '@flowgram.ai/
 
 import type { StackingContext } from './type';
 import { StackingComputing } from './stacking-computing';
-import { layersComputing } from './layers-computing';
-import { StackingComputeMode, StackingConfig } from './constant';
+import { StackingConfig } from './constant';
 
 @injectable()
 export class StackingContextManager {
@@ -41,12 +40,9 @@ export class StackingContextManager {
 
   private disposers: Disposable[] = [];
 
-  private mode: StackingComputeMode = StackingComputeMode.Stacking;
-
   constructor() {}
 
-  public init(mode?: StackingComputeMode): void {
-    if (mode) this.mode = mode;
+  public init(): void {
     this.pipelineRenderer.node.appendChild(this.node);
     this.mountListener();
   }
@@ -66,18 +62,6 @@ export class StackingContextManager {
   private compute = debounce(this._compute, 10);
 
   private _compute(): void {
-    if (this.mode === StackingComputeMode.Stacking) {
-      return this.stackingCompute();
-    } else {
-      return layersComputing({
-        nodes: this.nodes,
-        lines: this.lines,
-        context: this.context,
-      });
-    }
-  }
-
-  private stackingCompute(): void {
     const context = this.context;
     const stackingComputing = new StackingComputing();
     const { nodeLevel, lineLevel } = stackingComputing.compute({

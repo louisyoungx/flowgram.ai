@@ -1,5 +1,5 @@
-import { FlowNodeBaseType } from '@flowgram.ai/document';
 import { WorkflowNodeEntity, WorkflowNodeLinesData } from '@flowgram.ai/free-layout-core';
+import { FlowNodeBaseType } from '@flowgram.ai/document';
 
 import type { StackingContext } from './type';
 
@@ -38,7 +38,7 @@ export class StackingComputing {
     this.nodeIndexes = this.computeNodeIndexesMap(nodes);
     this.topLevel = this.computeTopLevel(nodes);
     this.maxLevel = this.topLevel * 2;
-    this.layerHandler(root.collapsedChildren);
+    this.layerHandler(root.blocks);
     return {
       nodeLevel: this.nodeLevel,
       lineLevel: this.lineLevel,
@@ -65,9 +65,9 @@ export class StackingComputing {
   }
 
   private computeTopLevel(nodes: WorkflowNodeEntity[]): number {
-    const nodesWithoutRoot = nodes.filter(node => node.id !== FlowNodeBaseType.ROOT);
+    const nodesWithoutRoot = nodes.filter((node) => node.id !== FlowNodeBaseType.ROOT);
     const nodeHasChildren = nodesWithoutRoot.reduce((count, node) => {
-      if (node.collapsedChildren.length > 0) {
+      if (node.blocks.length > 0) {
         return count + 1;
       } else {
         return count;
@@ -88,7 +88,7 @@ export class StackingComputing {
     });
 
     const lines = nodes
-      .map(node => {
+      .map((node) => {
         const linesData = node.getData<WorkflowNodeLinesData>(WorkflowNodeLinesData);
         const outputLines = linesData.outputLines.filter(Boolean);
         const inputLines = linesData.inputLines.filter(Boolean);
@@ -98,7 +98,7 @@ export class StackingComputing {
       .flat();
 
     // 线条统一设为当前层级最低
-    lines.forEach(line => {
+    lines.forEach((line) => {
       if (
         line.isDrawing || // 正在绘制
         this.context.hoveredEntityID === line.id || // hover
@@ -111,7 +111,7 @@ export class StackingComputing {
       }
     });
     this.levelIncrease();
-    sortedNodes.forEach(node => {
+    sortedNodes.forEach((node) => {
       const selected = this.context.selectedIDs.includes(node.id);
       if (selected) {
         // 节点置顶条件：选中
@@ -121,9 +121,9 @@ export class StackingComputing {
       }
       // 节点层级逐层增高
       this.levelIncrease();
-      if (node.collapsedChildren.length > 0) {
+      if (node.blocks.length > 0) {
         // 子节点层级需低于后续兄弟节点，因此需要先进行计算
-        this.layerHandler(node.collapsedChildren, pinTop || selected);
+        this.layerHandler(node.blocks, pinTop || selected);
       }
     });
   }
