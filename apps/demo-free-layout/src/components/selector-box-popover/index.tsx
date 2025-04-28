@@ -5,6 +5,7 @@ import { Button, ButtonGroup, Tooltip } from '@douyinfe/semi-ui';
 import { IconCopy, IconDeleteStroked, IconExpand, IconShrink } from '@douyinfe/semi-icons';
 
 import { FlowCommandId } from '../../shortcuts/constants';
+import { IconGroup } from '../../assets/icon-group';
 
 const BUTTON_HEIGHT = 24;
 
@@ -50,6 +51,18 @@ export const SelectorBoxPopover: FunctionComponent<SelectorBoxPopoverProps> = ({
             theme="solid"
             onMouseDown={(e) => {
               commandRegistry.executeCommand(FlowCommandId.EXPAND);
+            }}
+          />
+        </Tooltip>
+
+        <Tooltip content={'Create Group'}>
+          <Button
+            icon={<IconGroup size={14} />}
+            style={{ height: BUTTON_HEIGHT }}
+            type="primary"
+            theme="solid"
+            onClick={() => {
+              commandRegistry.executeCommand(FlowCommandId.GROUP);
             }}
           />
         </Tooltip>
