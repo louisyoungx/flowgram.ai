@@ -1,0 +1,21 @@
+.group-node-render {
+    border-radius: 8px;
+}
+
+.group-node-render.selected {
+    outline: 1px solid #00a1ff;
+}
+
+.group-node-header {
+    position: absolute;
+    z-index: 1;
+    width: 80px;
+    height: 30px;
+    background-color: #d16146;
+    border-radius: 8px;
+}
+
+.group-node-background {
+    background-color: #469ed157;
+    border-radius: 8px;
+}
