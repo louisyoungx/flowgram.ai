@@ -22,8 +22,6 @@ export enum FreeOperationType {
   resetLayout = 'resetLayout',
   dragNodes = 'dragNodes',
   moveChildNodes = 'moveChildNodes',
-  createGroup = 'createGroup',
-  ungroup = 'ungroup',
 }
 
 export interface AddOrDeleteLineOperationValue extends WorkflowLinePortInfo {
@@ -86,10 +84,7 @@ export interface ResetLayoutOperationValue {
 
 export interface ContentChangeTypeToOperation<T extends Operation> {
   type: WorkflowContentChangeType;
-  toOperation: (
-    event: WorkflowContentChangeEvent,
-    ctx: PluginContext
-  ) => T | undefined | Promise<T | undefined>;
+  toOperation: (event: WorkflowContentChangeEvent, ctx: PluginContext) => T | undefined;
 }
 
 export interface EntityDataType {
