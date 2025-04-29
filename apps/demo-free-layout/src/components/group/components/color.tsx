@@ -4,12 +4,12 @@ import { Field } from '@flowgram.ai/free-layout-editor';
 import { Popover, Tooltip } from '@douyinfe/semi-ui';
 
 import { GroupField } from '../constant';
-import { groupColors } from '../color';
+import { defaultColor, groupColors } from '../color';
 
 export const GroupColor: FC = () => (
   <Field<string> name={GroupField.Color}>
     {({ field }) => {
-      const colorName = field.value ?? 'Yellow';
+      const colorName = field.value ?? defaultColor;
       return (
         <Popover
           position="top"

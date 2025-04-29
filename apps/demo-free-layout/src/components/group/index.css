@@ -8,11 +8,32 @@
 }
 
 .workflow-group-header {
-    height: 10px;
+    height: 30px;
     background-color: #fefce8;
     border: 1px solid #facc15;
     border-radius: 8px;
     padding-right: 8px;
+}
+
+.workflow-group-ungroup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+    width: 30px;
+    position: absolute;
+    transform: translate(-100%, 100%);
+    top: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.workflow-group-ungroup .semi-button {
+    color: #9ca3af;
+}
+
+.workflow-group-ungroup:hover .semi-button {
+    color: #374151;
 }
 
 .workflow-group-background {
@@ -67,7 +88,7 @@
 .workflow-group-title-input {
     width: 242px;
     border: none;
-    color: oklch(44.6% 0.043 257.281);
+    color: #374151;
 }
 
 .workflow-group-color-palette {

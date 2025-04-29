@@ -4,6 +4,8 @@ type GroupColor = {
   '400': string;
 };
 
+export const defaultColor = 'Blue';
+
 export const groupColors: Record<string, GroupColor> = {
   Red: {
     '50': '#fef2f2',
@@ -90,29 +92,9 @@ export const groupColors: Record<string, GroupColor> = {
     '300': '#fda4af',
     '400': '#fb7185',
   },
-  Slate: {
-    '50': '#f8fafc',
-    '300': '#cbd5e1',
-    '400': '#94a3b8',
-  },
   Gray: {
     '50': '#f9fafb',
     '300': '#d1d5db',
     '400': '#9ca3af',
-  },
-  Zinc: {
-    '50': '#fafafa',
-    '300': '#d4d4d8',
-    '400': '#a1a1aa',
-  },
-  Neutral: {
-    '50': '#fafafa',
-    '300': '#d4d4d4',
-    '400': '#a3a3a3',
-  },
-  Stone: {
-    '50': '#fafaf9',
-    '300': '#d6d3d1',
-    '400': '#a8a29e',
   },
 };

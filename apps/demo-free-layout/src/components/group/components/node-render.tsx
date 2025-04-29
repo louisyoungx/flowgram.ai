@@ -7,6 +7,7 @@ import {
 import { useNodeSize } from '@flowgram.ai/free-container-plugin';
 
 import { HEADER_HEIGHT, HEADER_PADDING } from '../constant';
+import { UngroupButton } from './ungroup';
 import { GroupTools } from './tools';
 import { GroupHeader } from './header';
 import { GroupBackground } from './background';
@@ -42,6 +43,12 @@ export const GroupNodeRender = () => {
             }}
           >
             <GroupTools />
+            <UngroupButton
+              node={node}
+              style={{
+                left: width,
+              }}
+            />
           </GroupHeader>
           <GroupBackground
             style={{

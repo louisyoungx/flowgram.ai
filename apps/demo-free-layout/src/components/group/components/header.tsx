@@ -3,7 +3,7 @@ import type { FC, ReactNode, MouseEvent, CSSProperties } from 'react';
 import { useWatch } from '@flowgram.ai/free-layout-editor';
 
 import { GroupField } from '../constant';
-import { groupColors } from '../color';
+import { defaultColor, groupColors } from '../color';
 
 interface GroupHeaderProps {
   onMouseDown: (e: MouseEvent) => void;
@@ -20,7 +20,7 @@ export const GroupHeader: FC<GroupHeaderProps> = ({
   children,
   style,
 }) => {
-  const colorName = useWatch<string>(GroupField.Color) ?? 'Yellow';
+  const colorName = useWatch<string>(GroupField.Color) ?? defaultColor;
   const color = groupColors[colorName];
   return (
     <div

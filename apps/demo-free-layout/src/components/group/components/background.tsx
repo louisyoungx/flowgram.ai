@@ -3,14 +3,14 @@ import { CSSProperties, FC, useEffect } from 'react';
 import { useWatch } from '@flowgram.ai/free-layout-editor';
 
 import { GroupField } from '../constant';
-import { groupColors } from '../color';
+import { defaultColor, groupColors } from '../color';
 
 interface GroupBackgroundProps {
   style?: CSSProperties;
 }
 
 export const GroupBackground: FC<GroupBackgroundProps> = ({ style }) => {
-  const colorName = useWatch<string>(GroupField.Color) ?? 'Yellow';
+  const colorName = useWatch<string>(GroupField.Color) ?? defaultColor;
   const color = groupColors[colorName];
 
   useEffect(() => {
