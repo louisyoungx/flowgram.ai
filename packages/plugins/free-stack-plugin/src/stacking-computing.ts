@@ -1,4 +1,8 @@
-import { WorkflowNodeEntity, WorkflowNodeLinesData } from '@flowgram.ai/free-layout-core';
+import {
+  WorkflowLineEntity,
+  WorkflowNodeEntity,
+  WorkflowNodeLinesData,
+} from '@flowgram.ai/free-layout-core';
 import { FlowNodeBaseType } from '@flowgram.ai/document';
 
 import type { StackingContext } from './type';
@@ -77,25 +81,9 @@ export class StackingComputing {
     return nodesWithoutRoot.length + nodeHasChildren + 1;
   }
 
-  private layerHandler(nodes: WorkflowNodeEntity[], pinTop: boolean = false): void {
-    const sortedNodes = nodes.sort((a, b) => {
-      const aIndex = this.nodeIndexes.get(a.id);
-      const bIndex = this.nodeIndexes.get(b.id);
-      if (aIndex === undefined || bIndex === undefined) {
-        return 0;
-      }
-      return aIndex - bIndex;
-    });
-
-    const lines = nodes
-      .map((node) => {
-        const linesData = node.getData<WorkflowNodeLinesData>(WorkflowNodeLinesData);
-        const outputLines = linesData.outputLines.filter(Boolean);
-        const inputLines = linesData.inputLines.filter(Boolean);
-        // 前后线条会有重复，下面 Map 会通过线条 ID 过滤掉
-        return [...outputLines, ...inputLines];
-      })
-      .flat();
+  private layerHandler(layerNodes: WorkflowNodeEntity[], pinTop: boolean = false): void {
+    const nodes = this.sortNodes(layerNodes);
+    const lines = this.getNodesAllLines(nodes);
 
     // 线条统一设为当前层级最低
     lines.forEach((line) => {
@@ -111,7 +99,7 @@ export class StackingComputing {
       }
     });
     this.levelIncrease();
-    sortedNodes.forEach((node) => {
+    nodes.forEach((node) => {
       const selected = this.context.selectedIDs.includes(node.id);
       if (selected) {
         // 节点置顶条件：选中
@@ -126,6 +114,40 @@ export class StackingComputing {
         this.layerHandler(node.blocks, pinTop || selected);
       }
     });
+  }
+
+  private sortNodes(nodes: WorkflowNodeEntity[]): WorkflowNodeEntity[] {
+    return nodes.sort((a, b) => {
+      const aIndex = this.nodeIndexes.get(a.id);
+      const bIndex = this.nodeIndexes.get(b.id);
+      if (aIndex === undefined || bIndex === undefined) {
+        return 0;
+      }
+      return aIndex - bIndex;
+    });
+  }
+
+  private getNodesAllLines(nodes: WorkflowNodeEntity[]): WorkflowLineEntity[] {
+    const lines = nodes
+      .map((node) => {
+        const linesData = node.getData<WorkflowNodeLinesData>(WorkflowNodeLinesData);
+        const outputLines = linesData.outputLines.filter(Boolean);
+        const inputLines = linesData.inputLines.filter(Boolean);
+        return [...outputLines, ...inputLines];
+      })
+      .flat();
+
+    // 过滤出未计算层级的线条，以及高度优先（需要覆盖计算）的线条
+    const filteredLines = lines.filter(
+      (line) => this.lineLevel.get(line.id) === undefined || this.isHigherFirstLine(line)
+    );
+
+    return filteredLines;
+  }
+
+  private isHigherFirstLine(line: WorkflowLineEntity): boolean {
+    // 父子相连的线条，需要作为高度优先的线条，避免线条不可见
+    return line.to?.parent === line.from || line.from?.parent === line.to;
   }
 
   private getLevel(pinTop: boolean): number {

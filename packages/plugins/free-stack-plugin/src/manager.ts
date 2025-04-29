@@ -74,7 +74,7 @@ export class StackingContextManager {
       const nodeRenderData = node.getData<FlowNodeRenderData>(FlowNodeRenderData);
       const element = nodeRenderData.node;
       element.style.position = 'absolute';
-      if (!level) {
+      if (level === undefined) {
         element.style.zIndex = 'auto';
         nodeRenderData.stackIndex = 0;
         return;
@@ -87,7 +87,7 @@ export class StackingContextManager {
       const level = lineLevel.get(line.id);
       const element = line.node;
       element.style.position = 'absolute';
-      if (!level) {
+      if (level === undefined) {
         element.style.zIndex = 'auto';
         return;
       }
