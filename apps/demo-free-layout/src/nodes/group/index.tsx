@@ -27,10 +27,10 @@ export const GroupNodeRegistry: FlowNodeRegistry = {
       height: 400,
     },
     padding: () => ({
-      top: 100,
-      bottom: 100,
-      left: 100,
-      right: 100,
+      top: 80,
+      bottom: 40,
+      left: 65,
+      right: 65,
     }),
     selectable(node: WorkflowNodeEntity, mousePos?: PositionSchema): boolean {
       if (!mousePos) {
@@ -50,23 +50,11 @@ export const GroupNodeRegistry: FlowNodeRegistry = {
         inputsValues: {
           loopTimes: 2,
         },
-        inputs: {
-          type: 'object',
-          required: ['loopTimes'],
-          properties: {
-            loopTimes: {
-              type: 'number',
-            },
-          },
-        },
-        outputs: {
-          type: 'object',
-          properties: {
-            result: { type: 'string' },
-          },
-        },
       },
     };
+  },
+  formMeta: {
+    render: () => <></>,
   },
   onCreate() {
     // NOTICE: 这个函数是为了避免触发固定布局 flowDocument.addBlocksAsChildren

@@ -1,24 +1,88 @@
-.group-node-render {
-    border-radius: 8px;
-    outline: 1px solid #469ed157;
+:root {
+    --workflow-group-bg-border-selected-color: #facc15;
+    --workflow-group-bg-border-color: #fde047;
 }
 
-.group-node-header {
-    width: 80px;
-    height: 30px;
-    background-color: #ff3200;
+.workflow-group-render {
     border-radius: 8px;
 }
 
-.group-node-background {
+.workflow-group-header {
+    height: 10px;
+    background-color: #fefce8;
+    border: 1px solid #facc15;
+    border-radius: 8px;
+    padding-right: 8px;
+}
+
+.workflow-group-background {
     position: absolute;
     pointer-events: none;
     top: 0;
-    background-color: #469ed157;
-    outline: 1px solid #469ed157;
+    background-color: #fddf4729;
+    border: 1px solid var(--workflow-group-bg-border-color);
     border-radius: 8px;
 }
 
-.group-node-render.selected .group-node-background {
-    outline: 1px solid #00a1ff;
+.workflow-group-render.selected .workflow-group-background {
+    border: 1px solid var(--workflow-group-bg-border-selected-color);
+}
+
+.workflow-group-tools {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    cursor: move;
+    color: oklch(44.6% 0.043 257.281);
+    font-size: 14px;
+}
+.workflow-group-title {
+    margin: 0;
+    max-width: 242px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+.workflow-group-tools-drag {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 4px;
+}
+
+.workflow-group-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: #fde047;
+    margin-left: 4px;
+    cursor: pointer;
+}
+
+.workflow-group-title-input {
+    width: 242px;
+    border: none;
+    color: oklch(44.6% 0.043 257.281);
+}
+
+.workflow-group-color-palette {
+    display: grid;
+    grid-template-columns: repeat(6, 24px);
+    gap: 12px;
+    margin: 8px;
+    padding: 8px;
+}
+
+.workflow-group-color-item {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #fde047;
+    cursor: pointer;
+    border: 3px solid;
 }

@@ -1,3 +1,3 @@
 import './index.css';
 
-export { GroupNodeRender } from './render';
+export { GroupNodeRender } from './components';
