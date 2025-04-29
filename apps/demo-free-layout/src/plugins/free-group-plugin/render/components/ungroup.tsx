@@ -3,8 +3,8 @@ import { CSSProperties, FC } from 'react';
 import { CommandRegistry, useService, WorkflowNodeEntity } from '@flowgram.ai/free-layout-editor';
 import { Button, Tooltip } from '@douyinfe/semi-ui';
 
-import { WorkflowGroupCommand } from '../../../plugins/free-group-plugin/constant';
-import { IconUngroup } from '../../../assets/icon-group';
+import { WorkflowGroupCommand } from '../../constant';
+import { IconUngroup } from './icon-group';
 
 interface UngroupButtonProps {
   node: WorkflowNodeEntity;

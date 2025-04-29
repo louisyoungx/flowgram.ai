@@ -5,8 +5,8 @@ import { Button, ButtonGroup, Tooltip } from '@douyinfe/semi-ui';
 import { IconCopy, IconDeleteStroked, IconExpand, IconShrink } from '@douyinfe/semi-icons';
 
 import { FlowCommandId } from '../../shortcuts/constants';
+import { IconGroup } from '../../plugins/free-group-plugin/render';
 import { WorkflowGroupCommand } from '../../plugins/free-group-plugin/constant';
-import { IconGroup } from '../../assets/icon-group';
 
 const BUTTON_HEIGHT = 24;
 
