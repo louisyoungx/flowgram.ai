@@ -4,11 +4,11 @@ import {
   WorkflowSelectService,
 } from '@flowgram.ai/free-layout-editor';
 
-import { FlowCommandId } from '../constants';
-import { WorkflowGroupService } from '../../plugins/free-group-plugin';
+import { WorkflowGroupService } from '../workflow-group-service';
+import { WorkflowGroupCommand } from '../constant';
 
 export class GroupShortcut implements ShortcutsHandler {
-  public commandId = FlowCommandId.GROUP;
+  public commandId = WorkflowGroupCommand.Group;
 
   public commandDetail: ShortcutsHandler['commandDetail'] = {
     label: 'Group',

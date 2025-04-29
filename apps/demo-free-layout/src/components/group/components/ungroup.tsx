@@ -3,7 +3,7 @@ import { CSSProperties, FC } from 'react';
 import { CommandRegistry, useService, WorkflowNodeEntity } from '@flowgram.ai/free-layout-editor';
 import { Button, Tooltip } from '@douyinfe/semi-ui';
 
-import { FlowCommandId } from '../../../shortcuts';
+import { WorkflowGroupCommand } from '../../../plugins/free-group-plugin/constant';
 import { IconUngroup } from '../../../assets/icon-group';
 
 interface UngroupButtonProps {
@@ -22,7 +22,7 @@ export const UngroupButton: FC<UngroupButtonProps> = ({ node, style }) => {
           theme="borderless"
           type="tertiary"
           onClick={() => {
-            commandRegistry.executeCommand(FlowCommandId.UNGROUP, node);
+            commandRegistry.executeCommand(WorkflowGroupCommand.Ungroup, node);
           }}
         />
       </div>
