@@ -1,12 +1,11 @@
 import {
-  FlowGroupService,
   FreeLayoutPluginContext,
   ShortcutsHandler,
-  WorkflowNodeEntity,
   WorkflowSelectService,
 } from '@flowgram.ai/free-layout-editor';
 
 import { FlowCommandId } from '../constants';
+import { WorkflowGroupService } from '../../plugins/free-group-plugin';
 
 export class GroupShortcut implements ShortcutsHandler {
   public commandId = FlowCommandId.GROUP;
@@ -19,24 +18,16 @@ export class GroupShortcut implements ShortcutsHandler {
 
   private selectService: WorkflowSelectService;
 
-  private groupService: FlowGroupService;
+  private groupService: WorkflowGroupService;
 
   constructor(context: FreeLayoutPluginContext) {
     this.selectService = context.get(WorkflowSelectService);
-    this.groupService = context.get(FlowGroupService);
+    this.groupService = context.get(WorkflowGroupService);
     this.execute = this.execute.bind(this);
   }
 
   public async execute(): Promise<void> {
-    this.groupService.createGroup(
-      this.selectService.selectedNodes.filter(
-        (_entity) => _entity instanceof WorkflowNodeEntity
-      ) as WorkflowNodeEntity[],
-      {
-        checkIndexContinuous: false,
-      }
-    );
-
+    this.groupService.createGroup(this.selectService.selectedNodes);
     this.selectService.clear();
   }
 }

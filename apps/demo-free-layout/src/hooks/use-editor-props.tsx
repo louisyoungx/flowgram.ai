@@ -13,6 +13,7 @@ import { onDragLineEnd } from '../utils';
 import { FlowNodeRegistry, FlowDocumentJSON } from '../typings';
 import { shortcuts } from '../shortcuts';
 import { CustomService } from '../services';
+import { createFreeGroupPlugin } from '../plugins/free-group-plugin';
 import { createSyncVariablePlugin } from '../plugins';
 import { defaultFormMeta } from '../nodes/default-form-meta';
 import { WorkflowNodeType } from '../nodes';
@@ -226,6 +227,7 @@ export function useEditorProps(
          * 这个用于 loop 节点子画布的渲染
          */
         createContainerNodePlugin({}),
+        createFreeGroupPlugin({}),
       ],
     }),
     []

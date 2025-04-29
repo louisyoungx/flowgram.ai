@@ -1,14 +1,15 @@
 import { OperationMeta } from '@flowgram.ai/history';
 import { WorkflowDocument } from '@flowgram.ai/free-layout-core';
-import { createOrUngroupValue, OperationType } from '@flowgram.ai/document';
+import { createOrUngroupValue } from '@flowgram.ai/document';
 import { PluginContext } from '@flowgram.ai/core';
 
 import { baseOperationMeta } from './base';
+import { FreeOperationType } from '../types';
 
 export const ungroupOperationMeta: OperationMeta<createOrUngroupValue, PluginContext, void> = {
   ...baseOperationMeta,
-  type: OperationType.ungroup,
-  inverse: (op) => ({ ...op, type: OperationType.createGroup }),
+  type: FreeOperationType.ungroup,
+  inverse: (op) => ({ ...op, type: FreeOperationType.createGroup }),
   apply: (op, ctx) => {
     const document = ctx.get<WorkflowDocument>(WorkflowDocument);
     document.moveNodes({

@@ -16,16 +16,11 @@ export class FlowGroupService {
   public readonly operationService: FlowOperationBaseService;
 
   /** 创建分组节点 */
-  public createGroup(
-    nodes: FlowNodeEntity[],
-    config?: {
-      checkIndexContinuous?: boolean;
-    }
-  ): FlowNodeEntity | undefined {
+  public createGroup(nodes: FlowNodeEntity[]): FlowNodeEntity | undefined {
     if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
       return;
     }
-    if (!FlowGroupUtils.validate(nodes, config)) {
+    if (!FlowGroupUtils.validate(nodes)) {
       return;
     }
     const sortedNodes: FlowNodeEntity[] = nodes.sort((a, b) => a.index - b.index);

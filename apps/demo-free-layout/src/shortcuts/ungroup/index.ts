@@ -1,5 +1,4 @@
 import {
-  FlowGroupService,
   FlowNodeBaseType,
   FreeLayoutPluginContext,
   ShortcutsHandler,
@@ -8,6 +7,7 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 
 import { FlowCommandId } from '../constants';
+import { WorkflowGroupService } from '../../plugins/free-group-plugin';
 
 export class UngroupShortcut implements ShortcutsHandler {
   public commandId = FlowCommandId.UNGROUP;
@@ -20,11 +20,11 @@ export class UngroupShortcut implements ShortcutsHandler {
 
   private selectService: WorkflowSelectService;
 
-  private groupService: FlowGroupService;
+  private groupService: WorkflowGroupService;
 
   constructor(context: FreeLayoutPluginContext) {
     this.selectService = context.get(WorkflowSelectService);
-    this.groupService = context.get(FlowGroupService);
+    this.groupService = context.get(WorkflowGroupService);
     this.execute = this.execute.bind(this);
   }
 

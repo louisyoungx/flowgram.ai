@@ -24,13 +24,7 @@ export namespace FlowGroupUtils {
   };
 
   /** 判断节点能否组成分组 */
-  export const validate = (
-    nodes: FlowNodeEntity[],
-    config?: {
-      checkIndexContinuous?: boolean;
-    }
-  ): boolean => {
-    const { checkIndexContinuous = true } = config || {};
+  export const validate = (nodes: FlowNodeEntity[]): boolean => {
     if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
       // 参数不合法
       return false;
@@ -50,16 +44,14 @@ export namespace FlowGroupUtils {
     if (!isSameParent) return false;
 
     // 判断节点索引是否连续
-    if (checkIndexContinuous) {
-      const indexes = nodes.map((node) => node.index).sort((a, b) => a - b);
-      const isIndexContinuous = indexes.every((index, i, arr) => {
-        if (i === 0) {
-          return true;
-        }
-        return index === arr[i - 1] + 1;
-      });
-      if (!isIndexContinuous) return false;
-    }
+    const indexes = nodes.map((node) => node.index).sort((a, b) => a - b);
+    const isIndexContinuous = indexes.every((index, i, arr) => {
+      if (i === 0) {
+        return true;
+      }
+      return index === arr[i - 1] + 1;
+    });
+    if (!isIndexContinuous) return false;
 
     // 判断节点父亲是否已经在分组中
     const parents = findNodeParents(nodes[0]);
