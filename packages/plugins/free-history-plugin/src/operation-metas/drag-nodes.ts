@@ -33,14 +33,7 @@ export const dragNodesOperationMeta: OperationMeta<DragNodeOperationValue, Plugi
           y: point.y,
         },
       });
-      // 嵌套情况下需将子节点 transform 设为 dirty
-      if (node.collapsedChildren?.length > 0) {
-        node.collapsedChildren.forEach((childNode) => {
-          const childNodeTransformData =
-            childNode.getData<FlowNodeTransformData>(FlowNodeTransformData);
-          childNodeTransformData.fireChange();
-        });
-      }
+      document.layout.updateAffectedTransform(node);
     });
   },
 };
