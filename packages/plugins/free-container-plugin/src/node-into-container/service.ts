@@ -85,7 +85,7 @@ export class NodeIntoContainerService {
     const { node } = params;
     const parentNode = node.parent;
     const containerNode = parentNode?.parent;
-    const nodeJSON = await this.document.toNodeJSON(node);
+    const nodeJSON = this.document.toNodeJSON(node);
     if (
       !parentNode ||
       !containerNode ||
@@ -277,15 +277,21 @@ export class NodeIntoContainerService {
   /** 获取容器节点transforms */
   private getContainerTransforms(): FlowNodeTransformData[] {
     return this.document
-      .getRenderDatas(FlowNodeTransformData, false)
-      .filter((transform) => {
-        const { entity } = transform;
-        if (entity.originParent) {
-          return entity.getNodeMeta().selectable && entity.originParent.getNodeMeta().selectable;
+      .getAllNodes()
+      .filter((node) => {
+        if (node.originParent) {
+          return node.getNodeMeta().selectable && node.originParent.getNodeMeta().selectable;
         }
-        return entity.getNodeMeta().selectable;
+        return node.getNodeMeta().selectable;
       })
-      .filter((transform) => this.isContainer(transform.entity));
+      .filter((node) => this.isContainer(node))
+      .sort((a, b) => {
+        const aIndex = a.renderData.stackIndex;
+        const bIndex = b.renderData.stackIndex;
+        //  确保层级高的节点在前面
+        return bIndex - aIndex;
+      })
+      .map((node) => node.transform);
   }
 
   /** 放置节点到容器 */
@@ -302,17 +308,20 @@ export class NodeIntoContainerService {
 
   /** 拖拽节点 */
   private draggingNode(nodeDragEvent: NodesDragEvent): void {
-    const { dragNode, isDraggingNode, transforms } = this.state;
-    if (!isDraggingNode || !dragNode || this.isContainer(dragNode) || !transforms?.length) {
+    const { dragNode, isDraggingNode, transforms = [] } = this.state;
+    if (!isDraggingNode || !dragNode || !transforms?.length) {
       return this.setDropNode(undefined);
     }
     const mousePos = this.playgroundConfig.getPosFromMouseEvent(nodeDragEvent.dragEvent);
+    const availableTransforms = transforms.filter(
+      (transform) => transform.entity.id !== dragNode.id
+    );
     const collisionTransform = this.getCollisionTransform({
       targetPoint: mousePos,
-      transforms: this.state.transforms ?? [],
+      transforms: availableTransforms,
     });
     const dropNode = collisionTransform?.entity;
-    if (!dropNode || dragNode.parent?.id === dropNode.id) {
+    if (!dropNode || this.isParent(dragNode, dropNode)) {
       return this.setDropNode(undefined);
     }
     const canDrop = this.dragService.canDropToNode({
@@ -325,6 +334,18 @@ export class NodeIntoContainerService {
     return this.setDropNode(canDrop.dropNode);
   }
 
+  /** 判断一个节点是否为另一个节点的父节点(向上查找直到根节点) */
+  private isParent(node: WorkflowNodeEntity, parent: WorkflowNodeEntity): boolean {
+    let current = node.parent;
+    while (current) {
+      if (current.id === parent.id) {
+        return true;
+      }
+      current = current.parent;
+    }
+    return false;
+  }
+
   /** 将节点移入容器 */
   private async moveIntoContainer(params: {
     node: WorkflowNodeEntity;
@@ -332,7 +353,7 @@ export class NodeIntoContainerService {
   }): Promise<void> {
     const { node, containerNode } = params;
     const parentNode = node.parent;
-    const nodeJSON = await this.document.toNodeJSON(node);
+    const nodeJSON = this.document.toNodeJSON(node);
 
     this.operationService.moveNode(node, {
       parent: containerNode,

@@ -28,6 +28,7 @@ export class WorkflowGroupService extends FlowGroupService {
     if (!WorkflowGroupUtils.validate(nodes)) {
       return;
     }
+    const parent = nodes[0].parent ?? this.document.root;
     const groupId = `group_${nanoid(5)}`;
     const groupJSON: WorkflowNodeJSON = {
       type: FlowNodeBaseType.GROUP,
@@ -46,7 +47,8 @@ export class WorkflowGroupService extends FlowGroupService {
         x: 0,
         y: 0,
       },
-      groupJSON
+      groupJSON,
+      parent.id
     );
     nodes.forEach((node) => {
       this.freeOperationService.moveNode(node, {
