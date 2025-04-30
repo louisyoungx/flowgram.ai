@@ -24,6 +24,7 @@ export const GroupBackground: FC<GroupBackgroundProps> = ({ style }) => {
   return (
     <div
       className="workflow-group-background"
+      data-flow-editor-selectable="true"
       style={{
         ...style,
         backgroundColor: `${color['300']}29`,
