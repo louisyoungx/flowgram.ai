@@ -405,7 +405,7 @@ export class NodeIntoContainerService {
   /**
    * 如果存在容器节点，且传入鼠标坐标，需要用容器的坐标减去传入的鼠标坐标
    */
-  public adjustSubNodePosition(
+  private adjustSubNodePosition(
     targetNode: WorkflowNodeEntity,
     containerNode: WorkflowNodeEntity
   ): IPoint {
