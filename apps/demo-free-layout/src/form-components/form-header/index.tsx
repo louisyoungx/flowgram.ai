@@ -1,10 +1,13 @@
 import { useCallback, useState, type MouseEvent } from 'react';
 
 import {
+  delay,
   Field,
   FieldRenderProps,
   useClientContext,
   useService,
+  WorkflowDragService,
+  WorkflowSelectService,
 } from '@flowgram.ai/free-layout-editor';
 import { NodeIntoContainerService } from '@flowgram.ai/free-container-plugin';
 import { IconButton, Dropdown, Typography, Button } from '@douyinfe/semi-ui';
@@ -21,23 +24,40 @@ import { Header, Operators, Title } from './styles';
 const { Text } = Typography;
 
 function DropdownContent() {
-  const [key, setKey] = useState(0);
+  const [visible, setVisible] = useState(true);
   const { node, deleteNode } = useNodeRenderContext();
   const clientContext = useClientContext();
   const registry = node.getNodeRegistry<FlowNodeRegistry>();
-  const nodeIntoContainerService = useService<NodeIntoContainerService>(NodeIntoContainerService);
+  const nodeIntoContainerService = useService(NodeIntoContainerService);
+  const selectService = useService(WorkflowSelectService);
+  const dragService = useService(WorkflowDragService);
   const canMoveOut = nodeIntoContainerService.canMoveOutContainer(node);
 
   const rerenderMenu = useCallback(() => {
-    setKey((prevKey) => prevKey + 1);
+    // force destroy component - 强制销毁组件触发重新渲染
+    setVisible(false);
+    requestAnimationFrame(() => {
+      setVisible(true);
+    });
   }, []);
 
   const handleMoveOut = useCallback(
-    (e: MouseEvent) => {
+    async (e: MouseEvent) => {
       e.stopPropagation();
+      const sourceParent = node.parent;
+      // move out of container - 移出容器
       nodeIntoContainerService.moveOutContainer({ node });
-      nodeIntoContainerService.removeNodeLines(node);
-      requestAnimationFrame(rerenderMenu);
+      // clear invalid lines - 清除非法线条
+      await nodeIntoContainerService.clearInvalidLines({
+        dragNode: node,
+        sourceParent,
+      });
+      rerenderMenu();
+      await delay(16);
+      // select node - 选中节点
+      selectService.selectNode(node);
+      // start drag node - 开始拖拽
+      dragService.startDragSelectedNodes(e);
     },
     [nodeIntoContainerService, node, rerenderMenu]
   );
@@ -61,13 +81,16 @@ function DropdownContent() {
     [clientContext, node]
   );
 
+  if (!visible) {
+    return;
+  }
+
   return (
     <Dropdown
       trigger="hover"
       position="bottomRight"
-      onVisibleChange={rerenderMenu}
       render={
-        <Dropdown.Menu key={key}>
+        <Dropdown.Menu>
           {canMoveOut && <Dropdown.Item onClick={handleMoveOut}>Move out</Dropdown.Item>}
           <Dropdown.Item onClick={handleCopy} disabled={registry.meta!.copyDisable === true}>
             Create Copy
