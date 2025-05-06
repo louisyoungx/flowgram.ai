@@ -328,17 +328,41 @@ export class NodeIntoContainerService {
       transforms: availableTransforms,
     });
     const dropNode = collisionTransform?.entity;
-    if (!dropNode || this.isParent(dragNode, dropNode)) {
+    const canDrop = this.canDropToContainer({
+      dragNode,
+      dropNode,
+    });
+    if (!canDrop) {
       return this.setDropNode(undefined);
+    }
+    return this.setDropNode(dropNode);
+  }
+
+  /** 判断能否将节点拖入容器 */
+  protected canDropToContainer(params: {
+    dragNode: WorkflowNodeEntity;
+    dropNode?: WorkflowNodeEntity;
+  }): boolean {
+    const { dragNode, dropNode } = params;
+    const isDropContainer = dropNode?.getNodeMeta<WorkflowNodeMeta>().isContainer;
+    if (!dropNode || !isDropContainer || this.isParent(dragNode, dropNode)) {
+      return false;
+    }
+    if (
+      dragNode.flowNodeType === FlowNodeBaseType.GROUP &&
+      dropNode.flowNodeType !== FlowNodeBaseType.GROUP
+    ) {
+      // 禁止将 group 节点拖入非 group 节点（由于目前不支持多节点拖入容器，无法计算有效线条，因此进行屏蔽）
+      return false;
     }
     const canDrop = this.dragService.canDropToNode({
       dragNodeType: dragNode.flowNodeType,
       dropNode,
     });
     if (!canDrop.allowDrop) {
-      return this.setDropNode(undefined);
+      return false;
     }
-    return this.setDropNode(canDrop.dropNode);
+    return true;
   }
 
   /** 判断一个节点是否为另一个节点的父节点(向上查找直到根节点) */
