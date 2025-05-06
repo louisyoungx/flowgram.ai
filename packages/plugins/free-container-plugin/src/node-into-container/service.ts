@@ -19,7 +19,7 @@ import {
   WorkflowSelectService,
 } from '@flowgram.ai/free-layout-core';
 import { HistoryService } from '@flowgram.ai/free-history-plugin';
-import { FlowNodeTransformData, FlowNodeRenderData } from '@flowgram.ai/document';
+import { FlowNodeTransformData, FlowNodeRenderData, FlowNodeBaseType } from '@flowgram.ai/document';
 import { PlaygroundConfigEntity, TransformData } from '@flowgram.ai/core';
 
 import type { NodeIntoContainerEvent, NodeIntoContainerState } from './type';
@@ -66,18 +66,6 @@ export class NodeIntoContainerService {
   public dispose(): void {
     this.initState();
     this.toDispose.dispose();
-  }
-
-  /** 移除节点连线 */
-  public async removeNodeLines(node: WorkflowNodeEntity): Promise<void> {
-    const lines = this.linesManager.getAllLines();
-    lines.forEach((line) => {
-      if (line.from.id !== node.id && line.to?.id !== node.id) {
-        return;
-      }
-      line.dispose();
-    });
-    await this.nextFrame();
   }
 
   /** 将节点移出容器 */
@@ -130,6 +118,29 @@ export class NodeIntoContainerService {
     return true;
   }
 
+  /** 移除节点所有非法连线 */
+  public async clearInvalidLines(params: {
+    dragNode?: WorkflowNodeEntity;
+    sourceParent?: WorkflowNodeEntity;
+  }): Promise<void> {
+    const { dragNode, sourceParent } = params;
+    if (!dragNode) {
+      return;
+    }
+    if (dragNode.parent === sourceParent) {
+      // 容器节点未改变
+      return;
+    }
+    if (
+      dragNode.parent?.flowNodeType === FlowNodeBaseType.GROUP ||
+      sourceParent?.flowNodeType === FlowNodeBaseType.GROUP
+    ) {
+      // 移入移出 group 节点无需删除节点
+      return;
+    }
+    await this.removeNodeLines(dragNode);
+  }
+
   /** 初始化状态 */
   private initState(): void {
     this.state = {
@@ -175,7 +186,10 @@ export class NodeIntoContainerService {
         throttledDraggingNode.cancel();
         draggingNode(event); // 直接触发一次计算，防止延迟
         await this.dropNodeToContainer(); // 放置节点
-        await this.clearInvalidLines(); // 清除非法线条
+        await this.clearInvalidLines({
+          dragNode: this.state.dragNode,
+          sourceParent: this.state.sourceParent,
+        }); // 清除非法线条
         this.setDropNode(undefined);
         this.initState(); // 重置状态
         this.historyService.endTransaction(); // 结束合并历史记录
@@ -201,18 +215,11 @@ export class NodeIntoContainerService {
     this.dragService.startDragSelectedNodes(event.triggerEvent);
   }
 
-  /** 移除节点所有非法连线 */
-  private async clearInvalidLines(): Promise<void> {
-    const { dragNode, sourceParent } = this.state;
-    if (!dragNode) {
-      return;
-    }
-    if (dragNode.parent === sourceParent) {
-      return;
-    }
+  /** 移除节点连线 */
+  private async removeNodeLines(node: WorkflowNodeEntity): Promise<void> {
     const lines = this.linesManager.getAllLines();
     lines.forEach((line) => {
-      if (line.from.id !== dragNode.id && line.to?.id !== dragNode.id) {
+      if (line.from.id !== node.id && line.to?.id !== node.id) {
         return;
       }
       line.dispose();
