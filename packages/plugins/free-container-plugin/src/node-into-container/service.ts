@@ -7,6 +7,7 @@ import {
   type Disposable,
   DisposableCollection,
   Emitter,
+  type IPoint,
 } from '@flowgram.ai/utils';
 import {
   type NodesDragEvent,
@@ -384,20 +385,12 @@ export class NodeIntoContainerService {
   }): Promise<void> {
     const { node, containerNode } = params;
     const parentNode = node.parent;
-    const nodeJSON = this.document.toNodeJSON(node);
 
     this.operationService.moveNode(node, {
       parent: containerNode,
     });
 
-    this.operationService.updateNodePosition(
-      node,
-      this.dragService.adjustSubNodePosition(
-        nodeJSON.type as string,
-        containerNode,
-        nodeJSON.meta!.position
-      )
-    );
+    this.operationService.updateNodePosition(node, this.adjustSubNodePosition(node, containerNode));
 
     await this.nextFrame();
 
@@ -407,6 +400,38 @@ export class NodeIntoContainerService {
       sourceContainer: parentNode,
       targetContainer: containerNode,
     });
+  }
+
+  /**
+   * 如果存在容器节点，且传入鼠标坐标，需要用容器的坐标减去传入的鼠标坐标
+   */
+  public adjustSubNodePosition(
+    targetNode: WorkflowNodeEntity,
+    containerNode: WorkflowNodeEntity
+  ): IPoint {
+    if (containerNode.flowNodeType === FlowNodeBaseType.ROOT) {
+      return targetNode.transform.position;
+    }
+    const nodeWorldTransform = targetNode.transform.transform.worldTransform;
+    const containerWorldTransform = containerNode.transform.transform.worldTransform;
+    const nodePosition = {
+      x: nodeWorldTransform.tx,
+      y: nodeWorldTransform.ty,
+    };
+    const isParentEmpty = !containerNode.children || containerNode.children.length === 0;
+    const containerPadding = this.document.layout.getPadding(containerNode);
+    if (isParentEmpty) {
+      // 确保空容器节点不偏移
+      return {
+        x: 0,
+        y: containerPadding.top,
+      };
+    } else {
+      return {
+        x: nodePosition.x - containerWorldTransform.tx,
+        y: nodePosition.y - containerWorldTransform.ty,
+      };
+    }
   }
 
   private isContainer(node?: WorkflowNodeEntity): boolean {
