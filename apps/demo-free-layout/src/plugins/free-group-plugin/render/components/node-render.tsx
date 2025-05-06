@@ -24,6 +24,7 @@ export const GroupNodeRender = () => {
     <div
       className={`workflow-group-render ${selected ? 'selected' : ''}`}
       ref={nodeRef}
+      data-group-id={node.id}
       data-node-selected={String(selected)}
       onMouseDown={selectNode}
       onClick={(e) => {
@@ -51,6 +52,7 @@ export const GroupNodeRender = () => {
             />
           </GroupHeader>
           <GroupBackground
+            node={node}
             style={{
               top: HEADER_HEIGHT + HEADER_PADDING,
               width,
