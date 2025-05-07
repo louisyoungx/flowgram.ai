@@ -1,10 +1,7 @@
-import { FlowNodeBaseType } from '@flowgram.ai/free-layout-editor';
-
 import { FlowNodeRegistry } from '../typings';
 import { StartNodeRegistry } from './start';
 import { LoopNodeRegistry } from './loop';
 import { LLMNodeRegistry } from './llm';
-import { GroupNodeRegistry } from './group';
 import { EndNodeRegistry } from './end';
 import { WorkflowNodeType } from './constants';
 import { ConditionNodeRegistry } from './condition';
@@ -18,9 +15,8 @@ export const nodeRegistries: FlowNodeRegistry[] = [
   LLMNodeRegistry,
   LoopNodeRegistry,
   CommentNodeRegistry,
-  GroupNodeRegistry,
 ];
 
 export const visibleNodeRegistries = nodeRegistries.filter(
-  (r) => r.type !== WorkflowNodeType.Comment && r.type !== FlowNodeBaseType.GROUP
+  (r) => r.type !== WorkflowNodeType.Comment
 );

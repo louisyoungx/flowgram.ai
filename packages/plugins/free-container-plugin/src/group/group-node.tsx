@@ -1,11 +1,7 @@
-import {
-  WorkflowNodeEntity,
-  PositionSchema,
-  FlowNodeTransformData,
-  FlowNodeBaseType,
-} from '@flowgram.ai/free-layout-editor';
+import { PositionSchema } from '@flowgram.ai/utils';
+import { WorkflowNodeEntity } from '@flowgram.ai/free-layout-core';
+import { FlowNodeRegistry, FlowNodeBaseType, FlowNodeTransformData } from '@flowgram.ai/document';
 
-import { FlowNodeRegistry } from '../../typings';
 export const GroupNodeRegistry: FlowNodeRegistry = {
   type: FlowNodeBaseType.GROUP,
   meta: {
