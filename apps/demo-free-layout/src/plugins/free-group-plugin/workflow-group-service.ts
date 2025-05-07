@@ -1,4 +1,6 @@
 import {
+  Disposable,
+  DisposableCollection,
   FlowGroupService,
   FlowNodeBaseType,
   HistoryService,
@@ -11,6 +13,10 @@ import {
   WorkflowNodeJSON,
   WorkflowOperationBaseService,
 } from '@flowgram.ai/free-layout-editor';
+import {
+  NodeIntoContainerService,
+  NodeIntoContainerType,
+} from '@flowgram.ai/free-container-plugin';
 
 import { WorkflowGroupUtils } from './utils';
 
@@ -22,6 +28,18 @@ export class WorkflowGroupService extends FlowGroupService {
   @inject(WorkflowOperationBaseService) freeOperationService: WorkflowOperationBaseService;
 
   @inject(HistoryService) private historyService: HistoryService;
+
+  @inject(NodeIntoContainerService) private nodeIntoContainerService: NodeIntoContainerService;
+
+  private toDispose = new DisposableCollection();
+
+  public ready(): void {
+    this.toDispose.push(this.listenContainer());
+  }
+
+  public dispose(): void {
+    this.toDispose.dispose();
+  }
 
   /** 创建分组节点 */
   public createGroup(nodes: WorkflowNodeEntity[]): WorkflowNodeEntity | undefined {
@@ -83,5 +101,19 @@ export class WorkflowGroupService extends FlowGroupService {
       this.freeOperationService.updateNodePosition(node, position);
     });
     this.historyService.endTransaction();
+  }
+
+  private listenContainer(): Disposable {
+    return this.nodeIntoContainerService.on((e) => {
+      if (
+        e.type !== NodeIntoContainerType.Out ||
+        e.sourceContainer?.flowNodeType !== FlowNodeBaseType.GROUP
+      ) {
+        return;
+      }
+      if (e.sourceContainer?.blocks.length === 0) {
+        e.sourceContainer.dispose();
+      }
+    });
   }
 }

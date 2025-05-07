@@ -24,4 +24,12 @@ export const createFreeGroupPlugin = definePluginCreator<{}, FreeLayoutPluginCon
     const shortcutsRegistry = ctx.get(ShortcutsRegistry);
     shortcutsRegistry.addHandlers(new GroupShortcut(ctx), new UngroupShortcut(ctx));
   },
+  onReady(ctx) {
+    const groupService = ctx.get(WorkflowGroupService);
+    groupService.ready();
+  },
+  onDispose(ctx) {
+    const groupService = ctx.get(WorkflowGroupService);
+    groupService.dispose();
+  },
 });

@@ -244,7 +244,7 @@ export const initialData: FlowDocumentJSON = {
       },
       data: {
         title: 'LLM_Group',
-        color: 'Purple',
+        color: 'Violet',
       },
       blocks: [
         {
@@ -357,13 +357,13 @@ export const initialData: FlowDocumentJSON = {
     },
     {
       sourceNodeID: 'condition_0',
-      targetNodeID: 'loop_H8M3U',
-      sourcePortID: 'if_f0rOAt',
+      targetNodeID: 'llm_l_TcE',
+      sourcePortID: 'if_0',
     },
     {
       sourceNodeID: 'condition_0',
-      targetNodeID: 'llm_l_TcE',
-      sourcePortID: 'if_0',
+      targetNodeID: 'loop_H8M3U',
+      sourcePortID: 'if_f0rOAt',
     },
     {
       sourceNodeID: 'llm_0',
