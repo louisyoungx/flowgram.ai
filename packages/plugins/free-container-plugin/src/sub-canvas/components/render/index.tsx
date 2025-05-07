@@ -3,6 +3,7 @@ import React, { CSSProperties, type FC } from 'react';
 import { useCurrentEntity } from '@flowgram.ai/free-layout-core';
 
 import { SubCanvasRenderStyle } from './style';
+import { SubCanvasTips } from '../tips';
 import { SubCanvasBorder } from '../border';
 import { SubCanvasBackground } from '../background';
 import { useNodeSize, useSyncNodeRenderSize } from '../../hooks';
@@ -34,6 +35,7 @@ export const SubCanvasRender: FC<ISubCanvasBorder> = ({ className, style }) => {
     >
       <SubCanvasBorder>
         <SubCanvasBackground />
+        <SubCanvasTips />
       </SubCanvasBorder>
     </SubCanvasRenderStyle>
   );
