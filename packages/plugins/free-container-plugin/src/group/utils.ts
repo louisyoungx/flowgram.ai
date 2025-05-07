@@ -1,4 +1,5 @@
-import { FlowNodeBaseType, WorkflowNodeEntity } from '@flowgram.ai/free-layout-editor';
+import { WorkflowNodeEntity } from '@flowgram.ai/free-layout-core';
+import { FlowNodeBaseType } from '@flowgram.ai/document';
 
 export namespace WorkflowGroupUtils {
   /** 找到节点所有上级 */

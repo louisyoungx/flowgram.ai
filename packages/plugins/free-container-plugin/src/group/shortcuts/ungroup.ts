@@ -1,10 +1,7 @@
-import {
-  FlowNodeBaseType,
-  FreeLayoutPluginContext,
-  ShortcutsHandler,
-  WorkflowNodeEntity,
-  WorkflowSelectService,
-} from '@flowgram.ai/free-layout-editor';
+import { ShortcutsHandler } from '@flowgram.ai/shortcuts-plugin';
+import { WorkflowSelectService, WorkflowNodeEntity } from '@flowgram.ai/free-layout-core';
+import { FlowNodeBaseType } from '@flowgram.ai/document';
+import { PluginContext } from '@flowgram.ai/core';
 
 import { WorkflowGroupService } from '../workflow-group-service';
 import { WorkflowGroupCommand } from '../constant';
@@ -22,7 +19,7 @@ export class UngroupShortcut implements ShortcutsHandler {
 
   private groupService: WorkflowGroupService;
 
-  constructor(context: FreeLayoutPluginContext) {
+  constructor(context: PluginContext) {
     this.selectService = context.get(WorkflowSelectService);
     this.groupService = context.get(WorkflowGroupService);
     this.execute = this.execute.bind(this);

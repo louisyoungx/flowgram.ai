@@ -1,23 +1,17 @@
+import { injectable, inject } from 'inversify';
+import { DisposableCollection, Disposable } from '@flowgram.ai/utils';
 import {
-  Disposable,
-  DisposableCollection,
-  FlowGroupService,
-  FlowNodeBaseType,
-  HistoryService,
-  inject,
-  injectable,
-  nanoid,
-  TransformData,
   WorkflowDocument,
-  WorkflowNodeEntity,
-  WorkflowNodeJSON,
   WorkflowOperationBaseService,
-} from '@flowgram.ai/free-layout-editor';
-import {
-  NodeIntoContainerService,
-  NodeIntoContainerType,
-} from '@flowgram.ai/free-container-plugin';
+  WorkflowNodeEntity,
+  nanoid,
+  WorkflowNodeJSON,
+} from '@flowgram.ai/free-layout-core';
+import { HistoryService } from '@flowgram.ai/free-history-plugin';
+import { FlowGroupService, FlowNodeBaseType } from '@flowgram.ai/document';
+import { TransformData } from '@flowgram.ai/core';
 
+import { NodeIntoContainerService, NodeIntoContainerType } from '../node-into-container';
 import { WorkflowGroupUtils } from './utils';
 
 @injectable()

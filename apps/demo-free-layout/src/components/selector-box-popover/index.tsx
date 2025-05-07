@@ -1,12 +1,12 @@
 import { FunctionComponent } from 'react';
 
 import { SelectorBoxPopoverProps } from '@flowgram.ai/free-layout-editor';
+import { WorkflowGroupCommand } from '@flowgram.ai/free-container-plugin';
 import { Button, ButtonGroup, Tooltip } from '@douyinfe/semi-ui';
 import { IconCopy, IconDeleteStroked, IconExpand, IconShrink } from '@douyinfe/semi-icons';
 
+import { IconGroup } from '../group';
 import { FlowCommandId } from '../../shortcuts/constants';
-import { IconGroup } from '../../plugins/free-group-plugin/render';
-import { WorkflowGroupCommand } from '../../plugins/free-group-plugin/constant';
 
 const BUTTON_HEIGHT = 24;
 
