@@ -39,6 +39,7 @@ export class WorkflowGroupService extends FlowGroupService {
           y: 0,
         },
       },
+      data: {},
     };
     this.historyService.startTransaction();
     this.document.createWorkflowNodeByType(

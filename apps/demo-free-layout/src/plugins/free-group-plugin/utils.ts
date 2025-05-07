@@ -2,15 +2,15 @@ import { FlowNodeBaseType, WorkflowNodeEntity } from '@flowgram.ai/free-layout-e
 
 export namespace WorkflowGroupUtils {
   /** 找到节点所有上级 */
-  const findNodeParents = (node: WorkflowNodeEntity): WorkflowNodeEntity[] => {
-    const parents = [];
-    let parent = node.parent;
-    while (parent) {
-      parents.push(parent);
-      parent = parent.parent;
-    }
-    return parents;
-  };
+  // const findNodeParents = (node: WorkflowNodeEntity): WorkflowNodeEntity[] => {
+  //   const parents = [];
+  //   let parent = node.parent;
+  //   while (parent) {
+  //     parents.push(parent);
+  //     parent = parent.parent;
+  //   }
+  //   return parents;
+  // };
 
   /** 节点是否处于分组中 */
   const isNodeInGroup = (node: WorkflowNodeEntity): boolean => {
@@ -46,9 +46,9 @@ export namespace WorkflowGroupUtils {
     if (!isSameParent) return false;
 
     // 判断节点父亲是否已经在分组中
-    const parents = findNodeParents(nodes[0]);
-    const parentsInGroup = parents.some((parent) => isNodeInGroup(parent));
-    if (parentsInGroup) return false;
+    // const parents = findNodeParents(nodes[0]);
+    // const parentsInGroup = parents.some((parent) => isNodeInGroup(parent));
+    // if (parentsInGroup) return false;
 
     // 参数正确
     return true;

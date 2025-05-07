@@ -47,9 +47,6 @@ export const GroupNodeRegistry: FlowNodeRegistry = {
       type: 'group',
       data: {
         title: `group_${++index}`,
-        inputsValues: {
-          loopTimes: 2,
-        },
       },
     };
   },
