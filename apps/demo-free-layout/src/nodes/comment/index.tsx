@@ -5,7 +5,7 @@ export const CommentNodeRegistry: FlowNodeRegistry = {
   type: WorkflowNodeType.Comment,
   meta: {
     disableSideBar: true,
-    disablePorts: true,
+    defaultPorts: [],
     renderKey: WorkflowNodeType.Comment,
     size: {
       width: 240,

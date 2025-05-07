@@ -52,7 +52,6 @@ export interface FlowNodeJSON extends FlowNodeJSONDefault {
  */
 export interface FlowNodeMeta extends WorkflowNodeMeta {
   disableSideBar?: boolean;
-  disablePorts?: boolean;
 }
 
 /**

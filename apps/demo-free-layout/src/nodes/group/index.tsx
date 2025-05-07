@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import {
   WorkflowNodeEntity,
   PositionSchema,
@@ -7,21 +6,13 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 
 import { FlowNodeRegistry } from '../../typings';
-import iconLoop from '../../assets/icon-loop.jpg';
-
-let index = 0;
 export const GroupNodeRegistry: FlowNodeRegistry = {
   type: FlowNodeBaseType.GROUP,
-  info: {
-    icon: iconLoop,
-    description:
-      'Used to repeatedly execute a series of tasks by setting the number of iterations and logic.',
-  },
   meta: {
     renderKey: FlowNodeBaseType.GROUP,
+    defaultPorts: [],
     isContainer: true,
     disableSideBar: true,
-    disablePorts: true,
     size: {
       width: 560,
       height: 400,
@@ -40,15 +31,6 @@ export const GroupNodeRegistry: FlowNodeRegistry = {
       return !transform.bounds.contains(mousePos.x, mousePos.y);
     },
     expandable: false,
-  },
-  onAdd() {
-    return {
-      id: `group_${nanoid(5)}`,
-      type: 'group',
-      data: {
-        title: `group_${++index}`,
-      },
-    };
   },
   formMeta: {
     render: () => <></>,

@@ -3,7 +3,6 @@ import React, { useState, useContext } from 'react';
 import { WorkflowPortRender } from '@flowgram.ai/free-layout-editor';
 import { useClientContext } from '@flowgram.ai/free-layout-editor';
 
-import { FlowNodeMeta } from '../../typings';
 import { useNodeRenderContext } from '../../hooks';
 import { SidebarContext } from '../../context';
 import { scrollToView } from './utils';
@@ -21,16 +20,13 @@ export interface NodeWrapperProps {
 export const NodeWrapper: React.FC<NodeWrapperProps> = (props) => {
   const { children, isScrollToView = false } = props;
   const nodeRender = useNodeRenderContext();
-  const { node, selected, startDrag, ports, selectNode, nodeRef, onFocus, onBlur } = nodeRender;
+  const { selected, startDrag, ports, selectNode, nodeRef, onFocus, onBlur } = nodeRender;
   const [isDragging, setIsDragging] = useState(false);
   const sidebar = useContext(SidebarContext);
   const form = nodeRender.form;
   const ctx = useClientContext();
-  const { disablePorts = false } = node.getNodeMeta<FlowNodeMeta>();
 
-  const portsRender = disablePorts
-    ? []
-    : ports.map((p) => <WorkflowPortRender key={p.id} entity={p} />);
+  const portsRender = ports.map((p) => <WorkflowPortRender key={p.id} entity={p} />);
 
   return (
     <>
