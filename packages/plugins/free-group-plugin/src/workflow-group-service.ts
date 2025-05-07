@@ -8,10 +8,13 @@ import {
   WorkflowNodeJSON,
 } from '@flowgram.ai/free-layout-core';
 import { HistoryService } from '@flowgram.ai/free-history-plugin';
+import {
+  NodeIntoContainerService,
+  NodeIntoContainerType,
+} from '@flowgram.ai/free-container-plugin';
 import { FlowGroupService, FlowNodeBaseType } from '@flowgram.ai/document';
 import { TransformData } from '@flowgram.ai/core';
 
-import { NodeIntoContainerService, NodeIntoContainerType } from '../node-into-container';
 import { WorkflowGroupUtils } from './utils';
 
 @injectable()

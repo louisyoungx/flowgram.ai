@@ -7,10 +7,8 @@ import { createFreeSnapPlugin } from '@flowgram.ai/free-snap-plugin';
 import { createFreeNodePanelPlugin } from '@flowgram.ai/free-node-panel-plugin';
 import { createFreeLinesPlugin } from '@flowgram.ai/free-lines-plugin';
 import { FreeLayoutProps } from '@flowgram.ai/free-layout-editor';
-import {
-  createContainerNodePlugin,
-  createFreeGroupPlugin,
-} from '@flowgram.ai/free-container-plugin';
+import { createFreeGroupPlugin } from '@flowgram.ai/free-group-plugin';
+import { createContainerNodePlugin } from '@flowgram.ai/free-container-plugin';
 
 import { onDragLineEnd } from '../utils';
 import { FlowNodeRegistry, FlowDocumentJSON } from '../typings';

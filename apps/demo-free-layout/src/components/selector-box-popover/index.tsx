@@ -1,7 +1,7 @@
 import { FunctionComponent } from 'react';
 
 import { SelectorBoxPopoverProps } from '@flowgram.ai/free-layout-editor';
-import { WorkflowGroupCommand } from '@flowgram.ai/free-container-plugin';
+import { WorkflowGroupCommand } from '@flowgram.ai/free-group-plugin';
 import { Button, ButtonGroup, Tooltip } from '@douyinfe/semi-ui';
 import { IconCopy, IconDeleteStroked, IconExpand, IconShrink } from '@douyinfe/semi-icons';
 

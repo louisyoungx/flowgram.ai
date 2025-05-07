@@ -1,7 +1,7 @@
 import { CSSProperties, FC } from 'react';
 
 import { CommandRegistry, useService, WorkflowNodeEntity } from '@flowgram.ai/free-layout-editor';
-import { WorkflowGroupCommand } from '@flowgram.ai/free-container-plugin';
+import { WorkflowGroupCommand } from '@flowgram.ai/free-group-plugin';
 import { Button, Tooltip } from '@douyinfe/semi-ui';
 
 import { IconUngroup } from './icon-group';
