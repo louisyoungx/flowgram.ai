@@ -1,6 +1,6 @@
-import { createServer } from './server';
-import { serverConfig } from './config';
+import { createServer } from '@server/index';
+import { SERVER_PARAMS } from '@config/index';
 
-const server = createServer(serverConfig);
+const server = createServer(SERVER_PARAMS);
 
 void server.start();
