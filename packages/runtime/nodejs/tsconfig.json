@@ -21,8 +21,9 @@
         ],
         "baseUrl": "src",
         "paths": {
-            "@app/*": ["app/*"],
-            "@editor/*": ["editor/*"],
+            "@api/*": ["api/*"],
+            "@server/*": ["server/*"],
+            "@config/*": ["config/*"],
             "@runtime/*": ["runtime/*"]
         }
     },

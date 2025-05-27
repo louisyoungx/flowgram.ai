@@ -2,19 +2,15 @@ import fastify from 'fastify';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import ws from '@fastify/websocket';
 
-import { createContext } from './router/context';
-import { appRouter } from './router';
+import { SERVER_INFO } from '@config/index';
+import { appRouter } from '@api/index';
+import type { ServerInfo, ServerParams } from './type';
+import { createContext } from './context';
 
-export interface ServerOptions {
-  dev?: boolean;
-  port?: number;
-  prefix?: string;
-}
-
-export function createServer(opts: ServerOptions) {
+export function createServer(opts: ServerParams) {
   const dev = opts.dev ?? true;
-  const port = opts.port ?? 3000;
-  const prefix = opts.prefix ?? '/trpc';
+  const port = opts.port ?? 4000;
+  const prefix = opts.prefix ?? '/api';
   const server = fastify({ logger: dev });
 
   void server.register(ws);
@@ -24,7 +20,13 @@ export function createServer(opts: ServerOptions) {
     trpcOptions: { router: appRouter, createContext },
   });
 
-  server.get('/', async () => ({ hello: 'wait-on 💨' }));
+  server.get('/', async (): Promise<ServerInfo> => {
+    const serverTime = new Date();
+    return {
+      ...SERVER_INFO,
+      time: serverTime.toISOString(),
+    };
+  });
 
   const stop = async () => {
     await server.close();
