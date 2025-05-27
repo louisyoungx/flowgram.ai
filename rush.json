@@ -799,6 +799,12 @@
             "projectFolder": "packages/runtime/nodejs",
             "versionPolicyName": "appPolicy",
             "tags": ["level-1", "team-flow"]
+        },
+        {
+            "packageName": "@flowgram.ai/runtime-interface",
+            "projectFolder": "packages/runtime/interface",
+            "versionPolicyName": "appPolicy",
+            "tags": ["level-1", "team-flow"]
         }
     ]
 }
