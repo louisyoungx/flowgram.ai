@@ -11,9 +11,12 @@
     "lint": "eslint --cache src",
     "lint-fix": "eslint --fix src",
     "type-check": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage"
   },
   "dependencies": {
+    "@flowgram.ai/runtime-interface": "workspace:*",
     "@fastify/websocket": "^10.0.1",
     "@trpc/client": "npm:@trpc/client",
     "@trpc/server": "npm:@trpc/server",
@@ -38,6 +41,8 @@
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "@eslint/eslintrc": "^3",
+    "@vitest/coverage-v8": "^0.32.0",
+    "vitest": "^0.34.6",
     "wait-port": "^1.0.1"
   },
   "publishConfig": {
