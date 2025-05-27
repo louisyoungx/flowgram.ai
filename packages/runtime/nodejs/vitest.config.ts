@@ -1,4 +1,4 @@
-const path = require('path');
+import path from 'path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -7,11 +7,18 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
   },
+  resolve: {
+    alias: [
+      {find: "@api", replacement: path.resolve(__dirname, './src/api') },
+      {find: "@server", replacement: path.resolve(__dirname, './src/server') },
+      {find: "@config", replacement: path.resolve(__dirname, './src/config') },
+      {find: "@runtime", replacement: path.resolve(__dirname, './src/runtime') },
+    ],
+  },
   test: {
     globals: true,
     mockReset: false,
     environment: 'jsdom',
-    setupFiles: [path.resolve(__dirname, './vitest.setup.ts')],
     include: ['**/?(*.){test,spec}.?(c|m)[jt]s?(x)'],
     exclude: [
       '**/__mocks__**',
