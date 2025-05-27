@@ -1,10 +1,11 @@
 import fastify from 'fastify';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
+import { type ServerInfoRes } from '@flowgram.ai/runtime-interface';
 import ws from '@fastify/websocket';
 
 import { SERVER_INFO } from '@config/index';
 import { appRouter } from '@api/index';
-import type { ServerInfo, ServerParams } from './type';
+import type { ServerParams } from './type';
 import { createContext } from './context';
 
 export function createServer(opts: ServerParams) {
@@ -20,7 +21,7 @@ export function createServer(opts: ServerParams) {
     trpcOptions: { router: appRouter, createContext },
   });
 
-  server.get('/', async (): Promise<ServerInfo> => {
+  server.get('/', async (): Promise<ServerInfoRes> => {
     const serverTime = new Date();
     return {
       ...SERVER_INFO,
