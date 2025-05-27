@@ -1,4 +1,5 @@
-import type { ServerInfo, ServerParams } from '@server/type';
+import type { ServerInfoRes } from '@flowgram.ai/runtime-interface';
+import type { ServerParams } from '@server/type';
 
 export const SERVER_PARAMS: ServerParams = {
   dev: false,
@@ -6,7 +7,7 @@ export const SERVER_PARAMS: ServerParams = {
   prefix: '/api',
 };
 
-export const SERVER_INFO: ServerInfo = {
+export const SERVER_INFO: Omit<ServerInfoRes, 'time'> = {
   name: 'flowgram-runtime',
   runtime: 'nodejs',
   version: '0.0.1',
