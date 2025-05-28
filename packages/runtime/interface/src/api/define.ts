@@ -1,3 +1,4 @@
+import { ValidationDefine } from './validation';
 import { FlowGramAPIDefines } from './type';
 import { TestRunDefine } from './test-run';
 import { TaskProgressDefine } from './task-progress';
@@ -10,4 +11,5 @@ export const apis: FlowGramAPIDefines = {
   [FlowGramAPIName.Run]: RunDefine,
   [FlowGramAPIName.TestRun]: TestRunDefine,
   [FlowGramAPIName.TaskProgress]: TaskProgressDefine,
+  [FlowGramAPIName.Validation]: ValidationDefine,
 };

@@ -11,4 +11,5 @@ export enum FlowGramAPIName {
   Run = 'Run',
   TestRun = 'TestRun',
   TaskProgress = 'TaskProgress',
+  Validation = 'Validation',
 }
