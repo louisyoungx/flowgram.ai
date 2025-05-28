@@ -12,13 +12,14 @@ export default defineConfig({
       {find: "@api", replacement: path.resolve(__dirname, './src/api') },
       {find: "@server", replacement: path.resolve(__dirname, './src/server') },
       {find: "@config", replacement: path.resolve(__dirname, './src/config') },
-      {find: "@runtime", replacement: path.resolve(__dirname, './src/runtime') },
+      {find: "@workflow", replacement: path.resolve(__dirname, './src/workflow') },
     ],
   },
   test: {
     globals: true,
     mockReset: false,
     environment: 'jsdom',
+    setupFiles: [path.resolve(__dirname, './src/workflow/__tests__/setup.ts')],
     include: ['**/?(*.){test,spec}.?(c|m)[jt]s?(x)'],
     exclude: [
       '**/__mocks__**',

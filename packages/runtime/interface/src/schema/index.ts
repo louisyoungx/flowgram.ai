@@ -4,3 +4,4 @@ export { WorkflowNodeMetaSchema } from './node-meta';
 export { WorkflowNodeSchema } from './node';
 export { WorkflowSchema } from './workflow';
 export { XYSchema, PositionSchema } from './xy';
+export { WorkflowPortType } from './constant';

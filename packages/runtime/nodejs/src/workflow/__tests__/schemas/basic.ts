@@ -7,8 +7,8 @@ export const basicSchema: WorkflowSchema = {
       type: 'start',
       meta: {
         position: {
-          x: 175.4854323235305,
-          y: 341.00223115257165,
+          x: 175,
+          y: 341,
         },
       },
       data: {
@@ -83,8 +83,8 @@ export const basicSchema: WorkflowSchema = {
       type: 'end',
       meta: {
         position: {
-          x: 1033.36484206234,
-          y: 354.00223115257165,
+          x: 1033,
+          y: 354,
         },
       },
       data: {
@@ -104,12 +104,12 @@ export const basicSchema: WorkflowSchema = {
       },
     },
     {
-      id: 'llm_BjEpK',
+      id: 'llm_0',
       type: 'llm',
       meta: {
         position: {
-          x: 604.4251371929352,
-          y: 285.00223115257165,
+          x: 604,
+          y: 285,
         },
       },
       data: {
@@ -164,10 +164,10 @@ export const basicSchema: WorkflowSchema = {
   edges: [
     {
       sourceNodeID: 'start_0',
-      targetNodeID: 'llm_BjEpK',
+      targetNodeID: 'llm_0',
     },
     {
-      sourceNodeID: 'llm_BjEpK',
+      sourceNodeID: 'llm_0',
       targetNodeID: 'end_0',
     },
   ],
