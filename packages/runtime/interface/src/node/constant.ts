@@ -1,4 +1,5 @@
 export enum FlowGramNode {
+  Root = 'root',
   Start = 'start',
   End = 'end',
   LLM = 'llm',

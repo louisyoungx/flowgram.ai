@@ -20,7 +20,7 @@
             "@api/*": ["api/*"],
             "@server/*": ["server/*"],
             "@config/*": ["config/*"],
-            "@runtime/*": ["runtime/*"]
+            "@workflow/*": ["workflow/*"]
         }
     },
     "include": ["**/*.ts", "**/*.tsx"],
