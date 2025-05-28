@@ -18,6 +18,14 @@ export class WorkflowRuntimeDocument implements IDocument {
     return this.getNode(FlowGramNode.Root)!;
   }
 
+  public get start(): INode {
+    return this.nodes.find((n) => n.type === FlowGramNode.Start)!;
+  }
+
+  public get end(): INode {
+    return this.nodes.find((n) => n.type === FlowGramNode.End)!;
+  }
+
   public getNode(id: string): INode | null {
     return this.store.nodes.get(id) ?? null;
   }

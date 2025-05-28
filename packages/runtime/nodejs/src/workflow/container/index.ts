@@ -1,14 +1,12 @@
-import { IContainer, IDocument, IEngine } from '@workflow/type';
-import { WorkflowRuntimeEngine } from '@workflow/service';
+import { ContainerService, IContainer, IDocument, IEngine, IValidation } from '@workflow/type';
+import { WorkflowRuntimeEngine, WorkflowRuntimeValidation } from '@workflow/service';
 import { WorkflowRuntimeDocument } from '@workflow/aggregate';
 
 export class WorkflowRuntimeContainer implements IContainer {
-  public readonly Document: IDocument;
+  constructor(private readonly services: Record<string, ContainerService>) {}
 
-  public readonly Engine: IEngine;
-
-  constructor(service: IContainer) {
-    this.Engine = service.Engine;
+  public get<T = ContainerService>(key: string): T {
+    return this.services[key] as T;
   }
 
   private static _instance: IContainer;
@@ -22,18 +20,21 @@ export class WorkflowRuntimeContainer implements IContainer {
     return this._instance;
   }
 
-  public static create(): IContainer {
+  public static create(): Record<string, ContainerService> {
     // aggregates
     const Document = new WorkflowRuntimeDocument();
+    const Validation = new WorkflowRuntimeValidation();
 
     // services
     const Engine = new WorkflowRuntimeEngine({
       Document,
+      Validation,
     });
 
     return {
-      Engine,
-      Document,
+      [IDocument]: Document,
+      [IValidation]: Validation,
+      [IEngine]: Engine,
     };
   }
 }

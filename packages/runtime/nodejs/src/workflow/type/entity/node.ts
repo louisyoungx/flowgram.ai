@@ -18,6 +18,9 @@ export interface INode {
   };
   parent: INode | null;
   children: INode[];
+  prev: INode[];
+  next: INode[];
+  isBranch?: boolean;
 }
 
 export interface CreateNodeParams {

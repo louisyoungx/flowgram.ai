@@ -21,6 +21,10 @@ export class WorkflowRuntimeNode implements INode {
 
   private readonly _outputEdges: IEdge[];
 
+  private readonly _prev: INode[];
+
+  private readonly _next: INode[];
+
   constructor(params: CreateNodeParams) {
     const { id, type, name, position } = params;
     this.id = id;
@@ -32,6 +36,8 @@ export class WorkflowRuntimeNode implements INode {
     this._ports = [];
     this._inputEdges = [];
     this._outputEdges = [];
+    this._prev = [];
+    this._next = [];
   }
 
   public get ports() {
@@ -72,9 +78,23 @@ export class WorkflowRuntimeNode implements INode {
 
   public addInputEdge(edge: IEdge) {
     this._inputEdges.push(edge);
+    this._prev.push(edge.from);
   }
 
   public addOutputEdge(edge: IEdge) {
     this._outputEdges.push(edge);
+    this._next.push(edge.to);
+  }
+
+  public get prev() {
+    return this._prev;
+  }
+
+  public get next() {
+    return this._next;
+  }
+
+  public get isBranch() {
+    return this.ports.outputs.length > 1;
   }
 }

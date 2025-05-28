@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { WorkflowRuntimeDocument } from '@workflow/aggregate';
-import { basicSchema } from '@workflow/__tests__/schemas';
+import { TestSchemas } from '@workflow/__tests__/schemas';
 
 describe('WorkflowRuntimeDocument create', () => {
   it('should create instance', () => {
@@ -21,9 +21,8 @@ describe('WorkflowRuntimeDocument create', () => {
   });
 
   it('should init', () => {
-    const schema = basicSchema;
     const document = new WorkflowRuntimeDocument();
-    document.init(schema);
+    document.init(TestSchemas.basicSchema);
     const nodeIDs = document.nodes.map((n) => n.id);
     const edgeIDs = document.edges.map((e) => e.id);
     expect(nodeIDs).toEqual(['root', 'start_0', 'end_0', 'llm_0']);
@@ -31,14 +30,19 @@ describe('WorkflowRuntimeDocument create', () => {
   });
 
   it('should dispose', () => {
-    const schema = {
-      nodes: [],
-      edges: [],
-    };
     const document = new WorkflowRuntimeDocument();
-    document.init(schema);
-    expect(document.root).toBeDefined();
+    document.init(TestSchemas.basicSchema);
+    expect(document.nodes.length).toBe(4);
+    expect(document.edges.length).toBe(2);
     document.dispose();
-    expect(document.root).toBeNull();
+    expect(document.nodes.length).toBe(0);
+    expect(document.edges.length).toBe(0);
+  });
+
+  it('should has start & end', () => {
+    const document = new WorkflowRuntimeDocument();
+    document.init(TestSchemas.basicSchema);
+    expect(document.start.id).toBe('start_0');
+    expect(document.end.id).toBe('end_0');
   });
 });
