@@ -1,6 +1,6 @@
-import { IValidation } from '../service/validation';
-import { IEngine } from '../service/engine';
-import { IDocument } from '../aggregate/document';
+import { IValidation } from '../engine/validation';
+import { IEngine } from '../engine/engine';
+import { IDocument } from '../document/document';
 
 export type ContainerService = IValidation | IEngine | IDocument;
 

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { WorkflowRuntimeEngine } from '@workflow/service';
-import { WorkflowRuntimeDocument } from '@workflow/aggregate';
+import { WorkflowRuntimeEngine } from '@workflow/engine';
+import { WorkflowRuntimeDocument } from '@workflow/document';
 import { TestSchemas } from '@workflow/__tests__/schemas';
 import { WorkflowRuntimeValidation } from '../validation';
 

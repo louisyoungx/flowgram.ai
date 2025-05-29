@@ -1,7 +1,7 @@
 import { FlowGramNode, WorkflowPortType } from '@flowgram.ai/runtime-interface';
 
 import type { CreateEdgeParams, CreateNodeParams, CreatePortParams } from '@workflow/type';
-import { WorkflowRuntimeEdge, WorkflowRuntimeNode, WorkflowRuntimePort } from '@workflow/entity';
+import { WorkflowRuntimeEdge, WorkflowRuntimeNode, WorkflowRuntimePort } from '../../entity';
 import { FlattenData } from './flat-schema';
 
 export interface DocumentStore {
