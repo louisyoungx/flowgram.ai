@@ -1,13 +1,26 @@
-import type { FlowGramNode, PositionSchema } from '@flowgram.ai/runtime-interface';
+import type {
+  FlowGramNode,
+  IFlowConstantRefValue,
+  IJsonSchema,
+  PositionSchema,
+} from '@flowgram.ai/runtime-interface';
 
 import { IPort } from './port';
 import { IEdge } from './edge';
 
-export interface INode {
+export interface NodeVariable {
+  inputsValues?: Record<string, IFlowConstantRefValue>;
+  inputs?: IJsonSchema;
+  outputs?: IJsonSchema;
+}
+
+export interface INode<T = any> {
   id: string;
   type: FlowGramNode;
   name: string;
   position: PositionSchema;
+  variable: NodeVariable;
+  data: T;
   ports: {
     inputs: IPort[];
     outputs: IPort[];
@@ -20,7 +33,7 @@ export interface INode {
   children: INode[];
   prev: INode[];
   next: INode[];
-  isBranch?: boolean;
+  isBranch: boolean;
 }
 
 export interface CreateNodeParams {
@@ -28,4 +41,6 @@ export interface CreateNodeParams {
   type: FlowGramNode;
   name: string;
   position: PositionSchema;
+  variable?: NodeVariable;
+  data?: any;
 }

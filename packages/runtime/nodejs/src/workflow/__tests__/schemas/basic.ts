@@ -7,8 +7,8 @@ export const basicSchema: WorkflowSchema = {
       type: 'start',
       meta: {
         position: {
-          x: 175,
-          y: 341,
+          x: 180,
+          y: 69,
         },
       },
       data: {
@@ -16,65 +16,45 @@ export const basicSchema: WorkflowSchema = {
         outputs: {
           type: 'object',
           properties: {
-            query: {
-              key: 5,
-              name: 'query',
-              isPropertyRequired: false,
+            model_type: {
+              key: 14,
+              name: 'model_type',
               type: 'string',
-              default: 'Hello Flow.',
-              extra: {
-                index: 0,
-              },
-            },
-            enable: {
-              key: 6,
-              name: 'enable',
-              isPropertyRequired: false,
-              type: 'boolean',
-              default: true,
               extra: {
                 index: 1,
               },
+              isPropertyRequired: true,
             },
-            array_obj: {
-              key: 7,
-              name: 'array_obj',
-              isPropertyRequired: false,
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  int: {
-                    type: 'number',
-                  },
-                  str: {
-                    type: 'string',
-                  },
-                },
-              },
+            llm_settings: {
+              key: 17,
+              name: 'llm_settings',
+              type: 'object',
               extra: {
                 index: 2,
               },
+              properties: {
+                temperature: {
+                  key: 18,
+                  name: 'temperature',
+                  type: 'number',
+                  extra: {
+                    index: 1,
+                  },
+                },
+              },
+              required: [],
             },
-            num: {
-              key: 10,
-              name: 'num',
-              isPropertyRequired: false,
-              type: 'number',
+            prompt: {
+              key: 19,
+              name: 'prompt',
+              type: 'string',
               extra: {
                 index: 3,
               },
-            },
-            model: {
-              key: 24,
-              name: 'model',
-              type: 'string',
-              extra: {
-                index: 5,
-              },
+              isPropertyRequired: true,
             },
           },
-          required: [],
+          required: ['model_type', 'prompt'],
         },
       },
     },
@@ -83,20 +63,26 @@ export const basicSchema: WorkflowSchema = {
       type: 'end',
       meta: {
         position: {
-          x: 1033,
-          y: 354,
+          x: 1121.3,
+          y: 69,
         },
       },
       data: {
         title: 'End',
-        outputs: {
+        inputsValues: {
+          result: {
+            type: 'ref',
+            content: ['llm_0', 'result'],
+          },
+        },
+        inputs: {
           type: 'object',
           properties: {
             result: {
               type: 'string',
               default: {
                 type: 'ref',
-                content: ['llm_BjEpK', 'result'],
+                content: ['llm_0', 'result'],
               },
             },
           },
@@ -108,8 +94,8 @@ export const basicSchema: WorkflowSchema = {
       type: 'llm',
       meta: {
         position: {
-          x: 604,
-          y: 285,
+          x: 650.65,
+          y: 0,
         },
       },
       data: {
@@ -117,19 +103,19 @@ export const basicSchema: WorkflowSchema = {
         inputsValues: {
           modelType: {
             type: 'ref',
-            content: ['start_0', 'model'],
+            content: ['start_0', 'model_type'],
           },
           temperature: {
             type: 'ref',
-            content: ['start_0', 'num'],
+            content: ['start_0', 'llm_settings', 'temperature'],
           },
           prompt: {
             type: 'ref',
-            content: ['start_0', 'query'],
+            content: ['start_0', 'prompt'],
           },
           systemPrompt: {
             type: 'constant',
-            content: 'aaaaaa',
+            content: 'You are a helpful AI assistant.',
           },
         },
         inputs: {
