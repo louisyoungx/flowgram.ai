@@ -30,4 +30,14 @@ describe('WorkflowRuntimeEngine', () => {
   it('should execute a workflow', async () => {
     await engine.execute(TestSchemas.twoLLMSchema);
   });
+
+  it('should execute a workflow with input', async () => {
+    await engine.execute(TestSchemas.basicSchema, {
+      model_type: 'ai-model',
+      llm_settings: {
+        temperature: 0.5,
+      },
+      prompt: 'how are you?',
+    });
+  });
 });

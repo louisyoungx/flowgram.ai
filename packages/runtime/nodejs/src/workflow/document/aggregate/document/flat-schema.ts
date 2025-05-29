@@ -10,32 +10,31 @@ export interface FlattenData {
 
 type FlatSchema = (json: Partial<WorkflowSchema>) => FlattenData;
 
-const flatLayer = (data: FlattenData, layerNodes: WorkflowNodeSchema[]) => {
-  layerNodes.forEach((nodeJSON) => {
-    const { blocks, edges } = nodeJSON;
-    if (blocks) {
-      data.flattenSchema.nodes.push(...blocks);
-      const blockIDs: string[] = [];
-      blocks.forEach((block) => {
-        if (block.blocks) {
-          flatLayer(data, block.blocks);
-        }
-        blockIDs.push(block.id);
-      });
-      data.nodeBlocks.set(nodeJSON.id, blockIDs);
-      delete nodeJSON.blocks;
-    }
-    if (edges) {
-      data.flattenSchema.edges.push(...edges);
-      const edgeIDs: string[] = [];
-      edges.forEach((edge) => {
-        const edgeID = WorkflowRuntimeEdge.createID(edge);
-        edgeIDs.push(edgeID);
-      });
-      data.nodeEdges.set(nodeJSON.id, edgeIDs);
-      delete nodeJSON.edges;
-    }
-  });
+const flatLayer = (data: FlattenData, nodeSchema: WorkflowNodeSchema) => {
+  const { blocks, edges } = nodeSchema;
+  if (blocks) {
+    data.flattenSchema.nodes.push(...blocks);
+    const blockIDs: string[] = [];
+    blocks.forEach((block) => {
+      blockIDs.push(block.id);
+      // 递归处理子节点的 blocks 和 edges
+      if (block.blocks) {
+        flatLayer(data, block);
+      }
+    });
+    data.nodeBlocks.set(nodeSchema.id, blockIDs);
+    delete nodeSchema.blocks;
+  }
+  if (edges) {
+    data.flattenSchema.edges.push(...edges);
+    const edgeIDs: string[] = [];
+    edges.forEach((edge) => {
+      const edgeID = WorkflowRuntimeEdge.createID(edge);
+      edgeIDs.push(edgeID);
+    });
+    data.nodeEdges.set(nodeSchema.id, edgeIDs);
+    delete nodeSchema.edges;
+  }
 };
 
 /**
@@ -47,20 +46,28 @@ export const flatSchema: FlatSchema = (schema = { nodes: [], edges: [] }) => {
 
   const data: FlattenData = {
     flattenSchema: {
-      nodes: [...rootNodes],
-      edges: [...rootEdges],
+      nodes: [],
+      edges: [],
     },
     nodeBlocks: new Map(),
     nodeEdges: new Map(),
   };
 
-  const rootBlockIDs: string[] = rootNodes.map((node) => node.id);
-  const rootEdgeIDs: string[] = rootEdges.map((edge) => WorkflowRuntimeEdge.createID(edge));
+  const root: WorkflowNodeSchema = {
+    id: FlowGramNode.Root,
+    type: FlowGramNode.Root,
+    blocks: rootNodes,
+    edges: rootEdges,
+    meta: {
+      position: {
+        x: 0,
+        y: 0,
+      },
+    },
+    data: {},
+  };
 
-  data.nodeBlocks.set(FlowGramNode.Root, rootBlockIDs);
-  data.nodeEdges.set(FlowGramNode.Root, rootEdgeIDs);
-
-  flatLayer(data, rootNodes);
+  flatLayer(data, root);
 
   return data;
 };
