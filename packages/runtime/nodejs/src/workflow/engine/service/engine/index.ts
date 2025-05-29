@@ -17,7 +17,7 @@ export class WorkflowRuntimeEngine implements IEngine {
     this.validation = service.Validation;
   }
 
-  public async execute(schema: WorkflowSchema) {
+  public async execute(schema: WorkflowSchema, input: Object = {}) {
     const result = this.validation.validate(schema);
     if (!result.valid) {
       throw new Error(`validation failed: ${result.errors?.join(', ')}`);
@@ -32,7 +32,7 @@ export class WorkflowRuntimeEngine implements IEngine {
       return;
     }
     console.log(`execute node: ${node.id}`);
-    await delay((delayTime += 500)); // TODO mock node run
+    await delay((delayTime += 10)); // TODO mock node run
     await this.nodeExecuted(node);
   }
 

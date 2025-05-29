@@ -1,0 +1,1 @@
+export { WorkflowRuntimeVariable } from './variable';
