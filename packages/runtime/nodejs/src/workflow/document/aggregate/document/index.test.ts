@@ -45,4 +45,42 @@ describe('WorkflowRuntimeDocument create', () => {
     expect(document.start.id).toBe('start_0');
     expect(document.end.id).toBe('end_0');
   });
+
+  it('should get node by id', () => {
+    const document = new WorkflowRuntimeDocument();
+    document.init(TestSchemas.basicSchema);
+
+    const node = document.getNode('llm_0');
+    expect(node).toBeDefined();
+    expect(node?.id).toBe('llm_0');
+    expect(node?.type).toBe('llm');
+
+    const nonExistNode = document.getNode('non_exist');
+    expect(nonExistNode).toBeNull();
+  });
+
+  it('should get edge by id', () => {
+    const document = new WorkflowRuntimeDocument();
+    document.init(TestSchemas.basicSchema);
+
+    const edge = document.getEdge('start_0-llm_0');
+    expect(edge).toBeDefined();
+    expect(edge?.id).toBe('start_0-llm_0');
+
+    const nonExistEdge = document.getEdge('non_exist');
+    expect(nonExistEdge).toBeNull();
+  });
+
+  it('should init with two LLM schema', () => {
+    const document = new WorkflowRuntimeDocument();
+    document.init(TestSchemas.twoLLMSchema);
+
+    expect(document.nodes.length).toBeGreaterThan(4); // 包含 root, start, end 和至少两个 LLM 节点
+    expect(document.edges.length).toBeGreaterThan(2); // 至少有 3 条边连接这些节点
+
+    // 验证所有必需的节点都存在
+    expect(document.root).toBeDefined();
+    expect(document.start).toBeDefined();
+    expect(document.end).toBeDefined();
+  });
 });
