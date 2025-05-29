@@ -1,6 +1,6 @@
 import { FlowGramNode, WorkflowNodeSchema, WorkflowSchema } from '@flowgram.ai/runtime-interface';
 
-import { WorkflowRuntimeEdge } from '@workflow/entity';
+import { WorkflowRuntimeEdge } from '@workflow/document/entity';
 
 export interface FlattenData {
   flattenSchema: WorkflowSchema;

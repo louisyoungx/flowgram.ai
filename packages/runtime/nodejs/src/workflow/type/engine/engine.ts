@@ -1,4 +1,4 @@
-import { IDocument } from '../aggregate/document';
+import { IDocument } from '../document/document';
 import { IValidation } from './validation';
 
 export interface EngineServices {
