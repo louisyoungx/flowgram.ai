@@ -1,8 +1,8 @@
 import { FlowGramNode, PositionSchema, WorkflowPortType } from '@flowgram.ai/runtime-interface';
 
-import { CreateNodeParams, IEdge, INode, IPort } from '@workflow/type';
+import { CreateNodeParams, IEdge, INode, IPort, NodeVariable } from '@workflow/type';
 
-export class WorkflowRuntimeNode implements INode {
+export class WorkflowRuntimeNode<T = any> implements INode {
   public readonly id: string;
 
   public readonly type: FlowGramNode;
@@ -10,6 +10,10 @@ export class WorkflowRuntimeNode implements INode {
   public readonly name: string;
 
   public readonly position: PositionSchema;
+
+  public readonly variable: NodeVariable;
+
+  public readonly data: T;
 
   private _parent: INode | null;
 
@@ -26,11 +30,13 @@ export class WorkflowRuntimeNode implements INode {
   private readonly _next: INode[];
 
   constructor(params: CreateNodeParams) {
-    const { id, type, name, position } = params;
+    const { id, type, name, position, variable, data } = params;
     this.id = id;
     this.type = type;
     this.name = name;
     this.position = position;
+    this.variable = variable ?? {};
+    this.data = data ?? {};
     this._parent = null;
     this._children = [];
     this._ports = [];
