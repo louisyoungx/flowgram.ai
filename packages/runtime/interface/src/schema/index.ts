@@ -5,3 +5,4 @@ export { WorkflowNodeSchema } from './node';
 export { WorkflowSchema } from './workflow';
 export { XYSchema, PositionSchema } from './xy';
 export { WorkflowPortType } from './constant';
+export { IFlowConstantRefValue, IFlowConstantValue, IFlowRefValue } from './value';

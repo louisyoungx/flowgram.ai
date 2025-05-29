@@ -49,11 +49,22 @@ export const createStore = (params: FlattenData): DocumentStore => {
   });
   // create nodes
   nodes.forEach((nodeSchema) => {
+    const id = nodeSchema.id;
+    const type = nodeSchema.type as FlowGramNode;
+    const {
+      name = `${type}-${id}-untitled`,
+      inputsValues,
+      inputs,
+      outputs,
+      ...data
+    } = nodeSchema.data ?? {};
     createNode(store, {
-      id: nodeSchema.id,
-      type: nodeSchema.type as FlowGramNode,
-      name: nodeSchema.data?.title ?? 'untitled',
+      id,
+      type,
+      name,
       position: nodeSchema.meta.position,
+      variable: { inputsValues, inputs, outputs },
+      data,
     });
   });
   // create node relations
