@@ -1,6 +1,6 @@
 import { ContainerService, IContainer, IDocument, IEngine, IValidation } from '@workflow/type';
-import { WorkflowRuntimeEngine, WorkflowRuntimeValidation } from '@workflow/service';
-import { WorkflowRuntimeDocument } from '@workflow/aggregate';
+import { WorkflowRuntimeEngine, WorkflowRuntimeValidation } from '@workflow/engine';
+import { WorkflowRuntimeDocument } from '@workflow/document';
 
 export class WorkflowRuntimeContainer implements IContainer {
   constructor(private readonly services: Record<string, ContainerService>) {}

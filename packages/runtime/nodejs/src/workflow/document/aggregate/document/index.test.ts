@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { WorkflowRuntimeDocument } from '@workflow/aggregate';
+import { WorkflowRuntimeDocument } from '@workflow/document';
 import { TestSchemas } from '@workflow/__tests__/schemas';
 
 describe('WorkflowRuntimeDocument create', () => {

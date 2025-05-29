@@ -1,7 +1,7 @@
 import { WorkflowSchema } from '@flowgram.ai/runtime-interface';
 
-import { INode } from '../entity/node';
-import { IEdge } from '../entity/edge';
+import { INode } from './node';
+import { IEdge } from './edge';
 
 export interface IDocument {
   id: string;
