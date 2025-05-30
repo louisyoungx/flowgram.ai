@@ -8,7 +8,7 @@ import type {
 import { IPort } from './port';
 import { IEdge } from './edge';
 
-export interface NodeVariable {
+export interface NodeDeclare {
   inputsValues?: Record<string, IFlowConstantRefValue>;
   inputs?: IJsonSchema;
   outputs?: IJsonSchema;
@@ -19,7 +19,7 @@ export interface INode<T = any> {
   type: FlowGramNode;
   name: string;
   position: PositionSchema;
-  variable: NodeVariable;
+  declare: NodeDeclare;
   data: T;
   ports: {
     inputs: IPort[];
@@ -41,6 +41,6 @@ export interface CreateNodeParams {
   type: FlowGramNode;
   name: string;
   position: PositionSchema;
-  variable?: NodeVariable;
+  variable?: NodeDeclare;
   data?: any;
 }

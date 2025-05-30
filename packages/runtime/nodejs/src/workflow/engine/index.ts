@@ -1,1 +1,5 @@
-export { WorkflowRuntimeValidation, WorkflowRuntimeEngine } from './service';
+export {
+  WorkflowRuntimeValidation,
+  WorkflowRuntimeEngine,
+  WorkflowRuntimeExecutor,
+} from './service';

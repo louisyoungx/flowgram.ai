@@ -1,4 +1,5 @@
 import { get, set } from 'lodash-es';
+import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
 
 import { IVariableStore, IVariable } from '@workflow/type';
 import { uuid } from '@workflow/infra';
@@ -11,28 +12,61 @@ export class WorkflowRuntimeVariableStore implements IVariableStore {
     this.id = uuid();
   }
 
-  public store: Record<string, Record<string, IVariable>> = {};
+  public store: Map<string, Map<string, IVariable>>;
 
-  public set(params: {
+  public init(): void {
+    this.store = new Map();
+  }
+
+  public dispose(): void {
+    this.store.clear();
+  }
+
+  public setVariable(params: {
+    nodeID: string;
+    key: string;
+    value: Object;
+    type: WorkflowVariableType;
+  }): void {
+    const { nodeID, key, value, type } = params;
+    if (!this.store.has(nodeID)) {
+      // create node store
+      this.store.set(nodeID, new Map());
+    }
+    const nodeStore = this.store.get(nodeID)!;
+    // create variable store
+    const variable = WorkflowRuntimeVariable.create({
+      nodeID,
+      key,
+      value,
+      type, // TODO check type
+    });
+    nodeStore.set(key, variable);
+  }
+
+  public setValue(params: {
     nodeID: string;
     variableKey: string;
     variablePath?: string[];
     value: Object;
   }): void {
     const { nodeID, variableKey, variablePath, value } = params;
-    if (!this.store[nodeID]) {
+    if (!this.store.has(nodeID)) {
       // create node store
-      this.store[nodeID] = {};
+      this.store.set(nodeID, new Map());
     }
-    if (!this.store[nodeID][variableKey]) {
+    const nodeStore = this.store.get(nodeID)!;
+    if (!nodeStore.has(variableKey)) {
       // create variable store
-      this.store[nodeID][variableKey] = WorkflowRuntimeVariable.create({
+      const variable = WorkflowRuntimeVariable.create({
         nodeID,
         key: variableKey,
         value: {},
+        type: WorkflowVariableType.Object,
       });
+      nodeStore.set(variableKey, variable);
     }
-    const variable = this.store[nodeID][variableKey];
+    const variable = nodeStore.get(variableKey)!;
     if (!variablePath) {
       variable.value = value;
       return;
@@ -40,17 +74,17 @@ export class WorkflowRuntimeVariableStore implements IVariableStore {
     set(variable.value, variablePath, value);
   }
 
-  public get<T = unknown>(params: {
+  public getValue<T = unknown>(params: {
     nodeID: string;
     variableKey: string;
     variablePath?: string[];
   }): T | undefined {
     const { nodeID, variableKey, variablePath } = params;
-    const variable = this.store[nodeID]?.[variableKey];
+    const variable = this.store.get(nodeID)?.get(variableKey);
     if (!variable) {
       return undefined;
     }
-    if (!variablePath) {
+    if (!variablePath || variablePath.length === 0) {
       return variable.value as T;
     }
     return get(variable.value, variablePath) as T;
