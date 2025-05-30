@@ -64,7 +64,7 @@ describe('createStore', () => {
     expect(node1?.type).toBe('TestNode');
     expect(node1?.name).toBe('Test Node 1');
     expect(node1?.position).toEqual({ x: 100, y: 100 });
-    expect(node1?.variable).toEqual({
+    expect(node1?.declare).toEqual({
       inputsValues: { test: 'value' },
       inputs: ['input1'],
       outputs: ['output1'],

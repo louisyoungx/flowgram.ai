@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
 
+import { IVariableStore } from '@workflow/type';
 import { WorkflowRuntimeVariableStore } from '@workflow/state';
 
 describe('WorkflowRuntimeVariableStore', () => {
-  let variableStore: WorkflowRuntimeVariableStore;
+  let variableStore: IVariableStore;
 
   beforeEach(() => {
     variableStore = new WorkflowRuntimeVariableStore();
+    variableStore.init();
   });
 
   it('should create a store with unique id', () => {
@@ -18,50 +21,82 @@ describe('WorkflowRuntimeVariableStore', () => {
   });
 
   describe('set', () => {
+    it('should set variable', () => {
+      const value = { foo: 'bar' };
+      variableStore.setVariable({
+        nodeID: 'node1',
+        key: 'var1',
+        value,
+        type: WorkflowVariableType.Object,
+      });
+
+      expect(variableStore.store.get('node1')?.get('var1')?.value).toEqual(value);
+    });
+
+    it('should update existing variable', () => {
+      variableStore.setVariable({
+        nodeID: 'node1',
+        key: 'var1',
+        value: { foo: 'bar' },
+        type: WorkflowVariableType.Object,
+      });
+
+      variableStore.setVariable({
+        nodeID: 'node1',
+        key: 'var1',
+        value: { baz: 'qux' },
+        type: WorkflowVariableType.Object,
+      });
+
+      expect(variableStore.store.get('node1')?.get('var1')?.value).toEqual({ baz: 'qux' });
+    });
+  });
+
+  describe('setValue', () => {
     it('should set value without path', () => {
       const value = { foo: 'bar' };
-      variableStore.set({
+      variableStore.setValue({
         nodeID: 'node1',
         variableKey: 'var1',
         value,
       });
 
-      expect(variableStore.store.node1.var1.value).toEqual(value);
+      expect(variableStore.store.get('node1')?.get('var1')?.value).toEqual(value);
     });
 
     it('should set value with path', () => {
-      variableStore.set({
+      variableStore.setValue({
         nodeID: 'node1',
         variableKey: 'var1',
         variablePath: ['foo', 'bar'],
         value: 'baz',
       });
 
-      expect(variableStore.store.node1.var1.value).toEqual({
+      expect(variableStore.store.get('node1')?.get('var1')?.value).toEqual({
         foo: { bar: 'baz' },
       });
     });
 
     it('should update existing value', () => {
-      variableStore.set({
+      variableStore.setValue({
         nodeID: 'node1',
         variableKey: 'var1',
         value: { foo: 'bar' },
       });
 
-      variableStore.set({
+      variableStore.setValue({
         nodeID: 'node1',
         variableKey: 'var1',
         value: { baz: 'qux' },
       });
 
-      expect(variableStore.store.node1.var1.value).toEqual({ baz: 'qux' });
+      expect(variableStore.store.get('node1')?.get('var1')?.value).toEqual({ baz: 'qux' });
     });
   });
 
   describe('get', () => {
     beforeEach(() => {
-      variableStore.set({
+      variableStore.setValue({
         nodeID: 'node1',
         variableKey: 'var1',
         value: { foo: { bar: 'baz' } },
@@ -69,7 +104,7 @@ describe('WorkflowRuntimeVariableStore', () => {
     });
 
     it('should get value without path', () => {
-      const value = variableStore.get({
+      const value = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'var1',
       });
@@ -78,7 +113,7 @@ describe('WorkflowRuntimeVariableStore', () => {
     });
 
     it('should get value with path', () => {
-      const value = variableStore.get({
+      const value = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'var1',
         variablePath: ['foo', 'bar'],
@@ -87,8 +122,27 @@ describe('WorkflowRuntimeVariableStore', () => {
       expect(value).toBe('baz');
     });
 
+    it('should get value with empty path', () => {
+      const value = variableStore.getValue({
+        nodeID: 'node1',
+        variableKey: 'var1',
+        variablePath: [],
+      });
+
+      expect(value).toStrictEqual({ foo: { bar: 'baz' } });
+    });
+
+    it('should get value with undefined path', () => {
+      const value = variableStore.getValue({
+        nodeID: 'node1',
+        variableKey: 'var1',
+      });
+
+      expect(value).toStrictEqual({ foo: { bar: 'baz' } });
+    });
+
     it('should return undefined for non-existent node', () => {
-      const value = variableStore.get({
+      const value = variableStore.getValue({
         nodeID: 'non-existent',
         variableKey: 'var1',
       });
@@ -97,7 +151,7 @@ describe('WorkflowRuntimeVariableStore', () => {
     });
 
     it('should return undefined for non-existent variable', () => {
-      const value = variableStore.get({
+      const value = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'non-existent',
       });
@@ -106,13 +160,30 @@ describe('WorkflowRuntimeVariableStore', () => {
     });
 
     it('should return undefined for non-existent path', () => {
-      const value = variableStore.get({
+      const value = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'var1',
         variablePath: ['non', 'existent'],
       });
 
       expect(value).toBeUndefined();
+    });
+
+    it('should get number value', () => {
+      variableStore.setVariable({
+        nodeID: 'start_0',
+        key: 'llm_settings',
+        value: { temperature: 0.5 },
+        type: WorkflowVariableType.Object,
+      });
+
+      const value = variableStore.getValue({
+        nodeID: 'start_0',
+        variableKey: 'llm_settings',
+        variablePath: ['temperature'],
+      });
+
+      expect(value).toBe(0.5);
     });
   });
 });

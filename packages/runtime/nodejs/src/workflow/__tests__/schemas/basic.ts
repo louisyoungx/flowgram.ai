@@ -70,20 +70,23 @@ export const basicSchema: WorkflowSchema = {
       data: {
         title: 'End',
         inputsValues: {
-          result: {
+          llm_res: {
             type: 'ref',
             content: ['llm_0', 'result'],
+          },
+          llm_prompt: {
+            type: 'ref',
+            content: ['start_0', 'prompt'],
           },
         },
         inputs: {
           type: 'object',
           properties: {
-            result: {
+            llm_res: {
               type: 'string',
-              default: {
-                type: 'ref',
-                content: ['llm_0', 'result'],
-              },
+            },
+            llm_prompt: {
+              type: 'string',
             },
           },
         },
