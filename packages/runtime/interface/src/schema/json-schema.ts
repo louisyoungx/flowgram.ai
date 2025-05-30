@@ -10,7 +10,7 @@ export type JsonSchemaBasicType =
   | 'map';
 
 export interface IJsonSchema<T = string> {
-  type?: T;
+  type: T;
   default?: any;
   title?: string;
   description?: string;

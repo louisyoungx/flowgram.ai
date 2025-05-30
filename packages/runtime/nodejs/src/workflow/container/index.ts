@@ -1,5 +1,20 @@
-import { ContainerService, IContainer, IDocument, IEngine, IValidation } from '@workflow/type';
-import { WorkflowRuntimeEngine, WorkflowRuntimeValidation } from '@workflow/engine';
+import {
+  ContainerService,
+  IContainer,
+  IDocument,
+  IEngine,
+  IExecutor,
+  IState,
+  IValidation,
+  IVariableStore,
+} from '@workflow/type';
+import { WorkflowRuntimeState, WorkflowRuntimeVariableStore } from '@workflow/state';
+import { WorkflowRuntimeNodeExecutors } from '@workflow/executor';
+import {
+  WorkflowRuntimeEngine,
+  WorkflowRuntimeExecutor,
+  WorkflowRuntimeValidation,
+} from '@workflow/engine';
 import { WorkflowRuntimeDocument } from '@workflow/document';
 
 export class WorkflowRuntimeContainer implements IContainer {
@@ -23,17 +38,27 @@ export class WorkflowRuntimeContainer implements IContainer {
   public static create(): Record<string, ContainerService> {
     // aggregates
     const Document = new WorkflowRuntimeDocument();
-    const Validation = new WorkflowRuntimeValidation();
+    const VariableStore = new WorkflowRuntimeVariableStore();
 
     // services
+    const Validation = new WorkflowRuntimeValidation();
+    const State = new WorkflowRuntimeState({
+      VariableStore,
+    });
+    const Executor = new WorkflowRuntimeExecutor(WorkflowRuntimeNodeExecutors);
     const Engine = new WorkflowRuntimeEngine({
       Document,
+      State,
       Validation,
+      Executor,
     });
 
     return {
       [IDocument]: Document,
+      [IVariableStore]: VariableStore,
       [IValidation]: Validation,
+      [IState]: State,
+      [IExecutor]: Executor,
       [IEngine]: Engine,
     };
   }

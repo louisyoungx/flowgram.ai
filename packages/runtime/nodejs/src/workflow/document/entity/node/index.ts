@@ -11,7 +11,7 @@ export class WorkflowRuntimeNode<T = any> implements INode {
 
   public readonly position: PositionSchema;
 
-  public readonly variable: NodeVariable;
+  public readonly declare: NodeVariable;
 
   public readonly data: T;
 
@@ -35,7 +35,7 @@ export class WorkflowRuntimeNode<T = any> implements INode {
     this.type = type;
     this.name = name;
     this.position = position;
-    this.variable = variable ?? {};
+    this.declare = variable ?? {};
     this.data = data ?? {};
     this._parent = null;
     this._children = [];

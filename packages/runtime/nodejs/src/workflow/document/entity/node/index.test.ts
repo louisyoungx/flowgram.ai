@@ -26,7 +26,7 @@ describe('WorkflowRuntimeNode', () => {
       expect(node.type).toBe(mockParams.type);
       expect(node.name).toBe(mockParams.name);
       expect(node.position).toBe(mockParams.position);
-      expect(node.variable).toEqual(mockParams.variable);
+      expect(node.declare).toEqual(mockParams.variable);
       expect(node.data).toEqual(mockParams.data);
     });
 
@@ -38,7 +38,7 @@ describe('WorkflowRuntimeNode', () => {
         position: { x: 0, y: 0 } as PositionSchema,
       };
       const minimalNode = new WorkflowRuntimeNode(minimalParams);
-      expect(minimalNode.variable).toEqual({});
+      expect(minimalNode.declare).toEqual({});
       expect(minimalNode.data).toEqual({});
     });
   });
