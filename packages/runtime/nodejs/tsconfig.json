@@ -23,6 +23,10 @@
             "@workflow/*": ["workflow/*"]
         }
     },
-    "include": ["**/*.ts", "**/*.tsx"],
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "src/workflow/executor/condition/constant.ts"
+    ],
     "exclude": ["node_modules"]
 }

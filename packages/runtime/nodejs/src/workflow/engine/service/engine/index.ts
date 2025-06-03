@@ -1,4 +1,4 @@
-import { WorkflowSchema } from '@flowgram.ai/runtime-interface';
+import { FlowGramNode, WorkflowSchema } from '@flowgram.ai/runtime-interface';
 
 import {
   EngineServices,
@@ -62,11 +62,16 @@ export class WorkflowRuntimeEngine implements IEngine {
       state: this.state,
       inputs,
     });
-    const { outputs } = result;
+    const { outputs, branch } = result;
     console.log('outputs: ', outputs);
+    if (branch) {
+      console.log('branch: ', branch);
+    }
     console.log('===== END =====\n\n');
     this.state.setNodeOutputs({ node, outputs });
-    await this.nodeExecuted(node);
+    this.executedNodes.add(node.id);
+    const nextNodes = this.getNextNodes(node, branch);
+    await this.executeNext(node, nextNodes);
   }
 
   private canExecuteNode(node: INode) {
@@ -77,9 +82,31 @@ export class WorkflowRuntimeEngine implements IEngine {
     return prevNodes.every((prevNode) => this.executedNodes.has(prevNode.id));
   }
 
-  private async nodeExecuted(node: INode) {
-    this.executedNodes.add(node.id);
-    const nextNodes = node.next;
-    await Promise.all(nextNodes.map((nextNode) => this.executeNode(nextNode)));
+  private getNextNodes(node: INode, branch?: string) {
+    const allNextNodes = node.next;
+    if (!branch) {
+      return allNextNodes;
+    }
+    const targetPort = node.ports.outputs.find((port) => port.id === branch);
+    if (!targetPort) {
+      throw new Error(`branch ${branch} not found`);
+    }
+    const nextNodeIDs: Set<string> = new Set(targetPort.edges.map((edge) => edge.to.id));
+    const nextNodes = allNextNodes.filter((nextNode) => nextNodeIDs.has(nextNode.id));
+    const skipNodes = allNextNodes.filter((nextNode) => !nextNodeIDs.has(nextNode.id));
+    skipNodes.forEach((skipNode) => {
+      this.executedNodes.add(skipNode.id);
+    });
+    return nextNodes;
+  }
+
+  private async executeNext(node: INode, next: INode[]) {
+    if (node.type === FlowGramNode.End) {
+      return;
+    }
+    if (next.length === 0) {
+      throw new Error(`node ${node.id} has no next nodes`);
+    }
+    await Promise.all(next.map((nextNode) => this.executeNode(nextNode)));
   }
 }

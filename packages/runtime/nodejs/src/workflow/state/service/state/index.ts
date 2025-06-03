@@ -1,7 +1,20 @@
-import { IFlowConstantRefValue, WorkflowVariableType } from '@flowgram.ai/runtime-interface';
+import {
+  IFlowConstantRefValue,
+  IFlowRefValue,
+  WorkflowVariableType,
+} from '@flowgram.ai/runtime-interface';
 
-import { IState, StateServices } from '@workflow/type/state/state';
-import { INode, IVariableStore, ExecutionInputs, ExecutionOutputs } from '@workflow/type';
+import type {
+  IState,
+  IVariableParseResult,
+  StateServices,
+  INode,
+  IVariableStore,
+  ExecutionInputs,
+  ExecutionOutputs,
+} from '@workflow/type';
+import { getWorkflowType, isTypeEqual } from './type-check';
+import { WORKFLOW_INPUTS_KEY, WORKFLOW_OUTPUTS_KEY, WORKFLOW_VARIABLE_ID } from './constant';
 
 export class WorkflowRuntimeState implements IState {
   public variables: IVariableStore;
@@ -29,12 +42,16 @@ export class WorkflowRuntimeState implements IState {
       if (!typeInfo) {
         return prev;
       }
-      const type = typeInfo.type as WorkflowVariableType;
+      const expectType = typeInfo.type as WorkflowVariableType;
       // get value
-      const value = this.parseFlowValue({
-        flowValue: inputValue,
-        type,
-      });
+      const result = this.parseValue(inputValue);
+      if (!result) {
+        return prev;
+      }
+      const { value, type } = result;
+      if (!isTypeEqual(type, expectType)) {
+        return prev;
+      }
       prev[key] = value;
       return prev;
     }, {} as ExecutionInputs);
@@ -66,25 +83,25 @@ export class WorkflowRuntimeState implements IState {
   public get workflowInputs(): ExecutionInputs {
     return (
       this.variables.getValue({
-        nodeID: '@workflow',
-        variableKey: 'inputs',
-      }) ?? {}
+        nodeID: WORKFLOW_VARIABLE_ID,
+        variableKey: WORKFLOW_INPUTS_KEY,
+      })?.value ?? {}
     );
   }
 
   public get workflowOutputs(): ExecutionOutputs {
     return (
       this.variables.getValue({
-        nodeID: '@workflow',
-        variableKey: 'outputs',
-      }) ?? {}
+        nodeID: WORKFLOW_VARIABLE_ID,
+        variableKey: WORKFLOW_OUTPUTS_KEY,
+      })?.value ?? {}
     );
   }
 
   public setWorkflowInputs(inputs: ExecutionInputs): void {
     this.variables.setVariable({
-      nodeID: '@workflow',
-      key: 'inputs',
+      nodeID: WORKFLOW_VARIABLE_ID,
+      key: WORKFLOW_INPUTS_KEY,
       value: inputs,
       type: WorkflowVariableType.Object,
     });
@@ -92,35 +109,53 @@ export class WorkflowRuntimeState implements IState {
 
   public setWorkflowOutputs(outputs: ExecutionOutputs): void {
     this.variables.setVariable({
-      nodeID: '@workflow',
-      key: 'outputs',
+      nodeID: WORKFLOW_VARIABLE_ID,
+      key: WORKFLOW_OUTPUTS_KEY,
       value: outputs,
       type: WorkflowVariableType.Object,
     });
   }
 
-  private parseFlowValue(params: {
-    flowValue: IFlowConstantRefValue;
-    type: WorkflowVariableType; // TODO check type
-  }): any {
-    const { flowValue } = params;
-    // constant
-    if (flowValue.type === 'constant') {
-      return flowValue.content;
+  public parseRef<T = unknown>(ref: IFlowRefValue): IVariableParseResult<T> | null {
+    if (ref?.type !== 'ref') {
+      throw new Error(`invalid ref value: ${ref}`);
     }
-    if (flowValue.type !== 'ref') {
-      throw new Error(`invalid flow value type: ${(flowValue as any).type}`);
-    }
-    // ref
-    if (!flowValue.content || flowValue.content.length < 2) {
+    if (!ref.content || ref.content.length < 2) {
       return null;
     }
-    const [nodeID, variableKey, ...variablePath] = flowValue.content;
-    const value = this.variables.getValue({
+    const [nodeID, variableKey, ...variablePath] = ref.content;
+    const result = this.variables.getValue<T>({
       nodeID,
       variableKey,
       variablePath,
     });
-    return value;
+    if (!result) {
+      return null;
+    }
+    return result;
+  }
+
+  public parseValue<T = unknown>(flowValue: IFlowConstantRefValue): IVariableParseResult<T> | null {
+    if (!flowValue?.type) {
+      throw new Error(`invalid flow value type: ${(flowValue as any).type}`);
+    }
+    // constant
+    if (flowValue.type === 'constant') {
+      const value = flowValue.content as T;
+      const type = getWorkflowType(value);
+      if (!value || !type) {
+        return null;
+      }
+      return {
+        value,
+        type,
+      };
+    }
+    // ref
+    if (flowValue.type === 'ref') {
+      return this.parseRef<T>(flowValue);
+    }
+    // unknown type
+    throw new Error(`unknown flow value type: ${(flowValue as any).type}`);
   }
 }

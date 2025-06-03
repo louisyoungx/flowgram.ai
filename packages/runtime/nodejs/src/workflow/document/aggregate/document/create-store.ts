@@ -102,7 +102,7 @@ export const createStore = (params: FlattenData): DocumentStore => {
     const fromPort = getOrCreatePort(store, {
       node: from,
       id: sourcePortID,
-      type: WorkflowPortType.Input,
+      type: WorkflowPortType.Output,
     });
 
     // build relation
@@ -115,7 +115,7 @@ export const createStore = (params: FlattenData): DocumentStore => {
     const toPort = getOrCreatePort(store, {
       node: to,
       id: targetPortID,
-      type: WorkflowPortType.Output,
+      type: WorkflowPortType.Input,
     });
 
     // build relation

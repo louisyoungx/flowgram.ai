@@ -10,7 +10,7 @@ interface LLMInputs {
   prompt: string;
 }
 
-export class LLMExecutor implements INodeExecutor {
+export class MockLLMExecutor implements INodeExecutor {
   public type = FlowGramNode.LLM;
 
   public async execute(context: ExecutionContext): Promise<ExecutionResult> {

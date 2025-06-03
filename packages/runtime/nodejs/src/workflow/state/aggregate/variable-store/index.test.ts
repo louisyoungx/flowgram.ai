@@ -104,69 +104,69 @@ describe('WorkflowRuntimeVariableStore', () => {
     });
 
     it('should get value without path', () => {
-      const value = variableStore.getValue({
+      const result = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'var1',
       });
 
-      expect(value).toEqual({ foo: { bar: 'baz' } });
+      expect(result?.value).toEqual({ foo: { bar: 'baz' } });
     });
 
     it('should get value with path', () => {
-      const value = variableStore.getValue({
+      const result = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'var1',
         variablePath: ['foo', 'bar'],
       });
 
-      expect(value).toBe('baz');
+      expect(result?.value).toBe('baz');
     });
 
     it('should get value with empty path', () => {
-      const value = variableStore.getValue({
+      const result = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'var1',
         variablePath: [],
       });
 
-      expect(value).toStrictEqual({ foo: { bar: 'baz' } });
+      expect(result?.value).toStrictEqual({ foo: { bar: 'baz' } });
     });
 
     it('should get value with undefined path', () => {
-      const value = variableStore.getValue({
+      const result = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'var1',
       });
 
-      expect(value).toStrictEqual({ foo: { bar: 'baz' } });
+      expect(result?.value).toStrictEqual({ foo: { bar: 'baz' } });
     });
 
     it('should return undefined for non-existent node', () => {
-      const value = variableStore.getValue({
+      const result = variableStore.getValue({
         nodeID: 'non-existent',
         variableKey: 'var1',
       });
 
-      expect(value).toBeUndefined();
+      expect(result?.value).toBeUndefined();
     });
 
     it('should return undefined for non-existent variable', () => {
-      const value = variableStore.getValue({
+      const result = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'non-existent',
       });
 
-      expect(value).toBeUndefined();
+      expect(result?.value).toBeUndefined();
     });
 
     it('should return undefined for non-existent path', () => {
-      const value = variableStore.getValue({
+      const result = variableStore.getValue({
         nodeID: 'node1',
         variableKey: 'var1',
         variablePath: ['non', 'existent'],
       });
 
-      expect(value).toBeUndefined();
+      expect(result?.value).toBeUndefined();
     });
 
     it('should get number value', () => {
@@ -177,13 +177,13 @@ describe('WorkflowRuntimeVariableStore', () => {
         type: WorkflowVariableType.Object,
       });
 
-      const value = variableStore.getValue({
+      const result = variableStore.getValue({
         nodeID: 'start_0',
         variableKey: 'llm_settings',
         variablePath: ['temperature'],
       });
 
-      expect(value).toBe(0.5);
+      expect(result?.value).toBe(0.5);
     });
   });
 });

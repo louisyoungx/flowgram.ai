@@ -1,7 +1,7 @@
 import { get, set } from 'lodash-es';
 import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
 
-import { IVariableStore, IVariable } from '@workflow/type';
+import { IVariableStore, IVariable, IVariableParseResult } from '@workflow/type';
 import { uuid } from '@workflow/infra';
 import { WorkflowRuntimeVariable } from '../../value-object';
 
@@ -78,15 +78,22 @@ export class WorkflowRuntimeVariableStore implements IVariableStore {
     nodeID: string;
     variableKey: string;
     variablePath?: string[];
-  }): T | undefined {
+  }): IVariableParseResult<T> | null {
     const { nodeID, variableKey, variablePath } = params;
     const variable = this.store.get(nodeID)?.get(variableKey);
     if (!variable) {
-      return undefined;
+      return null;
     }
     if (!variablePath || variablePath.length === 0) {
-      return variable.value as T;
+      return {
+        value: variable.value as T,
+        type: variable.type,
+      };
     }
-    return get(variable.value, variablePath) as T;
+    const value = get(variable.value, variablePath) as T;
+    return {
+      value,
+      type: variable.type,
+    };
   }
 }
