@@ -185,5 +185,18 @@ describe('WorkflowRuntimeVariableStore', () => {
 
       expect(result?.value).toBe(0.5);
     });
+
+    it('should return 0', () => {
+      variableStore.setValue({
+        nodeID: 'node1',
+        variableKey: 'var1',
+        value: 0,
+      });
+      const result = variableStore.getValue({
+        nodeID: 'node1',
+        variableKey: 'var1',
+      });
+      expect(result?.value).toBe(0);
+    });
   });
 });

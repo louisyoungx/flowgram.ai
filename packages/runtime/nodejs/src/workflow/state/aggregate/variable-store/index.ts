@@ -2,7 +2,7 @@ import { get, set } from 'lodash-es';
 import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
 
 import { IVariableStore, IVariable, IVariableParseResult } from '@workflow/type';
-import { uuid } from '@workflow/infra';
+import { uuid, WorkflowRuntimeType } from '@workflow/infra';
 import { WorkflowRuntimeVariable } from '../../value-object';
 
 export class WorkflowRuntimeVariableStore implements IVariableStore {
@@ -91,9 +91,13 @@ export class WorkflowRuntimeVariableStore implements IVariableStore {
       };
     }
     const value = get(variable.value, variablePath) as T;
+    const type = WorkflowRuntimeType.getWorkflowType(value);
+    if (!type) {
+      return null;
+    }
     return {
       value,
-      type: variable.type,
+      type,
     };
   }
 }

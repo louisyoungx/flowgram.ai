@@ -1,3 +1,4 @@
+import { config } from "dotenv";
 import path from 'path';
 import { defineConfig } from 'vitest/config';
 
@@ -30,5 +31,8 @@ export default defineConfig({
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
     ],
+    env: {
+      ...config({ path: path.resolve(__dirname, './.env/.env.test') }).parsed
+    }
   },
 });

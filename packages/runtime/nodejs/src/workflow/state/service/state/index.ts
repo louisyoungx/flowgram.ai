@@ -1,3 +1,4 @@
+import { isNil } from 'lodash-es';
 import {
   IFlowConstantRefValue,
   IFlowRefValue,
@@ -13,7 +14,7 @@ import type {
   ExecutionInputs,
   ExecutionOutputs,
 } from '@workflow/type';
-import { getWorkflowType, isTypeEqual } from './type-check';
+import { WorkflowRuntimeType } from '@workflow/infra';
 import { WORKFLOW_INPUTS_KEY, WORKFLOW_OUTPUTS_KEY, WORKFLOW_VARIABLE_ID } from './constant';
 
 export class WorkflowRuntimeState implements IState {
@@ -31,7 +32,7 @@ export class WorkflowRuntimeState implements IState {
     this.variables.dispose();
   }
 
-  public createNodeInputs(node: INode): ExecutionInputs {
+  public getNodeInputs(node: INode): ExecutionInputs {
     const inputsDeclare = node.declare.inputs;
     const inputsValues = node.declare.inputsValues;
     if (!inputsDeclare || !inputsValues) {
@@ -49,7 +50,7 @@ export class WorkflowRuntimeState implements IState {
         return prev;
       }
       const { value, type } = result;
-      if (!isTypeEqual(type, expectType)) {
+      if (!WorkflowRuntimeType.isTypeEqual(type, expectType)) {
         return prev;
       }
       prev[key] = value;
@@ -142,8 +143,8 @@ export class WorkflowRuntimeState implements IState {
     // constant
     if (flowValue.type === 'constant') {
       const value = flowValue.content as T;
-      const type = getWorkflowType(value);
-      if (!value || !type) {
+      const type = WorkflowRuntimeType.getWorkflowType(value);
+      if (isNil(value) || !type) {
         return null;
       }
       return {

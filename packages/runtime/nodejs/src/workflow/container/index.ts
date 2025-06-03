@@ -20,13 +20,13 @@ import { WorkflowRuntimeDocument } from '@workflow/document';
 export class WorkflowRuntimeContainer implements IContainer {
   constructor(private readonly services: Record<string, ContainerService>) {}
 
-  public get<T = ContainerService>(key: string): T {
+  public get<T = ContainerService>(key: any): T {
     return this.services[key] as T;
   }
 
   private static _instance: IContainer;
 
-  public static instance(): IContainer {
+  public static get instance(): IContainer {
     if (this._instance) {
       return this._instance;
     }
@@ -35,7 +35,7 @@ export class WorkflowRuntimeContainer implements IContainer {
     return this._instance;
   }
 
-  public static create(): Record<string, ContainerService> {
+  private static create(): Record<symbol, ContainerService> {
     // aggregates
     const Document = new WorkflowRuntimeDocument();
     const VariableStore = new WorkflowRuntimeVariableStore();

@@ -15,15 +15,27 @@ export class WorkflowRuntimeDocument implements IDocument {
   }
 
   public get root(): INode {
-    return this.getNode(FlowGramNode.Root)!;
+    const rootNode = this.getNode(FlowGramNode.Root);
+    if (!rootNode) {
+      throw new Error('Root node not found');
+    }
+    return rootNode;
   }
 
   public get start(): INode {
-    return this.nodes.find((n) => n.type === FlowGramNode.Start)!;
+    const startNode = this.nodes.find((n) => n.type === FlowGramNode.Start);
+    if (!startNode) {
+      throw new Error('Start node not found');
+    }
+    return startNode;
   }
 
   public get end(): INode {
-    return this.nodes.find((n) => n.type === FlowGramNode.End)!;
+    const endNode = this.nodes.find((n) => n.type === FlowGramNode.End);
+    if (!endNode) {
+      throw new Error('End node not found');
+    }
+    return endNode;
   }
 
   public getNode(id: string): INode | null {

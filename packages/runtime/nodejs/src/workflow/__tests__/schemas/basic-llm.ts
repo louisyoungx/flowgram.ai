@@ -1,14 +1,14 @@
 import type { WorkflowSchema } from '@flowgram.ai/runtime-interface';
 
-export const basicSchema: WorkflowSchema = {
+export const basicLLMSchema: WorkflowSchema = {
   nodes: [
     {
       id: 'start_0',
       type: 'start',
       meta: {
         position: {
-          x: 180,
-          y: 69,
+          x: 0,
+          y: 0,
         },
       },
       data: {
@@ -25,27 +25,8 @@ export const basicSchema: WorkflowSchema = {
               },
               isPropertyRequired: true,
             },
-            llm_settings: {
-              key: 17,
-              name: 'llm_settings',
-              type: 'object',
-              extra: {
-                index: 2,
-              },
-              properties: {
-                temperature: {
-                  key: 18,
-                  name: 'temperature',
-                  type: 'number',
-                  extra: {
-                    index: 1,
-                  },
-                },
-              },
-              required: [],
-            },
             prompt: {
-              key: 19,
+              key: 5,
               name: 'prompt',
               type: 'string',
               extra: {
@@ -53,8 +34,26 @@ export const basicSchema: WorkflowSchema = {
               },
               isPropertyRequired: true,
             },
+            api_key: {
+              key: 19,
+              name: 'api_key',
+              type: 'string',
+              extra: {
+                index: 4,
+              },
+              isPropertyRequired: true,
+            },
+            api_host: {
+              key: 20,
+              name: 'api_host',
+              type: 'string',
+              extra: {
+                index: 5,
+              },
+              isPropertyRequired: true,
+            },
           },
-          required: ['model_name', 'prompt'],
+          required: ['model_name', 'prompt', 'api_key', 'api_host'],
         },
       },
     },
@@ -63,29 +62,22 @@ export const basicSchema: WorkflowSchema = {
       type: 'end',
       meta: {
         position: {
-          x: 1121.3,
-          y: 69,
+          x: 1000,
+          y: 0,
         },
       },
       data: {
         title: 'End',
         inputsValues: {
-          llm_res: {
+          answer: {
             type: 'ref',
             content: ['llm_0', 'result'],
-          },
-          llm_prompt: {
-            type: 'ref',
-            content: ['start_0', 'prompt'],
           },
         },
         inputs: {
           type: 'object',
           properties: {
-            llm_res: {
-              type: 'string',
-            },
-            llm_prompt: {
+            answer: {
               type: 'string',
             },
           },
@@ -97,28 +89,28 @@ export const basicSchema: WorkflowSchema = {
       type: 'llm',
       meta: {
         position: {
-          x: 650.65,
+          x: 500,
           y: 0,
         },
       },
       data: {
-        title: 'LLM_1',
+        title: 'LLM_0',
         inputsValues: {
           modelName: {
             type: 'ref',
             content: ['start_0', 'model_name'],
           },
           apiKey: {
-            type: 'constant',
-            content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            type: 'ref',
+            content: ['start_0', 'api_key'],
           },
           apiHost: {
-            type: 'constant',
-            content: 'https://mock-ai-url/api/v3',
+            type: 'ref',
+            content: ['start_0', 'api_host'],
           },
           temperature: {
-            type: 'ref',
-            content: ['start_0', 'llm_settings', 'temperature'],
+            type: 'constant',
+            content: 0,
           },
           prompt: {
             type: 'ref',
