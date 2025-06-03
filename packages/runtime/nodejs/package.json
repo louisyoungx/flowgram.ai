@@ -12,11 +12,13 @@
     "lint-fix": "eslint --fix src",
     "type-check": "tsc",
     "start": "node dist/index.js",
-    "test": "vitest run",
+    "test": "vitest run basic.test",
     "test:cov": "vitest run --coverage"
   },
   "dependencies": {
     "@flowgram.ai/runtime-interface": "workspace:*",
+    "@langchain/openai": "0.5.11",
+    "@langchain/core": "0.3.57",
     "@fastify/websocket": "^10.0.1",
     "@trpc/client": "npm:@trpc/client",
     "@trpc/server": "npm:@trpc/server",
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@flowgram.ai/ts-config": "workspace:*",
     "@flowgram.ai/eslint-config": "workspace:*",
+    "dotenv": "~16.5.0",
     "@types/node": "^18",
     "@types/ws": "^8.2.0",
     "@types/lodash-es": "^4.17.12",

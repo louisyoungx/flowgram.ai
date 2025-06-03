@@ -55,7 +55,7 @@ export class WorkflowRuntimeEngine implements IEngine {
     }
     console.log('===== START =====');
     console.log('node: ', node.id);
-    const inputs = this.state.createNodeInputs(node);
+    const inputs = this.state.getNodeInputs(node);
     console.log('inputs: ', inputs);
     const result = await this.executor.execute({
       node,

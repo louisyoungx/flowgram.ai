@@ -30,14 +30,14 @@ describe('WorkflowRuntimeEngine', () => {
 
   it('should execute a workflow with input', async () => {
     const result = await engine.execute(TestSchemas.basicSchema, {
-      model_type: 'ai-model',
+      model_name: 'ai-model',
       llm_settings: {
         temperature: 0.5,
       },
       prompt: 'How are you?',
     });
     expect(result).toStrictEqual({
-      llm_res: `Hi, I'm an AI assistant, my name is ai-model, temperature is undefined, system prompt is "You are a helpful AI assistant.", prompt is "How are you?"`,
+      llm_res: `Hi, I'm an AI assistant, my name is ai-model, temperature is 0.5, system prompt is "You are a helpful AI assistant.", prompt is "How are you?"`,
       llm_prompt: 'How are you?',
     });
   });

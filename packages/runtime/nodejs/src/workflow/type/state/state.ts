@@ -18,7 +18,7 @@ export interface IState {
   workflowOutputs: ExecutionOutputs;
   init(): void;
   dispose(): void;
-  createNodeInputs(node: INode): ExecutionInputs;
+  getNodeInputs(node: INode): ExecutionInputs;
   setNodeOutputs(params: { node: INode; outputs: ExecutionOutputs }): void;
   setWorkflowInputs(inputs: ExecutionInputs): void;
   setWorkflowOutputs(outputs: ExecutionOutputs): void;

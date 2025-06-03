@@ -119,9 +119,17 @@ export const twoLLMSchema: WorkflowSchema = {
             type: 'constant',
             content: 'BBBB',
           },
-          modelType: {
+          modelName: {
             type: 'ref',
             content: ['start_0', 'model'],
+          },
+          apiKey: {
+            type: 'constant',
+            content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+          },
+          apiHost: {
+            type: 'constant',
+            content: 'https://mock-ai-url/api/v3',
           },
           temperature: {
             type: 'ref',
@@ -134,9 +142,15 @@ export const twoLLMSchema: WorkflowSchema = {
         },
         inputs: {
           type: 'object',
-          required: ['modelType', 'temperature', 'prompt'],
+          required: ['modelName', 'temperature', 'prompt'],
           properties: {
-            modelType: {
+            modelName: {
+              type: 'string',
+            },
+            apiKey: {
+              type: 'string',
+            },
+            apiHost: {
               type: 'string',
             },
             temperature: {
@@ -172,9 +186,17 @@ export const twoLLMSchema: WorkflowSchema = {
       data: {
         title: 'LLM_1',
         inputsValues: {
-          modelType: {
+          modelName: {
             type: 'ref',
             content: ['start_0', 'model'],
+          },
+          apiKey: {
+            type: 'constant',
+            content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+          },
+          apiHost: {
+            type: 'constant',
+            content: 'https://mock-ai-url/api/v3',
           },
           temperature: {
             type: 'ref',
@@ -191,9 +213,15 @@ export const twoLLMSchema: WorkflowSchema = {
         },
         inputs: {
           type: 'object',
-          required: ['modelType', 'temperature', 'prompt'],
+          required: ['modelName', 'temperature', 'prompt'],
           properties: {
-            modelType: {
+            modelName: {
+              type: 'string',
+            },
+            apiKey: {
+              type: 'string',
+            },
+            apiHost: {
               type: 'string',
             },
             temperature: {
