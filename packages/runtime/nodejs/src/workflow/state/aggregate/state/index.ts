@@ -9,8 +9,8 @@ import type {
   IState,
   IVariableParseResult,
   INode,
-  ExecutionInputs,
-  ExecutionOutputs,
+  WorkflowInputs,
+  WorkflowOutputs,
   IVariableStore,
 } from '@workflow/type';
 import { uuid, WorkflowRuntimeType } from '@workflow/infra';
@@ -25,15 +25,16 @@ export class WorkflowRuntimeState implements IState {
     this.id = uuid();
   }
 
-  public init(): void {
+  public init(inputs: WorkflowInputs): void {
     this.executedNodes = new Set();
+    this.setWorkflowInputs(inputs);
   }
 
   public dispose(): void {
     this.executedNodes.clear();
   }
 
-  public getNodeInputs(node: INode): ExecutionInputs {
+  public getNodeInputs(node: INode): WorkflowInputs {
     const inputsDeclare = node.declare.inputs;
     const inputsValues = node.declare.inputsValues;
     if (!inputsDeclare || !inputsValues) {
@@ -56,10 +57,10 @@ export class WorkflowRuntimeState implements IState {
       }
       prev[key] = value;
       return prev;
-    }, {} as ExecutionInputs);
+    }, {} as WorkflowInputs);
   }
 
-  public setNodeOutputs(params: { node: INode; outputs: ExecutionOutputs }): void {
+  public setNodeOutputs(params: { node: INode; outputs: WorkflowOutputs }): void {
     const { node, outputs } = params;
     const outputsDeclare = node.declare.outputs;
     // TODO validation service type check, deeply compare input & schema
@@ -82,7 +83,7 @@ export class WorkflowRuntimeState implements IState {
     });
   }
 
-  public get workflowInputs(): ExecutionInputs {
+  public get workflowInputs(): WorkflowInputs {
     return (
       this.variableStore.getValue({
         nodeID: WORKFLOW_VARIABLE_ID,
@@ -91,7 +92,7 @@ export class WorkflowRuntimeState implements IState {
     );
   }
 
-  public get workflowOutputs(): ExecutionOutputs {
+  public get workflowOutputs(): WorkflowOutputs {
     return (
       this.variableStore.getValue({
         nodeID: WORKFLOW_VARIABLE_ID,
@@ -100,7 +101,7 @@ export class WorkflowRuntimeState implements IState {
     );
   }
 
-  public setWorkflowInputs(inputs: ExecutionInputs): void {
+  public setWorkflowInputs(inputs: WorkflowInputs): void {
     this.variableStore.setVariable({
       nodeID: WORKFLOW_VARIABLE_ID,
       key: WORKFLOW_INPUTS_KEY,
@@ -109,7 +110,7 @@ export class WorkflowRuntimeState implements IState {
     });
   }
 
-  public setWorkflowOutputs(outputs: ExecutionOutputs): void {
+  public setWorkflowOutputs(outputs: WorkflowOutputs): void {
     this.variableStore.setVariable({
       nodeID: WORKFLOW_VARIABLE_ID,
       key: WORKFLOW_OUTPUTS_KEY,

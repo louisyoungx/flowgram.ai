@@ -1,7 +1,10 @@
-import { VOData } from '../base';
 import { ISnapshot } from './snapshot';
+import { VOData } from '../base';
 
 export interface ITask {
-  snapshots: ISnapshot[];
+  id: string;
   record(snapshot: VOData<ISnapshot>): ISnapshot;
+  export(): ISnapshot[];
+  init(): void;
+  dispose(): void;
 }

@@ -2,18 +2,16 @@ import { FlowGramNode } from '@flowgram.ai/runtime-interface';
 
 import { IState } from '../state';
 import { INode } from '../document';
-
-export type ExecutionInputs = Record<string, any>;
-export type ExecutionOutputs = Record<string, any>;
+import { WorkflowInputs, WorkflowOutputs } from '../base';
 
 export interface ExecutionContext {
   state: IState;
   node: INode;
-  inputs: ExecutionInputs;
+  inputs: WorkflowInputs;
 }
 
 export interface ExecutionResult {
-  outputs: ExecutionOutputs;
+  outputs: WorkflowOutputs;
   branch?: string;
 }
 

@@ -4,7 +4,7 @@ import { LLMExecutor } from './llm';
 import { EndExecutor } from './end';
 import { ConditionExecutor } from './condition';
 
-export { WorkflowRuntimeExecutor } from '../engine/service/executor';
+export { WorkflowRuntimeExecutor } from '../core/executor';
 
 export const WorkflowRuntimeNodeExecutors: INodeExecutorFactory[] = [
   StartExecutor,

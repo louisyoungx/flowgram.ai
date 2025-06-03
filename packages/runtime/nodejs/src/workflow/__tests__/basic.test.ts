@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { IContainer, IEngine } from '@workflow/type';
-import { WorkflowRuntimeContainer } from '@workflow/container';
+import { WorkflowRuntimeContainer } from '@workflow/core';
+import { snapshotsToVOData } from './utils';
 import { TestSchemas } from './schemas';
 
 let container: IContainer;
@@ -19,14 +20,54 @@ describe('workflow runtime basic test', () => {
       throw new Error('Missing environment variables');
     }
     const engine = container.get<IEngine>(IEngine);
-    const result = await engine.execute(TestSchemas.basicLLMSchema, {
-      model_name: process.env.MODEL_NAME,
-      api_key: process.env.API_KEY,
-      api_host: process.env.API_HOST,
-      prompt: 'Just give me the answer of "1+1=?", just one number, no other words',
+    const modelName = process.env.MODEL_NAME;
+    const apiKey = process.env.API_KEY;
+    const apiHost = process.env.API_HOST;
+    const { context, executing } = engine.invoke({
+      schema: TestSchemas.basicLLMSchema,
+      inputs: {
+        model_name: modelName,
+        api_key: apiKey,
+        api_host: apiHost,
+        prompt: 'Just give me the answer of "1+1=?", just one number, no other words',
+      },
     });
+    const result = await executing;
     expect(result).toStrictEqual({
       answer: '2',
     });
+    const snapshots = snapshotsToVOData(context.task.export());
+    expect(snapshots).toStrictEqual([
+      {
+        nodeID: 'start_0',
+        inputs: {},
+        outputs: {
+          model_name: modelName,
+          api_key: apiKey,
+          api_host: apiHost,
+          prompt: 'Just give me the answer of "1+1=?", just one number, no other words',
+        },
+        data: { title: 'Start' },
+      },
+      {
+        nodeID: 'llm_0',
+        inputs: {
+          modelName: modelName,
+          apiKey: apiKey,
+          apiHost: apiHost,
+          temperature: 0,
+          prompt: 'Just give me the answer of "1+1=?", just one number, no other words',
+          systemPrompt: 'You are a helpful AI assistant.',
+        },
+        outputs: { result: '2' },
+        data: { title: 'LLM_0' },
+      },
+      {
+        nodeID: 'end_0',
+        inputs: { answer: '2' },
+        outputs: { answer: '2' },
+        data: { title: 'End' },
+      },
+    ]);
   });
 });
