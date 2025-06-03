@@ -2,30 +2,22 @@ import { FlowGramNode, WorkflowSchema } from '@flowgram.ai/runtime-interface';
 
 import {
   EngineServices,
-  IDocument,
   IEngine,
   IExecutor,
   INode,
-  IState,
   IValidation,
   ExecutionInputs,
   ExecutionOutputs,
+  IContext,
 } from '@workflow/type';
+import { WorkflowRuntimeContext } from '@workflow/context';
 
 export class WorkflowRuntimeEngine implements IEngine {
-  private readonly document: IDocument;
-
   private readonly validation: IValidation;
-
-  private readonly state: IState;
 
   private readonly executor: IExecutor;
 
-  private executedNodes: Set<string> = new Set(); // TODO service
-
   constructor(service: EngineServices) {
-    this.document = service.Document;
-    this.state = service.State;
     this.validation = service.Validation;
     this.executor = service.Executor;
   }
@@ -34,32 +26,32 @@ export class WorkflowRuntimeEngine implements IEngine {
     schema: WorkflowSchema,
     inputs: ExecutionInputs = {}
   ): Promise<ExecutionOutputs> {
-    const result = this.validation.validate(schema);
-    if (!result.valid) {
-      throw new Error(`validation failed: ${result.errors?.join(', ')}`);
+    const validation = this.validation.validate(schema);
+    if (!validation.valid) {
+      throw new Error(`validation failed: ${validation.errors?.join(', ')}`);
     }
-    this.document.init(schema);
-    const startNode = this.document.start;
-    this.state.init();
-    this.state.setWorkflowInputs(inputs);
-    await this.executeNode(startNode);
-    const outputs = this.state.workflowOutputs;
-    this.document.dispose();
-    this.state.dispose();
+    const context = WorkflowRuntimeContext.create();
+    context.init({ schema });
+    const startNode = context.document.start;
+    context.state.setWorkflowInputs(inputs);
+    await this.executeNode({ node: startNode, context });
+    const outputs = context.state.workflowOutputs;
+    context.dispose();
     return outputs;
   }
 
-  private async executeNode(node: INode) {
-    if (!this.canExecuteNode(node)) {
+  private async executeNode(params: { context: IContext; node: INode }) {
+    const { node, context } = params;
+    if (!this.canExecuteNode({ node, context })) {
       return;
     }
     console.log('===== START =====');
     console.log('node: ', node.id);
-    const inputs = this.state.getNodeInputs(node);
+    const inputs = context.state.getNodeInputs(node);
     console.log('inputs: ', inputs);
     const result = await this.executor.execute({
       node,
-      state: this.state,
+      state: context.state,
       inputs,
     });
     const { outputs, branch } = result;
@@ -68,21 +60,23 @@ export class WorkflowRuntimeEngine implements IEngine {
       console.log('branch: ', branch);
     }
     console.log('===== END =====\n\n');
-    this.state.setNodeOutputs({ node, outputs });
-    this.executedNodes.add(node.id);
-    const nextNodes = this.getNextNodes(node, branch);
-    await this.executeNext(node, nextNodes);
+    context.state.setNodeOutputs({ node, outputs });
+    context.state.addExecutedNode(node);
+    const nextNodes = this.getNextNodes({ node, branch, context });
+    await this.executeNext({ node, nextNodes, context });
   }
 
-  private canExecuteNode(node: INode) {
+  private canExecuteNode(params: { context: IContext; node: INode }) {
+    const { node, context } = params;
     const prevNodes = node.prev;
     if (prevNodes.length === 0) {
       return true;
     }
-    return prevNodes.every((prevNode) => this.executedNodes.has(prevNode.id));
+    return prevNodes.every((prevNode) => context.state.isExecutedNode(prevNode));
   }
 
-  private getNextNodes(node: INode, branch?: string) {
+  private getNextNodes(params: { context: IContext; node: INode; branch?: string }) {
+    const { node, branch, context } = params;
     const allNextNodes = node.next;
     if (!branch) {
       return allNextNodes;
@@ -95,18 +89,26 @@ export class WorkflowRuntimeEngine implements IEngine {
     const nextNodes = allNextNodes.filter((nextNode) => nextNodeIDs.has(nextNode.id));
     const skipNodes = allNextNodes.filter((nextNode) => !nextNodeIDs.has(nextNode.id));
     skipNodes.forEach((skipNode) => {
-      this.executedNodes.add(skipNode.id);
+      context.state.addExecutedNode(skipNode);
     });
     return nextNodes;
   }
 
-  private async executeNext(node: INode, next: INode[]) {
+  private async executeNext(params: { context: IContext; node: INode; nextNodes: INode[] }) {
+    const { context, node, nextNodes } = params;
     if (node.type === FlowGramNode.End) {
       return;
     }
-    if (next.length === 0) {
+    if (nextNodes.length === 0) {
       throw new Error(`node ${node.id} has no next nodes`);
     }
-    await Promise.all(next.map((nextNode) => this.executeNode(nextNode)));
+    await Promise.all(
+      nextNodes.map((nextNode) =>
+        this.executeNode({
+          node: nextNode,
+          context,
+        })
+      )
+    );
   }
 }

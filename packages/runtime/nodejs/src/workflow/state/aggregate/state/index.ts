@@ -8,28 +8,29 @@ import {
 import type {
   IState,
   IVariableParseResult,
-  StateServices,
   INode,
-  IVariableStore,
   ExecutionInputs,
   ExecutionOutputs,
+  IVariableStore,
 } from '@workflow/type';
-import { WorkflowRuntimeType } from '@workflow/infra';
+import { uuid, WorkflowRuntimeType } from '@workflow/infra';
 import { WORKFLOW_INPUTS_KEY, WORKFLOW_OUTPUTS_KEY, WORKFLOW_VARIABLE_ID } from './constant';
 
 export class WorkflowRuntimeState implements IState {
-  public variables: IVariableStore;
+  public readonly id: string;
 
-  constructor(services: StateServices) {
-    this.variables = services.VariableStore;
+  private executedNodes: Set<string>;
+
+  constructor(public readonly variableStore: IVariableStore) {
+    this.id = uuid();
   }
 
-  public init() {
-    this.variables.init();
+  public init(): void {
+    this.executedNodes = new Set();
   }
 
-  public dispose() {
-    this.variables.dispose();
+  public dispose(): void {
+    this.executedNodes.clear();
   }
 
   public getNodeInputs(node: INode): ExecutionInputs {
@@ -72,7 +73,7 @@ export class WorkflowRuntimeState implements IState {
       }
       const type = typeInfo.type as WorkflowVariableType;
       // create variable
-      this.variables.setVariable({
+      this.variableStore.setVariable({
         nodeID: node.id,
         key,
         value,
@@ -83,7 +84,7 @@ export class WorkflowRuntimeState implements IState {
 
   public get workflowInputs(): ExecutionInputs {
     return (
-      this.variables.getValue({
+      this.variableStore.getValue({
         nodeID: WORKFLOW_VARIABLE_ID,
         variableKey: WORKFLOW_INPUTS_KEY,
       })?.value ?? {}
@@ -92,7 +93,7 @@ export class WorkflowRuntimeState implements IState {
 
   public get workflowOutputs(): ExecutionOutputs {
     return (
-      this.variables.getValue({
+      this.variableStore.getValue({
         nodeID: WORKFLOW_VARIABLE_ID,
         variableKey: WORKFLOW_OUTPUTS_KEY,
       })?.value ?? {}
@@ -100,7 +101,7 @@ export class WorkflowRuntimeState implements IState {
   }
 
   public setWorkflowInputs(inputs: ExecutionInputs): void {
-    this.variables.setVariable({
+    this.variableStore.setVariable({
       nodeID: WORKFLOW_VARIABLE_ID,
       key: WORKFLOW_INPUTS_KEY,
       value: inputs,
@@ -109,7 +110,7 @@ export class WorkflowRuntimeState implements IState {
   }
 
   public setWorkflowOutputs(outputs: ExecutionOutputs): void {
-    this.variables.setVariable({
+    this.variableStore.setVariable({
       nodeID: WORKFLOW_VARIABLE_ID,
       key: WORKFLOW_OUTPUTS_KEY,
       value: outputs,
@@ -125,7 +126,7 @@ export class WorkflowRuntimeState implements IState {
       return null;
     }
     const [nodeID, variableKey, ...variablePath] = ref.content;
-    const result = this.variables.getValue<T>({
+    const result = this.variableStore.getValue<T>({
       nodeID,
       variableKey,
       variablePath,
@@ -158,5 +159,13 @@ export class WorkflowRuntimeState implements IState {
     }
     // unknown type
     throw new Error(`unknown flow value type: ${(flowValue as any).type}`);
+  }
+
+  public isExecutedNode(node: INode): boolean {
+    return this.executedNodes.has(node.id);
+  }
+
+  public addExecutedNode(node: INode): void {
+    this.executedNodes.add(node.id);
   }
 }

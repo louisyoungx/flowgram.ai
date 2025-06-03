@@ -1,25 +1,9 @@
-import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
+import { IVariable, VOData } from '@workflow/type';
+import { uuid } from '@workflow/infra';
 
-import { IVariable } from '@workflow/type';
-
-export class WorkflowRuntimeVariable implements IVariable {
-  public readonly nodeID: string;
-
-  public readonly key: string;
-
-  public value: Object;
-
-  public type: WorkflowVariableType;
-
-  constructor(params: IVariable) {
-    const { nodeID, key, value, type } = params;
-    this.nodeID = nodeID;
-    this.key = key;
-    this.value = value;
-    this.type = type;
-  }
-
-  public static create(params: IVariable) {
-    return new WorkflowRuntimeVariable(params);
-  }
+export namespace WorkflowRuntimeVariable {
+  export const create = (params: VOData<IVariable>): IVariable => ({
+    id: uuid(),
+    ...params,
+  });
 }

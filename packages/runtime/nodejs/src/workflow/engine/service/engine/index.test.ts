@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { WorkflowRuntimeState, WorkflowRuntimeVariableStore } from '@workflow/state';
 import { WorkflowRuntimeEngine, WorkflowRuntimeExecutor } from '@workflow/engine';
-import { WorkflowRuntimeDocument } from '@workflow/document';
 import { TestSchemas } from '@workflow/__tests__/schemas';
 import { MockWorkflowRuntimeNodeExecutors } from '@workflow/__tests__/executor';
 import { WorkflowRuntimeValidation } from '../validation';
@@ -10,14 +8,9 @@ import { WorkflowRuntimeValidation } from '../validation';
 let engine: WorkflowRuntimeEngine;
 
 beforeEach(() => {
-  const Document = new WorkflowRuntimeDocument();
-  const VariableStore = new WorkflowRuntimeVariableStore();
-  const State = new WorkflowRuntimeState({ VariableStore });
   const Validation = new WorkflowRuntimeValidation();
   const Executor = new WorkflowRuntimeExecutor(MockWorkflowRuntimeNodeExecutors);
   engine = new WorkflowRuntimeEngine({
-    Document,
-    State,
     Validation,
     Executor,
   });
