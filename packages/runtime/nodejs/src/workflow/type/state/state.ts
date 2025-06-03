@@ -8,12 +8,9 @@ import { ExecutionInputs, ExecutionOutputs } from '../executor';
 import { INode } from '../document';
 import { IVariableParseResult, IVariableStore } from './variable';
 
-export interface StateServices {
-  VariableStore: IVariableStore;
-}
-
 export interface IState {
-  variables: IVariableStore;
+  id: string;
+  variableStore: IVariableStore;
   workflowInputs: ExecutionInputs;
   workflowOutputs: ExecutionOutputs;
   init(): void;
@@ -27,6 +24,6 @@ export interface IState {
     flowValue: IFlowConstantRefValue,
     type?: WorkflowVariableType
   ): IVariableParseResult<T> | null;
+  isExecutedNode(node: INode): boolean;
+  addExecutedNode(node: INode): void;
 }
-
-export const IState = Symbol('State');

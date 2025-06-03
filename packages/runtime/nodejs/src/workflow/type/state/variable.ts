@@ -1,6 +1,7 @@
 import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
 
 export interface IVariable<T = Object> {
+  id: string;
   nodeID: string;
   key: string;
   value: T;
@@ -35,5 +36,3 @@ export interface IVariableStore {
   init(): void;
   dispose(): void;
 }
-
-export const IVariableStore = Symbol('VariableStore');

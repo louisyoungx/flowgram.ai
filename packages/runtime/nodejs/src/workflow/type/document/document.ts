@@ -13,5 +13,3 @@ export interface IDocument {
   init(schema: WorkflowSchema): void;
   dispose(): void;
 }
-
-export const IDocument = Symbol('Document');

@@ -12,7 +12,7 @@
     "lint-fix": "eslint --fix src",
     "type-check": "tsc",
     "start": "node dist/index.js",
-    "test": "vitest run basic.test",
+    "test": "vitest run",
     "test:cov": "vitest run --coverage"
   },
   "dependencies": {
