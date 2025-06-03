@@ -4,21 +4,21 @@ import {
   WorkflowVariableType,
 } from '@flowgram.ai/runtime-interface';
 
-import { ExecutionInputs, ExecutionOutputs } from '../executor';
 import { INode } from '../document';
+import { WorkflowInputs, WorkflowOutputs } from '../base';
 import { IVariableParseResult, IVariableStore } from './variable';
 
 export interface IState {
   id: string;
   variableStore: IVariableStore;
-  workflowInputs: ExecutionInputs;
-  workflowOutputs: ExecutionOutputs;
-  init(): void;
+  workflowInputs: WorkflowInputs;
+  workflowOutputs: WorkflowOutputs;
+  init(inputs: WorkflowInputs): void;
   dispose(): void;
-  getNodeInputs(node: INode): ExecutionInputs;
-  setNodeOutputs(params: { node: INode; outputs: ExecutionOutputs }): void;
-  setWorkflowInputs(inputs: ExecutionInputs): void;
-  setWorkflowOutputs(outputs: ExecutionOutputs): void;
+  getNodeInputs(node: INode): WorkflowInputs;
+  setNodeOutputs(params: { node: INode; outputs: WorkflowOutputs }): void;
+  setWorkflowInputs(inputs: WorkflowInputs): void;
+  setWorkflowOutputs(outputs: WorkflowOutputs): void;
   parseRef<T = unknown>(ref: IFlowRefValue): IVariableParseResult<T> | null;
   parseValue<T = unknown>(
     flowValue: IFlowConstantRefValue,

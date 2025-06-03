@@ -1,42 +1,43 @@
-import { FlowGramNode, WorkflowSchema } from '@flowgram.ai/runtime-interface';
+import { FlowGramNode } from '@flowgram.ai/runtime-interface';
 
 import {
   EngineServices,
   IEngine,
   IExecutor,
   INode,
-  IValidation,
-  ExecutionInputs,
-  ExecutionOutputs,
+  WorkflowOutputs,
   IContext,
+  InvokeParams,
 } from '@workflow/type';
-import { WorkflowRuntimeContext } from '@workflow/context';
+import { WorkflowRuntimeContext } from '../context';
 
 export class WorkflowRuntimeEngine implements IEngine {
-  private readonly validation: IValidation;
-
   private readonly executor: IExecutor;
 
   constructor(service: EngineServices) {
-    this.validation = service.Validation;
     this.executor = service.Executor;
   }
 
-  public async execute(
-    schema: WorkflowSchema,
-    inputs: ExecutionInputs = {}
-  ): Promise<ExecutionOutputs> {
-    const validation = this.validation.validate(schema);
-    if (!validation.valid) {
-      throw new Error(`validation failed: ${validation.errors?.join(', ')}`);
-    }
+  public invoke(params: InvokeParams): {
+    executing: Promise<WorkflowOutputs>;
+    context: IContext;
+  } {
     const context = WorkflowRuntimeContext.create();
-    context.init({ schema });
+    context.init(params);
+    const executing = this.execute(context);
+    executing.then(() => {
+      context.dispose();
+    });
+    return {
+      context,
+      executing,
+    };
+  }
+
+  public async execute(context: IContext): Promise<WorkflowOutputs> {
     const startNode = context.document.start;
-    context.state.setWorkflowInputs(inputs);
     await this.executeNode({ node: startNode, context });
     const outputs = context.state.workflowOutputs;
-    context.dispose();
     return outputs;
   }
 
@@ -45,23 +46,22 @@ export class WorkflowRuntimeEngine implements IEngine {
     if (!this.canExecuteNode({ node, context })) {
       return;
     }
-    console.log('===== START =====');
-    console.log('node: ', node.id);
     const inputs = context.state.getNodeInputs(node);
-    console.log('inputs: ', inputs);
     const result = await this.executor.execute({
       node,
       state: context.state,
       inputs,
     });
     const { outputs, branch } = result;
-    console.log('outputs: ', outputs);
-    if (branch) {
-      console.log('branch: ', branch);
-    }
-    console.log('===== END =====\n\n');
     context.state.setNodeOutputs({ node, outputs });
     context.state.addExecutedNode(node);
+    context.task.record({
+      nodeID: node.id,
+      inputs,
+      outputs,
+      branch,
+      data: node.data,
+    });
     const nextNodes = this.getNextNodes({ node, branch, context });
     await this.executeNext({ node, nextNodes, context });
   }

@@ -1,10 +1,7 @@
 import { ContainerService, IContainer, IEngine, IExecutor, IValidation } from '@workflow/type';
-import { WorkflowRuntimeNodeExecutors } from '@workflow/executor';
-import {
-  WorkflowRuntimeEngine,
-  WorkflowRuntimeExecutor,
-  WorkflowRuntimeValidation,
-} from '@workflow/engine';
+import { WorkflowRuntimeExecutor, WorkflowRuntimeNodeExecutors } from '@workflow/executor';
+import { WorkflowRuntimeValidation } from '../validation';
+import { WorkflowRuntimeEngine } from '../engine';
 
 export class WorkflowRuntimeContainer implements IContainer {
   constructor(private readonly services: Record<string, ContainerService>) {}
@@ -29,7 +26,6 @@ export class WorkflowRuntimeContainer implements IContainer {
     const Validation = new WorkflowRuntimeValidation();
     const Executor = new WorkflowRuntimeExecutor(WorkflowRuntimeNodeExecutors);
     const Engine = new WorkflowRuntimeEngine({
-      Validation,
       Executor,
     });
 
