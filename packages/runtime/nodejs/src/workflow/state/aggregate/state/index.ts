@@ -1,20 +1,16 @@
 import { isNil } from 'lodash-es';
-import {
-  IFlowConstantRefValue,
-  IFlowRefValue,
-  WorkflowVariableType,
-} from '@flowgram.ai/runtime-interface';
+import { IFlowConstantRefValue, IFlowRefValue } from '@flowgram.ai/runtime-interface';
 
-import type {
+import {
   IState,
   IVariableParseResult,
   INode,
   WorkflowInputs,
   WorkflowOutputs,
   IVariableStore,
+  WorkflowVariableType,
 } from '@workflow/type';
 import { uuid, WorkflowRuntimeType } from '@workflow/infra';
-import { WORKFLOW_INPUTS_KEY, WORKFLOW_OUTPUTS_KEY, WORKFLOW_VARIABLE_ID } from './constant';
 
 export class WorkflowRuntimeState implements IState {
   public readonly id: string;
@@ -25,9 +21,8 @@ export class WorkflowRuntimeState implements IState {
     this.id = uuid();
   }
 
-  public init(inputs: WorkflowInputs): void {
+  public init(): void {
     this.executedNodes = new Set();
-    this.setWorkflowInputs(inputs);
   }
 
   public dispose(): void {
@@ -80,42 +75,6 @@ export class WorkflowRuntimeState implements IState {
         value,
         type,
       });
-    });
-  }
-
-  public get workflowInputs(): WorkflowInputs {
-    return (
-      this.variableStore.getValue({
-        nodeID: WORKFLOW_VARIABLE_ID,
-        variableKey: WORKFLOW_INPUTS_KEY,
-      })?.value ?? {}
-    );
-  }
-
-  public get workflowOutputs(): WorkflowOutputs {
-    return (
-      this.variableStore.getValue({
-        nodeID: WORKFLOW_VARIABLE_ID,
-        variableKey: WORKFLOW_OUTPUTS_KEY,
-      })?.value ?? {}
-    );
-  }
-
-  public setWorkflowInputs(inputs: WorkflowInputs): void {
-    this.variableStore.setVariable({
-      nodeID: WORKFLOW_VARIABLE_ID,
-      key: WORKFLOW_INPUTS_KEY,
-      value: inputs,
-      type: WorkflowVariableType.Object,
-    });
-  }
-
-  public setWorkflowOutputs(outputs: WorkflowOutputs): void {
-    this.variableStore.setVariable({
-      nodeID: WORKFLOW_VARIABLE_ID,
-      key: WORKFLOW_OUTPUTS_KEY,
-      value: outputs,
-      type: WorkflowVariableType.Object,
     });
   }
 

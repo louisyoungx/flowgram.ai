@@ -23,11 +23,11 @@ export interface TaskProgressNodeData {
 }
 
 export interface TaskProgressReq {
-  taskId: string;
+  taskID: string;
 }
 
 export interface TaskProgressRes {
-  taskId: string;
+  taskID: string;
   status: TaskProgressStatus;
   nodeResults: TaskProgressNodeData[];
 }
@@ -35,13 +35,13 @@ export interface TaskProgressRes {
 export const TaskProgressDefine: FlowGramAPIDefine = {
   name: FlowGramAPIName.TaskProgress,
   method: FlowGramAPIMethod.GET,
-  path: '/api/test-run',
+  path: '/api/get-progress',
   schema: {
     req: z.object({
-      taskId: z.string(),
+      taskID: z.string(),
     }),
     res: z.object({
-      taskId: z.string(),
+      taskID: z.string(),
       status: z.nativeEnum(TaskProgressStatus),
       nodeResults: z.array(
         z.object({

@@ -1,5 +1,3 @@
-import { FlowGramNode } from '@flowgram.ai/runtime-interface';
-
 import {
   EngineServices,
   IEngine,
@@ -8,10 +6,10 @@ import {
   WorkflowOutputs,
   IContext,
   InvokeParams,
-  WorkflowStatus,
   ITask,
+  FlowGramNode,
 } from '@workflow/type';
-import { WorkflowRuntimeTask } from '@workflow/task';
+import { WorkflowRuntimeTask } from '../task';
 import { WorkflowRuntimeContext } from '../context';
 
 export class WorkflowRuntimeEngine implements IEngine {
@@ -36,14 +34,14 @@ export class WorkflowRuntimeEngine implements IEngine {
 
   private async process(context: IContext): Promise<WorkflowOutputs> {
     const startNode = context.document.start;
-    context.status.setWorkflowStatus(WorkflowStatus.Processing);
+    context.statusCenter.workflow.process();
     try {
       await this.executeNode({ node: startNode, context });
-      context.status.setWorkflowStatus(WorkflowStatus.Success);
-      const outputs = context.state.workflowOutputs;
+      const outputs = context.ioCenter.outputs;
+      context.statusCenter.workflow.success();
       return outputs;
     } catch (e) {
-      context.status.setWorkflowStatus(WorkflowStatus.Failed);
+      context.statusCenter.workflow.fail();
       throw e;
     }
   }
@@ -53,22 +51,23 @@ export class WorkflowRuntimeEngine implements IEngine {
     if (!this.canExecuteNode({ node, context })) {
       return;
     }
-    context.status.setNodeStatus(node.id, WorkflowStatus.Processing);
+    context.statusCenter.nodeStatus(node.id).process();
     try {
       const inputs = context.state.getNodeInputs(node);
       const result = await this.executor.execute({
         node,
         state: context.state,
+        io: context.ioCenter,
         inputs,
       });
-      if (context.status.terminated) {
+      if (context.statusCenter.workflow.terminated) {
         return;
       }
       const { outputs, branch } = result;
       context.state.setNodeOutputs({ node, outputs });
       context.state.addExecutedNode(node);
-      context.status.setNodeStatus(node.id, WorkflowStatus.Success);
-      context.recorder.create({
+      context.statusCenter.nodeStatus(node.id).success();
+      context.snapshotCenter.create({
         nodeID: node.id,
         inputs,
         outputs,
@@ -78,7 +77,7 @@ export class WorkflowRuntimeEngine implements IEngine {
       const nextNodes = this.getNextNodes({ node, branch, context });
       await this.executeNext({ node, nextNodes, context });
     } catch (e) {
-      context.status.setNodeStatus(node.id, WorkflowStatus.Failed);
+      context.statusCenter.nodeStatus(node.id).fail();
       throw e;
     }
   }

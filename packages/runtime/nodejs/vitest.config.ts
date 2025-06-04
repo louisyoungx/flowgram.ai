@@ -11,6 +11,7 @@ export default defineConfig({
   resolve: {
     alias: [
       {find: "@api", replacement: path.resolve(__dirname, './src/api') },
+      {find: "@application", replacement: path.resolve(__dirname, './src/application') },
       {find: "@server", replacement: path.resolve(__dirname, './src/server') },
       {find: "@config", replacement: path.resolve(__dirname, './src/config') },
       {find: "@workflow", replacement: path.resolve(__dirname, './src/workflow') },

@@ -1,11 +1,13 @@
 import { FlowGramNode } from '@flowgram.ai/runtime-interface';
 
 import { IState } from '../state';
+import { IIOCenter } from '../reporter';
 import { INode } from '../document';
 import { WorkflowInputs, WorkflowOutputs } from '../base';
 
 export interface ExecutionContext {
   state: IState;
+  io: IIOCenter;
   node: INode;
   inputs: WorkflowInputs;
 }

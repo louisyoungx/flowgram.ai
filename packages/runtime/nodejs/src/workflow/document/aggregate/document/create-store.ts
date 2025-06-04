@@ -1,6 +1,10 @@
-import { FlowGramNode, WorkflowPortType } from '@flowgram.ai/runtime-interface';
-
-import type { CreateEdgeParams, CreateNodeParams, CreatePortParams } from '@workflow/type';
+import {
+  FlowGramNode,
+  WorkflowPortType,
+  type CreateEdgeParams,
+  type CreateNodeParams,
+  type CreatePortParams,
+} from '@workflow/type';
 import { WorkflowRuntimeEdge, WorkflowRuntimeNode, WorkflowRuntimePort } from '../../entity';
 import { FlattenData } from './flat-schema';
 
@@ -52,7 +56,7 @@ export const createStore = (params: FlattenData): DocumentStore => {
     const id = nodeSchema.id;
     const type = nodeSchema.type as FlowGramNode;
     const {
-      name = `${type}-${id}-untitled`,
+      title = `${type}-${id}-untitled`,
       inputsValues,
       inputs,
       outputs,
@@ -61,7 +65,7 @@ export const createStore = (params: FlattenData): DocumentStore => {
     createNode(store, {
       id,
       type,
-      name,
+      name: title,
       position: nodeSchema.meta.position,
       variable: { inputsValues, inputs, outputs },
       data,

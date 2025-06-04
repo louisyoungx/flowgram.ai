@@ -15,10 +15,10 @@ export class WorkflowRuntimeTask implements ITask {
   }
 
   public cancel(): void {
-    this.context.status.setWorkflowStatus(WorkflowStatus.Canceled);
-    const cancelNodeIDs = this.context.status.getStatusNodeIDs(WorkflowStatus.Processing);
+    this.context.statusCenter.workflow.cancel();
+    const cancelNodeIDs = this.context.statusCenter.getStatusNodeIDs(WorkflowStatus.Processing);
     cancelNodeIDs.forEach((nodeID) => {
-      this.context.status.setNodeStatus(nodeID, WorkflowStatus.Canceled);
+      this.context.statusCenter.nodeStatus(nodeID).cancel();
     });
   }
 

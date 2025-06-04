@@ -201,8 +201,8 @@ export const branchSchema: WorkflowSchema = {
         title: 'LLM_2',
         inputsValues: {
           modelName: {
-            type: 'ref',
-            content: ['start_0', 'prompt'],
+            type: 'constant',
+            content: 'AI_MODEL_2',
           },
           apiKey: {
             type: 'constant',

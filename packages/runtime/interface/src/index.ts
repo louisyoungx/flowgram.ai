@@ -1,3 +1,3 @@
-export * from '@api/index';
-export * from '@schema/index';
-export * from '@node/index';
+export * from './api';
+export * from './schema';
+export * from './node';

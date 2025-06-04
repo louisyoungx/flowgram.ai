@@ -1,5 +1,4 @@
-import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
-
+import { WorkflowVariableType } from '@workflow/type';
 import { ConditionHandlers } from '../type';
 import { conditionStringHandler } from './string';
 import { conditionObjectHandler } from './object';
