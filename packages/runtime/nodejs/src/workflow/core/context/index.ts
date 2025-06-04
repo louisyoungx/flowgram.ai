@@ -1,5 +1,13 @@
-import { InvokeParams, IContext, IDocument, IState, ITask, IVariableStore } from '@workflow/type';
-import { WorkflowRuntimeTask } from '@workflow/task';
+import {
+  InvokeParams,
+  IContext,
+  IDocument,
+  IState,
+  IRecorder,
+  IVariableStore,
+  IStatus,
+} from '@workflow/type';
+import { WorkflowRuntimeRecorder, WorkflowRuntimeStatus } from '@workflow/task';
 import { WorkflowRuntimeState, WorkflowRuntimeVariableStore } from '@workflow/state';
 import { uuid } from '@workflow/infra';
 import { WorkflowRuntimeDocument } from '@workflow/document';
@@ -11,31 +19,36 @@ export class WorkflowRuntimeContext implements IContext {
 
   public readonly variableStore: IVariableStore;
 
+  public readonly status: IStatus;
+
   public readonly state: IState;
 
-  public readonly task: ITask;
+  public readonly recorder: IRecorder;
 
   constructor() {
     this.id = uuid();
     this.document = new WorkflowRuntimeDocument();
     this.variableStore = new WorkflowRuntimeVariableStore();
+    this.status = new WorkflowRuntimeStatus();
     this.state = new WorkflowRuntimeState(this.variableStore);
-    this.task = new WorkflowRuntimeTask();
+    this.recorder = new WorkflowRuntimeRecorder();
   }
 
   public init(params: InvokeParams): void {
     const { schema, inputs } = params;
     this.document.init(schema);
     this.variableStore.init();
+    this.status.init();
     this.state.init(inputs);
-    this.task.init();
+    this.recorder.init();
   }
 
   public dispose(): void {
     this.document.dispose();
     this.variableStore.dispose();
+    this.status.dispose();
     this.state.dispose();
-    // this.task.dispose(); // 数据没有持久化，不对任务进行销毁
+    this.recorder.dispose();
   }
 
   public static create(): IContext {

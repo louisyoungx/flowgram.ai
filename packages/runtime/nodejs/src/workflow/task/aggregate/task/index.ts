@@ -1,32 +1,28 @@
-import { ISnapshot } from '@workflow/type';
-import { ITask, VOData } from '@workflow/type';
-import { WorkflowRuntimeSnapshot } from '@workflow/task/value-object';
+import { IContext, ITask, TaskParams, WorkflowOutputs, WorkflowStatus } from '@workflow/type';
 import { uuid } from '@workflow/infra';
 
 export class WorkflowRuntimeTask implements ITask {
   public readonly id: string;
 
-  private snapshots: ISnapshot[];
+  public readonly processing: Promise<WorkflowOutputs>;
 
-  constructor() {
+  public readonly context: IContext;
+
+  constructor(params: TaskParams) {
     this.id = uuid();
+    this.context = params.context;
+    this.processing = params.processing;
   }
 
-  public record(snapshotData: VOData<ISnapshot>): ISnapshot {
-    const snapshot = WorkflowRuntimeSnapshot.create(snapshotData);
-    this.snapshots.push(snapshot);
-    return snapshot;
+  public cancel(): void {
+    this.context.status.setWorkflowStatus(WorkflowStatus.Canceled);
+    const cancelNodeIDs = this.context.status.getStatusNodeIDs(WorkflowStatus.Processing);
+    cancelNodeIDs.forEach((nodeID) => {
+      this.context.status.setNodeStatus(nodeID, WorkflowStatus.Canceled);
+    });
   }
 
-  public init(): void {
-    this.snapshots = [];
-  }
-
-  public dispose(): void {
-    this.snapshots = [];
-  }
-
-  public export(): ISnapshot[] {
-    return this.snapshots.slice();
+  public static create(params: TaskParams): WorkflowRuntimeTask {
+    return new WorkflowRuntimeTask(params);
   }
 }

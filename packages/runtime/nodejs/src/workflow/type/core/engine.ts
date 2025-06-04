@@ -1,16 +1,13 @@
+import { ITask } from '../task/task';
 import { IExecutor } from './executor';
-import { IContext } from './context';
-import { InvokeParams, WorkflowOutputs } from '../base';
+import { InvokeParams } from '../base';
 
 export interface EngineServices {
   Executor: IExecutor;
 }
 
 export interface IEngine {
-  invoke(params: InvokeParams): {
-    executing: Promise<WorkflowOutputs>;
-    context: IContext;
-  };
+  invoke(params: InvokeParams): ITask;
 }
 
 export const IEngine = Symbol.for('Engine');

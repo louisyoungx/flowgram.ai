@@ -1,10 +1,14 @@
-import { ISnapshot } from './snapshot';
-import { VOData } from '../base';
+import { IContext } from '../core';
+import { WorkflowOutputs } from '../base';
 
 export interface ITask {
   id: string;
-  record(snapshot: VOData<ISnapshot>): ISnapshot;
-  export(): ISnapshot[];
-  init(): void;
-  dispose(): void;
+  processing: Promise<WorkflowOutputs>;
+  context: IContext;
+  cancel(): void;
+}
+
+export interface TaskParams {
+  processing: Promise<WorkflowOutputs>;
+  context: IContext;
 }

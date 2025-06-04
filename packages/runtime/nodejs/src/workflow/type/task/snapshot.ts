@@ -1,4 +1,4 @@
-import { WorkflowInputs, WorkflowOutputs } from '../executor';
+import { WorkflowInputs, WorkflowOutputs } from '../base';
 
 export interface ISnapshot {
   id: string;

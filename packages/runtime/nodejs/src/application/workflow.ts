@@ -1,10 +1,10 @@
-import { InvokeParams, IContainer, IContext, IEngine } from '@workflow/type';
+import { InvokeParams, IContainer, IEngine, ITask } from '@workflow/type';
 import { WorkflowRuntimeContainer } from '@workflow/core';
 
 export class WorkflowApplication {
   private container: IContainer;
 
-  private contexts: Map<string, IContext>;
+  private tasks: Map<string, ITask>;
 
   constructor() {
     this.container = WorkflowRuntimeContainer.instance;
@@ -12,9 +12,25 @@ export class WorkflowApplication {
 
   public run(params: InvokeParams): string {
     const engine = this.container.get<IEngine>(IEngine);
-    const { context } = engine.invoke(params);
-    this.contexts.set(context.id, context);
-    return context.id;
+    const task = engine.invoke(params);
+    this.tasks.set(task.context.id, task);
+    return task.id;
+  }
+
+  public cancel(taskID: string): void {
+    const task = this.tasks.get(taskID);
+    if (!task) {
+      return;
+    }
+    task.cancel();
+  }
+
+  public getProgress(taskID: string) {
+    const task = this.tasks.get(taskID);
+    if (!task) {
+      return;
+    }
+    // return task.progress; // TODO
   }
 
   private static _instance: WorkflowApplication;

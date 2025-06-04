@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { IContainer, IEngine } from '@workflow/type';
+import { IContainer, IEngine, WorkflowStatus } from '@workflow/type';
 import { WorkflowRuntimeContainer } from '@workflow/core';
 import { snapshotsToVOData } from './utils';
 import { TestSchemas } from './schemas';
@@ -23,7 +23,7 @@ describe('workflow runtime basic test', () => {
     const modelName = process.env.MODEL_NAME;
     const apiKey = process.env.API_KEY;
     const apiHost = process.env.API_HOST;
-    const { context, executing } = engine.invoke({
+    const { context, processing } = engine.invoke({
       schema: TestSchemas.basicLLMSchema,
       inputs: {
         model_name: modelName,
@@ -32,11 +32,13 @@ describe('workflow runtime basic test', () => {
         prompt: 'Just give me the answer of "1+1=?", just one number, no other words',
       },
     });
-    const result = await executing;
+    expect(context.status.workflowStatus).toBe(WorkflowStatus.Processing);
+    const result = await processing;
+    expect(context.status.workflowStatus).toBe(WorkflowStatus.Success);
     expect(result).toStrictEqual({
       answer: '2',
     });
-    const snapshots = snapshotsToVOData(context.task.export());
+    const snapshots = snapshotsToVOData(context.recorder.export());
     expect(snapshots).toStrictEqual([
       {
         nodeID: 'start_0',
