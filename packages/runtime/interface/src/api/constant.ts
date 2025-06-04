@@ -10,6 +10,7 @@ export enum FlowGramAPIName {
   ServerInfo = 'ServerInfo',
   Run = 'Run',
   TestRun = 'TestRun',
-  TaskProgress = 'TaskProgress',
+  TaskReport = 'TaskReport',
+  TaskResult = 'TaskResult',
   Validation = 'Validation',
 }

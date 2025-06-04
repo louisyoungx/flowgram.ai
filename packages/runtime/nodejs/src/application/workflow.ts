@@ -34,7 +34,7 @@ export class WorkflowApplication {
     task.cancel();
   }
 
-  public getProgress(taskID: string): IReport | undefined {
+  public report(taskID: string): IReport | undefined {
     const task = this.tasks.get(taskID);
     if (!task) {
       return;

@@ -7,8 +7,8 @@ export interface FlowGramAPIDefine {
   method: FlowGramAPIMethod;
   path: string;
   schema: {
-    req: z.ZodFirstPartySchemaTypes;
-    res: z.ZodFirstPartySchemaTypes;
+    input: z.ZodFirstPartySchemaTypes;
+    output: z.ZodFirstPartySchemaTypes;
   };
 }
 

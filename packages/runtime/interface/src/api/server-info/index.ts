@@ -17,8 +17,8 @@ export const ServerInfoDefine: FlowGramAPIDefine = {
   method: FlowGramAPIMethod.GET,
   path: '/',
   schema: {
-    req: z.undefined(),
-    res: z.object({
+    input: z.undefined(),
+    output: z.object({
       name: z.string(),
       runtime: z.string(),
       version: z.string(),
