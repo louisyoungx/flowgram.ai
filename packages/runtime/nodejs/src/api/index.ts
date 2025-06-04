@@ -1,22 +1,24 @@
-import z from 'zod';
+import {
+  RunDefine,
+  RunInput,
+  RunOutput,
+  TaskReportDefine,
+  TaskReportInput,
+  TaskReportOutput,
+  TaskResultDefine,
+  TaskResultInput,
+  TaskResultOutput,
+} from '@flowgram.ai/runtime-interface';
 
 import { WorkflowApplication } from '@application/workflow';
 import { publicProcedure, router } from './trpc';
 
 export const appRouter = router({
-  run: publicProcedure
-    .input(
-      z.object({
-        schema: z.string(),
-        inputs: z.record(z.string(), z.unknown()),
-      })
-    )
-    .output(
-      z.object({
-        taskID: z.string(),
-      })
-    )
-    .mutation(({ input }) => {
+  [RunDefine.path]: publicProcedure
+    .input(RunDefine.schema.input)
+    .output(RunDefine.schema.output)
+    .mutation((opts) => {
+      const input: RunInput = opts.input;
       const app = WorkflowApplication.instance;
       const { schema: stringSchema, inputs } = input;
       const schema = JSON.parse(stringSchema);
@@ -24,33 +26,30 @@ export const appRouter = router({
         schema,
         inputs,
       });
-      return {
+      const output: RunOutput = {
         taskID,
       };
+      return output;
     }),
-  'get-progress': publicProcedure
-    .input(
-      z.object({
-        taskID: z.string(),
-      })
-    )
-    .mutation(({ input }) => {
+  [TaskReportDefine.path]: publicProcedure
+    .input(TaskReportDefine.schema.input)
+    .output(TaskReportDefine.schema.output)
+    .mutation((opts) => {
+      const input: TaskReportInput = opts.input;
       const app = WorkflowApplication.instance;
       const { taskID } = input;
-      const progress = app.getProgress(taskID);
-      return progress;
+      const output: TaskReportOutput = app.report(taskID);
+      return output;
     }),
-  'get-result': publicProcedure
-    .input(
-      z.object({
-        taskID: z.string(),
-      })
-    )
-    .mutation(({ input }) => {
+  [TaskResultDefine.path]: publicProcedure
+    .input(TaskResultDefine.schema.input)
+    .output(TaskResultDefine.schema.output)
+    .mutation((opts) => {
+      const input: TaskResultInput = opts.input;
       const app = WorkflowApplication.instance;
       const { taskID } = input;
-      const result = app.getResult(taskID);
-      return result;
+      const output: TaskResultOutput = app.getResult(taskID);
+      return output;
     }),
 });
 

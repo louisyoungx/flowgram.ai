@@ -15,10 +15,10 @@ export const ValidationDefine: FlowGramAPIDefine = {
   method: FlowGramAPIMethod.POST,
   path: 'validation',
   schema: {
-    req: z.object({
+    input: z.object({
       schema: z.string(),
     }),
-    res: z.object({
+    output: z.object({
       valid: z.boolean(),
       nodeErrors: z.array(
         z.object({

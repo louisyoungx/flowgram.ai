@@ -17,11 +17,11 @@ export const TestRunDefine: FlowGramAPIDefine = {
   method: FlowGramAPIMethod.POST,
   path: 'test-run',
   schema: {
-    req: z.object({
+    input: z.object({
       schema: z.string(),
       input: z.custom<Object>(),
     }),
-    res: z.object({
+    output: z.object({
       taskId: z.string(),
     }),
   },
