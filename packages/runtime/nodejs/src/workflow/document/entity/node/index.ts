@@ -1,6 +1,13 @@
-import { FlowGramNode, PositionSchema, WorkflowPortType } from '@flowgram.ai/runtime-interface';
+import { FlowGramNode, PositionSchema } from '@flowgram.ai/runtime-interface';
 
-import { CreateNodeParams, IEdge, INode, IPort, NodeVariable } from '@workflow/type';
+import {
+  CreateNodeParams,
+  IEdge,
+  INode,
+  IPort,
+  NodeVariable,
+  WorkflowPortType,
+} from '@workflow/type';
 
 export class WorkflowRuntimeNode<T = any> implements INode {
   public readonly id: string;

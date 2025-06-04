@@ -1,9 +1,9 @@
 import { ISnapshot } from '@workflow/type';
-import { IRecorder, VOData } from '@workflow/type';
-import { WorkflowRuntimeSnapshot } from '@workflow/task/value-object';
+import { ISnapshotCenter, VOData } from '@workflow/type';
+import { WorkflowRuntimeSnapshot } from '@workflow/reporter/value-object';
 import { uuid } from '@workflow/infra';
 
-export class WorkflowRuntimeRecorder implements IRecorder {
+export class WorkflowRuntimeSnapshotCenter implements ISnapshotCenter {
   public readonly id: string;
 
   private snapshots: ISnapshot[];

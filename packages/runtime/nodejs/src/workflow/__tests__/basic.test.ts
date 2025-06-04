@@ -32,13 +32,13 @@ describe('workflow runtime basic test', () => {
         prompt: 'Just give me the answer of "1+1=?", just one number, no other words',
       },
     });
-    expect(context.status.workflowStatus).toBe(WorkflowStatus.Processing);
+    expect(context.statusCenter.workflow.status).toBe(WorkflowStatus.Processing);
     const result = await processing;
-    expect(context.status.workflowStatus).toBe(WorkflowStatus.Success);
+    expect(context.statusCenter.workflow.status).toBe(WorkflowStatus.Succeeded);
     expect(result).toStrictEqual({
       answer: '2',
     });
-    const snapshots = snapshotsToVOData(context.recorder.export());
+    const snapshots = snapshotsToVOData(context.snapshotCenter.export());
     expect(snapshots).toStrictEqual([
       {
         nodeID: 'start_0',

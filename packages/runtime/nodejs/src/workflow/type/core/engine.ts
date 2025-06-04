@@ -1,4 +1,4 @@
-import { ITask } from '../task/task';
+import { ITask } from './task';
 import { IExecutor } from './executor';
 import { InvokeParams } from '../base';
 

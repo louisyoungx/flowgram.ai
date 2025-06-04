@@ -1,4 +1,4 @@
-import { ISnapshot } from '@workflow/type/task/snapshot';
+import { ISnapshot } from '@workflow/type/reporter/snapshot';
 import { VOData } from '@workflow/type';
 import { uuid } from '@workflow/infra';
 

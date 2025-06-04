@@ -1,9 +1,8 @@
 import { isNil } from 'lodash-es';
 import { ChatOpenAI } from '@langchain/openai';
 import { SystemMessage, HumanMessage, BaseMessageLike } from '@langchain/core/messages';
-import { FlowGramNode } from '@flowgram.ai/runtime-interface';
 
-import { ExecutionContext, ExecutionResult, INodeExecutor } from '@workflow/type';
+import { ExecutionContext, ExecutionResult, FlowGramNode, INodeExecutor } from '@workflow/type';
 
 export interface LLMExecutorInputs {
   modelName: string;

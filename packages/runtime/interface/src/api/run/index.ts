@@ -1,15 +1,15 @@
 import z from 'zod';
 
-import { FlowGramAPIDefine } from '@api/type';
+import { FlowGramAPIDefine, WorkflowInputs } from '@api/type';
 import { FlowGramAPIMethod, FlowGramAPIName } from '@api/constant';
 
 export interface RunReq {
   schema: string;
-  input: Object;
+  inputs: WorkflowInputs;
 }
 
 export interface RunRes {
-  output: Object;
+  taskID: string;
 }
 
 export const RunDefine: FlowGramAPIDefine = {
@@ -19,10 +19,10 @@ export const RunDefine: FlowGramAPIDefine = {
   schema: {
     req: z.object({
       schema: z.string(),
-      input: z.custom<Object>(),
+      inputs: z.custom<WorkflowInputs>(),
     }),
     res: z.object({
-      output: z.custom<Object>(),
+      taskID: z.string(),
     }),
   },
 };

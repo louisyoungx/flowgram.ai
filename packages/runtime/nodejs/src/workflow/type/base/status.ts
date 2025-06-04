@@ -1,7 +1,7 @@
 export enum WorkflowStatus {
   Pending = 'pending',
   Processing = 'processing',
-  Success = 'success',
+  Succeeded = 'succeeded',
   Failed = 'failed',
   Canceled = 'canceled',
 }

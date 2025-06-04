@@ -30,7 +30,7 @@ describe('createStore', () => {
             type: 'TestNode',
             meta: { position: { x: 100, y: 100 } },
             data: {
-              name: 'Test Node 1',
+              title: 'Test Node 1',
               inputsValues: { test: 'value' },
               inputs: ['input1'],
               outputs: ['output1'],
@@ -41,7 +41,7 @@ describe('createStore', () => {
             type: 'TestNode',
             meta: { position: { x: 200, y: 200 } },
             data: {
-              name: 'Test Node 2',
+              title: 'Test Node 2',
             },
           },
         ],
