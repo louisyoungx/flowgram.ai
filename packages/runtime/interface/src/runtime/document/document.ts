@@ -1,5 +1,4 @@
-import { WorkflowSchema } from '@flowgram.ai/runtime-interface';
-
+import { WorkflowSchema } from '@schema/index';
 import { INode } from './node';
 import { IEdge } from './edge';
 

@@ -1,10 +1,5 @@
-import type {
-  FlowGramNode,
-  IFlowConstantRefValue,
-  IJsonSchema,
-  PositionSchema,
-} from '@flowgram.ai/runtime-interface';
-
+import { IFlowConstantRefValue, IJsonSchema, PositionSchema } from '@schema/index';
+import { FlowGramNode } from '@node/constant';
 import { IPort } from './port';
 import { IEdge } from './edge';
 

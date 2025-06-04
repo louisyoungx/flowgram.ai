@@ -1,5 +1,5 @@
-import { StatusData } from '@workflow/type/reporter/status';
-import { IStatus, IStatusCenter, WorkflowStatus } from '@workflow/type';
+import { IStatus, IStatusCenter, StatusData, WorkflowStatus } from '@flowgram.ai/runtime-interface';
+
 import { WorkflowRuntimeStatus } from '@workflow/reporter/entity';
 
 export class WorkflowRuntimeStatusCenter implements IStatusCenter {

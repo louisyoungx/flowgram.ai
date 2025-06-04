@@ -1,6 +1,10 @@
-import { WorkflowEdgeSchema } from '@flowgram.ai/runtime-interface';
-
-import { CreateEdgeParams, IEdge, INode, IPort } from '@workflow/type';
+import {
+  WorkflowEdgeSchema,
+  CreateEdgeParams,
+  IEdge,
+  INode,
+  IPort,
+} from '@flowgram.ai/runtime-interface';
 
 export class WorkflowRuntimeEdge implements IEdge {
   public readonly id: string;

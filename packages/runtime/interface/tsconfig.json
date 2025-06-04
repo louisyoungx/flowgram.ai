@@ -3,11 +3,24 @@
     "compilerOptions": {
         "baseUrl": "src",
         "paths": {
-            "@api/*": ["api/*"],
-            "@node/*": ["node/*"],
-            "@schema/*": ["schema/*"]
+            "@api/*": [
+                "api/*"
+            ],
+            "@node/*": [
+                "node/*"
+            ],
+            "@runtime/*": [
+                "runtime/*"
+            ],
+            "@schema/*": [
+                "schema/*"
+            ]
         }
     },
-    "include": ["./src"],
-    "exclude": ["node_modules"]
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }

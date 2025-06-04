@@ -1,5 +1,4 @@
-import { WorkflowPortType } from '@flowgram.ai/runtime-interface';
-
+import { WorkflowPortType } from '@schema/index';
 import { INode } from './node';
 import { IEdge } from './edge';
 

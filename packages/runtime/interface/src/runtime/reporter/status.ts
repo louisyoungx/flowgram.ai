@@ -1,4 +1,10 @@
-import { WorkflowStatus } from '../base/status';
+export enum WorkflowStatus {
+  Pending = 'pending',
+  Processing = 'processing',
+  Succeeded = 'succeeded',
+  Failed = 'failed',
+  Canceled = 'canceled',
+}
 
 export interface StatusData {
   status: WorkflowStatus;

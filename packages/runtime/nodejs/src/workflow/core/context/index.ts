@@ -8,7 +8,8 @@ import {
   IStatusCenter,
   IReporter,
   IIOCenter,
-} from '@workflow/type';
+} from '@flowgram.ai/runtime-interface';
+
 import { WorkflowRuntimeState, WorkflowRuntimeVariableStore } from '@workflow/state';
 import { WorkflowRuntimeIOCenter } from '@workflow/reporter/aggregate/io-center';
 import { WorkflowRuntimeReporter } from '@workflow/reporter/aggregate';

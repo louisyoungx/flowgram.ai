@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { IEngine, IExecutor, IValidation } from '@flowgram.ai/runtime-interface';
 
-import { IEngine, IExecutor, IValidation } from '@workflow/type';
 import { WorkflowRuntimeContainer } from './index';
 
 describe('WorkflowRuntimeContainer', () => {

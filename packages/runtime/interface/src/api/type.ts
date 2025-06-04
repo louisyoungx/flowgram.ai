@@ -15,6 +15,3 @@ export interface FlowGramAPIDefine {
 export interface FlowGramAPIDefines {
   [key: string]: FlowGramAPIDefine;
 }
-
-export type WorkflowInputs = Record<string, any>;
-export type WorkflowOutputs = Record<string, any>;

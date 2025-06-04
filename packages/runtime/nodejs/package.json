@@ -4,7 +4,6 @@
   "description": "",
   "keywords": [],
   "license": "MIT",
-  "type": "module",
   "scripts": {
     "build": "esbuild src/index.ts --bundle --packages=external --platform=node --format=esm --outdir=dist --sourcemap",
     "dev": "tsx watch src",

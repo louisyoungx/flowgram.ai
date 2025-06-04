@@ -1,4 +1,5 @@
-import { INodeExecutorFactory } from '@workflow/type';
+import { INodeExecutorFactory } from '@flowgram.ai/runtime-interface';
+
 import { StartExecutor } from './start';
 import { LLMExecutor } from './llm';
 import { EndExecutor } from './end';

@@ -1,7 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { FlowGramNode, PositionSchema, WorkflowPortType } from '@flowgram.ai/runtime-interface';
+import {
+  FlowGramNode,
+  PositionSchema,
+  WorkflowPortType,
+  CreateNodeParams,
+  IEdge,
+  INode,
+  IPort,
+} from '@flowgram.ai/runtime-interface';
 
-import { CreateNodeParams, IEdge, INode, IPort } from '@workflow/type';
 import { WorkflowRuntimeNode } from '@workflow/document/entity';
 
 describe('WorkflowRuntimeNode', () => {

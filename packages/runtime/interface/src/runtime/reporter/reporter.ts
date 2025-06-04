@@ -1,5 +1,4 @@
-import { WorkflowInputs, WorkflowOutputs } from '@flowgram.ai/runtime-interface';
-
+import { WorkflowInputs, WorkflowOutputs } from '../base';
 import { IStatusCenter } from './status';
 import { StatusData } from './status';
 import { ISnapshotCenter } from './snapshot-center';

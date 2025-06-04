@@ -1,4 +1,11 @@
-import { IContext, ITask, TaskParams, WorkflowOutputs, WorkflowStatus } from '@workflow/type';
+import {
+  IContext,
+  ITask,
+  TaskParams,
+  WorkflowOutputs,
+  WorkflowStatus,
+} from '@flowgram.ai/runtime-interface';
+
 import { uuid } from '@workflow/infra';
 
 export class WorkflowRuntimeTask implements ITask {

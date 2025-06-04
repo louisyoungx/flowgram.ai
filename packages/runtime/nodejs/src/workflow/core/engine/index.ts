@@ -8,7 +8,8 @@ import {
   InvokeParams,
   ITask,
   FlowGramNode,
-} from '@workflow/type';
+} from '@flowgram.ai/runtime-interface';
+
 import { WorkflowRuntimeTask } from '../task';
 import { WorkflowRuntimeContext } from '../context';
 

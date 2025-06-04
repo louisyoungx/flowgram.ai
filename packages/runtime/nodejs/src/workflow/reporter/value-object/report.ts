@@ -1,5 +1,5 @@
-import { IReport } from '@workflow/type';
-import { VOData } from '@workflow/type';
+import { IReport, VOData } from '@flowgram.ai/runtime-interface';
+
 import { uuid } from '@workflow/infra';
 
 export namespace WorkflowRuntimeReport {

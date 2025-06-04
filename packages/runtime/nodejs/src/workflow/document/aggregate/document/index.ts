@@ -1,6 +1,11 @@
-import { WorkflowSchema } from '@flowgram.ai/runtime-interface';
+import {
+  type WorkflowSchema,
+  FlowGramNode,
+  type IDocument,
+  type IEdge,
+  type INode,
+} from '@flowgram.ai/runtime-interface';
 
-import { FlowGramNode, type IDocument, type IEdge, type INode } from '@workflow/type';
 import { uuid } from '@workflow/infra';
 import { flatSchema } from './flat-schema';
 import { createStore, DocumentStore } from './create-store';

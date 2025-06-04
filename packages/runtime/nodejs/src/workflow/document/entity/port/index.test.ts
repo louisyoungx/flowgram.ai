@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { WorkflowPortType } from '@flowgram.ai/runtime-interface';
+import { WorkflowPortType, CreatePortParams, IEdge, INode } from '@flowgram.ai/runtime-interface';
 
-import { CreatePortParams, IEdge, INode } from '@workflow/type';
 import { WorkflowRuntimePort } from '.';
 
 describe('WorkflowRuntimePort', () => {

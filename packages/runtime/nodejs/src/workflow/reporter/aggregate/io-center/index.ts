@@ -1,4 +1,4 @@
-import { IIOCenter, IOData, WorkflowInputs, WorkflowOutputs } from '@workflow/type';
+import { IIOCenter, IOData, WorkflowInputs, WorkflowOutputs } from '@flowgram.ai/runtime-interface';
 
 export class WorkflowRuntimeIOCenter implements IIOCenter {
   private _inputs: WorkflowInputs;
