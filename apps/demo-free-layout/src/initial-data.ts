@@ -255,7 +255,7 @@ export const initialData: FlowDocumentJSON = {
       meta: {
         position: {
           x: 640,
-          y: 522.46875,
+          y: 573.96875,
         },
       },
       data: {
