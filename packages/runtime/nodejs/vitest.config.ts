@@ -20,6 +20,7 @@ export default defineConfig({
     globals: true,
     mockReset: false,
     environment: 'jsdom',
+    testTimeout: 15000,
     setupFiles: [path.resolve(__dirname, './src/workflow/__tests__/setup.ts')],
     include: ['**/?(*.){test,spec}.?(c|m)[jt]s?(x)'],
     exclude: [

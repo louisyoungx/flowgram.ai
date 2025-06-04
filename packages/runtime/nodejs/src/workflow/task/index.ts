@@ -1,1 +1,1 @@
-export { WorkflowRuntimeTask } from './aggregate';
+export { WorkflowRuntimeRecorder, WorkflowRuntimeStatus, WorkflowRuntimeTask } from './aggregate';

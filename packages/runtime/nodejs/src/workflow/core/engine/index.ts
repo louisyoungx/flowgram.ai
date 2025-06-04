@@ -8,7 +8,10 @@ import {
   WorkflowOutputs,
   IContext,
   InvokeParams,
+  WorkflowStatus,
+  ITask,
 } from '@workflow/type';
+import { WorkflowRuntimeTask } from '@workflow/task';
 import { WorkflowRuntimeContext } from '../context';
 
 export class WorkflowRuntimeEngine implements IEngine {
@@ -18,27 +21,31 @@ export class WorkflowRuntimeEngine implements IEngine {
     this.executor = service.Executor;
   }
 
-  public invoke(params: InvokeParams): {
-    executing: Promise<WorkflowOutputs>;
-    context: IContext;
-  } {
+  public invoke(params: InvokeParams): ITask {
     const context = WorkflowRuntimeContext.create();
     context.init(params);
-    const executing = this.execute(context);
-    executing.then(() => {
+    const processing = this.process(context);
+    processing.then(() => {
       context.dispose();
     });
-    return {
+    return WorkflowRuntimeTask.create({
+      processing,
       context,
-      executing,
-    };
+    });
   }
 
-  public async execute(context: IContext): Promise<WorkflowOutputs> {
+  private async process(context: IContext): Promise<WorkflowOutputs> {
     const startNode = context.document.start;
-    await this.executeNode({ node: startNode, context });
-    const outputs = context.state.workflowOutputs;
-    return outputs;
+    context.status.setWorkflowStatus(WorkflowStatus.Processing);
+    try {
+      await this.executeNode({ node: startNode, context });
+      context.status.setWorkflowStatus(WorkflowStatus.Success);
+      const outputs = context.state.workflowOutputs;
+      return outputs;
+    } catch (e) {
+      context.status.setWorkflowStatus(WorkflowStatus.Failed);
+      throw e;
+    }
   }
 
   private async executeNode(params: { context: IContext; node: INode }) {
@@ -46,24 +53,34 @@ export class WorkflowRuntimeEngine implements IEngine {
     if (!this.canExecuteNode({ node, context })) {
       return;
     }
-    const inputs = context.state.getNodeInputs(node);
-    const result = await this.executor.execute({
-      node,
-      state: context.state,
-      inputs,
-    });
-    const { outputs, branch } = result;
-    context.state.setNodeOutputs({ node, outputs });
-    context.state.addExecutedNode(node);
-    context.task.record({
-      nodeID: node.id,
-      inputs,
-      outputs,
-      branch,
-      data: node.data,
-    });
-    const nextNodes = this.getNextNodes({ node, branch, context });
-    await this.executeNext({ node, nextNodes, context });
+    context.status.setNodeStatus(node.id, WorkflowStatus.Processing);
+    try {
+      const inputs = context.state.getNodeInputs(node);
+      const result = await this.executor.execute({
+        node,
+        state: context.state,
+        inputs,
+      });
+      if (context.status.terminated) {
+        return;
+      }
+      const { outputs, branch } = result;
+      context.state.setNodeOutputs({ node, outputs });
+      context.state.addExecutedNode(node);
+      context.status.setNodeStatus(node.id, WorkflowStatus.Success);
+      context.recorder.create({
+        nodeID: node.id,
+        inputs,
+        outputs,
+        branch,
+        data: node.data,
+      });
+      const nextNodes = this.getNextNodes({ node, branch, context });
+      await this.executeNext({ node, nextNodes, context });
+    } catch (e) {
+      context.status.setNodeStatus(node.id, WorkflowStatus.Failed);
+      throw e;
+    }
   }
 
   private canExecuteNode(params: { context: IContext; node: INode }) {

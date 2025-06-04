@@ -4,23 +4,17 @@ import { FlowGramAPIDefine } from '@api/type';
 import { FlowGramAPIName, FlowGramAPIMethod } from '@api/constant';
 
 export enum TaskProgressStatus {
-  Running = 'running',
+  Pending = 'pending',
+  Processing = 'processing',
   Success = 'success',
   Failed = 'failed',
-  Canceled = 'canceled',
-}
-
-export enum TaskProgressNodeStatus {
-  Waiting = 'waiting',
-  Running = 'running',
-  Success = 'success',
-  Failed = 'failed',
+  Paused = 'paused',
   Canceled = 'canceled',
 }
 
 export interface TaskProgressNodeData {
   nodeId: string;
-  status: TaskProgressNodeStatus;
+  status: TaskProgressStatus;
   executionTime: number;
   result: {
     input: Object;
@@ -52,7 +46,7 @@ export const TaskProgressDefine: FlowGramAPIDefine = {
       nodeResults: z.array(
         z.object({
           nodeId: z.string(),
-          status: z.nativeEnum(TaskProgressNodeStatus),
+          status: z.nativeEnum(TaskProgressStatus),
           executionTime: z.number(),
           result: z.object({
             input: z.custom<Object>(),

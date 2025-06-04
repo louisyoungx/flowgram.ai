@@ -14,11 +14,11 @@ export class WorkflowRuntimeExecutor implements IExecutor {
   constructor(nodeExecutors: INodeExecutorFactory[]) {
     // register node executors
     nodeExecutors.forEach((executor) => {
-      this.registerNode(new executor());
+      this.register(new executor());
     });
   }
 
-  private registerNode(executor: INodeExecutor): void {
+  public register(executor: INodeExecutor): void {
     this.nodeExecutors.set(executor.type, executor);
   }
 
