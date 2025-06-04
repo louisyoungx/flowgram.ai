@@ -1,1 +1,6 @@
-export { WorkflowRuntimeSnapshotCenter, WorkflowRuntimeStatusCenter } from './aggregate';
+export {
+  WorkflowRuntimeSnapshotCenter,
+  WorkflowRuntimeStatusCenter,
+  WorkflowRuntimeReporter,
+  WorkflowRuntimeIOCenter,
+} from './aggregate';

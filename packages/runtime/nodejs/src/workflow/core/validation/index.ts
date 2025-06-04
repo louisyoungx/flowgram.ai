@@ -1,6 +1,4 @@
-import { WorkflowSchema } from '@flowgram.ai/runtime-interface';
-
-import { IValidation, ValidationResult } from '@workflow/type';
+import { WorkflowSchema, IValidation, ValidationResult } from '@flowgram.ai/runtime-interface';
 
 export class WorkflowRuntimeValidation implements IValidation {
   validate(schema: WorkflowSchema): ValidationResult {

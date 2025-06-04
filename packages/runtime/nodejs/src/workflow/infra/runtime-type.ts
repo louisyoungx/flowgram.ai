@@ -1,4 +1,4 @@
-import { WorkflowVariableType } from '@workflow/type';
+import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
 
 export namespace WorkflowRuntimeType {
   export const getWorkflowType = (value: unknown): WorkflowVariableType | null => {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { IContainer, IEngine, IExecutor, WorkflowStatus } from '@flowgram.ai/runtime-interface';
 
-import { IContainer, IEngine, IExecutor, WorkflowStatus } from '@workflow/type';
 import { WorkflowRuntimeContainer } from '@workflow/core';
 import { snapshotsToVOData } from '@workflow/__tests__/utils';
 import { TestSchemas } from '@workflow/__tests__/schemas';

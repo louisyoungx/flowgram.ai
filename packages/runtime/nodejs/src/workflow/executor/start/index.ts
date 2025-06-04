@@ -1,4 +1,9 @@
-import { ExecutionContext, ExecutionResult, FlowGramNode, INodeExecutor } from '@workflow/type';
+import {
+  ExecutionContext,
+  ExecutionResult,
+  FlowGramNode,
+  INodeExecutor,
+} from '@flowgram.ai/runtime-interface';
 
 export class StartExecutor implements INodeExecutor {
   public type = FlowGramNode.Start;

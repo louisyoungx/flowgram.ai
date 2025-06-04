@@ -1,5 +1,4 @@
-import { WorkflowSchema } from '@flowgram.ai/runtime-interface';
-
+import { WorkflowSchema } from '@schema/index';
 import { WorkflowInputs } from './inputs-outputs';
 
 export interface InvokeParams {

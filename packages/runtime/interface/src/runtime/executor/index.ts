@@ -1,5 +1,4 @@
-import { FlowGramNode } from '@flowgram.ai/runtime-interface';
-
+import { FlowGramNode } from '@node/index';
 import { IState } from '../state';
 import { IIOCenter } from '../reporter';
 import { INode } from '../document';

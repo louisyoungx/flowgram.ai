@@ -1,4 +1,10 @@
-import { ExecutionContext, ExecutionResult, FlowGramNode, INodeExecutor } from '@workflow/type';
+import {
+  ExecutionContext,
+  ExecutionResult,
+  FlowGramNode,
+  INodeExecutor,
+} from '@flowgram.ai/runtime-interface';
+
 import { ConditionItem, ConditionValue, Conditions } from './type';
 import { conditionRules } from './rules';
 import { conditionHandlers } from './handlers';

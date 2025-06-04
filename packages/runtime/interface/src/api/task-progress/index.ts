@@ -35,7 +35,7 @@ export interface TaskProgressRes {
 export const TaskProgressDefine: FlowGramAPIDefine = {
   name: FlowGramAPIName.TaskProgress,
   method: FlowGramAPIMethod.GET,
-  path: '/api/get-progress',
+  path: 'get-progress',
   schema: {
     req: z.object({
       taskID: z.string(),

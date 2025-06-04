@@ -1,4 +1,5 @@
-import { WorkflowVariableType } from '@workflow/type';
+import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
+
 import { ConditionOperation, ConditionRules } from './type';
 
 export const conditionRules: ConditionRules = {

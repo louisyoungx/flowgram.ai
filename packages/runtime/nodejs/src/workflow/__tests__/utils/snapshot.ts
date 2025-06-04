@@ -1,4 +1,4 @@
-import { ISnapshot, VOData } from '@workflow/type';
+import { ISnapshot, VOData } from '@flowgram.ai/runtime-interface';
 
 export const snapshotsToVOData = (snapshots: ISnapshot[]): VOData<ISnapshot>[] =>
   snapshots.map((snapshot) => {

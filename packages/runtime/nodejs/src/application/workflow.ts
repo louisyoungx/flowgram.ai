@@ -1,4 +1,12 @@
-import { InvokeParams, IContainer, IEngine, ITask, IReport, WorkflowOutputs } from '@workflow/type';
+import {
+  InvokeParams,
+  IContainer,
+  IEngine,
+  ITask,
+  IReport,
+  WorkflowOutputs,
+} from '@flowgram.ai/runtime-interface';
+
 import { WorkflowRuntimeContainer } from '@workflow/core';
 
 export class WorkflowApplication {

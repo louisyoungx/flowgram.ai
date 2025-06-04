@@ -1,4 +1,5 @@
-import { ExecutionContext, ExecutionResult } from '@workflow/type';
+import { ExecutionContext, ExecutionResult } from '@flowgram.ai/runtime-interface';
+
 import { delay } from '@workflow/infra';
 import { LLMExecutor, LLMExecutorInputs } from '@workflow/executor/llm';
 

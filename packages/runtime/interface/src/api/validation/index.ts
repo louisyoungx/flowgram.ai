@@ -1,24 +1,8 @@
 import z from 'zod';
 
-import { WorkflowEdgeSchema } from '@schema/edge';
+import { ValidationResult } from '@runtime/index';
 import { FlowGramAPIDefine } from '@api/type';
 import { FlowGramAPIMethod, FlowGramAPIName } from '@api/constant';
-
-interface ValidationNodeError {
-  message: string;
-  nodeID: string;
-}
-
-interface ValidationEdgeError {
-  message: string;
-  edge: WorkflowEdgeSchema;
-}
-
-export interface ValidationResult {
-  valid: boolean;
-  nodeErrors: ValidationNodeError[];
-  edgeErrors: ValidationEdgeError[];
-}
 
 export interface ValidationReq {
   schema: string;
@@ -29,7 +13,7 @@ export interface ValidationRes extends ValidationResult {}
 export const ValidationDefine: FlowGramAPIDefine = {
   name: FlowGramAPIName.Validation,
   method: FlowGramAPIMethod.POST,
-  path: '/api/validation',
+  path: 'validation',
   schema: {
     req: z.object({
       schema: z.string(),

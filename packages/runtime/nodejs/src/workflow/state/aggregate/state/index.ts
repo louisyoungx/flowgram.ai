@@ -1,15 +1,16 @@
 import { isNil } from 'lodash-es';
-import { IFlowConstantRefValue, IFlowRefValue } from '@flowgram.ai/runtime-interface';
-
 import {
   IState,
+  IFlowConstantRefValue,
+  IFlowRefValue,
   IVariableParseResult,
   INode,
   WorkflowInputs,
   WorkflowOutputs,
   IVariableStore,
   WorkflowVariableType,
-} from '@workflow/type';
+} from '@flowgram.ai/runtime-interface';
+
 import { uuid, WorkflowRuntimeType } from '@workflow/infra';
 
 export class WorkflowRuntimeState implements IState {

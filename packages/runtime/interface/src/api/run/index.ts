@@ -1,12 +1,10 @@
 import z from 'zod';
 
-import { FlowGramAPIDefine, WorkflowInputs } from '@api/type';
+import { InvokeParams, WorkflowInputs } from '@runtime/index';
+import { FlowGramAPIDefine } from '@api/type';
 import { FlowGramAPIMethod, FlowGramAPIName } from '@api/constant';
 
-export interface RunReq {
-  schema: string;
-  inputs: WorkflowInputs;
-}
+export interface RunReq extends InvokeParams {}
 
 export interface RunRes {
   taskID: string;
@@ -15,7 +13,7 @@ export interface RunRes {
 export const RunDefine: FlowGramAPIDefine = {
   name: FlowGramAPIName.Run,
   method: FlowGramAPIMethod.POST,
-  path: '/api/run',
+  path: 'run',
   schema: {
     req: z.object({
       schema: z.string(),

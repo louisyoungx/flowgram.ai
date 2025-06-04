@@ -1,4 +1,5 @@
-import { IVariable, VOData } from '@workflow/type';
+import { IVariable, VOData } from '@flowgram.ai/runtime-interface';
+
 import { uuid } from '@workflow/infra';
 
 export namespace WorkflowRuntimeVariable {

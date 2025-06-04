@@ -1,4 +1,4 @@
-import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
+import { WorkflowVariableType } from '@schema/index';
 
 export interface IVariable<T = Object> {
   id: string;

@@ -1,5 +1,5 @@
-import { ISnapshot } from '@workflow/type/reporter/snapshot';
-import { VOData } from '@workflow/type';
+import { VOData, ISnapshot } from '@flowgram.ai/runtime-interface';
+
 import { uuid } from '@workflow/infra';
 
 export namespace WorkflowRuntimeSnapshot {

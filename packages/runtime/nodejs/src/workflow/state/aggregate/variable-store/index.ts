@@ -1,7 +1,11 @@
 import { get, set } from 'lodash-es';
+import {
+  WorkflowVariableType,
+  IVariableStore,
+  IVariable,
+  IVariableParseResult,
+} from '@flowgram.ai/runtime-interface';
 
-import { WorkflowVariableType } from '@workflow/type';
-import { IVariableStore, IVariable, IVariableParseResult } from '@workflow/type';
 import { uuid, WorkflowRuntimeType } from '@workflow/infra';
 import { WorkflowRuntimeVariable } from '../../value-object';
 

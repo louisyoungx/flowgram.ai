@@ -15,7 +15,7 @@ export interface TestRunRes {
 export const TestRunDefine: FlowGramAPIDefine = {
   name: FlowGramAPIName.TestRun,
   method: FlowGramAPIMethod.POST,
-  path: '/api/test-run',
+  path: 'test-run',
   schema: {
     req: z.object({
       schema: z.string(),

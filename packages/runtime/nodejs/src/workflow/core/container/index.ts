@@ -1,4 +1,11 @@
-import { ContainerService, IContainer, IEngine, IExecutor, IValidation } from '@workflow/type';
+import {
+  ContainerService,
+  IContainer,
+  IEngine,
+  IExecutor,
+  IValidation,
+} from '@flowgram.ai/runtime-interface';
+
 import { WorkflowRuntimeExecutor, WorkflowRuntimeNodeExecutors } from '@workflow/executor';
 import { WorkflowRuntimeValidation } from '../validation';
 import { WorkflowRuntimeEngine } from '../engine';

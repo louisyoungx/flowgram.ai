@@ -1,6 +1,8 @@
-import { IFlowConstantRefValue, IFlowRefValue } from '@flowgram.ai/runtime-interface';
-
-import { WorkflowVariableType } from '@workflow/type';
+import {
+  WorkflowVariableType,
+  IFlowConstantRefValue,
+  IFlowRefValue,
+} from '@flowgram.ai/runtime-interface';
 
 export enum ConditionOperation {
   EQ = 'eq',

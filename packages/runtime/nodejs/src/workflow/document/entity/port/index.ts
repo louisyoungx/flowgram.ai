@@ -1,6 +1,10 @@
-import { WorkflowPortType } from '@flowgram.ai/runtime-interface';
-
-import { CreatePortParams, IEdge, INode, IPort } from '@workflow/type';
+import {
+  WorkflowPortType,
+  CreatePortParams,
+  IEdge,
+  INode,
+  IPort,
+} from '@flowgram.ai/runtime-interface';
 
 export class WorkflowRuntimePort implements IPort {
   public readonly id: string;

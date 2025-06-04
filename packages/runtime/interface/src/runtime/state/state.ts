@@ -1,9 +1,4 @@
-import {
-  IFlowConstantRefValue,
-  IFlowRefValue,
-  WorkflowVariableType,
-} from '@flowgram.ai/runtime-interface';
-
+import { IFlowConstantRefValue, IFlowRefValue, WorkflowVariableType } from '@schema/index';
 import { INode } from '../document';
 import { WorkflowInputs, WorkflowOutputs } from '../base';
 import { IVariableParseResult, IVariableStore } from './variable';

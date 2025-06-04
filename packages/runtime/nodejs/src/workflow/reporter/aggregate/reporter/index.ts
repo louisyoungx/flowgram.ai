@@ -1,5 +1,12 @@
-import { IReport } from '@workflow/type/reporter/reporter';
-import { ISnapshotCenter, IReporter, ISnapshot, IStatusCenter, IIOCenter } from '@workflow/type';
+import {
+  ISnapshotCenter,
+  IReporter,
+  ISnapshot,
+  IStatusCenter,
+  IIOCenter,
+  IReport,
+} from '@flowgram.ai/runtime-interface';
+
 import { WorkflowRuntimeReport } from '@workflow/reporter/value-object';
 
 export class WorkflowRuntimeReporter implements IReporter {

@@ -1,4 +1,4 @@
-import { WorkflowSchema } from '@flowgram.ai/runtime-interface';
+import { WorkflowSchema } from '@schema/index';
 
 export interface ValidationResult {
   valid: boolean;
