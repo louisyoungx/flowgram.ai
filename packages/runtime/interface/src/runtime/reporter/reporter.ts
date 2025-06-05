@@ -4,13 +4,17 @@ import { StatusData } from './status';
 import { ISnapshotCenter } from './snapshot-center';
 import { Snapshot } from './snapshot';
 
+export interface NodeReport extends StatusData {
+  id: string;
+  snapshots: Snapshot[];
+}
+
 export interface IReport {
   id: string;
   inputs: WorkflowInputs;
   outputs: WorkflowOutputs;
   workflowStatus: StatusData;
-  nodeStatus: Record<string, StatusData>;
-  nodeResult: Record<string, Snapshot | Snapshot[]>;
+  reports: Record<string, NodeReport>;
 }
 
 export interface IReporter {

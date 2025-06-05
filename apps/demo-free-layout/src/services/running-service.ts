@@ -1,4 +1,11 @@
 import {
+  IReport,
+  NodeReport,
+  Snapshot,
+  StatusData,
+  WorkflowStatus,
+} from '@flowgram.ai/runtime-interface';
+import {
   injectable,
   inject,
   WorkflowDocument,
@@ -7,8 +14,18 @@ import {
   WorkflowLineEntity,
   WorkflowNodeEntity,
   WorkflowNodeLinesData,
+  Emitter,
 } from '@flowgram.ai/free-layout-editor';
+
+import { WorkflowRuntimeClient } from '../utils';
 const RUNNING_INTERVAL = 1000;
+const SYNC_TASK_REPORT_INTERVAL = 500;
+
+interface NodeRunningStatus {
+  nodeID: string;
+  status: WorkflowStatus;
+  nodeResultLength: number;
+}
 
 @injectable()
 export class RunningService {
@@ -17,6 +34,20 @@ export class RunningService {
   @inject(WorkflowDocument) document: WorkflowDocument;
 
   private _runningNodes: WorkflowNodeEntity[] = [];
+
+  private taskID?: string;
+
+  private syncTaskReportIntervalID?: ReturnType<typeof setInterval>;
+
+  private reportEmitter = new Emitter<NodeReport>();
+
+  private resetEmitter = new Emitter<{}>();
+
+  private nodeRunningStatus: Map<string, NodeRunningStatus>;
+
+  public onNodeReportChange = this.reportEmitter.event;
+
+  public onReset = this.resetEmitter.event;
 
   async addRunningNode(node: WorkflowNodeEntity): Promise<void> {
     this._runningNodes.push(node);
@@ -43,5 +74,72 @@ export class RunningService {
     return this._runningNodes.some((node) =>
       node.getData(WorkflowNodeLinesData).outputLines.includes(line)
     );
+  }
+
+  public async taskRun(): Promise<void> {
+    this.reset();
+    const output = await WorkflowRuntimeClient.TaskRun({
+      schema: JSON.stringify(this.document.toJSON()),
+      inputs: {},
+    });
+    if (!output) {
+      return;
+    }
+    this.taskID = output.taskID;
+    this.syncTaskReportIntervalID = setInterval(() => {
+      this.syncTaskReport();
+    }, SYNC_TASK_REPORT_INTERVAL);
+  }
+
+  private reset(): void {
+    this.taskID = undefined;
+    this.nodeRunningStatus = new Map();
+    if (this.syncTaskReportIntervalID) {
+      clearInterval(this.syncTaskReportIntervalID);
+    }
+    this.resetEmitter.fire({});
+  }
+
+  private async syncTaskReport(): Promise<void> {
+    if (!this.taskID) {
+      return;
+    }
+    const output = await WorkflowRuntimeClient.TaskReport({
+      taskID: this.taskID,
+    });
+    if (!output) {
+      clearInterval(this.syncTaskReportIntervalID);
+      console.error('Sync task report failed');
+      return;
+    }
+    const { workflowStatus } = output;
+    if (workflowStatus.terminated) {
+      clearInterval(this.syncTaskReportIntervalID);
+    }
+    this.updateReport(output);
+  }
+
+  private updateReport(report: IReport): void {
+    const { reports } = report;
+    this.document.getAllNodes().forEach((node) => {
+      const nodeID = node.id;
+      const nodeReport = reports[nodeID];
+      if (!nodeReport) {
+        return;
+      }
+      const runningStatus = this.nodeRunningStatus.get(nodeID);
+      if (
+        !runningStatus ||
+        nodeReport.status !== runningStatus.status ||
+        nodeReport.snapshots.length !== runningStatus.nodeResultLength
+      ) {
+        this.nodeRunningStatus.set(nodeID, {
+          nodeID,
+          status: nodeReport.status,
+          nodeResultLength: nodeReport.snapshots.length,
+        });
+        this.reportEmitter.fire(nodeReport);
+      }
+    });
   }
 }

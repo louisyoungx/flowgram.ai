@@ -1,0 +1,48 @@
+.node-status-data-structure-viewer {
+    font-size: 14px;
+    line-height: 1node-status-5;
+    color: #333;
+}
+
+.node-status-data-children {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.node-status-data-item {
+    position: relative;
+}
+
+.node-status-data-key {
+    color: rgba(61, 121, 242, 1);
+    user-select: all;
+}
+
+.node-status-data-value {
+    user-select: all;
+}
+
+.node-status-data-string {
+    color: #303030;
+}
+
+.node-status-data-number {
+    color: #005cc5;
+}
+
+.node-status-data-boolean {
+    color: #e36209;
+}
+
+.node-status-data-null,
+.node-status-data-undefined {
+    color: #6a737d;
+    font-style: italic;
+}
+
+.node-status-data-array,
+.node-status-data-object {
+    color: #24292e;
+}

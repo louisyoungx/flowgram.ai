@@ -34,7 +34,7 @@ describe('WorkflowRuntimeEngine', () => {
       llm_res: `Hi, I'm an AI assistant, my name is ai-model, temperature is 0.5, system prompt is "You are a helpful AI assistant.", prompt is "How are you?"`,
       llm_prompt: 'How are you?',
     });
-    const snapshots = snapshotsToVOData(context.snapshotCenter.export());
+    const snapshots = snapshotsToVOData(context.snapshotCenter.exportAll());
     expect(snapshots).toStrictEqual([
       {
         nodeID: 'start_0',
@@ -79,9 +79,9 @@ describe('WorkflowRuntimeEngine', () => {
     ]);
     const report = context.reporter.export();
     expect(report.workflowStatus.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.start_0.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.llm_0.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.end_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.start_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.llm_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.end_0.status).toBe(WorkflowStatus.Succeeded);
   });
 
   it('should execute a workflow with branch 1', async () => {
@@ -99,7 +99,7 @@ describe('WorkflowRuntimeEngine', () => {
     expect(result).toStrictEqual({
       m1_res: `Hi, I'm an AI assistant, my name is AI_MODEL_1, temperature is 0.5, system prompt is "I'm Model 1.", prompt is "Tell me a joke"`,
     });
-    const snapshots = snapshotsToVOData(context.snapshotCenter.export());
+    const snapshots = snapshotsToVOData(context.snapshotCenter.exportAll());
     expect(snapshots).toStrictEqual([
       {
         nodeID: 'start_0',
@@ -165,10 +165,10 @@ describe('WorkflowRuntimeEngine', () => {
 
     const report = context.reporter.export();
     expect(report.workflowStatus.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.start_0.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.condition_0.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.llm_1.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.end_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.start_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.condition_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.llm_1.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.end_0.status).toBe(WorkflowStatus.Succeeded);
   });
 
   it('should execute a workflow with branch 2', async () => {
@@ -186,7 +186,7 @@ describe('WorkflowRuntimeEngine', () => {
     expect(result).toStrictEqual({
       m2_res: `Hi, I'm an AI assistant, my name is AI_MODEL_2, temperature is 0.6, system prompt is "I'm Model 2.", prompt is "Tell me a story"`,
     });
-    const snapshots = snapshotsToVOData(context.snapshotCenter.export());
+    const snapshots = snapshotsToVOData(context.snapshotCenter.exportAll());
     expect(snapshots).toStrictEqual([
       {
         nodeID: 'start_0',
@@ -252,9 +252,9 @@ describe('WorkflowRuntimeEngine', () => {
 
     const report = context.reporter.export();
     expect(report.workflowStatus.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.start_0.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.condition_0.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.llm_2.status).toBe(WorkflowStatus.Succeeded);
-    expect(report.nodeStatus.end_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.start_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.condition_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.llm_2.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.end_0.status).toBe(WorkflowStatus.Succeeded);
   });
 });

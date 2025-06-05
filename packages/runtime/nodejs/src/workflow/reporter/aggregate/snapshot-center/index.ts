@@ -26,7 +26,19 @@ export class WorkflowRuntimeSnapshotCenter implements ISnapshotCenter {
     // because the data is not persisted, do not clear the execution result
   }
 
-  public export(): Snapshot[] {
+  public exportAll(): Snapshot[] {
     return this.snapshots.slice().map((snapshot) => snapshot.export());
+  }
+
+  public export(): Record<string, Snapshot[]> {
+    const result: Record<string, Snapshot[]> = {};
+    this.exportAll().forEach((snapshot) => {
+      if (result[snapshot.nodeID]) {
+        result[snapshot.nodeID].push(snapshot);
+      } else {
+        result[snapshot.nodeID] = [snapshot];
+      }
+    });
+    return result;
   }
 }

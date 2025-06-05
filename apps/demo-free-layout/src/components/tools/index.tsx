@@ -72,6 +72,7 @@ export const DemoTools = () => {
         <AddNode disabled={playground.config.readonly} />
         <Divider layout="vertical" style={{ height: '16px' }} margin={3} />
         <Save disabled={playground.config.readonly} />
+        <Divider layout="vertical" style={{ height: '16px' }} margin={3} />
         <Run />
       </ToolSection>
     </ToolContainer>

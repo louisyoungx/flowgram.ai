@@ -13,7 +13,7 @@ export function Run() {
   const runningService = useService(RunningService);
   const onRun = async () => {
     setRunning(true);
-    await runningService.startRun();
+    await runningService.taskRun();
     setRunning(false);
   };
   return (
