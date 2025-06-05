@@ -30,6 +30,7 @@
   "dependencies": {
     "@douyinfe/semi-icons": "^2.72.3",
     "@douyinfe/semi-ui": "^2.72.3",
+    "@flowgram.ai/runtime-interface": "workspace:*",
     "@flowgram.ai/free-layout-editor": "workspace:*",
     "@flowgram.ai/free-snap-plugin": "workspace:*",
     "@flowgram.ai/free-lines-plugin": "workspace:*",

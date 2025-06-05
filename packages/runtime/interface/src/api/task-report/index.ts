@@ -20,15 +20,15 @@ export const TaskReportDefine: FlowGramAPIDefine = {
     input: z.object({
       taskID: z.string(),
     }),
-    output: z
-      .object({
+    output: z.union([
+      z.object({
         id: z.string(),
         inputs: WorkflowZodSchema.Inputs,
         outputs: WorkflowZodSchema.Outputs,
         workflowStatus: WorkflowZodSchema.Status,
-        nodeStatus: z.record(z.string(), WorkflowZodSchema.Status),
-        nodeResult: z.record(z.string(), WorkflowZodSchema.Snapshot),
-      })
-      .optional(),
+        reports: z.record(z.string(), WorkflowZodSchema.NodeReport),
+      }),
+      z.undefined(),
+    ]),
   },
 };

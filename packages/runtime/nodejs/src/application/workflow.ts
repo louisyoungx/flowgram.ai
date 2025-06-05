@@ -8,6 +8,7 @@ import {
 } from '@flowgram.ai/runtime-interface';
 
 import { WorkflowRuntimeContainer } from '@workflow/core';
+import { ServerConfig } from '@config/index';
 
 export class WorkflowApplication {
   private container: IContainer;
@@ -23,10 +24,21 @@ export class WorkflowApplication {
     const engine = this.container.get<IEngine>(IEngine);
     const task = engine.invoke(params);
     this.tasks.set(task.id, task);
+    console.log('> POST TaskRun - taskID: ', task.id);
+    if (ServerConfig.dev) {
+      console.log(params.inputs);
+    }
+    task.processing.then((output) => {
+      console.log('> LOG Task finished: ', task.id);
+      if (ServerConfig.dev) {
+        console.log(output);
+      }
+    });
     return task.id;
   }
 
   public cancel(taskID: string): boolean {
+    console.log('> PUT TaskCancel - taskID: ', taskID);
     const task = this.tasks.get(taskID);
     if (!task) {
       return false;
@@ -37,6 +49,7 @@ export class WorkflowApplication {
 
   public report(taskID: string): IReport | undefined {
     const task = this.tasks.get(taskID);
+    console.log('> GET TaskReport - taskID: ', taskID);
     if (!task) {
       return;
     }
@@ -44,6 +57,7 @@ export class WorkflowApplication {
   }
 
   public result(taskID: string): WorkflowOutputs | undefined {
+    console.log('> GET TaskResult - taskID: ', taskID);
     const task = this.tasks.get(taskID);
     if (!task) {
       return;

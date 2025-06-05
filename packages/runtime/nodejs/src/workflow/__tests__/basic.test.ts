@@ -38,7 +38,7 @@ describe('workflow runtime basic test', () => {
     expect(result).toStrictEqual({
       answer: '2',
     });
-    const snapshots = snapshotsToVOData(context.snapshotCenter.export());
+    const snapshots = snapshotsToVOData(context.snapshotCenter.exportAll());
     expect(snapshots).toStrictEqual([
       {
         nodeID: 'start_0',
