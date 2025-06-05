@@ -1,12 +1,14 @@
 import z from 'zod';
 
 import { type FlowGramAPIDefine } from '@api/type';
-import { FlowGramAPIMethod, FlowGramAPIName } from '@api/constant';
+import { FlowGramAPIMethod, FlowGramAPIModule, FlowGramAPIName } from '@api/constant';
 
-export interface ServerInfoReq {}
+export interface ServerInfoInput {}
 
-export interface ServerInfoRes {
+export interface ServerInfoOutput {
   name: string;
+  title: string;
+  description: string;
   runtime: string;
   version: string;
   time: string;
@@ -15,7 +17,8 @@ export interface ServerInfoRes {
 export const ServerInfoDefine: FlowGramAPIDefine = {
   name: FlowGramAPIName.ServerInfo,
   method: FlowGramAPIMethod.GET,
-  path: '/',
+  path: '/info',
+  module: FlowGramAPIModule.Info,
   schema: {
     input: z.undefined(),
     output: z.object({

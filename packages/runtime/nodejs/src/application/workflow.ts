@@ -26,12 +26,13 @@ export class WorkflowApplication {
     return task.id;
   }
 
-  public cancel(taskID: string): void {
+  public cancel(taskID: string): boolean {
     const task = this.tasks.get(taskID);
     if (!task) {
-      return;
+      return false;
     }
     task.cancel();
+    return true;
   }
 
   public report(taskID: string): IReport | undefined {
@@ -42,7 +43,7 @@ export class WorkflowApplication {
     return task.context.reporter.export();
   }
 
-  public getResult(taskID: string): WorkflowOutputs | undefined {
+  public result(taskID: string): WorkflowOutputs | undefined {
     const task = this.tasks.get(taskID);
     if (!task) {
       return;

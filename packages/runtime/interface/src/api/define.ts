@@ -1,17 +1,17 @@
 import { ValidationDefine } from './validation';
 import { FlowGramAPIDefines } from './type';
-import { TestRunDefine } from './test-run';
+import { TaskRunDefine } from './task-run';
 import { TaskResultDefine } from './task-result';
 import { TaskReportDefine } from './task-report';
+import { TaskCancelDefine } from './task-cancel';
 import { ServerInfoDefine } from './server-info';
-import { RunDefine } from './run';
 import { FlowGramAPIName } from './constant';
 
 export const apis: FlowGramAPIDefines = {
   [FlowGramAPIName.ServerInfo]: ServerInfoDefine,
-  [FlowGramAPIName.Run]: RunDefine,
-  [FlowGramAPIName.TestRun]: TestRunDefine,
+  [FlowGramAPIName.TaskRun]: TaskRunDefine,
   [FlowGramAPIName.TaskReport]: TaskReportDefine,
   [FlowGramAPIName.TaskResult]: TaskResultDefine,
+  [FlowGramAPIName.TaskCancel]: TaskCancelDefine,
   [FlowGramAPIName.Validation]: ValidationDefine,
 };

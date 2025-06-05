@@ -1,32 +1,71 @@
+import { fastifyTRPCOpenApiPlugin } from 'trpc-openapi';
 import fastify from 'fastify';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
-import { type ServerInfoRes } from '@flowgram.ai/runtime-interface';
+import { type ServerInfoOutput } from '@flowgram.ai/runtime-interface';
 import ws from '@fastify/websocket';
+import fastifySwaggerUI from '@fastify/swagger-ui';
+import fastifySwagger from '@fastify/swagger';
+import cors from '@fastify/cors';
 
-import { SERVER_INFO } from '@config/index';
+import { ServerConfig } from '@config/index';
 import { appRouter } from '@api/index';
-import type { ServerParams } from './type';
+import { serverDocument } from './docs';
 import { createContext } from './context';
 
-export function createServer(opts: ServerParams) {
-  const dev = opts.dev ?? true;
-  const port = opts.port ?? 4000;
-  const prefix = opts.prefix ?? '/api';
-  const server = fastify({ logger: dev });
+export async function createServer() {
+  const server = fastify({ logger: ServerConfig.dev });
 
-  void server.register(ws);
-  void server.register(fastifyTRPCPlugin, {
-    prefix,
-    useWSS: true,
+  await server.register(cors);
+  await server.register(ws);
+  await server.register(fastifyTRPCPlugin, {
+    prefix: '/trpc',
+    useWss: false,
     trpcOptions: { router: appRouter, createContext },
   });
+  await server.register(fastifyTRPCOpenApiPlugin, {
+    basePath: ServerConfig.basePath,
+    router: appRouter,
+    createContext,
+  } as any);
 
-  server.get('/', async (): Promise<ServerInfoRes> => {
+  await server.register(fastifySwagger, {
+    mode: 'static',
+    specification: { document: serverDocument },
+    uiConfig: { displayOperationId: true },
+    exposeRoute: true,
+  } as any);
+
+  await server.register(fastifySwaggerUI, {
+    routePrefix: ServerConfig.docsPath,
+    uiConfig: {
+      docExpansion: 'full',
+      deepLinking: false,
+    },
+    uiHooks: {
+      onRequest: function (request, reply, next) {
+        next();
+      },
+      preHandler: function (request, reply, next) {
+        next();
+      },
+    },
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
+    transformSpecification: (swaggerObject, request, reply) => swaggerObject,
+    transformSpecificationClone: true,
+  });
+
+  server.get('/info', async (): Promise<ServerInfoOutput> => {
     const serverTime = new Date();
-    return {
-      ...SERVER_INFO,
+    const output: ServerInfoOutput = {
+      name: ServerConfig.name,
+      title: ServerConfig.title,
+      description: ServerConfig.description,
+      runtime: ServerConfig.runtime,
+      version: ServerConfig.version,
       time: serverTime.toISOString(),
     };
+    return output;
   });
 
   const stop = async () => {
@@ -34,8 +73,12 @@ export function createServer(opts: ServerParams) {
   };
   const start = async () => {
     try {
-      await server.listen({ port });
-      console.log('listening on port', port);
+      const address = await server.listen({ port: ServerConfig.port });
+      await server.ready();
+      server.swagger();
+      console.log(
+        `> Listen Port: ${ServerConfig.port}\n> Server Address: ${address}\n> API Docs: http://localhost:4000/docs`
+      );
     } catch (err) {
       server.log.error(err);
       process.exit(1);

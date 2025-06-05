@@ -1,11 +1,12 @@
 import type z from 'zod';
 
-import { FlowGramAPIMethod, FlowGramAPIName } from './constant';
+import { FlowGramAPIMethod, FlowGramAPIModule, FlowGramAPIName } from './constant';
 
 export interface FlowGramAPIDefine {
   name: FlowGramAPIName;
   method: FlowGramAPIMethod;
-  path: string;
+  path: `/${string}`;
+  module: FlowGramAPIModule;
   schema: {
     input: z.ZodFirstPartySchemaTypes;
     output: z.ZodFirstPartySchemaTypes;
