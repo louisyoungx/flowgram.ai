@@ -1,6 +1,8 @@
 import { createServer } from '@server/index';
-import { SERVER_PARAMS } from '@config/index';
 
-const server = createServer(SERVER_PARAMS);
+async function main() {
+  const server = await createServer();
+  server.start();
+}
 
-void server.start();
+main();

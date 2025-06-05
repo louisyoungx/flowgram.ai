@@ -8,9 +8,15 @@ export enum FlowGramAPIMethod {
 
 export enum FlowGramAPIName {
   ServerInfo = 'ServerInfo',
-  Run = 'Run',
-  TestRun = 'TestRun',
+  TaskRun = 'TaskRun',
   TaskReport = 'TaskReport',
   TaskResult = 'TaskResult',
+  TaskCancel = 'TaskCancel',
+  Validation = 'Validation',
+}
+
+export enum FlowGramAPIModule {
+  Info = 'Info',
+  Task = 'Task',
   Validation = 'Validation',
 }
