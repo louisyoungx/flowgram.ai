@@ -1,6 +1,6 @@
-import { ISnapshot, ISnapshotCenter, VOData } from '@flowgram.ai/runtime-interface';
+import { Snapshot, ISnapshotCenter, SnapshotData, ISnapshot } from '@flowgram.ai/runtime-interface';
 
-import { WorkflowRuntimeSnapshot } from '@workflow/reporter/value-object';
+import { WorkflowRuntimeSnapshot } from '@workflow/reporter/entity';
 import { uuid } from '@workflow/infra';
 
 export class WorkflowRuntimeSnapshotCenter implements ISnapshotCenter {
@@ -12,7 +12,7 @@ export class WorkflowRuntimeSnapshotCenter implements ISnapshotCenter {
     this.id = uuid();
   }
 
-  public create(snapshotData: VOData<ISnapshot>): ISnapshot {
+  public create(snapshotData: Partial<SnapshotData>): ISnapshot {
     const snapshot = WorkflowRuntimeSnapshot.create(snapshotData);
     this.snapshots.push(snapshot);
     return snapshot;
@@ -23,10 +23,10 @@ export class WorkflowRuntimeSnapshotCenter implements ISnapshotCenter {
   }
 
   public dispose(): void {
-    // 由于数据未持久化，不对执行结果进行清空
+    // because the data is not persisted, do not clear the execution result
   }
 
-  public export(): ISnapshot[] {
-    return this.snapshots.slice();
+  public export(): Snapshot[] {
+    return this.snapshots.slice().map((snapshot) => snapshot.export());
   }
 }

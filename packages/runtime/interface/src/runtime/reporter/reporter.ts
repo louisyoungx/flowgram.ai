@@ -2,7 +2,7 @@ import { WorkflowInputs, WorkflowOutputs } from '../base';
 import { IStatusCenter } from './status';
 import { StatusData } from './status';
 import { ISnapshotCenter } from './snapshot-center';
-import { ISnapshot } from './snapshot';
+import { Snapshot } from './snapshot';
 
 export interface IReport {
   id: string;
@@ -10,7 +10,7 @@ export interface IReport {
   outputs: WorkflowOutputs;
   workflowStatus: StatusData;
   nodeStatus: Record<string, StatusData>;
-  nodeResult: Record<string, ISnapshot | ISnapshot[]>;
+  nodeResult: Record<string, Snapshot | Snapshot[]>;
 }
 
 export interface IReporter {

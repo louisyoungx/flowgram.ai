@@ -17,7 +17,7 @@ export class WorkflowRuntimeStatusCenter implements IStatusCenter {
   }
 
   public dispose(): void {
-    // 由于数据未持久化，不对执行结果进行清空
+    // because the data is not persisted, do not clear the execution result
   }
 
   public get workflow(): IStatus {

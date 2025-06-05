@@ -55,6 +55,11 @@ export class WorkflowRuntimeEngine implements IEngine {
     context.statusCenter.nodeStatus(node.id).process();
     try {
       const inputs = context.state.getNodeInputs(node);
+      const snapshot = context.snapshotCenter.create({
+        nodeID: node.id,
+        data: node.data,
+        inputs,
+      });
       const result = await this.executor.execute({
         node,
         state: context.state,
@@ -65,16 +70,10 @@ export class WorkflowRuntimeEngine implements IEngine {
         return;
       }
       const { outputs, branch } = result;
+      snapshot.addData({ outputs, branch });
       context.state.setNodeOutputs({ node, outputs });
       context.state.addExecutedNode(node);
       context.statusCenter.nodeStatus(node.id).success();
-      context.snapshotCenter.create({
-        nodeID: node.id,
-        inputs,
-        outputs,
-        branch,
-        data: node.data,
-      });
       const nextNodes = this.getNextNodes({ node, branch, context });
       await this.executeNext({ node, nextNodes, context });
     } catch (e) {
