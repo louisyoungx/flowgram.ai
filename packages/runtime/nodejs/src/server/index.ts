@@ -1,7 +1,7 @@
 import { fastifyTRPCOpenApiPlugin } from 'trpc-openapi';
 import fastify from 'fastify';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
-import { type ServerInfoOutput } from '@flowgram.ai/runtime-interface';
+import { ServerInfoDefine, type ServerInfoOutput } from '@flowgram.ai/runtime-interface';
 import ws from '@fastify/websocket';
 import fastifySwaggerUI from '@fastify/swagger-ui';
 import fastifySwagger from '@fastify/swagger';
@@ -55,7 +55,7 @@ export async function createServer() {
     transformSpecificationClone: true,
   });
 
-  server.get('/info', async (): Promise<ServerInfoOutput> => {
+  server.get(ServerInfoDefine.path, async (): Promise<ServerInfoOutput> => {
     const serverTime = new Date();
     const output: ServerInfoOutput = {
       name: ServerConfig.name,
