@@ -1,7 +1,7 @@
 import {
   ISnapshotCenter,
   IReporter,
-  ISnapshot,
+  Snapshot,
   IStatusCenter,
   IIOCenter,
   IReport,
@@ -32,14 +32,14 @@ export class WorkflowRuntimeReporter implements IReporter {
     return report;
   }
 
-  private formatSnapshots(snapshots: ISnapshot[]): Record<string, ISnapshot | ISnapshot[]> {
-    const result: Record<string, ISnapshot | ISnapshot[]> = {};
+  private formatSnapshots(snapshots: Snapshot[]): Record<string, Snapshot | Snapshot[]> {
+    const result: Record<string, Snapshot | Snapshot[]> = {};
     snapshots.forEach((snapshot) => {
       if (result[snapshot.nodeID]) {
         if (Array.isArray(result[snapshot.nodeID])) {
-          (result[snapshot.nodeID] as ISnapshot[]).push(snapshot);
+          (result[snapshot.nodeID] as Snapshot[]).push(snapshot);
         } else {
-          result[snapshot.nodeID] = [result[snapshot.nodeID] as ISnapshot, snapshot];
+          result[snapshot.nodeID] = [result[snapshot.nodeID] as Snapshot, snapshot];
         }
       } else {
         result[snapshot.nodeID] = snapshot;

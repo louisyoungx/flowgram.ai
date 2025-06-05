@@ -1,10 +1,9 @@
-import { ISnapshot } from './snapshot';
-import { VOData } from '../base';
+import { ISnapshot, Snapshot, SnapshotData } from './snapshot';
 
 export interface ISnapshotCenter {
   id: string;
-  create(snapshot: VOData<ISnapshot>): ISnapshot;
-  export(): ISnapshot[];
+  create(snapshot: Partial<SnapshotData>): ISnapshot;
+  export(): Snapshot[];
   init(): void;
   dispose(): void;
 }
