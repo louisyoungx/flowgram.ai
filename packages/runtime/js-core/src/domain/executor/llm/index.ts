@@ -63,7 +63,6 @@ export class LLMExecutor implements INodeExecutor {
     if (isNil(prompt)) missingInputs.push('prompt');
 
     if (missingInputs.length > 0) {
-      console.log('@llm inputs', inputs);
       throw new Error(`LLM node missing required inputs: ${missingInputs.join(', ')}`);
     }
   }

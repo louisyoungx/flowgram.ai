@@ -1,2 +1,2 @@
 export { onDragLineEnd } from './on-drag-line-end';
-export { WorkflowRuntimeClient } from './runtime-client';
+export { runtimeClient } from './runtime-client';

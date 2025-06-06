@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   InvokeParams,
   IContainer,
@@ -7,8 +8,7 @@ import {
   WorkflowOutputs,
 } from '@flowgram.ai/runtime-interface';
 
-import { WorkflowRuntimeContainer } from '@workflow/core';
-import { ServerConfig } from '@config/index';
+import { WorkflowRuntimeContainer } from 'domain/core';
 
 export class WorkflowApplication {
   private container: IContainer;
@@ -25,14 +25,10 @@ export class WorkflowApplication {
     const task = engine.invoke(params);
     this.tasks.set(task.id, task);
     console.log('> POST TaskRun - taskID: ', task.id);
-    if (ServerConfig.dev) {
-      console.log(params.inputs);
-    }
+    console.log(params.inputs);
     task.processing.then((output) => {
       console.log('> LOG Task finished: ', task.id);
-      if (ServerConfig.dev) {
-        console.log(output);
-      }
+      console.log(output);
     });
     return task.id;
   }
