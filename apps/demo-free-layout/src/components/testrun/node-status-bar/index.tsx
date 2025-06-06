@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { NodeReport } from '@flowgram.ai/runtime-interface';
 import { useCurrentEntity, useService } from '@flowgram.ai/free-layout-editor';
 
-import { RunningService } from '../../services';
+import { RunningService } from '../../../services';
 import { NodeStatusRender } from './render';
 
 const useNodeReport = () => {
