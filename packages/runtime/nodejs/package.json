@@ -15,10 +15,11 @@
     "test:cov": "vitest run --coverage"
   },
   "dependencies": {
+    "@flowgram.ai/runtime-js": "workspace:*",
+    "@flowgram.ai/runtime-interface": "workspace:*",
     "@fastify/cors": "^8.2.1",
     "@fastify/swagger": "^8.5.1",
     "@fastify/swagger-ui": "4.1.0",
-    "@flowgram.ai/runtime-interface": "workspace:*",
     "@langchain/openai": "^0.5.11",
     "@langchain/core": "^0.3.57",
     "@fastify/websocket": "^10.0.1",

@@ -1,9 +1,8 @@
-import { TaskRunDefine, TaskRunInput, TaskRunOutput } from '@flowgram.ai/runtime-interface';
+import { TaskRunInput, TaskRunOutput } from '@flowgram.ai/runtime-interface';
 
 import { WorkflowApplication } from '@application/workflow';
-import { createAPI } from '@api/create-api';
 
-export const TaskRunAPI = createAPI<TaskRunInput, TaskRunOutput>(TaskRunDefine, (input) => {
+export const taskRunCall = async (input: TaskRunInput): Promise<TaskRunOutput> => {
   const app = WorkflowApplication.instance;
   const { schema: stringSchema, inputs } = input;
   const schema = JSON.parse(stringSchema);
@@ -15,4 +14,4 @@ export const TaskRunAPI = createAPI<TaskRunInput, TaskRunOutput>(TaskRunDefine, 
     taskID,
   };
   return output;
-});
+};

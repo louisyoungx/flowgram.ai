@@ -1,10 +1,4 @@
-import {
-  IReport,
-  NodeReport,
-  Snapshot,
-  StatusData,
-  WorkflowStatus,
-} from '@flowgram.ai/runtime-interface';
+import { IReport, NodeReport, WorkflowStatus } from '@flowgram.ai/runtime-interface';
 import {
   injectable,
   inject,
@@ -17,7 +11,7 @@ import {
   Emitter,
 } from '@flowgram.ai/free-layout-editor';
 
-import { WorkflowRuntimeClient } from '../utils';
+import { runtimeClient } from '../utils';
 const RUNNING_INTERVAL = 1000;
 const SYNC_TASK_REPORT_INTERVAL = 500;
 
@@ -78,7 +72,7 @@ export class RunningService {
 
   public async taskRun(): Promise<void> {
     this.reset();
-    const output = await WorkflowRuntimeClient.TaskRun({
+    const output = await runtimeClient.taskRun({
       schema: JSON.stringify(this.document.toJSON()),
       inputs: {},
     });
@@ -104,7 +98,7 @@ export class RunningService {
     if (!this.taskID) {
       return;
     }
-    const output = await WorkflowRuntimeClient.TaskReport({
+    const output = await runtimeClient.taskReport({
       taskID: this.taskID,
     });
     if (!output) {

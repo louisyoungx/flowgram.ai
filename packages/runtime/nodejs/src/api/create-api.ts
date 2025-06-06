@@ -5,7 +5,7 @@ import { publicProcedure } from './trpc';
 
 export const createAPI = <I, O>(
   define: FlowGramAPIDefine,
-  handler: (input: I) => O
+  caller: (input: I) => Promise<O>
 ): APIHandler => {
   if (define.method === FlowGramAPIMethod.GET) {
     const procedure = publicProcedure
@@ -19,9 +19,9 @@ export const createAPI = <I, O>(
       })
       .input(define.schema.input)
       .output(define.schema.output)
-      .query((opts) => {
+      .query(async (opts) => {
         const input = opts.input as unknown as I;
-        const output: O = handler(input);
+        const output: O = await caller(input);
         return output;
       });
 
@@ -42,9 +42,9 @@ export const createAPI = <I, O>(
     })
     .input(define.schema.input)
     .output(define.schema.output)
-    .mutation((opts) => {
+    .mutation(async (opts) => {
       const input = opts.input as unknown as I;
-      const output: O = handler(input);
+      const output: O = await caller(input);
       return output;
     });
   return {
