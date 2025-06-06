@@ -56,7 +56,30 @@ export const TestRunSideSheet: FC<TestRunSideSheetProps> = ({ visible, onCancel 
     return () => disposer.dispose();
   }, []);
 
-  const form = (
+  const renderRunning = (
+    <div
+      style={{
+        width: '100%',
+        height: '80%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 16,
+      }}
+    >
+      <IconSpin spin size="large" />
+      <div
+        style={{
+          fontSize: '18px',
+        }}
+      >
+        Running...
+      </div>
+    </div>
+  );
+
+  const renderForm = (
     <div>
       <div
         style={{
@@ -84,55 +107,32 @@ export const TestRunSideSheet: FC<TestRunSideSheetProps> = ({ visible, onCancel 
     </div>
   );
 
-  return (
-    <SideSheet title="Test Run" visible={visible} mask={false} onCancel={onClose}>
-      <div
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        {isRunning ? (
-          <div
-            style={{
-              width: '100%',
-              height: '80%',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 16,
-            }}
-          >
-            <IconSpin spin size="large" />
-            <div
-              style={{
-                fontSize: '18px',
-              }}
-            >
-              Running...
-            </div>
-          </div>
-        ) : (
-          form
-        )}
+  const renderButton = (
+    <Button
+      onClick={onTestRun}
+      icon={isRunning ? <IconStop size="small" /> : <IconPlay size="small" />}
+      style={{
+        backgroundColor: isRunning ? 'rgba(87,104,161,0.08)' : 'rgba(0,178,60,1)',
+        borderRadius: '8px',
+        color: isRunning ? 'rgba(15,21,40,0.82)' : '#fff',
+        marginBottom: '16px',
+        width: '100%',
+        height: '40px',
+      }}
+    >
+      {isRunning ? 'Cancel' : 'Test Run'}
+    </Button>
+  );
 
-        <Button
-          onClick={onTestRun}
-          icon={isRunning ? <IconStop size="small" /> : <IconPlay size="small" />}
-          style={{
-            backgroundColor: isRunning ? 'rgba(87,104,161,0.08)' : 'rgba(0,178,60,1)',
-            borderRadius: '8px',
-            color: isRunning ? 'rgba(15,21,40,0.82)' : '#fff',
-            marginBottom: '16px',
-          }}
-        >
-          {isRunning ? 'Cancel' : 'Test Run'}
-          {/* Test Run */}
-        </Button>
-      </div>
+  return (
+    <SideSheet
+      title="Test Run"
+      visible={visible}
+      mask={false}
+      onCancel={onClose}
+      footer={renderButton}
+    >
+      {isRunning ? renderRunning : renderForm}
     </SideSheet>
   );
 };
