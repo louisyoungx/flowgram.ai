@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import './index.css';
 import { Toast } from '@douyinfe/semi-ui';
@@ -8,106 +8,147 @@ interface DataStructureViewerProps {
   level?: number;
 }
 
-export const DataStructureViewer: React.FC<DataStructureViewerProps> = ({ data, level = 0 }) => {
-  const handleDoubleClick = (value: string) => {
-    navigator.clipboard.writeText(value);
+interface TreeNodeProps {
+  label: string;
+  value: any;
+  level: number;
+  isLast?: boolean;
+}
+
+const TreeNode: React.FC<TreeNodeProps> = ({ label, value, level, isLast = false }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
     Toast.success('Copied');
   };
 
-  const renderValue = (value: any): JSX.Element => {
-    if (value === null) return <span className="node-status-data-null">null</span>;
-    if (value === undefined) return <span className="node-status-data-undefined">undefined</span>;
+  const isExpandable = (val: any) =>
+    val !== null &&
+    typeof val === 'object' &&
+    ((Array.isArray(val) && val.length > 0) ||
+      (!Array.isArray(val) && Object.keys(val).length > 0));
 
-    switch (typeof value) {
+  const renderPrimitiveValue = (val: any) => {
+    if (val === null) return <span className="primitive-value null">null</span>;
+    if (val === undefined) return <span className="primitive-value undefined">undefined</span>;
+
+    switch (typeof val) {
       case 'string':
         return (
-          <span className="node-status-data-string">
-            <span>{'"'}</span>
-            <span className="node-status-data-value" onDoubleClick={() => handleDoubleClick(value)}>
-              {value}
+          <span className="string">
+            <span className="primitive-value-quote">{'"'}</span>
+            <span className="primitive-value" onDoubleClick={() => handleCopy(val)}>
+              {val}
             </span>
-            <span>{'"'}</span>
+            <span className="primitive-value-quote">{'"'}</span>
           </span>
         );
       case 'number':
         return (
-          <span className="node-status-data-number">
-            <span
-              className="node-status-data-value"
-              onDoubleClick={() => handleDoubleClick(String(value))}
-            >
-              {value}
-            </span>
+          <span className="primitive-value number" onDoubleClick={() => handleCopy(String(val))}>
+            {val}
           </span>
         );
       case 'boolean':
         return (
-          <span className="node-status-data-boolean">
-            <span
-              className="node-status-data-value"
-              onDoubleClick={() => handleDoubleClick(value.toString())}
-            >
-              {value.toString()}
-            </span>
+          <span
+            className="primitive-value boolean"
+            onDoubleClick={() => handleCopy(val.toString())}
+          >
+            {val.toString()}
           </span>
-        );
-      case 'object':
-        if (Array.isArray(value)) {
-          if (value.length === 0) return <span className="node-status-data-array">[]</span>;
-          return (
-            <div className="node-status-data-array">
-              [
-              <div className="node-status-data-children">
-                {value.map((item, index) => (
-                  <div key={index} className="node-status-data-item">
-                    {renderValue(item)}
-                    {index < value.length - 1 ? ',' : ''}
-                  </div>
-                ))}
-              </div>
-              ]
-            </div>
-          );
-        }
-        if (Object.keys(value).length === 0)
-          return <span className="node-status-data-object">{}</span>;
-        return (
-          <div className="node-status-data-object">
-            {
-              <div className="node-status-data-children">
-                {Object.entries(value).map(([key, val], index, arr) => (
-                  <div key={key} className="node-status-data-item">
-                    <span
-                      className="node-status-data-key"
-                      onDoubleClick={() => handleDoubleClick(key)}
-                    >
-                      {key}
-                    </span>
-                    : {renderValue(val)}
-                    {index < arr.length - 1 ? ',' : ''}
-                  </div>
-                ))}
-              </div>
-            }
-          </div>
         );
       default:
         return (
-          <span>
-            <span
-              className="node-status-data-value"
-              onDoubleClick={() => handleDoubleClick(String(value))}
-            >
-              {String(value)}
-            </span>
+          <span className="primitive-value" onDoubleClick={() => handleCopy(String(val))}>
+            {String(val)}
           </span>
         );
     }
   };
 
+  const renderChildren = () => {
+    if (Array.isArray(value)) {
+      return value.map((item, index) => (
+        <TreeNode
+          key={index}
+          label={`${index + 1}.`}
+          value={item}
+          level={level + 1}
+          isLast={index === value.length - 1}
+        />
+      ));
+    } else {
+      const entries = Object.entries(value);
+      return entries.map(([key, val], index) => (
+        <TreeNode
+          key={key}
+          label={`${key}:`}
+          value={val}
+          level={level + 1}
+          isLast={index === entries.length - 1}
+        />
+      ));
+    }
+  };
+
   return (
-    <div className="node-status-data-structure-viewer" style={{ paddingLeft: level * 20 }}>
-      {renderValue(data)}
+    <div className="tree-node">
+      <div className="tree-node-header">
+        {isExpandable(value) ? (
+          <button
+            className={`expand-button ${isExpanded ? 'expanded' : 'collapsed'}`}
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            ▶
+          </button>
+        ) : (
+          <span className="expand-placeholder"></span>
+        )}
+        <span
+          className="node-label"
+          onClick={() =>
+            handleCopy(
+              JSON.stringify({
+                [label]: value,
+              })
+            )
+          }
+        >
+          {label}
+        </span>
+        {!isExpandable(value) && <span className="node-value">{renderPrimitiveValue(value)}</span>}
+      </div>
+      {isExpandable(value) && isExpanded && (
+        <div className="tree-node-children">{renderChildren()}</div>
+      )}
+    </div>
+  );
+};
+
+export const DataStructureViewer: React.FC<DataStructureViewerProps> = ({ data, level = 0 }) => {
+  if (data === null || data === undefined || typeof data !== 'object') {
+    return (
+      <div className="node-status-data-structure-viewer">
+        <TreeNode label="value" value={data} level={0} />
+      </div>
+    );
+  }
+
+  const entries = Object.entries(data);
+
+  return (
+    <div className="node-status-data-structure-viewer">
+      {entries.map(([key, value], index) => (
+        <TreeNode
+          key={key}
+          label={key}
+          value={value}
+          level={0}
+          isLast={index === entries.length - 1}
+        />
+      ))}
     </div>
   );
 };
