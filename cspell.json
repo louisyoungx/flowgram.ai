@@ -9,6 +9,7 @@
     "douyinfe",
     "flowgram",
     "flowgram.ai",
+    "gedit",
     "Hoverable",
     "langchain",
     "openbracket",
@@ -16,9 +17,9 @@
     "rspack",
     "rspress",
     "Sandpack",
+    "testrun",
     "zoomin",
-    "zoomout",
-    "gedit"
+    "zoomout"
   ],
   "ignoreWords": [],
   "import": []

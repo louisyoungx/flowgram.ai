@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { IconChevronDown } from '@douyinfe/semi-icons';
 
-import { useNodeRenderContext } from '../../../hooks';
+import { useNodeRenderContext } from '../../../../hooks';
 import { NodeStatusHeaderContentStyle, NodeStatusHeaderStyle } from './style';
 
 interface NodeStatusBarProps {

@@ -1,4 +1,10 @@
-import { IReport, NodeReport, WorkflowStatus } from '@flowgram.ai/runtime-interface';
+import {
+  IReport,
+  NodeReport,
+  WorkflowInputs,
+  WorkflowOutputs,
+  WorkflowStatus,
+} from '@flowgram.ai/runtime-interface';
 import {
   injectable,
   inject,
@@ -9,6 +15,7 @@ import {
   WorkflowNodeEntity,
   WorkflowNodeLinesData,
   Emitter,
+  getNodeForm,
 } from '@flowgram.ai/free-layout-editor';
 
 import { runtimeClient } from '../utils';
@@ -37,11 +44,20 @@ export class RunningService {
 
   private resetEmitter = new Emitter<{}>();
 
+  public terminatedEmitter = new Emitter<{
+    result?: {
+      inputs: WorkflowInputs;
+      outputs: WorkflowOutputs;
+    };
+  }>();
+
   private nodeRunningStatus: Map<string, NodeRunningStatus>;
 
   public onNodeReportChange = this.reportEmitter.event;
 
   public onReset = this.resetEmitter.event;
+
+  public onTerminated = this.terminatedEmitter.event;
 
   async addRunningNode(node: WorkflowNodeEntity): Promise<void> {
     this._runningNodes.push(node);
@@ -70,16 +86,17 @@ export class RunningService {
     );
   }
 
-  public async taskRun(): Promise<void> {
+  public async taskRun(inputsString: string): Promise<void> {
+    if (this.taskID) {
+      await this.taskCancel();
+    }
+    if (!this.validate()) {
+      return;
+    }
     this.reset();
     const output = await runtimeClient.taskRun({
       schema: JSON.stringify(this.document.toJSON()),
-      inputs: {
-        modelName: 'ep-20250206192339-nnr9m',
-        apiKey: 'c5720be8-e02d-4584-8cd7-27bcbcc14dab',
-        apiHost: 'https://ark.cn-beijing.volces.com/api/v3',
-        // mode: 0,
-      },
+      inputs: JSON.parse(inputsString) as WorkflowInputs,
     });
     if (!output) {
       return;
@@ -88,6 +105,23 @@ export class RunningService {
     this.syncTaskReportIntervalID = setInterval(() => {
       this.syncTaskReport();
     }, SYNC_TASK_REPORT_INTERVAL);
+  }
+
+  public async taskCancel(): Promise<void> {
+    if (!this.taskID) {
+      return;
+    }
+    await runtimeClient.taskCancel({
+      taskID: this.taskID,
+    });
+  }
+
+  private async validate(): Promise<boolean> {
+    const allForms = this.document.getAllNodes().map((node) => getNodeForm(node));
+    const formValidations = await Promise.all(allForms.map(async (form) => form?.validate()));
+    const validations = formValidations.filter((validation) => validation !== undefined);
+    const isValid = validations.every((validation) => validation);
+    return isValid;
   }
 
   private reset(): void {
@@ -111,9 +145,14 @@ export class RunningService {
       console.error('Sync task report failed');
       return;
     }
-    const { workflowStatus } = output;
+    const { workflowStatus, inputs, outputs } = output;
     if (workflowStatus.terminated) {
       clearInterval(this.syncTaskReportIntervalID);
+      if (Object.keys(outputs).length > 0) {
+        this.terminatedEmitter.fire({ result: { inputs, outputs } });
+      } else {
+        this.terminatedEmitter.fire({});
+      }
     }
     this.updateReport(output);
   }
@@ -137,6 +176,8 @@ export class RunningService {
           status: nodeReport.status,
           nodeResultLength: nodeReport.snapshots.length,
         });
+        this.reportEmitter.fire(nodeReport);
+      } else if (nodeReport.status === WorkflowStatus.Processing) {
         this.reportEmitter.fire(nodeReport);
       }
     });

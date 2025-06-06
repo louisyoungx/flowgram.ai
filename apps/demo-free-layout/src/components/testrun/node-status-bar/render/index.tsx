@@ -20,11 +20,12 @@ const msToSeconds = (ms: number): string => (ms / 1000).toFixed(2) + 's';
 export const NodeStatusRender: FC<NodeStatusRenderProps> = ({ report }) => {
   const { status: nodeStatus } = report;
 
-  // 节点 4 个状态
-  const isNodeSucceed = nodeStatus === WorkflowStatus.Succeeded;
+  // 节点 5 个状态
+  const isNodePending = nodeStatus === WorkflowStatus.Pending;
   const isNodeProcessing = nodeStatus === WorkflowStatus.Processing;
   const isNodeFailed = nodeStatus === WorkflowStatus.Failed;
-  const isNodePending = nodeStatus === WorkflowStatus.Pending;
+  const isNodeSucceed = nodeStatus === WorkflowStatus.Succeeded;
+  const isNodeCanceled = nodeStatus === WorkflowStatus.Canceled;
 
   const tagColor = useMemo(() => {
     if (isNodeSucceed) {
@@ -64,6 +65,8 @@ export const NodeStatusRender: FC<NodeStatusRenderProps> = ({ report }) => {
         return 'Succeed';
       } else if (isNodeFailed) {
         return 'Failed';
+      } else if (isNodeCanceled) {
+        return 'Canceled';
       }
     };
 
@@ -100,7 +103,7 @@ export const NodeStatusRender: FC<NodeStatusRenderProps> = ({ report }) => {
       >
         <NodeStatusGroup title="Inputs" data={report.snapshots[0].inputs} />
         <NodeStatusGroup title="Outputs" data={report.snapshots[0].outputs} />
-        <NodeStatusGroup title="Data" data={report.snapshots[0].data} />
+        <NodeStatusGroup title="Data" data={report.snapshots[0].data} optional />
         <NodeStatusGroup title="Branch" data={report.snapshots[0].branch} optional />
       </div>
     </NodeStatusHeader>
