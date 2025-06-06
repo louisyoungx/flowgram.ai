@@ -38,10 +38,10 @@ export type ConditionRules = Record<WorkflowVariableType, ConditionRule>;
 
 export interface ConditionValue {
   key: string;
-  leftValue: unknown;
+  leftValue: unknown | null;
   rightValue: unknown | null;
   leftType: WorkflowVariableType;
-  rightType: WorkflowVariableType | null;
+  rightType: WorkflowVariableType;
   operator: ConditionOperation;
 }
 

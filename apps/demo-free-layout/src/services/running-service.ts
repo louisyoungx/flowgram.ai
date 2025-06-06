@@ -74,7 +74,12 @@ export class RunningService {
     this.reset();
     const output = await runtimeClient.taskRun({
       schema: JSON.stringify(this.document.toJSON()),
-      inputs: {},
+      inputs: {
+        modelName: 'ep-20250206192339-nnr9m',
+        apiKey: 'c5720be8-e02d-4584-8cd7-27bcbcc14dab',
+        apiHost: 'https://ark.cn-beijing.volces.com/api/v3',
+        // mode: 0,
+      },
     });
     if (!output) {
       return;

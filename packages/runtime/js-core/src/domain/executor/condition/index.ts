@@ -1,8 +1,10 @@
+import { isNil } from 'lodash-es';
 import {
   ExecutionContext,
   ExecutionResult,
   FlowGramNode,
   INodeExecutor,
+  WorkflowVariableType,
 } from '@flowgram.ai/runtime-interface';
 
 import { ConditionItem, ConditionValue, Conditions } from './type';
@@ -38,14 +40,11 @@ export class ConditionExecutor implements INodeExecutor {
     const { key, value } = item;
     const { left, operator, right } = value;
     const parsedLeft = context.state.parseRef(left);
-    if (!parsedLeft) {
-      throw new Error('condition left value is not valid');
-    }
-    const leftValue = parsedLeft.value;
-    const leftType = parsedLeft.type;
+    const leftValue = parsedLeft?.value ?? null;
+    const leftType = parsedLeft?.type ?? WorkflowVariableType.Null;
     const parsedRight = Boolean(right) ? context.state.parseValue(right) : null;
     const rightValue = parsedRight?.value ?? null;
-    const rightType = parsedRight?.type ?? null;
+    const rightType = parsedRight?.type ?? WorkflowVariableType.Null;
     return {
       key,
       leftValue,
@@ -58,15 +57,16 @@ export class ConditionExecutor implements INodeExecutor {
 
   private checkCondition(condition: ConditionValue): boolean {
     const rule = conditionRules[condition.leftType];
-    if (!rule) {
+    if (isNil(rule)) {
       throw new Error(`condition left type ${condition.leftType} is not supported`);
     }
     const ruleType = rule[condition.operator];
-    if (!ruleType) {
+    if (isNil(ruleType)) {
       throw new Error(`condition operator ${condition.operator} is not supported`);
     }
     if (ruleType !== condition.rightType) {
-      throw new Error(`condition right type expected ${ruleType}, got ${condition.rightType}`);
+      // throw new Error(`condition right type expected ${ruleType}, got ${condition.rightType}`);
+      return false;
     }
     return true;
   }
