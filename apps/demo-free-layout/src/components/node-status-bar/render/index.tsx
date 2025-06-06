@@ -101,6 +101,7 @@ export const NodeStatusRender: FC<NodeStatusRenderProps> = ({ report }) => {
         <NodeStatusGroup title="Inputs" data={report.snapshots[0].inputs} />
         <NodeStatusGroup title="Outputs" data={report.snapshots[0].outputs} />
         <NodeStatusGroup title="Data" data={report.snapshots[0].data} />
+        <NodeStatusGroup title="Branch" data={report.snapshots[0].branch} optional />
       </div>
     </NodeStatusHeader>
   );
