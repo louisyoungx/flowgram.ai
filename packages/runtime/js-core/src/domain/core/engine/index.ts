@@ -12,6 +12,7 @@ import {
 
 import { WorkflowRuntimeTask } from '../task';
 import { WorkflowRuntimeContext } from '../context';
+import { WorkflowRuntimeContainer } from '../container';
 
 export class WorkflowRuntimeEngine implements IEngine {
   private readonly executor: IExecutor;
@@ -33,21 +34,7 @@ export class WorkflowRuntimeEngine implements IEngine {
     });
   }
 
-  private async process(context: IContext): Promise<WorkflowOutputs> {
-    const startNode = context.document.start;
-    context.statusCenter.workflow.process();
-    try {
-      await this.executeNode({ node: startNode, context });
-      const outputs = context.ioCenter.outputs;
-      context.statusCenter.workflow.success();
-      return outputs;
-    } catch (e) {
-      context.statusCenter.workflow.fail();
-      throw e;
-    }
-  }
-
-  private async executeNode(params: { context: IContext; node: INode }) {
+  public async executeNode(params: { context: IContext; node: INode }) {
     const { node, context } = params;
     if (!this.canExecuteNode({ node, context })) {
       return;
@@ -62,9 +49,9 @@ export class WorkflowRuntimeEngine implements IEngine {
       });
       const result = await this.executor.execute({
         node,
-        state: context.state,
-        io: context.ioCenter,
         inputs,
+        runtime: context,
+        container: WorkflowRuntimeContainer.instance,
       });
       if (context.statusCenter.workflow.terminated) {
         return;
@@ -78,6 +65,20 @@ export class WorkflowRuntimeEngine implements IEngine {
       await this.executeNext({ node, nextNodes, context });
     } catch (e) {
       context.statusCenter.nodeStatus(node.id).fail();
+      throw e;
+    }
+  }
+
+  private async process(context: IContext): Promise<WorkflowOutputs> {
+    const startNode = context.document.start;
+    context.statusCenter.workflow.process();
+    try {
+      await this.executeNode({ node: startNode, context });
+      const outputs = context.ioCenter.outputs;
+      context.statusCenter.workflow.success();
+      return outputs;
+    } catch (e) {
+      context.statusCenter.workflow.fail();
       throw e;
     }
   }
@@ -116,7 +117,8 @@ export class WorkflowRuntimeEngine implements IEngine {
       return;
     }
     if (nextNodes.length === 0) {
-      throw new Error(`node ${node.id} has no next nodes`);
+      // throw new Error(`node ${node.id} has no next nodes`); // inside loop node may have no next nodes
+      return;
     }
     await Promise.all(
       nextNodes.map((nextNode) =>

@@ -1,14 +1,13 @@
 import { FlowGramNode } from '@node/index';
-import { IState } from '../state';
-import { IIOCenter } from '../reporter';
 import { INode } from '../document';
+import type { IContainer, IContext } from '../core';
 import { WorkflowInputs, WorkflowOutputs } from '../base';
 
 export interface ExecutionContext {
-  state: IState;
-  io: IIOCenter;
   node: INode;
   inputs: WorkflowInputs;
+  container: IContainer;
+  runtime: IContext;
 }
 
 export interface ExecutionResult {

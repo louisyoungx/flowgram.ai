@@ -3,8 +3,7 @@ import { ISnapshotCenter, IReporter, IStatusCenter, IIOCenter } from '../reporte
 import { IDocument } from '../document';
 import { InvokeParams } from '../base';
 
-export interface IContext {
-  id: string;
+export interface ContextData {
   variableStore: IVariableStore;
   state: IState;
   document: IDocument;
@@ -12,6 +11,11 @@ export interface IContext {
   snapshotCenter: ISnapshotCenter;
   statusCenter: IStatusCenter;
   reporter: IReporter;
+}
+
+export interface IContext extends ContextData {
+  id: string;
   init(params: InvokeParams): void;
   dispose(): void;
+  sub(): IContext;
 }
