@@ -74,7 +74,7 @@ export const basicLLMSchema: WorkflowSchema = {
             content: ['llm_0', 'result'],
           },
         },
-        outputs: {
+        inputs: {
           type: 'object',
           properties: {
             answer: {

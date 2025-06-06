@@ -1,14 +1,17 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { IContainer, IEngine, WorkflowStatus } from '@flowgram.ai/runtime-interface';
+import { IContainer, IEngine, IExecutor, WorkflowStatus } from '@flowgram.ai/runtime-interface';
 
+import { LLMExecutor } from '@workflow/executor/llm';
 import { WorkflowRuntimeContainer } from '@workflow/core';
-import { snapshotsToVOData } from './utils';
-import { TestSchemas } from './schemas';
+import { snapshotsToVOData } from '../utils';
+import { TestSchemas } from '.';
 
 let container: IContainer;
 
 beforeEach(() => {
   container = WorkflowRuntimeContainer.instance;
+  const executor = container.get<IExecutor>(IExecutor);
+  executor.register(new LLMExecutor());
 });
 
 describe('workflow runtime basic test', () => {
@@ -49,7 +52,7 @@ describe('workflow runtime basic test', () => {
           api_host: apiHost,
           prompt: 'Just give me the answer of "1+1=?", just one number, no other words',
         },
-        data: { title: 'Start' },
+        data: {},
       },
       {
         nodeID: 'llm_0',
@@ -62,13 +65,13 @@ describe('workflow runtime basic test', () => {
           systemPrompt: 'You are a helpful AI assistant.',
         },
         outputs: { result: '2' },
-        data: { title: 'LLM_0' },
+        data: {},
       },
       {
         nodeID: 'end_0',
         inputs: { answer: '2' },
         outputs: { answer: '2' },
-        data: { title: 'End' },
+        data: {},
       },
     ]);
   });

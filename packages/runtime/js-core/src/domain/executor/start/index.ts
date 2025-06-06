@@ -10,7 +10,7 @@ export class StartExecutor implements INodeExecutor {
 
   public async execute(context: ExecutionContext): Promise<ExecutionResult> {
     return {
-      outputs: context.io.inputs,
+      outputs: context.runtime.ioCenter.inputs,
     };
   }
 }

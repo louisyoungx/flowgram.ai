@@ -1,10 +1,10 @@
 import { WorkflowVariableType } from '@flowgram.ai/runtime-interface';
 
 export namespace WorkflowRuntimeType {
-  export const getWorkflowType = (value: unknown): WorkflowVariableType | null => {
+  export const getWorkflowType = (value?: unknown): WorkflowVariableType | null => {
     // 处理 null 和 undefined 的情况
     if (value === null || value === undefined) {
-      return null;
+      return WorkflowVariableType.Null;
     }
 
     // 处理基本类型

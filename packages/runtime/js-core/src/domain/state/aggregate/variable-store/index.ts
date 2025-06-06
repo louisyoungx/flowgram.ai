@@ -12,6 +12,8 @@ import { WorkflowRuntimeVariable } from '../../value-object';
 export class WorkflowRuntimeVariableStore implements IVariableStore {
   public readonly id: string;
 
+  private parent?: WorkflowRuntimeVariableStore;
+
   constructor() {
     this.id = uuid();
   }
@@ -26,13 +28,26 @@ export class WorkflowRuntimeVariableStore implements IVariableStore {
     this.store.clear();
   }
 
+  public setParent(parent: IVariableStore): void {
+    this.parent = parent as WorkflowRuntimeVariableStore;
+  }
+
+  public globalGet(nodeID: string): Map<string, IVariable> | undefined {
+    const store = this.store.get(nodeID);
+    if (!store && this.parent) {
+      return this.parent.globalGet(nodeID);
+    }
+    return store;
+  }
+
   public setVariable(params: {
     nodeID: string;
     key: string;
     value: Object;
     type: WorkflowVariableType;
+    itemsType?: WorkflowVariableType;
   }): void {
-    const { nodeID, key, value, type } = params;
+    const { nodeID, key, value, type, itemsType } = params;
     if (!this.store.has(nodeID)) {
       // create node store
       this.store.set(nodeID, new Map());
@@ -44,6 +59,7 @@ export class WorkflowRuntimeVariableStore implements IVariableStore {
       key,
       value,
       type, // TODO check type
+      itemsType, // TODO check is array
     });
     nodeStore.set(key, variable);
   }
@@ -84,7 +100,7 @@ export class WorkflowRuntimeVariableStore implements IVariableStore {
     variablePath?: string[];
   }): IVariableParseResult<T> | null {
     const { nodeID, variableKey, variablePath } = params;
-    const variable = this.store.get(nodeID)?.get(variableKey);
+    const variable = this.globalGet(nodeID)?.get(variableKey);
     if (!variable) {
       return null;
     }
@@ -92,12 +108,24 @@ export class WorkflowRuntimeVariableStore implements IVariableStore {
       return {
         value: variable.value as T,
         type: variable.type,
+        itemsType: variable.itemsType,
       };
     }
     const value = get(variable.value, variablePath) as T;
     const type = WorkflowRuntimeType.getWorkflowType(value);
     if (!type) {
       return null;
+    }
+    if (type === WorkflowVariableType.Array && Array.isArray(value)) {
+      const itemsType = WorkflowRuntimeType.getWorkflowType(value[0]);
+      if (!itemsType) {
+        return null;
+      }
+      return {
+        value,
+        type,
+        itemsType,
+      };
     }
     return {
       value,

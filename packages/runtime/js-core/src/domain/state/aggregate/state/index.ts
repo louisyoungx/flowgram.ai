@@ -69,12 +69,14 @@ export class WorkflowRuntimeState implements IState {
         return;
       }
       const type = typeInfo.type as WorkflowVariableType;
+      const itemsType = typeInfo.items?.type as WorkflowVariableType;
       // create variable
       this.variableStore.setVariable({
         nodeID: node.id,
         key,
         value,
         type,
+        itemsType,
       });
     });
   }

@@ -39,10 +39,10 @@ export class ConditionExecutor implements INodeExecutor {
   private parseCondition(item: ConditionItem, context: ExecutionContext): ConditionValue {
     const { key, value } = item;
     const { left, operator, right } = value;
-    const parsedLeft = context.state.parseRef(left);
+    const parsedLeft = context.runtime.state.parseRef(left);
     const leftValue = parsedLeft?.value ?? null;
     const leftType = parsedLeft?.type ?? WorkflowVariableType.Null;
-    const parsedRight = Boolean(right) ? context.state.parseValue(right) : null;
+    const parsedRight = Boolean(right) ? context.runtime.state.parseValue(right) : null;
     const rightValue = parsedRight?.value ?? null;
     const rightType = parsedRight?.type ?? WorkflowVariableType.Null;
     return {

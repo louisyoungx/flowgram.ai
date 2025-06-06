@@ -8,6 +8,7 @@ import {
   IStatusCenter,
   IReporter,
   IIOCenter,
+  ContextData,
 } from '@flowgram.ai/runtime-interface';
 
 import { WorkflowRuntimeState, WorkflowRuntimeVariableStore } from '@workflow/state';
@@ -34,19 +35,17 @@ export class WorkflowRuntimeContext implements IContext {
 
   public readonly reporter: IReporter;
 
-  constructor() {
+  private subContexts: IContext[] = [];
+
+  constructor(data: ContextData) {
     this.id = uuid();
-    this.document = new WorkflowRuntimeDocument();
-    this.variableStore = new WorkflowRuntimeVariableStore();
-    this.state = new WorkflowRuntimeState(this.variableStore);
-    this.ioCenter = new WorkflowRuntimeIOCenter();
-    this.snapshotCenter = new WorkflowRuntimeSnapshotCenter();
-    this.statusCenter = new WorkflowRuntimeStatusCenter();
-    this.reporter = new WorkflowRuntimeReporter(
-      this.ioCenter,
-      this.snapshotCenter,
-      this.statusCenter
-    );
+    this.document = data.document;
+    this.variableStore = data.variableStore;
+    this.state = data.state;
+    this.ioCenter = data.ioCenter;
+    this.snapshotCenter = data.snapshotCenter;
+    this.statusCenter = data.statusCenter;
+    this.reporter = data.reporter;
   }
 
   public init(params: InvokeParams): void {
@@ -61,6 +60,10 @@ export class WorkflowRuntimeContext implements IContext {
   }
 
   public dispose(): void {
+    this.subContexts.forEach((subContext) => {
+      subContext.dispose();
+    });
+    this.subContexts = [];
     this.document.dispose();
     this.variableStore.dispose();
     this.state.dispose();
@@ -70,7 +73,42 @@ export class WorkflowRuntimeContext implements IContext {
     this.reporter.dispose();
   }
 
+  public sub(): IContext {
+    const variableStore = new WorkflowRuntimeVariableStore();
+    variableStore.setParent(this.variableStore);
+    const state = new WorkflowRuntimeState(variableStore);
+    const contextData: ContextData = {
+      document: this.document,
+      ioCenter: this.ioCenter,
+      snapshotCenter: this.snapshotCenter,
+      statusCenter: this.statusCenter,
+      reporter: this.reporter,
+      variableStore,
+      state,
+    };
+    const subContext = new WorkflowRuntimeContext(contextData);
+    this.subContexts.push(subContext);
+    subContext.variableStore.init();
+    subContext.state.init();
+    return subContext;
+  }
+
   public static create(): IContext {
-    return new WorkflowRuntimeContext();
+    const document = new WorkflowRuntimeDocument();
+    const variableStore = new WorkflowRuntimeVariableStore();
+    const state = new WorkflowRuntimeState(variableStore);
+    const ioCenter = new WorkflowRuntimeIOCenter();
+    const snapshotCenter = new WorkflowRuntimeSnapshotCenter();
+    const statusCenter = new WorkflowRuntimeStatusCenter();
+    const reporter = new WorkflowRuntimeReporter(ioCenter, snapshotCenter, statusCenter);
+    return new WorkflowRuntimeContext({
+      document,
+      variableStore,
+      state,
+      ioCenter,
+      snapshotCenter,
+      statusCenter,
+      reporter,
+    });
   }
 }

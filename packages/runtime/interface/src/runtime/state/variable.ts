@@ -1,14 +1,18 @@
 import { WorkflowVariableType } from '@schema/index';
 
-export interface IVariable<T = Object> {
+interface VariableTypeInfo {
+  type: WorkflowVariableType;
+  itemsType?: WorkflowVariableType;
+}
+
+export interface IVariable<T = Object> extends VariableTypeInfo {
   id: string;
   nodeID: string;
   key: string;
   value: T;
-  type: WorkflowVariableType;
 }
 
-export interface IVariableParseResult<T = unknown> {
+export interface IVariableParseResult<T = unknown> extends VariableTypeInfo {
   value: T;
   type: WorkflowVariableType;
 }
@@ -16,12 +20,14 @@ export interface IVariableParseResult<T = unknown> {
 export interface IVariableStore {
   id: string;
   store: Map<string, Map<string, IVariable>>;
-  setVariable(params: {
-    nodeID: string;
-    key: string;
-    value: Object;
-    type: WorkflowVariableType;
-  }): void;
+  setParent(parent: IVariableStore): void;
+  setVariable(
+    params: {
+      nodeID: string;
+      key: string;
+      value: Object;
+    } & VariableTypeInfo
+  ): void;
   setValue(params: {
     nodeID: string;
     variableKey: string;
