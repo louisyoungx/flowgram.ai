@@ -10,7 +10,6 @@ import {
   inject,
   WorkflowDocument,
   Playground,
-  delay,
   WorkflowLineEntity,
   WorkflowNodeEntity,
   WorkflowNodeLinesData,
@@ -19,7 +18,6 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 
 import { runtimeClient } from '../utils';
-const RUNNING_INTERVAL = 1000;
 const SYNC_TASK_REPORT_INTERVAL = 500;
 
 interface NodeRunningStatus {
@@ -34,7 +32,7 @@ export class RunningService {
 
   @inject(WorkflowDocument) document: WorkflowDocument;
 
-  private _runningNodes: WorkflowNodeEntity[] = [];
+  private runningNodes: WorkflowNodeEntity[] = [];
 
   private taskID?: string;
 
@@ -59,30 +57,9 @@ export class RunningService {
 
   public onTerminated = this.terminatedEmitter.event;
 
-  async addRunningNode(node: WorkflowNodeEntity): Promise<void> {
-    this._runningNodes.push(node);
-    node.renderData.node.classList.add('node-running');
-    this.document.linesManager.forceUpdate(); // Refresh line renderer
-    await delay(RUNNING_INTERVAL);
-    // Child Nodes
-    await Promise.all(node.blocks.map((nextNode) => this.addRunningNode(nextNode)));
-    // Sibling Nodes
-    const nextNodes = node.getData(WorkflowNodeLinesData).outputNodes;
-    await Promise.all(nextNodes.map((nextNode) => this.addRunningNode(nextNode)));
-  }
-
-  async startRun(): Promise<void> {
-    await this.addRunningNode(this.document.getNode('start_0')!);
-    this._runningNodes.forEach((node) => {
-      node.renderData.node.classList.remove('node-running');
-    });
-    this._runningNodes = [];
-    this.document.linesManager.forceUpdate();
-  }
-
-  isFlowingLine(line: WorkflowLineEntity) {
-    return this._runningNodes.some((node) =>
-      node.getData(WorkflowNodeLinesData).outputLines.includes(line)
+  public isFlowingLine(line: WorkflowLineEntity) {
+    return this.runningNodes.some((node) =>
+      node.getData(WorkflowNodeLinesData).inputLines.includes(line)
     );
   }
 
@@ -127,6 +104,7 @@ export class RunningService {
   private reset(): void {
     this.taskID = undefined;
     this.nodeRunningStatus = new Map();
+    this.runningNodes = [];
     if (this.syncTaskReportIntervalID) {
       clearInterval(this.syncTaskReportIntervalID);
     }
@@ -159,11 +137,15 @@ export class RunningService {
 
   private updateReport(report: IReport): void {
     const { reports } = report;
+    this.runningNodes = [];
     this.document.getAllNodes().forEach((node) => {
       const nodeID = node.id;
       const nodeReport = reports[nodeID];
       if (!nodeReport) {
         return;
+      }
+      if (nodeReport.status === WorkflowStatus.Processing) {
+        this.runningNodes.push(node);
       }
       const runningStatus = this.nodeRunningStatus.get(nodeID);
       if (
@@ -177,6 +159,7 @@ export class RunningService {
           nodeResultLength: nodeReport.snapshots.length,
         });
         this.reportEmitter.fire(nodeReport);
+        this.document.linesManager.forceUpdate();
       } else if (nodeReport.status === WorkflowStatus.Processing) {
         this.reportEmitter.fire(nodeReport);
       }
