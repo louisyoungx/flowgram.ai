@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { IContainer, IEngine, IExecutor, WorkflowStatus } from '@flowgram.ai/runtime-interface';
 
-import { LLMExecutor } from '@workflow/executor/llm';
-import { WorkflowRuntimeContainer } from '@workflow/core';
+import { LLMExecutor } from '@nodes/llm';
 import { snapshotsToVOData } from '../utils';
+import { WorkflowRuntimeContainer } from '../../container';
 import { TestSchemas } from '.';
 
 let container: IContainer;

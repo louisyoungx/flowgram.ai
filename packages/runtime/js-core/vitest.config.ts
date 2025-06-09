@@ -10,9 +10,10 @@ export default defineConfig({
   },
   resolve: {
     alias: [
-      {find: "@api", replacement: path.resolve(__dirname, './src/api') },
       {find: "@application", replacement: path.resolve(__dirname, './src/application') },
       {find: "@workflow", replacement: path.resolve(__dirname, './src/domain') },
+      {find: "@infra", replacement: path.resolve(__dirname, './src/infrastructure') },
+      {find: "@nodes", replacement: path.resolve(__dirname, './src/nodes') },
     ],
   },
   test: {

@@ -3,11 +3,17 @@
     "compilerOptions": {
         "baseUrl": "src",
         "paths": {
+            "@application/*": [
+                "application/*"
+            ],
             "@workflow/*": [
                 "domain/*"
             ],
-            "@application/*": [
-                "application/*"
+            "@infra/*": [
+                "infrastructure/*"
+            ],
+            "@nodes/*": [
+                "nodes/*"
             ],
         }
     },

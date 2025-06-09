@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { IContainer, IEngine, WorkflowStatus } from '@flowgram.ai/runtime-interface';
 
-import { WorkflowRuntimeContainer } from '@workflow/core';
-import { snapshotsToVOData } from '@workflow/__tests__/utils';
-import { TestSchemas } from '@workflow/__tests__/schemas';
+import { snapshotsToVOData } from '../utils';
+import { WorkflowRuntimeContainer } from '../../container';
+import { TestSchemas } from '.';
 
 const container: IContainer = WorkflowRuntimeContainer.instance;
 

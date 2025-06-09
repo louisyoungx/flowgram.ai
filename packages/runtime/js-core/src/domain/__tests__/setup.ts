@@ -1,7 +1,7 @@
 import { IExecutor } from '@flowgram.ai/runtime-interface';
 
-import { WorkflowRuntimeContainer } from '@workflow/core';
 import { MockLLMExecutor } from './executor/llm';
+import { WorkflowRuntimeContainer } from '../container';
 
 const container = WorkflowRuntimeContainer.instance;
 const executor = container.get<IExecutor>(IExecutor);

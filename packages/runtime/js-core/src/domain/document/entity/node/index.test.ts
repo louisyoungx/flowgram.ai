@@ -9,7 +9,7 @@ import {
   IPort,
 } from '@flowgram.ai/runtime-interface';
 
-import { WorkflowRuntimeNode } from '@workflow/document/entity';
+import { WorkflowRuntimeNode } from './index';
 
 describe('WorkflowRuntimeNode', () => {
   let node: WorkflowRuntimeNode;

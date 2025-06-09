@@ -1,7 +1,7 @@
 import { ExecutionContext, ExecutionResult } from '@flowgram.ai/runtime-interface';
 
-import { delay } from '@workflow/infra';
-import { LLMExecutor, LLMExecutorInputs } from '@workflow/executor/llm';
+import { LLMExecutor, LLMExecutorInputs } from '@nodes/llm';
+import { delay } from '@infra/utils';
 
 export class MockLLMExecutor extends LLMExecutor {
   public async execute(context: ExecutionContext): Promise<ExecutionResult> {

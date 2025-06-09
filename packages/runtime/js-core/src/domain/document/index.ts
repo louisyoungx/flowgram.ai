@@ -1,1 +1,1 @@
-export { WorkflowRuntimeDocument } from './aggregate';
+export { WorkflowRuntimeDocument } from './document';
