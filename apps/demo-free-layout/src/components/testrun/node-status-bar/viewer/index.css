@@ -5,7 +5,7 @@
     color: #333;
     background: #fafafa;
     border-radius: 6px;
-    padding: 12px;
+    padding: 12px 12px 12px 0;
     margin: 12px;
     border: 1px solid #e1e4e8;
     overflow: hidden;
@@ -63,6 +63,7 @@
     width: 16px;
     height: 16px;
     display: inline-block;
+    flex-shrink: 0;
 }
 
 .node-label {
