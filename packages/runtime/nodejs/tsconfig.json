@@ -1,7 +1,7 @@
 {
   "extends": "@flowgram.ai/ts-config/tsconfig.flow.path.json",
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "esnext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -17,7 +17,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true,
     "plugins": [],
     "baseUrl": "src",
     "paths": {

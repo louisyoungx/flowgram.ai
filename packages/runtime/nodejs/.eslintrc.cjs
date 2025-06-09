@@ -16,4 +16,9 @@ module.exports = defineConfig({
     'no-console': 'off',
   },
   plugins: ['json', '@typescript-eslint'],
+  settings: {
+    react: {
+      version: '18',
+    },
+  },
 });
