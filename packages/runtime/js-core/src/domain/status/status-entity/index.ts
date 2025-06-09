@@ -47,6 +47,7 @@ export class WorkflowRuntimeStatus implements IStatus {
   public process(): void {
     this._status = WorkflowStatus.Processing;
     this._startTime = Date.now();
+    this._endTime = undefined;
   }
 
   public success(): void {

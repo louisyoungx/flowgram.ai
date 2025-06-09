@@ -106,7 +106,15 @@ export const NodeStatusRender: FC<NodeStatusRenderProps> = ({ report }) => {
       return (
         <>
           {count}
-          <div style={{ marginBottom: '12px', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+          <div
+            style={{
+              margin: '12px',
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
+          >
             {snapshots.map((_, index) => (
               <Button
                 key={index}
