@@ -1,8 +1,8 @@
-import { ITask } from './task';
-import { IExecutor } from './executor';
-import { InvokeParams } from '../base';
-import { IContext } from './context';
+import { ITask } from '../task';
+import { IExecutor } from '../executor';
 import { INode } from '../document';
+import { IContext } from '../context';
+import { InvokeParams } from '../base';
 
 export interface EngineServices {
   Executor: IExecutor;

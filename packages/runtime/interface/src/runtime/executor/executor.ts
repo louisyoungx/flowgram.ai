@@ -1,4 +1,4 @@
-import { ExecutionContext, ExecutionResult, INodeExecutor } from '../executor';
+import { ExecutionContext, ExecutionResult, INodeExecutor } from './node-executor';
 
 export interface IExecutor {
   execute: (context: ExecutionContext) => Promise<ExecutionResult>;

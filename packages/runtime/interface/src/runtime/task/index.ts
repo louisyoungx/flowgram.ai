@@ -1,5 +1,5 @@
+import { IContext } from '../context';
 import { WorkflowOutputs } from '../base';
-import { IContext } from '.';
 
 export interface ITask {
   id: string;
