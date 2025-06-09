@@ -65,7 +65,8 @@ export class WorkflowRuntimeEngine implements IEngine {
       await this.executeNext({ node, nextNodes, context });
     } catch (e) {
       context.statusCenter.nodeStatus(node.id).fail();
-      throw e;
+      console.error(e);
+      return;
     }
   }
 

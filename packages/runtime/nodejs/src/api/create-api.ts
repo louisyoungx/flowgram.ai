@@ -1,3 +1,4 @@
+import z from 'zod';
 import { WorkflowRuntimeAPIs } from '@flowgram.ai/runtime-js';
 import { FlowGramAPIMethod, FlowGramAPIName, FlowGramAPIs } from '@flowgram.ai/runtime-interface';
 
@@ -18,11 +19,15 @@ export const createAPI = (apiName: FlowGramAPIName): APIHandler => {
         },
       })
       .input(define.schema.input)
-      .output(define.schema.output)
+      .output(z.union([define.schema.output, z.undefined()]))
       .query(async (opts) => {
         const input = opts.input;
-        const output = await caller(input);
-        return output;
+        try {
+          const output = await caller(input);
+          return output;
+        } catch {
+          return undefined;
+        }
       });
 
     return {
@@ -41,11 +46,15 @@ export const createAPI = (apiName: FlowGramAPIName): APIHandler => {
       },
     })
     .input(define.schema.input)
-    .output(define.schema.output)
+    .output(z.union([define.schema.output, z.undefined()]))
     .mutation(async (opts) => {
       const input = opts.input;
-      const output = await caller(input);
-      return output;
+      try {
+        const output = await caller(input);
+        return output;
+      } catch {
+        return undefined;
+      }
     });
   return {
     define,

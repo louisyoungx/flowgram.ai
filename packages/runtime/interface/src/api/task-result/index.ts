@@ -20,6 +20,6 @@ export const TaskResultDefine: FlowGramAPIDefine = {
     input: z.object({
       taskID: z.string(),
     }),
-    output: z.union([WorkflowZodSchema.Outputs, z.undefined()]),
+    output: WorkflowZodSchema.Outputs,
   },
 };
