@@ -137,10 +137,10 @@ index c81c9e1a36a18c5c3960352f10ca399f35d14275..d18bde3fc63db7c136b2cc21aecb29e9
          __WEBPACK_EXTERNAL_MODULE__rspress_shared_logger_4374e44a__.logger.success(`Pages rendered in ${__WEBPACK_EXTERNAL_MODULE_picocolors__["default"].yellow(totalTime)} ms.`);
      } catch (e) {
 diff --git a/dist/runtime/ssrServerEntry.js b/dist/runtime/ssrServerEntry.js
-index 092ee820542b31545ee5bc111aa87fa71920f9dc..947ee227936dacbfbc56ba6db9b919deb85b6480 100644
+index 092ee820542b31545ee5bc111aa87fa71920f9dc..875e41bceed8de99052ceaebc273a00b1b6a4c02 100644
 --- a/dist/runtime/ssrServerEntry.js
 +++ b/dist/runtime/ssrServerEntry.js
-@@ -6,10 +6,25 @@ import * as __WEBPACK_EXTERNAL_MODULE_react_dom_server_98c38d5c__ from "react-do
+@@ -6,10 +6,26 @@ import * as __WEBPACK_EXTERNAL_MODULE_react_dom_server_98c38d5c__ from "react-do
  import * as __WEBPACK_EXTERNAL_MODULE__App_js_3638e61b__ from "./App.js";
  import * as __WEBPACK_EXTERNAL_MODULE__initPageData_js_731596b5__ from "./initPageData.js";
  import * as __WEBPACK_EXTERNAL_MODULE_virtual_routes_ssr_f802e6e5__ from "virtual-routes-ssr";
@@ -151,6 +151,7 @@ index 092ee820542b31545ee5bc111aa87fa71920f9dc..947ee227936dacbfbc56ba6db9b919de
 +    return new Promise((resolve, reject)=>{
 +        const passThrough = new __WEBPACK_EXTERNAL_MODULE_node_stream_444d1c2b__.PassThrough();
 +        const { pipe } = (0, __WEBPACK_EXTERNAL_MODULE_react_dom_server_98c38d5c__.renderToPipeableStream)(app, {
++            onError() {},
 +            onAllReady () {
 +                pipe(passThrough);
 +                (0, __WEBPACK_EXTERNAL_MODULE_node_stream_consumers_9c152648__.text)(passThrough).then(resolve, reject);
