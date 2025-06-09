@@ -1,1 +1,1 @@
-export * from './client';
+export { WorkflowRuntimeAPIs } from './api';

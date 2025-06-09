@@ -1,4 +1,5 @@
 import type {
+  FlowGramAPIName,
   TaskCancelInput,
   TaskCancelOutput,
   TaskReportInput,
@@ -10,8 +11,8 @@ import type {
 } from '@api/index';
 
 export interface IRuntimeClient {
-  taskRun: (input: TaskRunInput) => Promise<TaskRunOutput | undefined>;
-  taskReport: (input: TaskReportInput) => Promise<TaskReportOutput | undefined>;
-  taskResult: (input: TaskResultInput) => Promise<TaskResultOutput | undefined>;
-  taskCancel: (input: TaskCancelInput) => Promise<TaskCancelOutput | undefined>;
+  [FlowGramAPIName.TaskRun]: (input: TaskRunInput) => Promise<TaskRunOutput | undefined>;
+  [FlowGramAPIName.TaskReport]: (input: TaskReportInput) => Promise<TaskReportOutput | undefined>;
+  [FlowGramAPIName.TaskResult]: (input: TaskResultInput) => Promise<TaskResultOutput | undefined>;
+  [FlowGramAPIName.TaskCancel]: (input: TaskCancelInput) => Promise<TaskCancelOutput | undefined>;
 }

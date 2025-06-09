@@ -2,7 +2,7 @@ import { TaskResultInput, TaskResultOutput } from '@flowgram.ai/runtime-interfac
 
 import { WorkflowApplication } from '@application/workflow';
 
-export const taskResultCall = async (input: TaskResultInput): Promise<TaskResultOutput> => {
+export const TaskResultAPI = async (input: TaskResultInput): Promise<TaskResultOutput> => {
   const app = WorkflowApplication.instance;
   const { taskID } = input;
   const output: TaskResultOutput = app.result(taskID);

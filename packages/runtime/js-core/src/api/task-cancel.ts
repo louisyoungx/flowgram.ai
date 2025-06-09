@@ -2,7 +2,7 @@ import { TaskCancelInput, TaskCancelOutput } from '@flowgram.ai/runtime-interfac
 
 import { WorkflowApplication } from '@application/workflow';
 
-export const taskCancelCall = async (input: TaskCancelInput): Promise<TaskCancelOutput> => {
+export const TaskCancelAPI = async (input: TaskCancelInput): Promise<TaskCancelOutput> => {
   const app = WorkflowApplication.instance;
   const { taskID } = input;
   const success = app.cancel(taskID);

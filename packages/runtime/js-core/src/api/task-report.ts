@@ -7,7 +7,7 @@ import {
 
 import { WorkflowApplication } from '@application/workflow';
 
-export const taskReportCall = async (input: TaskReportInput): Promise<TaskReportOutput> => {
+export const TaskReportAPI = async (input: TaskReportInput): Promise<TaskReportOutput> => {
   const app = WorkflowApplication.instance;
   const { taskID } = input;
   const output: TaskReportOutput = app.report(taskID);

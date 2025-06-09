@@ -1,12 +1,12 @@
-import { FlowGramAPIDefine, FlowGramAPIMethod } from '@flowgram.ai/runtime-interface';
+import { WorkflowRuntimeAPIs } from '@flowgram.ai/runtime-js';
+import { FlowGramAPIMethod, FlowGramAPIName, FlowGramAPIs } from '@flowgram.ai/runtime-interface';
 
 import { APIHandler } from './type';
 import { publicProcedure } from './trpc';
 
-export const createAPI = <I, O>(
-  define: FlowGramAPIDefine,
-  caller: (input: I) => Promise<O>
-): APIHandler => {
+export const createAPI = (apiName: FlowGramAPIName): APIHandler => {
+  const define = FlowGramAPIs[apiName];
+  const caller = WorkflowRuntimeAPIs[apiName];
   if (define.method === FlowGramAPIMethod.GET) {
     const procedure = publicProcedure
       .meta({
@@ -20,8 +20,8 @@ export const createAPI = <I, O>(
       .input(define.schema.input)
       .output(define.schema.output)
       .query(async (opts) => {
-        const input = opts.input as unknown as I;
-        const output: O = await caller(input);
+        const input = opts.input;
+        const output = await caller(input);
         return output;
       });
 
@@ -43,8 +43,8 @@ export const createAPI = <I, O>(
     .input(define.schema.input)
     .output(define.schema.output)
     .mutation(async (opts) => {
-      const input = opts.input as unknown as I;
-      const output: O = await caller(input);
+      const input = opts.input;
+      const output = await caller(input);
       return output;
     });
   return {

@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import { WorkflowRuntimeContainer } from 'domain-4/core';
 import {
   InvokeParams,
   IContainer,
@@ -8,6 +7,8 @@ import {
   IReport,
   WorkflowOutputs,
 } from '@flowgram.ai/runtime-interface';
+
+import { WorkflowRuntimeContainer } from '@workflow/container';
 
 export class WorkflowApplication {
   private container: IContainer;
