@@ -1,1 +1,1 @@
-export { WorkflowRuntimeAPIs } from './api';
+export * from './api';

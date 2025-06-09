@@ -14,7 +14,7 @@ import { onDragLineEnd } from '../utils';
 import { FlowNodeRegistry, FlowDocumentJSON } from '../typings';
 import { shortcuts } from '../shortcuts';
 import { CustomService, RunningService } from '../services';
-import { createSyncVariablePlugin, createContextMenuPlugin } from '../plugins';
+import { createSyncVariablePlugin, createRuntimePlugin, createContextMenuPlugin } from '../plugins';
 import { defaultFormMeta } from '../nodes/default-form-meta';
 import { WorkflowNodeType } from '../nodes';
 import { SelectorBoxPopover } from '../components/selector-box-popover';
@@ -264,6 +264,15 @@ export function useEditorProps(
          * ContextMenu plugin
          */
         createContextMenuPlugin({}),
+        createRuntimePlugin({
+          mode: 'browser',
+          // mode: 'server',
+          // serverConfig: {
+          //   domain: 'localhost',
+          //   port: 4000,
+          //   protocol: 'http',
+          // },
+        }),
       ],
     }),
     []

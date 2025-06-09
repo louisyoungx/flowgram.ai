@@ -17,7 +17,8 @@ import {
   getNodeForm,
 } from '@flowgram.ai/free-layout-editor';
 
-import { runtimeClient } from '../utils';
+import { WorkflowRuntimeClient } from '../plugins/runtime-plugin';
+
 const SYNC_TASK_REPORT_INTERVAL = 500;
 
 interface NodeRunningStatus {
@@ -31,6 +32,8 @@ export class RunningService {
   @inject(Playground) playground: Playground;
 
   @inject(WorkflowDocument) document: WorkflowDocument;
+
+  @inject(WorkflowRuntimeClient) runtimeClient: WorkflowRuntimeClient;
 
   private runningNodes: WorkflowNodeEntity[] = [];
 
@@ -71,11 +74,12 @@ export class RunningService {
       return;
     }
     this.reset();
-    const output = await runtimeClient.taskRun({
+    const output = await this.runtimeClient.TaskRun({
       schema: JSON.stringify(this.document.toJSON()),
       inputs: JSON.parse(inputsString) as WorkflowInputs,
     });
     if (!output) {
+      this.terminatedEmitter.fire({});
       return;
     }
     this.taskID = output.taskID;
@@ -88,7 +92,7 @@ export class RunningService {
     if (!this.taskID) {
       return;
     }
-    await runtimeClient.taskCancel({
+    await this.runtimeClient.TaskCancel({
       taskID: this.taskID,
     });
   }
@@ -115,7 +119,7 @@ export class RunningService {
     if (!this.taskID) {
       return;
     }
-    const output = await runtimeClient.taskReport({
+    const output = await this.runtimeClient.TaskReport({
       taskID: this.taskID,
     });
     if (!output) {
