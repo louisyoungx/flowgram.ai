@@ -6,14 +6,15 @@ import { createMinimapPlugin } from '@flowgram.ai/minimap-plugin';
 import { createFreeSnapPlugin } from '@flowgram.ai/free-snap-plugin';
 import { createFreeNodePanelPlugin } from '@flowgram.ai/free-node-panel-plugin';
 import { createFreeLinesPlugin } from '@flowgram.ai/free-lines-plugin';
-import { FreeLayoutProps, WorkflowNodeLinesData, Form } from '@flowgram.ai/free-layout-editor';
+import { FreeLayoutProps, WorkflowNodeLinesData } from '@flowgram.ai/free-layout-editor';
 import { createFreeGroupPlugin } from '@flowgram.ai/free-group-plugin';
 import { createContainerNodePlugin } from '@flowgram.ai/free-container-plugin';
 
 import { onDragLineEnd } from '../utils';
 import { FlowNodeRegistry, FlowDocumentJSON } from '../typings';
 import { shortcuts } from '../shortcuts';
-import { CustomService, RunningService } from '../services';
+import { CustomService } from '../services';
+import { WorkflowRuntimeService } from '../plugins/runtime-plugin/runtime-service';
 import { createSyncVariablePlugin, createRuntimePlugin, createContextMenuPlugin } from '../plugins';
 import { defaultFormMeta } from '../nodes/default-form-meta';
 import { WorkflowNodeType } from '../nodes';
@@ -160,7 +161,7 @@ export function useEditorProps(
       /**
        * Running line
        */
-      isFlowingLine: (ctx, line) => ctx.get(RunningService).isFlowingLine(line),
+      isFlowingLine: (ctx, line) => ctx.get(WorkflowRuntimeService).isFlowingLine(line),
 
       /**
        * Shortcuts
@@ -171,7 +172,6 @@ export function useEditorProps(
        */
       onBind: ({ bind }) => {
         bind(CustomService).toSelf().inSingletonScope();
-        bind(RunningService).toSelf().inSingletonScope();
       },
       /**
        * Playground init

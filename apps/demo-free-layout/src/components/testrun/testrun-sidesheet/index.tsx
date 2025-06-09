@@ -6,7 +6,7 @@ import { Button, JsonViewer, SideSheet } from '@douyinfe/semi-ui';
 import { IconPlay, IconSpin, IconStop } from '@douyinfe/semi-icons';
 
 import { NodeStatusGroup } from '../node-status-bar/group';
-import { RunningService } from '../../../services';
+import { WorkflowRuntimeService } from '../../../plugins/runtime-plugin/runtime-service';
 
 interface TestRunSideSheetProps {
   visible: boolean;
@@ -14,7 +14,7 @@ interface TestRunSideSheetProps {
 }
 
 export const TestRunSideSheet: FC<TestRunSideSheetProps> = ({ visible, onCancel }) => {
-  const runningService = useService(RunningService);
+  const runtimeService = useService(WorkflowRuntimeService);
   const [isRunning, setRunning] = useState(false);
   const [value, setValue] = useState<string>(`{}`);
   const [error, setError] = useState<string | undefined>();
@@ -28,28 +28,28 @@ export const TestRunSideSheet: FC<TestRunSideSheetProps> = ({ visible, onCancel 
 
   const onTestRun = async () => {
     if (isRunning) {
-      await runningService.taskCancel();
+      await runtimeService.taskCancel();
       return;
     }
     setResult(undefined);
     setError(undefined);
     setRunning(true);
     try {
-      await runningService.taskRun(value);
+      await runtimeService.taskRun(value);
     } catch (e: any) {
       setError(e.message);
     }
   };
 
   const onClose = async () => {
-    await runningService.taskCancel();
+    await runtimeService.taskCancel();
     setValue(`{}`);
     setRunning(false);
     onCancel();
   };
 
   useEffect(() => {
-    const disposer = runningService.onTerminated(({ result }) => {
+    const disposer = runtimeService.onTerminated(({ result }) => {
       setRunning(false);
       setResult(result);
     });

@@ -17,7 +17,7 @@ import {
   getNodeForm,
 } from '@flowgram.ai/free-layout-editor';
 
-import { WorkflowRuntimeClient } from '../plugins/runtime-plugin';
+import { WorkflowRuntimeClient } from '../browser-client';
 
 const SYNC_TASK_REPORT_INTERVAL = 500;
 
@@ -28,7 +28,7 @@ interface NodeRunningStatus {
 }
 
 @injectable()
-export class RunningService {
+export class WorkflowRuntimeService {
   @inject(Playground) playground: Playground;
 
   @inject(WorkflowDocument) document: WorkflowDocument;
