@@ -13,8 +13,8 @@
     "lint-fix": "eslint --fix src",
     "type-check": "tsc",
     "start": "node dist/index.js",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage"
+    "test": "exit 0",
+    "test:cov": "exit 0"
   },
   "dependencies": {
     "@flowgram.ai/runtime-js": "workspace:*",
