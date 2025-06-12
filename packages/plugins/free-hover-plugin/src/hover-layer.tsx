@@ -104,6 +104,15 @@ export class HoverLayer extends Layer<HoverLayerOptions> {
       ...this.options,
     };
     this.toDispose.pushAll([
+      // 监听主动触发的 hover 事件
+      this.hoverService.onUpdateHoverPosition((hoverPosition) => {
+        const { position, target } = hoverPosition;
+        const canvasPosition = this.config.getPosFromMouseEvent({
+          clientX: position.x,
+          clientY: position.y,
+        });
+        this.updateHoveredState(canvasPosition, target);
+      }),
       // 监听画布鼠标移动事件
       this.listenPlaygroundEvent('mousemove', (e: MouseEvent) => {
         this.hoverService.hoveredPos = this.config.getPosFromMouseEvent(e);

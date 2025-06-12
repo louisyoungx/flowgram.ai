@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { inject, injectable } from 'inversify';
 import { Emitter, type IPoint } from '@flowgram.ai/utils';
 import { EntityManager } from '@flowgram.ai/core';
@@ -13,6 +14,11 @@ import {
  */
 export type WorkflowEntityHoverable = WorkflowNodeEntity | WorkflowLineEntity | WorkflowPortEntity;
 
+export interface HoverPosition {
+  position: IPoint;
+  target?: HTMLElement;
+}
+
 /** @deprecated */
 export type WorkfloEntityHoverable = WorkflowEntityHoverable;
 /**
@@ -24,7 +30,11 @@ export class WorkflowHoverService {
 
   protected onHoveredChangeEmitter = new Emitter<string>();
 
+  protected onUpdateHoverPositionEmitter = new Emitter<HoverPosition>();
+
   readonly onHoveredChange = this.onHoveredChangeEmitter.event;
+
+  readonly onUpdateHoverPosition = this.onUpdateHoverPositionEmitter.event;
 
   // 当前鼠标 hover 位置
   hoveredPos: IPoint = { x: 0, y: 0 };
@@ -45,6 +55,14 @@ export class WorkflowHoverService {
       this.hoveredKey = hoveredKey;
       this.onHoveredChangeEmitter.fire(hoveredKey);
     }
+  }
+
+  updateHoverPosition(position: IPoint, target?: HTMLElement): void {
+    this.hoveredPos = position;
+    this.onUpdateHoverPositionEmitter.fire({
+      position,
+      target,
+    });
   }
 
   /**
