@@ -150,13 +150,11 @@ export class PlaygroundLayer extends Layer<PlaygroundLayerOptions> {
             },
             e.target as HTMLElement
           );
-          setTimeout(() => {
-            const isSomeHovered = this.options.hoverService?.isSomeHovered();
-            if (isSomeHovered) {
-              return;
-            }
-            this.grabDragger.start(x, y);
-          }, 20);
+          const isSomeHovered = this.options.hoverService?.isSomeHovered();
+          if (isSomeHovered) {
+            return;
+          }
+          this.grabDragger.start(x, y);
         },
         // 这里必须监听 NORMAL_LAYER，该图层最先触发
         PipelineLayerPriority.NORMAL_LAYER
