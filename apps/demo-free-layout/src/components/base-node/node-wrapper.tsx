@@ -38,6 +38,10 @@ export const NodeWrapper: React.FC<NodeWrapperProps> = (props) => {
           startDrag(e);
           setIsDragging(true);
         }}
+        onTouchStart={(e) => {
+          startDrag(e as unknown as React.MouseEvent);
+          setIsDragging(true);
+        }}
         onClick={(e) => {
           selectNode(e);
           if (!isDragging) {

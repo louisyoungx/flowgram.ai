@@ -22,6 +22,7 @@ import {
 import { FlowNodeBaseType } from '@flowgram.ai/document';
 import {
   CommandService,
+  MouseTouchEvent,
   PlaygroundConfigEntity,
   PlaygroundDrag,
   type PlaygroundDragEvent,
@@ -205,9 +206,8 @@ export class WorkflowDragService {
         });
       },
     });
-    return dragger
-      .start(triggerEvent.clientX, triggerEvent.clientY, this.playgroundConfig)
-      ?.then(() => dragSuccess);
+    const { clientX, clientY } = MouseTouchEvent.getEventCoord(triggerEvent);
+    return dragger.start(clientX, clientY, this.playgroundConfig)?.then(() => dragSuccess);
   }
 
   /**
