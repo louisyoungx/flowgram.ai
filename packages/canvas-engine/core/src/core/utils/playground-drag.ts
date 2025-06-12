@@ -7,11 +7,8 @@ import {
 } from '@flowgram.ai/utils';
 
 import type { PlaygroundConfigEntity } from '../layer/config';
-// import { Dragable, DragablePayload } from '../able';
 import type { PositionSchema } from '../../common/schema/position-schema';
 import { MouseTouchEvent } from './mouse-touch-event';
-// import { type Entity } from '../../common/entity';
-// import { type Adsorber } from './adsorber';
 
 /* istanbul ignore next */
 const SCROLL_DELTA = 4;
@@ -92,6 +89,8 @@ export class PlaygroundDrag<T = undefined> implements Disposable {
     if (options.onDrag) this.onDrag((e) => options.onDrag!(e, this.context));
     if (options.onDragEnd) this.onDragEnd((e) => options.onDragEnd!(e, this.context));
     if (options.stopGlobalEventNames) this._stopGlobalEventNames = options.stopGlobalEventNames;
+
+    this.localId = generateLocalId();
   }
 
   get isStarted(): boolean {
@@ -308,7 +307,7 @@ export class PlaygroundDrag<T = undefined> implements Disposable {
 
     // touch
     document.addEventListener('touchstart', this, true);
-    document.addEventListener('touchmove', this, true);
+    document.addEventListener('touchmove', this, { passive: false });
     document.addEventListener('touchend', this, true);
     document.addEventListener('touchcancel', this, true);
 
@@ -328,7 +327,7 @@ export class PlaygroundDrag<T = undefined> implements Disposable {
 
     // touch
     document.removeEventListener('touchstart', this, true);
-    document.removeEventListener('touchmove', this, true);
+    document.removeEventListener('touchmove', this);
     document.removeEventListener('touchend', this, true);
     document.removeEventListener('touchcancel', this, true);
 

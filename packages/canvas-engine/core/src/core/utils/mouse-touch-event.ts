@@ -11,6 +11,10 @@ export namespace MouseTouchEvent {
     // 默认获取第一个触摸点
     const touch = touchEvent.touches[0] || touchEvent.changedTouches[0];
 
+    if (touchEvent.type === 'touchmove') {
+      preventDefault(touchEvent);
+    }
+
     // 确定对应的鼠标事件类型
     const mouseEventType = {
       touchstart: 'mousedown',
@@ -81,9 +85,8 @@ export namespace MouseTouchEvent {
   export const preventDefault = (
     e: Event | MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent
   ) => {
-    if (isTouchEvent(e as TouchEvent)) {
-      return;
+    if (e.cancelable) {
+      e.preventDefault();
     }
-    e.preventDefault();
   };
 }

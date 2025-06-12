@@ -730,7 +730,8 @@ export class WorkflowDragService {
         }
       },
     });
-    await dragger.start(event.clientX, event.clientY, config);
+    const { clientX, clientY } = MouseTouchEvent.getEventCoord(event);
+    await dragger.start(clientX, clientY, config);
     return deferred.promise;
   }
 
