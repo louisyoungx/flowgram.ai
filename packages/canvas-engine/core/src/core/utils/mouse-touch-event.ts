@@ -89,4 +89,29 @@ export namespace MouseTouchEvent {
       e.preventDefault();
     }
   };
+
+  export const onTouched = (
+    touchStartEvent: React.TouchEvent,
+    callback: (e: MouseEvent) => void
+  ) => {
+    const startTouch = touchStartEvent.changedTouches[0];
+
+    const handleTouchEnd = (touchEndEvent: TouchEvent) => {
+      const endTouch = touchEndEvent.changedTouches[0];
+      const deltaX = endTouch.clientX - startTouch.clientX;
+      const deltaY = endTouch.clientY - startTouch.clientY;
+      // 判断是拖拽还是点击
+      const delta = 5;
+      if (Math.abs(deltaX) < delta && Math.abs(deltaY) < delta) {
+        // 触发回调
+        const mouseEvent = touchToMouseEvent(touchEndEvent) as MouseEvent;
+        callback(mouseEvent);
+      }
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchcancel', handleTouchEnd);
+    };
+
+    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchcancel', handleTouchEnd);
+  };
 }

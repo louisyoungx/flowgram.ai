@@ -85,7 +85,6 @@ export const onDragLineEnd = async (ctx: FreeLayoutPluginContext, params: onDrag
   WorkflowNodePanelUtils.buildLine({
     fromPort,
     node,
-    toPort,
     linesManager,
   });
 };
