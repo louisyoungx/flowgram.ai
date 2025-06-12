@@ -127,27 +127,21 @@ export class HoverLayer extends Layer<HoverLayerOptions> {
         this.updateHoveredState(mousePos, e?.target as HTMLElement);
       }),
       this.selectionService.onSelectionChanged(() => this.autorun()),
+      // 控制触控
+      this.listenPlaygroundEvent('touchstart', (e: MouseEvent): boolean | undefined => {
+        if (!this.isEnabled() || this.isDrawing) {
+          return undefined;
+        }
+        return this.handleDragLine(e);
+      }),
       // 控制选中逻辑
       this.listenPlaygroundEvent('mousedown', (e: MouseEvent): boolean | undefined => {
         if (!this.isEnabled() || this.isDrawing) {
           return undefined;
         }
         const { hoveredNode } = this.hoverService;
-        // 重置线条
-        if (hoveredNode && hoveredNode instanceof WorkflowLineEntity) {
-          this.dragService.resetLine(hoveredNode, e);
-          return true;
-        }
-        if (
-          hoveredNode &&
-          hoveredNode instanceof WorkflowPortEntity &&
-          hoveredNode.portType !== 'input' &&
-          !hoveredNode.disabled &&
-          e.button !== 1
-        ) {
-          e.stopPropagation();
-          e.preventDefault();
-          this.dragService.startDrawingLine(hoveredNode, e);
+        const lineDrag = this.handleDragLine(e);
+        if (lineDrag) {
           return true;
         }
         const mousePos = this.config.getPosFromMouseEvent(e);
@@ -301,5 +295,26 @@ export class HoverLayer extends Layer<HoverLayerOptions> {
       !this.selectorBoxConfigEntity.isStart &&
       !this.dragService.isDragging
     );
+  }
+
+  private handleDragLine(e: MouseEvent): boolean | undefined {
+    const { hoveredNode } = this.hoverService;
+    // 重置线条
+    if (hoveredNode && hoveredNode instanceof WorkflowLineEntity) {
+      this.dragService.resetLine(hoveredNode, e);
+      return true;
+    }
+    if (
+      hoveredNode &&
+      hoveredNode instanceof WorkflowPortEntity &&
+      hoveredNode.portType !== 'input' &&
+      !hoveredNode.disabled &&
+      e.button !== 1
+    ) {
+      e.stopPropagation();
+      e.preventDefault();
+      this.dragService.startDrawingLine(hoveredNode, e);
+      return true;
+    }
   }
 }
