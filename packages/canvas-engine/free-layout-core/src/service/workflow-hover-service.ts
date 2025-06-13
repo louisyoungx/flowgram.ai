@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
 import { inject, injectable } from 'inversify';
-import { Emitter, type IPoint } from '@flowgram.ai/utils';
+import { Emitter, type PositionSchema } from '@flowgram.ai/utils';
 import { EntityManager } from '@flowgram.ai/core';
 
 import {
@@ -15,7 +14,7 @@ import {
 export type WorkflowEntityHoverable = WorkflowNodeEntity | WorkflowLineEntity | WorkflowPortEntity;
 
 export interface HoverPosition {
-  position: IPoint;
+  position: PositionSchema;
   target?: HTMLElement;
 }
 
@@ -37,7 +36,7 @@ export class WorkflowHoverService {
   readonly onUpdateHoverPosition = this.onUpdateHoverPositionEmitter.event;
 
   // 当前鼠标 hover 位置
-  hoveredPos: IPoint = { x: 0, y: 0 };
+  hoveredPos: PositionSchema = { x: 0, y: 0 };
 
   /**
    * 当前 hovered 的 节点或者线条或者点
@@ -57,7 +56,7 @@ export class WorkflowHoverService {
     }
   }
 
-  updateHoverPosition(position: IPoint, target?: HTMLElement): void {
+  updateHoverPosition(position: PositionSchema, target?: HTMLElement): void {
     this.hoveredPos = position;
     this.onUpdateHoverPositionEmitter.fire({
       position,

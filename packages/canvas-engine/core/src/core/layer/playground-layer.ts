@@ -1,5 +1,5 @@
 import { inject, injectable, optional } from 'inversify';
-import { Disposable, domUtils, IPoint } from '@flowgram.ai/utils';
+import { Disposable, domUtils, PositionSchema } from '@flowgram.ai/utils';
 
 import { Gesture } from '../utils/use-gesture';
 import { PlaygroundGesture } from '../utils/playground-gesture';
@@ -35,7 +35,7 @@ export interface PlaygroundLayerOptions extends LayerOptions {
   hoverService?: {
     /** 精确判断当前鼠标位置是否有元素存在 */
     isSomeHovered: () => boolean;
-    updateHoverPosition: (position: IPoint, target?: HTMLElement) => void;
+    updateHoverPosition: (position: PositionSchema, target?: HTMLElement) => void;
     clearHovered: () => void;
   };
 }
@@ -119,23 +119,9 @@ export class PlaygroundLayer extends Layer<PlaygroundLayerOptions> {
         PipelineLayerPriority.BASE_LAYER,
         { passive: true }
       ),
-      this.listenPlaygroundEvent(
-        'mousedown',
-        (e: MouseEvent) => {
-          const isMouseCenterButton = e.button === 1;
-
-          // 按住中键，进入拖拽模式，鼠标模式不支持
-          if (isMouseCenterButton && !this.isMouseMode()) {
-            this.editorStateConfig.changeState(EditorState.STATE_GRAB.id);
-          }
-
-          // 触控板模式下，目前支持按住 space 键或者鼠标中键后拖动
-          if (this.isGrab() && (this.editorStateConfig.isPressingSpaceBar || isMouseCenterButton)) {
-            this.grabDragger.start(e.clientX, e.clientY);
-          }
-        },
-        PipelineLayerPriority.BASE_LAYER
-      ),
+      /**
+       * 监听触控拖动画布操作
+       */
       this.listenPlaygroundEvent(
         'touchstart',
         (e: TouchEvent) => {
@@ -158,6 +144,23 @@ export class PlaygroundLayer extends Layer<PlaygroundLayerOptions> {
         },
         // 这里必须监听 NORMAL_LAYER，该图层最先触发
         PipelineLayerPriority.NORMAL_LAYER
+      ),
+      this.listenPlaygroundEvent(
+        'mousedown',
+        (e: MouseEvent) => {
+          const isMouseCenterButton = e.button === 1;
+
+          // 按住中键，进入拖拽模式，鼠标模式不支持
+          if (isMouseCenterButton && !this.isMouseMode()) {
+            this.editorStateConfig.changeState(EditorState.STATE_GRAB.id);
+          }
+
+          // 触控板模式下，目前支持按住 space 键或者鼠标中键后拖动
+          if (this.isGrab() && (this.editorStateConfig.isPressingSpaceBar || isMouseCenterButton)) {
+            this.grabDragger.start(e.clientX, e.clientY);
+          }
+        },
+        PipelineLayerPriority.BASE_LAYER
       ),
       this.listenPlaygroundEvent(
         'mousedown',

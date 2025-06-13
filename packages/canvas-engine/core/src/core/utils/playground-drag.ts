@@ -89,8 +89,6 @@ export class PlaygroundDrag<T = undefined> implements Disposable {
     if (options.onDrag) this.onDrag((e) => options.onDrag!(e, this.context));
     if (options.onDragEnd) this.onDragEnd((e) => options.onDragEnd!(e, this.context));
     if (options.stopGlobalEventNames) this._stopGlobalEventNames = options.stopGlobalEventNames;
-
-    this.localId = generateLocalId();
   }
 
   get isStarted(): boolean {
@@ -231,8 +229,6 @@ export class PlaygroundDrag<T = undefined> implements Disposable {
           isMoving: false,
         });
       default:
-        MouseTouchEvent.preventDefault(event);
-        event.stopPropagation();
         throw new Error('unknown event');
     }
   }
