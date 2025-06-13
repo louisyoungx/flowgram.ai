@@ -6,7 +6,6 @@ import {
 } from '@flowgram.ai/free-node-panel-plugin';
 import {
   delay,
-  MouseTouchEvent,
   usePlayground,
   useService,
   WorkflowDocument,
@@ -17,6 +16,10 @@ import {
   WorkflowPortEntity,
 } from '@flowgram.ai/free-layout-editor';
 
+/**
+ * click port to trigger node select panel
+ * 点击端口后唤起节点选择面板
+ */
 export const usePortClick = () => {
   const playground = usePlayground();
   const nodePanelService = useService(WorkflowNodePanelService);
@@ -25,8 +28,7 @@ export const usePortClick = () => {
   const linesManager = useService(WorkflowLinesManager);
 
   const onPortClick = useCallback(async (e: React.MouseEvent, port: WorkflowPortEntity) => {
-    const mouseEvent = MouseTouchEvent.getEventCoord(e);
-    const mousePos = playground.config.getPosFromMouseEvent(mouseEvent);
+    const mousePos = playground.config.getPosFromMouseEvent(e);
     const containerNode = port.node.parent;
     // open node selection panel - 打开节点选择面板
     const result = await nodePanelService.singleSelectNodePanel({
