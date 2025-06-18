@@ -1,4 +1,4 @@
-import React, { useMemo, useImperativeHandle, forwardRef } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 
 import { type interfaces } from 'inversify';
 
@@ -46,7 +46,7 @@ export const PlaygroundReactProvider = forwardRef<
   /**
    * 创建 IOC 包
    */
-  const container = useMemo(() => {
+  const createContainer = useCallback(() => {
     let flowContainer: interfaces.Container;
     // 忽略所有 containerModules, 由外部加载 container,
     if (playgroundContainer) {
@@ -59,19 +59,20 @@ export const PlaygroundReactProvider = forwardRef<
           zoomEnable: true,
           ...others,
         },
-        fromContainer,
+        fromContainer
       );
       if (playgroundContext) {
         flowContainer.rebind(PlaygroundContext).toConstantValue(playgroundContext);
       }
       if (containerModules) {
-        containerModules.forEach(module => flowContainer.load(module));
+        containerModules.forEach((module) => flowContainer.load(module));
       }
     }
     return flowContainer;
     // @action 这里 props 数据如果更改不会触发刷新，不允许修改
   }, []);
-  const playground = useMemo(() => {
+
+  const createPlayground = useCallback((container: interfaces.Container) => {
     const playground = container.get(Playground);
     let ctx: PluginContext;
     if (customPluginContext) {
@@ -87,7 +88,34 @@ export const PlaygroundReactProvider = forwardRef<
     return playground;
   }, []);
 
-  useImperativeHandle(ref, () => container.get<PluginContext>(PluginContext), []);
+  /**
+   * 创建和管理容器及画布实例
+   */
+  const [container, setContainer] = useState<interfaces.Container | null>(null);
+  const [playground, setPlayground] = useState<Playground | null>(null);
+
+  useEffect(() => {
+    // 创建新的容器和playground实例
+    const _container = createContainer();
+    const _playground = createPlayground(_container);
+
+    setContainer(_container);
+    setPlayground(_playground);
+
+    // 清理函数：销毁playground和容器
+    return () => {
+      _playground.dispose();
+      setPlayground(null);
+      setContainer(null);
+    };
+  }, [createContainer, createPlayground]);
+
+  useImperativeHandle(ref, () => container?.get<PluginContext>(PluginContext), [container]);
+
+  // 只有当容器和playground都创建完成后才渲染子组件
+  if (!container || !playground) {
+    return null;
+  }
 
   return (
     <PlaygroundReactContainerContext.Provider value={container}>
