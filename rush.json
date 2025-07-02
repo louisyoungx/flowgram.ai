@@ -957,6 +957,16 @@
             ]
         },
         {
+            "packageName": "@flowgram.ai/demo-react-19",
+            "projectFolder": "apps/demo-react-19",
+            "versionPolicyName": "appPolicy",
+            "tags": [
+                "level-1",
+                "team-flow",
+                "demo"
+            ]
+        },
+        {
             "packageName": "@flowgram.ai/demo-vite",
             "projectFolder": "apps/demo-vite",
             "versionPolicyName": "appPolicy",
