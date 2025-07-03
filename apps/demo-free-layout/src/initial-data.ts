@@ -91,7 +91,7 @@ export const initialData: FlowDocumentJSON = {
       type: 'end',
       meta: {
         position: {
-          x: 2202.9953917050693,
+          x: 2182.6627657628687,
           y: 381.75,
         },
       },
@@ -129,8 +129,8 @@ export const initialData: FlowDocumentJSON = {
       type: 'loop',
       meta: {
         position: {
-          x: 1373.5714285714287,
-          y: 394.9758064516129,
+          x: 1373.5714285714284,
+          y: 416.4384840195911,
         },
       },
       data: {
@@ -318,8 +318,8 @@ export const initialData: FlowDocumentJSON = {
       type: 'group',
       meta: {
         position: {
-          x: 0,
-          y: 0,
+          x: -1.474376176702208e-13,
+          y: -41.393092314521994,
         },
       },
       data: {},
