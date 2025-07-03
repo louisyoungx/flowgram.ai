@@ -63,6 +63,9 @@ export const LoopNodeRegistry: FlowNodeRegistry = {
       return !transform.bounds.contains(mousePos.x, mousePos.y);
     },
     expandable: false, // disable expanded
+    wrapperStyle: {
+      minWidth: 'unset',
+    },
   },
   onAdd() {
     return {
