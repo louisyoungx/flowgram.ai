@@ -646,7 +646,7 @@ export class WorkflowDragService {
         });
 
         this.setLineColor(line, this.linesManager.lineColor.drawing);
-        if (toNode && !this.isContainer(toNode)) {
+        if (toNode) {
           // 如果鼠标 hover 在 node 中的时候，默认连线到这个 node 的初始位置
           toPort = this.getNearestPort(toNode, dragPos);
           const { hasError } = this.handleDragOnNode(toNode, fromPort, line, toPort, originLine);
