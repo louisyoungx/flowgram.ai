@@ -232,6 +232,9 @@ importers:
       '@flowgram.ai/runtime-js':
         specifier: workspace:*
         version: link:../../packages/runtime/js-core
+      '@monaco-editor/react':
+        specifier: ^4.7.0
+        version: 4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1)(react@18.3.1)
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -5832,14 +5835,6 @@ packages:
       '@marijn/find-cluster-break': 1.0.2
     dev: false
 
-  /@codemirror/view@6.36.1:
-    resolution: {integrity: sha512-miD1nyT4m4uopZaDdO2uXU/LLHliKNYL9kB1C1wJHrunHLm/rpkb5QVSokqgw9hFqEZakrdlb/VGWX8aYZTslQ==}
-    dependencies:
-      '@codemirror/state': 6.5.0
-      style-mod: 4.1.2
-      w3c-keyname: 2.2.8
-    dev: false
-
   /@codemirror/view@6.38.0:
     resolution: {integrity: sha512-yvSchUwHOdupXkd7xJ0ob36jdsSR/I+/C+VbY0ffBiL5NiSTEBDfB1ZGWbbIlDd5xgdUkody+lukAdOxYrOBeg==}
     dependencies:
@@ -5880,7 +5875,7 @@ packages:
       '@codemirror/lang-javascript': 6.2.2
       '@codemirror/language': 6.10.7
       '@codemirror/state': 6.5.0
-      '@codemirror/view': 6.36.1
+      '@codemirror/view': 6.38.0
       '@codesandbox/sandpack-client': 2.19.8
       '@lezer/highlight': 1.2.1
       '@react-hook/intersection-observer': 3.1.2(react@18.3.1)
@@ -8046,6 +8041,12 @@ packages:
       state-local: 1.0.7
     dev: false
 
+  /@monaco-editor/loader@1.5.0:
+    resolution: {integrity: sha512-hKoGSM+7aAc7eRTRjpqAZucPmoNOC4UUbknb/VNoTkEIkCPhqV8LfbsgM1webRM7S/z21eHEx9Fkwx8Z/C/+Xw==}
+    dependencies:
+      state-local: 1.0.7
+    dev: false
+
   /@monaco-editor/react@4.6.0(monaco-editor@0.52.2)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-RFkU9/i7cN2bsq/iTkurMWOEErmYcY6JiQI3Jn+WeR/FGISH8JbHERjpS9oRuSOPvDMJI0Z8nJeKkbOs9sBYQw==}
     peerDependencies:
@@ -8054,6 +8055,19 @@ packages:
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       '@monaco-editor/loader': 1.4.0(monaco-editor@0.52.2)
+      monaco-editor: 0.52.2
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    dev: false
+
+  /@monaco-editor/react@4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-cyzXQCtO47ydzxpQtCGSQGOC8Gk3ZUeBXFAxD+CWXYFo5OqZyZUonFl0DwUlTyAfRHntBfw2p3w4s9R6oe1eCA==}
+    peerDependencies:
+      monaco-editor: '>= 0.25.0 < 1'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    dependencies:
+      '@monaco-editor/loader': 1.5.0
       monaco-editor: 0.52.2
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

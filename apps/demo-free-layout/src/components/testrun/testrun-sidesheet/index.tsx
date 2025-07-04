@@ -5,9 +5,10 @@
 
 import { FC, useEffect, useState } from 'react';
 
+import MonacoEditor from '@monaco-editor/react';
 import { WorkflowInputs, WorkflowOutputs } from '@flowgram.ai/runtime-interface';
 import { useService } from '@flowgram.ai/free-layout-editor';
-import { Button, JsonViewer, SideSheet } from '@douyinfe/semi-ui';
+import { Button, SideSheet } from '@douyinfe/semi-ui';
 import { IconPlay, IconSpin, IconStop } from '@douyinfe/semi-icons';
 
 import { NodeStatusGroup } from '../node-status-bar/group';
@@ -96,7 +97,17 @@ export const TestRunSideSheet: FC<TestRunSideSheetProps> = ({ visible, onCancel 
       >
         Input
       </div>
-      <JsonViewer showSearch={false} height={300} value={value} onChange={setValue} />
+      <MonacoEditor
+        height="300px"
+        defaultLanguage="json"
+        value={value}
+        onChange={(v) => setValue(v ?? `{}`)}
+        options={{
+          minimap: {
+            enabled: false,
+          },
+        }}
+      />
       <div
         style={{
           color: 'red',
@@ -106,7 +117,6 @@ export const TestRunSideSheet: FC<TestRunSideSheetProps> = ({ visible, onCancel 
       >
         {error}
       </div>
-
       <NodeStatusGroup title="Inputs" data={result?.inputs} optional disableCollapse />
       <NodeStatusGroup title="Outputs" data={result?.outputs} optional disableCollapse />
     </div>
