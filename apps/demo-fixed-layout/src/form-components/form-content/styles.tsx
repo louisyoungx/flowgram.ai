@@ -11,7 +11,7 @@ export const FormWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgb(251, 251, 251);
   padding: 0 12px 12px;
 `;
 

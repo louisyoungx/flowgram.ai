@@ -14,7 +14,7 @@ export const Header = styled.div`
   column-gap: 8px;
   border-radius: 8px;
 
-  background: linear-gradient(#f2f2ff 0%, rgba(0, 0, 0, 0.02) 100%);
+  background: linear-gradient(#f2f2ff 0%, rgb(251, 251, 251) 100%);
   overflow: hidden;
 
   padding: 8px;
