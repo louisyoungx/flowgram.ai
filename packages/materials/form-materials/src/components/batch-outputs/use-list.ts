@@ -41,12 +41,21 @@ export function useList({ value, onChange }: PropsType) {
   }, [value]);
 
   const add = () => {
+    const id = genId();
     setList((prevList) => [
       ...prevList,
       {
-        id: genId(),
+        id,
       },
     ]);
+    update({
+      id,
+      key: `output_${id}`,
+      value: {
+        type: 'ref',
+        content: [],
+      },
+    });
   };
 
   const update = (item: OutputItem) => {

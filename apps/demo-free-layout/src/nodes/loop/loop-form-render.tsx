@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { FormRenderProps, FlowNodeJSON, Field } from '@flowgram.ai/free-layout-editor';
+import {
+  FormRenderProps,
+  FlowNodeJSON,
+  Field,
+  FlowNodeFormData,
+  FormModel,
+  TransformData,
+} from '@flowgram.ai/free-layout-editor';
 import { SubCanvasRender } from '@flowgram.ai/free-container-plugin';
 import { BatchOutputs, BatchVariableSelector, IFlowRefValue } from '@flowgram.ai/form-materials';
 
@@ -18,8 +25,8 @@ interface LoopNodeJSON extends FlowNodeJSON {
 
 export const LoopFormRender = ({ form }: FormRenderProps<LoopNodeJSON>) => {
   const isSidebar = useIsSidebar();
-  const { readonly } = useNodeRenderContext();
-  const formHeight = 85;
+  const { node, readonly } = useNodeRenderContext();
+  const formHeightBase = 165;
 
   const batchFor = (
     <Field<IFlowRefValue> name={`batchFor`}>
@@ -45,7 +52,13 @@ export const LoopFormRender = ({ form }: FormRenderProps<LoopNodeJSON>) => {
           <BatchOutputs
             style={{ width: '100%' }}
             value={field.value}
-            onChange={(val) => field.onChange(val)}
+            onChange={(val) => {
+              const outputLength = Object.keys(field.value || {}).length ?? 0;
+              field.onChange(val);
+              node.getData(TransformData).fireChange();
+              const formModel = node.getData(FlowNodeFormData).getFormModel<FormModel>();
+              formModel.setValueIn('formHeight', formHeightBase + outputLength * 34);
+            }}
             readonly={readonly}
             hasError={Object.keys(fieldState?.errors || {}).length > 0}
           />
@@ -72,7 +85,10 @@ export const LoopFormRender = ({ form }: FormRenderProps<LoopNodeJSON>) => {
       <FormHeader />
       <FormContent>
         {batchFor}
-        <SubCanvasRender offsetY={-formHeight} />
+        {batchOutputs}
+        <Field<Record<string, number | undefined> | undefined> name={`formHeight`}>
+          {({ field }) => <SubCanvasRender offsetY={-(field.value ?? formHeightBase)} />}
+        </Field>
         <FormOutputs />
       </FormContent>
     </>

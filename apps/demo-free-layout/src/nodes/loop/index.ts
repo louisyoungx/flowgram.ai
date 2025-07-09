@@ -8,6 +8,8 @@ import {
   WorkflowNodeEntity,
   PositionSchema,
   FlowNodeTransformData,
+  FormModel,
+  FlowNodeFormData,
 } from '@flowgram.ai/free-layout-editor';
 import { createBatchOutputsFormPlugin, provideBatchInputEffect } from '@flowgram.ai/form-materials';
 
@@ -43,12 +45,18 @@ export const LoopNodeRegistry: FlowNodeRegistry = {
      * The subcanvas padding setting
      * 子画布 padding 设置
      */
-    padding: () => ({
-      top: 120,
-      bottom: 60,
-      left: 100,
-      right: 100,
-    }),
+    padding: (transform) => {
+      const node = transform.entity;
+      const formModel = node.getData(FlowNodeFormData).getFormModel<FormModel>();
+      const outputs = formModel.getValueIn('batchOutputs');
+      const outputLength = Object.keys(outputs || {}).length ?? 0;
+      return {
+        top: 184 + outputLength * 34,
+        bottom: 60,
+        left: 100,
+        right: 100,
+      };
+    },
     /**
      * Controls the node selection status within the subcanvas
      * 控制子画布内的节点选中状态
