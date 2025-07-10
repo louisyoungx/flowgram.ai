@@ -7,11 +7,14 @@ import { FC, useEffect, useState } from 'react';
 
 import { WorkflowInputs, WorkflowOutputs } from '@flowgram.ai/runtime-interface';
 import { useService } from '@flowgram.ai/free-layout-editor';
-import { Button, JsonViewer, SideSheet } from '@douyinfe/semi-ui';
+import { CodeEditor } from '@flowgram.ai/form-materials';
+import { Button, SideSheet } from '@douyinfe/semi-ui';
 import { IconPlay, IconSpin, IconStop } from '@douyinfe/semi-icons';
 
 import { NodeStatusGroup } from '../node-status-bar/group';
 import { WorkflowRuntimeService } from '../../../plugins/runtime-plugin/runtime-service';
+
+import styles from './index.module.less';
 
 interface TestRunSideSheetProps {
   visible: boolean;
@@ -96,7 +99,9 @@ export const TestRunSideSheet: FC<TestRunSideSheetProps> = ({ visible, onCancel 
       >
         Input
       </div>
-      <JsonViewer showSearch={false} height={300} value={value} onChange={setValue} />
+      <div className={styles.codeEditorContainer}>
+        <CodeEditor languageId="json" value={value} onChange={setValue} />
+      </div>
       <div
         style={{
           color: 'red',

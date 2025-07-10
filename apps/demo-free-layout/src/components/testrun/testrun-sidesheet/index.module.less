@@ -1,0 +1,25 @@
+/**
+ * Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
+ * SPDX-License-Identifier: MIT
+ */
+
+.codeEditorContainer {
+  height: 400px;
+  background: #fff;
+  padding: 8px 8px 8px 4px;
+  border-radius: 4px;
+  border: 1px solid #52649a12;
+
+  :global(.cm-editor) {
+    height: 100% !important;
+    overflow: auto !important;
+  }
+
+  :global(.cm-scroller) {
+    height: 400px !important;
+  }
+
+  :global(.cm-content) {
+    min-height: 400px !important;
+  }
+}
