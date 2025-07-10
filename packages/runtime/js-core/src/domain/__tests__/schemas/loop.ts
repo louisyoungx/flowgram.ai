@@ -33,17 +33,8 @@ export const loopSchema: WorkflowSchema = {
                 type: 'string',
               },
             },
-            system_prompt: {
-              key: 1,
-              name: 'system_prompt',
-              isPropertyRequired: true,
-              type: 'string',
-              extra: {
-                index: 1,
-              },
-            },
           },
-          required: ['tasks', 'system_prompt'],
+          required: ['tasks'],
         },
       },
     },
@@ -61,7 +52,7 @@ export const loopSchema: WorkflowSchema = {
         inputs: {
           type: 'object',
           properties: {
-            answers: {
+            outputs: {
               type: 'array',
               items: {
                 type: 'string',
@@ -70,9 +61,9 @@ export const loopSchema: WorkflowSchema = {
           },
         },
         inputsValues: {
-          answers: {
+          outputs: {
             type: 'ref',
-            content: ['loop_0', 'llm_results'],
+            content: ['loop_0', 'results'],
           },
         },
       },
@@ -93,9 +84,17 @@ export const loopSchema: WorkflowSchema = {
           content: ['start_0', 'tasks'],
         },
         loopOutputs: {
-          llm_results: {
+          results: {
             type: 'ref',
             content: ['llm_0', 'result'],
+          },
+          items: {
+            type: 'ref',
+            content: ['loop_0_locals', 'item'],
+          },
+          indexes: {
+            type: 'ref',
+            content: ['loop_0_locals', 'index'],
           },
         },
       },
@@ -128,7 +127,7 @@ export const loopSchema: WorkflowSchema = {
           meta: {
             position: {
               x: 344,
-              y: 0,
+              y: -8.4,
             },
           },
           data: {
@@ -152,7 +151,7 @@ export const loopSchema: WorkflowSchema = {
               },
               systemPrompt: {
                 type: 'template',
-                content: '{{start_0.system_prompt}}',
+                content: 'You are a helpful assistant No.{{loop_0_locals.index}}',
               },
               prompt: {
                 type: 'template',

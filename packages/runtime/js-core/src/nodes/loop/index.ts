@@ -46,14 +46,20 @@ export class LoopExecutor implements INodeExecutor {
     const blockOutputs: LoopOutputs[] = [];
 
     // not use Array method to make error stack more concise, and better performance
-    for (let i = 0; i < loopArray.length; i++) {
-      const loopItem = loopArray[i];
+    for (let index = 0; index < loopArray.length; index++) {
+      const loopItem = loopArray[index];
       const subContext = context.runtime.sub();
       subContext.variableStore.setVariable({
         nodeID: `${loopNodeID}_locals`,
         key: 'item',
         type: itemsType,
         value: loopItem,
+      });
+      subContext.variableStore.setVariable({
+        nodeID: `${loopNodeID}_locals`,
+        key: 'index',
+        type: WorkflowVariableType.Number,
+        value: index,
       });
       await engine.executeNode({
         context: subContext,

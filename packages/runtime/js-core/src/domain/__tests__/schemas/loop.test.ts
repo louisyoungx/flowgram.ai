@@ -18,8 +18,6 @@ describe('WorkflowRuntime loop schema', () => {
     const { context, processing } = engine.invoke({
       schema: TestSchemas.loopSchema,
       inputs: {
-        system_prompt: 'You are a helpful assistant',
-        prompt: 'How are you?',
         tasks: [
           'TASK - A',
           'TASK - B',
@@ -36,15 +34,15 @@ describe('WorkflowRuntime loop schema', () => {
     const result = await processing;
     expect(context.statusCenter.workflow.status).toBe(WorkflowStatus.Succeeded);
     expect(result).toStrictEqual({
-      answers: [
-        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - A"',
-        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - B"',
-        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - C"',
-        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - D"',
-        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - E"',
-        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - F"',
-        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - G"',
-        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - H"',
+      outputs: [
+        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.0", prompt is "TASK - A"',
+        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.1", prompt is "TASK - B"',
+        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.2", prompt is "TASK - C"',
+        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.3", prompt is "TASK - D"',
+        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.4", prompt is "TASK - E"',
+        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.5", prompt is "TASK - F"',
+        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.6", prompt is "TASK - G"',
+        'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.7", prompt is "TASK - H"',
       ],
     });
     const snapshots = snapshotsToVOData(context.snapshotCenter.exportAll());
@@ -53,8 +51,6 @@ describe('WorkflowRuntime loop schema', () => {
         nodeID: 'start_0',
         inputs: {},
         outputs: {
-          system_prompt: 'You are a helpful assistant',
-          prompt: 'How are you?',
           tasks: [
             'TASK - A',
             'TASK - B',
@@ -72,20 +68,35 @@ describe('WorkflowRuntime loop schema', () => {
         nodeID: 'loop_0',
         inputs: {},
         outputs: {
-          llm_results: [
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - A"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - B"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - C"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - D"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - E"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - F"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - G"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - H"',
+          results: [
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.0", prompt is "TASK - A"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.1", prompt is "TASK - B"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.2", prompt is "TASK - C"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.3", prompt is "TASK - D"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.4", prompt is "TASK - E"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.5", prompt is "TASK - F"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.6", prompt is "TASK - G"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.7", prompt is "TASK - H"',
           ],
+          items: [
+            'TASK - A',
+            'TASK - B',
+            'TASK - C',
+            'TASK - D',
+            'TASK - E',
+            'TASK - F',
+            'TASK - G',
+            'TASK - H',
+          ],
+          indexes: [0, 1, 2, 3, 4, 5, 6, 7],
         },
         data: {
           loopFor: { type: 'ref', content: ['start_0', 'tasks'] },
-          loopOutputs: { llm_results: { type: 'ref', content: ['llm_0', 'result'] } },
+          loopOutputs: {
+            results: { type: 'ref', content: ['llm_0', 'result'] },
+            items: { type: 'ref', content: ['loop_0_locals', 'item'] },
+            indexes: { type: 'ref', content: ['loop_0_locals', 'index'] },
+          },
         },
       },
       { nodeID: 'block_start_0', inputs: {}, outputs: {}, data: {} },
@@ -96,12 +107,12 @@ describe('WorkflowRuntime loop schema', () => {
           apiKey: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
           apiHost: 'https://mock-ai-url/api/v3',
           temperature: 0.6,
-          systemPrompt: 'You are a helpful assistant',
+          systemPrompt: 'You are a helpful assistant No.0',
           prompt: 'TASK - A',
         },
         outputs: {
           result:
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - A"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.0", prompt is "TASK - A"',
         },
         data: {},
       },
@@ -114,12 +125,12 @@ describe('WorkflowRuntime loop schema', () => {
           apiKey: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
           apiHost: 'https://mock-ai-url/api/v3',
           temperature: 0.6,
-          systemPrompt: 'You are a helpful assistant',
+          systemPrompt: 'You are a helpful assistant No.1',
           prompt: 'TASK - B',
         },
         outputs: {
           result:
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - B"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.1", prompt is "TASK - B"',
         },
         data: {},
       },
@@ -132,12 +143,12 @@ describe('WorkflowRuntime loop schema', () => {
           apiKey: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
           apiHost: 'https://mock-ai-url/api/v3',
           temperature: 0.6,
-          systemPrompt: 'You are a helpful assistant',
+          systemPrompt: 'You are a helpful assistant No.2',
           prompt: 'TASK - C',
         },
         outputs: {
           result:
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - C"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.2", prompt is "TASK - C"',
         },
         data: {},
       },
@@ -150,12 +161,12 @@ describe('WorkflowRuntime loop schema', () => {
           apiKey: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
           apiHost: 'https://mock-ai-url/api/v3',
           temperature: 0.6,
-          systemPrompt: 'You are a helpful assistant',
+          systemPrompt: 'You are a helpful assistant No.3',
           prompt: 'TASK - D',
         },
         outputs: {
           result:
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - D"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.3", prompt is "TASK - D"',
         },
         data: {},
       },
@@ -168,12 +179,12 @@ describe('WorkflowRuntime loop schema', () => {
           apiKey: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
           apiHost: 'https://mock-ai-url/api/v3',
           temperature: 0.6,
-          systemPrompt: 'You are a helpful assistant',
+          systemPrompt: 'You are a helpful assistant No.4',
           prompt: 'TASK - E',
         },
         outputs: {
           result:
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - E"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.4", prompt is "TASK - E"',
         },
         data: {},
       },
@@ -186,12 +197,12 @@ describe('WorkflowRuntime loop schema', () => {
           apiKey: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
           apiHost: 'https://mock-ai-url/api/v3',
           temperature: 0.6,
-          systemPrompt: 'You are a helpful assistant',
+          systemPrompt: 'You are a helpful assistant No.5',
           prompt: 'TASK - F',
         },
         outputs: {
           result:
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - F"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.5", prompt is "TASK - F"',
         },
         data: {},
       },
@@ -204,12 +215,12 @@ describe('WorkflowRuntime loop schema', () => {
           apiKey: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
           apiHost: 'https://mock-ai-url/api/v3',
           temperature: 0.6,
-          systemPrompt: 'You are a helpful assistant',
+          systemPrompt: 'You are a helpful assistant No.6',
           prompt: 'TASK - G',
         },
         outputs: {
           result:
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - G"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.6", prompt is "TASK - G"',
         },
         data: {},
       },
@@ -222,12 +233,12 @@ describe('WorkflowRuntime loop schema', () => {
           apiKey: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
           apiHost: 'https://mock-ai-url/api/v3',
           temperature: 0.6,
-          systemPrompt: 'You are a helpful assistant',
+          systemPrompt: 'You are a helpful assistant No.7',
           prompt: 'TASK - H',
         },
         outputs: {
           result:
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - H"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.7", prompt is "TASK - H"',
         },
         data: {},
       },
@@ -235,27 +246,27 @@ describe('WorkflowRuntime loop schema', () => {
       {
         nodeID: 'end_0',
         inputs: {
-          answers: [
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - A"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - B"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - C"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - D"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - E"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - F"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - G"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - H"',
+          outputs: [
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.0", prompt is "TASK - A"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.1", prompt is "TASK - B"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.2", prompt is "TASK - C"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.3", prompt is "TASK - D"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.4", prompt is "TASK - E"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.5", prompt is "TASK - F"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.6", prompt is "TASK - G"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.7", prompt is "TASK - H"',
           ],
         },
         outputs: {
-          answers: [
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - A"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - B"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - C"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - D"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - E"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - F"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - G"',
-            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant", prompt is "TASK - H"',
+          outputs: [
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.0", prompt is "TASK - A"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.1", prompt is "TASK - B"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.2", prompt is "TASK - C"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.3", prompt is "TASK - D"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.4", prompt is "TASK - E"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.5", prompt is "TASK - F"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.6", prompt is "TASK - G"',
+            'Hi, I am an AI model, my name is AI_MODEL_1, temperature is 0.6, system prompt is "You are a helpful assistant No.7", prompt is "TASK - H"',
           ],
         },
         data: {},
