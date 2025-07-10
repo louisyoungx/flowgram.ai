@@ -10,6 +10,7 @@ import {
   FlowGramNode,
   IContext,
   IEngine,
+  IFlowRefValue,
   INode,
   INodeExecutor,
   IVariableParseResult,
@@ -104,8 +105,8 @@ export class LoopExecutor implements INodeExecutor {
     executionContext: ExecutionContext,
     subContext: IContext
   ): LoopBlockVariables {
-    const loopNodeData = executionContext.node.data as LoopNodeSchema['data'];
-    const blockOutput = Object.entries(loopNodeData.loopOutputs).reduce(
+    const loopOutputsDeclare = this.getLoopOutputsDeclare(executionContext);
+    const blockOutput = Object.entries(loopOutputsDeclare).reduce(
       (acc, [outputName, outputRef]) => {
         const outputVariable = subContext.state.parseRef(outputRef);
         if (!outputVariable) {
@@ -126,8 +127,8 @@ export class LoopExecutor implements INodeExecutor {
     blockOutputs: LoopBlockVariables[]
   ) {
     const loopNode = executionContext.node as INode<LoopNodeSchema['data']>;
-    const loopNodeData = loopNode.data;
-    const loopOutputNames = Object.keys(loopNodeData.loopOutputs);
+    const loopOutputsDeclare = this.getLoopOutputsDeclare(executionContext);
+    const loopOutputNames = Object.keys(loopOutputsDeclare);
     loopOutputNames.forEach((outputName) => {
       const outputVariables = blockOutputs.map((blockOutput) => blockOutput[outputName]);
       const outputTypes = outputVariables.map((fieldVariable) => fieldVariable.type);
@@ -147,8 +148,8 @@ export class LoopExecutor implements INodeExecutor {
     executionContext: ExecutionContext,
     blockOutputs: LoopBlockVariables[]
   ): LoopOutputs {
-    const loopNodeData = executionContext.node.data as LoopNodeSchema['data'];
-    const loopOutputNames = Object.keys(loopNodeData.loopOutputs);
+    const loopOutputsDeclare = this.getLoopOutputsDeclare(executionContext);
+    const loopOutputNames = Object.keys(loopOutputsDeclare);
     const loopOutput = loopOutputNames.reduce(
       (outputs, outputName) => ({
         ...outputs,
@@ -157,5 +158,11 @@ export class LoopExecutor implements INodeExecutor {
       {} as LoopOutputs
     );
     return loopOutput;
+  }
+
+  private getLoopOutputsDeclare(executionContext: ExecutionContext): Record<string, IFlowRefValue> {
+    const loopNodeData = executionContext.node.data as LoopNodeSchema['data'];
+    const loopOutputsDeclare = loopNodeData.loopOutputs ?? {};
+    return loopOutputsDeclare;
   }
 }
