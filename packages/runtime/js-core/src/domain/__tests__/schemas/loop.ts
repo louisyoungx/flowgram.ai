@@ -13,7 +13,7 @@ export const loopSchema: WorkflowSchema = {
       meta: {
         position: {
           x: 180,
-          y: 218.5,
+          y: 230,
         },
       },
       data: {
@@ -52,17 +52,29 @@ export const loopSchema: WorkflowSchema = {
       type: 'end',
       meta: {
         position: {
-          x: 1340,
-          y: 228.5,
+          x: 1628,
+          y: 230,
         },
       },
       data: {
         title: 'End',
         inputs: {
           type: 'object',
-          properties: {},
+          properties: {
+            answers: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+          },
         },
-        inputsValues: {},
+        inputsValues: {
+          answers: {
+            type: 'ref',
+            content: ['loop_0', 'llm_results'],
+          },
+        },
       },
     },
     {
@@ -71,28 +83,56 @@ export const loopSchema: WorkflowSchema = {
       meta: {
         position: {
           x: 560,
-          y: 125,
+          y: 120,
         },
       },
       data: {
         title: 'Loop_1',
-        batchFor: {
+        loopFor: {
           type: 'ref',
           content: ['start_0', 'tasks'],
         },
+        loopOutputs: {
+          llm_results: {
+            type: 'ref',
+            content: ['llm_0', 'result'],
+          },
+        },
       },
       blocks: [
+        {
+          id: 'block_start_0',
+          type: 'block-start',
+          meta: {
+            position: {
+              x: 32,
+              y: 149.5,
+            },
+          },
+          data: {},
+        },
+        {
+          id: 'block_end_0',
+          type: 'block-end',
+          meta: {
+            position: {
+              x: 656,
+              y: 149.5,
+            },
+          },
+          data: {},
+        },
         {
           id: 'llm_0',
           type: 'llm',
           meta: {
             position: {
-              x: 200,
+              x: 344,
               y: 0,
             },
           },
           data: {
-            title: 'LLM_1',
+            title: 'LLM_0',
             inputsValues: {
               modelName: {
                 type: 'constant',
@@ -111,8 +151,8 @@ export const loopSchema: WorkflowSchema = {
                 content: 0.6,
               },
               systemPrompt: {
-                type: 'ref',
-                content: ['start_0', 'system_prompt'],
+                type: 'template',
+                content: '{{start_0.system_prompt}}',
               },
               prompt: {
                 type: 'template',
@@ -158,6 +198,16 @@ export const loopSchema: WorkflowSchema = {
               },
             },
           },
+        },
+      ],
+      edges: [
+        {
+          sourceNodeID: 'block_start_0',
+          targetNodeID: 'llm_0',
+        },
+        {
+          sourceNodeID: 'llm_0',
+          targetNodeID: 'block_end_0',
         },
       ],
     },
