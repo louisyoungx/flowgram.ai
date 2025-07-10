@@ -1,7 +1,8 @@
 [
   "introduction",
   "quick-start",
-  "source-code-guide",
   "schema",
-  "api"
+  "node",
+  "api",
+  "source-code-guide"
 ]
