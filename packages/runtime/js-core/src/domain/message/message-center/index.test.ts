@@ -150,7 +150,7 @@ describe('WorkflowRuntimeMessageCenter', () => {
 
   describe('export', () => {
     beforeEach(() => {
-      // 添加不同类型的消息
+      // Add different types of messages
       messageCenter.log({ message: 'Log message', timestamp: 1 });
       messageCenter.info({ message: 'Info message', timestamp: 2 });
       messageCenter.debug({ message: 'Debug message', timestamp: 3 });
@@ -167,7 +167,7 @@ describe('WorkflowRuntimeMessageCenter', () => {
       expect(messages[WorkflowMessageType.Error]).toHaveLength(1);
       expect(messages[WorkflowMessageType.Warn]).toHaveLength(1);
 
-      // 验证返回的是副本，不是原数组
+      // Verify that a copy is returned, not the original array
       messages[WorkflowMessageType.Log].pop();
       const newMessages = messageCenter.export();
       expect(newMessages[WorkflowMessageType.Log]).toHaveLength(1);
@@ -214,7 +214,7 @@ describe('WorkflowRuntimeMessageCenter', () => {
     });
 
     it('should return empty arrays when no messages exist', () => {
-      messageCenter.init(); // 清空所有消息
+      messageCenter.init(); // Clear all messages
 
       const messages = messageCenter.export();
       expect(messages[WorkflowMessageType.Log]).toEqual([]);
@@ -225,7 +225,7 @@ describe('WorkflowRuntimeMessageCenter', () => {
     });
 
     it('should maintain message order within each type', () => {
-      // 添加多个相同类型的消息
+      // Add multiple messages of the same type
       messageCenter.log({ message: 'Log message 2', timestamp: 6 });
       messageCenter.log({ message: 'Log message 3', timestamp: 7 });
 
@@ -253,7 +253,7 @@ describe('WorkflowRuntimeMessageCenter', () => {
 
   describe('integration tests', () => {
     it('should handle multiple operations correctly', () => {
-      // 添加各种类型的消息
+      // Add various types of messages
       const logMsg = messageCenter.log({ message: 'Log 1', timestamp: 1 });
       const infoMsg = messageCenter.info({ message: 'Info 1', timestamp: 2 });
       const errorMsg = messageCenter.error({ message: 'Error 1', timestamp: 3 });
@@ -262,7 +262,7 @@ describe('WorkflowRuntimeMessageCenter', () => {
       expect(infoMsg.type).toBe(WorkflowMessageType.Info);
       expect(errorMsg.type).toBe(WorkflowMessageType.Error);
 
-      // 验证消息按类型分组
+      // Verify messages are grouped by type
       const messages = messageCenter.export();
       expect(messages[WorkflowMessageType.Log]).toHaveLength(1);
       expect(messages[WorkflowMessageType.Info]).toHaveLength(1);
@@ -270,12 +270,12 @@ describe('WorkflowRuntimeMessageCenter', () => {
       expect(messages[WorkflowMessageType.Debug]).toHaveLength(0);
       expect(messages[WorkflowMessageType.Warn]).toHaveLength(0);
 
-      // 验证消息内容
+      // Verify message content
       expect(messages[WorkflowMessageType.Log][0]).toBe(logMsg);
       expect(messages[WorkflowMessageType.Info][0]).toBe(infoMsg);
       expect(messages[WorkflowMessageType.Error][0]).toBe(errorMsg);
 
-      // 重新初始化
+      // Reinitialize
       messageCenter.init();
       const emptyMessages = messageCenter.export();
       expect(emptyMessages[WorkflowMessageType.Log]).toHaveLength(0);
@@ -284,7 +284,7 @@ describe('WorkflowRuntimeMessageCenter', () => {
       expect(emptyMessages[WorkflowMessageType.Debug]).toHaveLength(0);
       expect(emptyMessages[WorkflowMessageType.Warn]).toHaveLength(0);
 
-      // 添加新消息
+      // Add new message
       const newMsg = messageCenter.debug({ message: 'Debug after init', timestamp: 4 });
       const newMessages = messageCenter.export();
       expect(newMessages[WorkflowMessageType.Debug]).toHaveLength(1);
