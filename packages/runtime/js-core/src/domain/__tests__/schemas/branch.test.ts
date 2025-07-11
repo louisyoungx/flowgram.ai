@@ -98,6 +98,7 @@ describe('WorkflowRuntime branch schema', () => {
     expect(report.reports.condition_0.status).toBe(WorkflowStatus.Succeeded);
     expect(report.reports.llm_1.status).toBe(WorkflowStatus.Succeeded);
     expect(report.reports.end_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.llm_2).toBeUndefined();
   });
 
   it('should execute a workflow with branch 2', async () => {
@@ -185,5 +186,6 @@ describe('WorkflowRuntime branch schema', () => {
     expect(report.reports.condition_0.status).toBe(WorkflowStatus.Succeeded);
     expect(report.reports.llm_2.status).toBe(WorkflowStatus.Succeeded);
     expect(report.reports.end_0.status).toBe(WorkflowStatus.Succeeded);
+    expect(report.reports.llm_1).toBeUndefined();
   });
 });
