@@ -246,7 +246,7 @@ describe('WorkflowRuntime validate inputs failed', () => {
   });
   it('property "AA" expected to be string, not number', async () => {
     const inputs = {
-      // AA: 123, // ❌ AA should be string, not number
+      AA: 123, // ❌ AA should be string, not number
       BB: 42,
       CC: {
         CA: 'world',
@@ -275,7 +275,7 @@ describe('WorkflowRuntime validate inputs failed', () => {
   it('property "BB" expected to be number, not string', async () => {
     const inputs = {
       AA: 'hello',
-      // BB: 'test-string', // ❌ BB should be number, not string
+      BB: 'test-string', // ❌ BB should be number, not string
       CC: {
         CA: 'world',
         CB: 100,
@@ -325,7 +325,7 @@ describe('WorkflowRuntime validate inputs failed', () => {
     expect(context.statusCenter.workflow.status).toBe(WorkflowStatus.Failed);
     const report = context.reporter.export();
     expect(report.messages.error[0].message).toBe(
-      'JSON Schema validation failed: Expected string at CC.CA, but got: number'
+      'JSON Schema validation failed: Missing required property "CA" at CC'
     );
   });
   it('missing required property "CC.CEA"', async () => {
