@@ -15,6 +15,7 @@ import {
   FlowGramNode,
 } from '@flowgram.ai/runtime-interface';
 
+import { WorkflowRuntimeValidation } from '@workflow/validation';
 import { compareNodeGroups } from '@infra/utils';
 import { WorkflowRuntimeTask } from '../task';
 import { WorkflowRuntimeContext } from '../context';
@@ -30,6 +31,13 @@ export class WorkflowRuntimeEngine implements IEngine {
   public invoke(params: InvokeParams): ITask {
     const context = WorkflowRuntimeContext.create();
     context.init(params);
+    const valid = this.validate(params, context);
+    if (!valid) {
+      return WorkflowRuntimeTask.create({
+        processing: Promise.resolve({}),
+        context,
+      });
+    }
     const processing = this.process(context);
     processing.then(() => {
       context.dispose();
@@ -97,6 +105,21 @@ export class WorkflowRuntimeEngine implements IEngine {
       context.statusCenter.workflow.fail();
       return {};
     }
+  }
+
+  private validate(params: InvokeParams, context: IContext): boolean {
+    const validation = new WorkflowRuntimeValidation();
+    const { valid, errors } = validation.invoke(params);
+    if (valid) {
+      return true;
+    }
+    errors?.forEach((message) => {
+      context.messageCenter.error({
+        message,
+      });
+    });
+    context.statusCenter.workflow.fail();
+    return false;
   }
 
   private canExecuteNode(params: { context: IContext; node: INode }) {
