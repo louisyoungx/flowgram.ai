@@ -86,9 +86,9 @@ export class WorkflowRuntimeService {
       schema: JSON.stringify(schema),
       inputs,
     });
-    if (validateResult?.valid === false) {
+    if (!validateResult?.valid) {
       this.resultEmitter.fire({
-        errors: validateResult?.errors,
+        errors: validateResult?.errors ?? ['Internal Server Error'],
       });
       return;
     }
@@ -153,7 +153,7 @@ export class WorkflowRuntimeService {
         this.resultEmitter.fire({ result: { inputs, outputs } });
       } else {
         this.resultEmitter.fire({
-          errors: messages.error?.map((message) =>
+          errors: messages?.error?.map((message) =>
             message.nodeID ? `${message.nodeID}: ${message.message}` : message.message
           ),
         });
