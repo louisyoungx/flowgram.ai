@@ -19,5 +19,5 @@ export const DefaultLayoutConfig: LayoutConfig = {
 
 export const DefaultLayoutOptions: LayoutOptions = {
   getFollowNode: undefined,
-  enableAnimation: false,
+  enableAnimation: true,
 };
