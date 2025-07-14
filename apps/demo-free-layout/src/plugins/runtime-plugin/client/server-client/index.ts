@@ -6,14 +6,21 @@
 import {
   FlowGramAPIName,
   IRuntimeClient,
+  TaskCancelDefine,
   TaskCancelInput,
   TaskCancelOutput,
+  TaskReportDefine,
   TaskReportInput,
   TaskReportOutput,
+  TaskResultDefine,
   TaskResultInput,
   TaskResultOutput,
+  TaskRunDefine,
   TaskRunInput,
   TaskRunOutput,
+  TaskValidateDefine,
+  TaskValidateInput,
+  TaskValidateOutput,
 } from '@flowgram.ai/runtime-interface';
 import { injectable } from '@flowgram.ai/free-layout-editor';
 
@@ -34,8 +41,8 @@ export class WorkflowRuntimeServerClient implements IRuntimeClient {
   public async [FlowGramAPIName.TaskRun](input: TaskRunInput): Promise<TaskRunOutput | undefined> {
     try {
       const body = JSON.stringify(input);
-      const response = await fetch(this.getURL('/api/task/run'), {
-        method: 'POST',
+      const response = await fetch(this.getURL(`/api${TaskRunDefine.path}`), {
+        method: TaskRunDefine.method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -58,10 +65,13 @@ export class WorkflowRuntimeServerClient implements IRuntimeClient {
     input: TaskReportInput
   ): Promise<TaskReportOutput | undefined> {
     try {
-      const response = await fetch(this.getURL(`/api/task/report?taskID=${input.taskID}`), {
-        method: 'GET',
-        redirect: 'follow',
-      });
+      const response = await fetch(
+        this.getURL(`/api${TaskReportDefine.path}?taskID=${input.taskID}`),
+        {
+          method: TaskReportDefine.method,
+          redirect: 'follow',
+        }
+      );
       const output: TaskReportOutput | ServerError = await response.json();
       if (this.isError(output)) {
         console.error('TaskReport failed', output);
@@ -78,10 +88,13 @@ export class WorkflowRuntimeServerClient implements IRuntimeClient {
     input: TaskResultInput
   ): Promise<TaskResultOutput | undefined> {
     try {
-      const response = await fetch(this.getURL(`/api/task/result?taskID=${input.taskID}`), {
-        method: 'GET',
-        redirect: 'follow',
-      });
+      const response = await fetch(
+        this.getURL(`/api${TaskResultDefine.path}?taskID=${input.taskID}`),
+        {
+          method: TaskResultDefine.method,
+          redirect: 'follow',
+        }
+      );
       const output: TaskResultOutput | ServerError = await response.json();
       if (this.isError(output)) {
         console.error('TaskReport failed', output);
@@ -101,8 +114,8 @@ export class WorkflowRuntimeServerClient implements IRuntimeClient {
   public async [FlowGramAPIName.TaskCancel](input: TaskCancelInput): Promise<TaskCancelOutput> {
     try {
       const body = JSON.stringify(input);
-      const response = await fetch(this.getURL(`/api/task/cancel`), {
-        method: 'PUT',
+      const response = await fetch(this.getURL(`/api${TaskCancelDefine.path}`), {
+        method: TaskCancelDefine.method,
         redirect: 'follow',
         headers: {
           'Content-Type': 'application/json',
@@ -122,6 +135,31 @@ export class WorkflowRuntimeServerClient implements IRuntimeClient {
       return {
         success: false,
       };
+    }
+  }
+
+  public async [FlowGramAPIName.TaskValidate](
+    input: TaskValidateInput
+  ): Promise<TaskValidateOutput | undefined> {
+    try {
+      const body = JSON.stringify(input);
+      const response = await fetch(this.getURL(`/api${TaskValidateDefine.path}`), {
+        method: TaskValidateDefine.method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: body,
+        redirect: 'follow',
+      });
+      const output: TaskValidateOutput | ServerError = await response.json();
+      if (this.isError(output)) {
+        console.error('TaskValidate failed', output);
+        return;
+      }
+      return output;
+    } catch (e) {
+      console.error(e);
+      return;
     }
   }
 
