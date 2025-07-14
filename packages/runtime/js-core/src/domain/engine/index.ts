@@ -13,18 +13,21 @@ import {
   InvokeParams,
   ITask,
   FlowGramNode,
+  IValidation,
 } from '@flowgram.ai/runtime-interface';
 
-import { WorkflowRuntimeValidation } from '@workflow/validation';
 import { compareNodeGroups } from '@infra/utils';
 import { WorkflowRuntimeTask } from '../task';
 import { WorkflowRuntimeContext } from '../context';
 import { WorkflowRuntimeContainer } from '../container';
 
 export class WorkflowRuntimeEngine implements IEngine {
+  private readonly validation: IValidation;
+
   private readonly executor: IExecutor;
 
   constructor(service: EngineServices) {
+    this.validation = service.Validation;
     this.executor = service.Executor;
   }
 
@@ -108,8 +111,7 @@ export class WorkflowRuntimeEngine implements IEngine {
   }
 
   private validate(params: InvokeParams, context: IContext): boolean {
-    const validation = new WorkflowRuntimeValidation();
-    const { valid, errors } = validation.invoke(params);
+    const { valid, errors } = this.validation.invoke(params);
     if (valid) {
       return true;
     }
