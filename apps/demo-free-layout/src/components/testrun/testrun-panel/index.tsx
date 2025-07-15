@@ -8,10 +8,10 @@ import { FC, useContext, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import { WorkflowInputs, WorkflowOutputs } from '@flowgram.ai/runtime-interface';
 import { useService } from '@flowgram.ai/free-layout-editor';
-import { CodeEditor } from '@flowgram.ai/form-materials';
 import { Button, SideSheet } from '@douyinfe/semi-ui';
 import { IconClose, IconPlay, IconSpin } from '@douyinfe/semi-icons';
 
+import { TestRunForm } from '../testrun-form';
 import { NodeStatusGroup } from '../node-status-bar/group';
 import { WorkflowRuntimeService } from '../../../plugins/runtime-plugin/runtime-service';
 import { SidebarContext } from '../../../context';
@@ -29,7 +29,7 @@ export const TestRunSidePanel: FC<TestRunSidePanelProps> = ({ visible, onCancel 
   const { nodeId: sidebarNodeId, setNodeId } = useContext(SidebarContext);
 
   const [isRunning, setRunning] = useState(false);
-  const [value, setValue] = useState<string>(`{}`);
+  const [values, setValues] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<string[]>();
   const [result, setResult] = useState<
     | {
@@ -48,7 +48,7 @@ export const TestRunSidePanel: FC<TestRunSidePanelProps> = ({ visible, onCancel 
     setErrors(undefined);
     setRunning(true);
     try {
-      await runtimeService.taskRun(value);
+      await runtimeService.taskRun(values);
     } catch (e: any) {
       setErrors([e.message]);
     }
@@ -56,7 +56,7 @@ export const TestRunSidePanel: FC<TestRunSidePanelProps> = ({ visible, onCancel 
 
   const onClose = async () => {
     await runtimeService.taskCancel();
-    setValue(`{}`);
+    setValues({});
     setRunning(false);
     onCancel();
   };
@@ -93,9 +93,7 @@ export const TestRunSidePanel: FC<TestRunSidePanelProps> = ({ visible, onCancel 
   const renderForm = (
     <div className={styles['testrun-panel-form']}>
       <div className={styles.title}>Input Form</div>
-      <div className={styles['code-editor-container']}>
-        <CodeEditor languageId="json" value={value} onChange={setValue} />
-      </div>
+      <TestRunForm values={values} setValues={setValues} />
       {errors?.map((e) => (
         <div className={styles.error} key={e}>
           {e}
