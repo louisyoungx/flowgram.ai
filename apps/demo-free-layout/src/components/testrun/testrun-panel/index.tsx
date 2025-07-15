@@ -5,15 +5,17 @@
 
 import { FC, useContext, useEffect, useState } from 'react';
 
+import classnames from 'classnames';
 import { WorkflowInputs, WorkflowOutputs } from '@flowgram.ai/runtime-interface';
 import { useService } from '@flowgram.ai/free-layout-editor';
 import { CodeEditor } from '@flowgram.ai/form-materials';
 import { Button, SideSheet } from '@douyinfe/semi-ui';
-import { IconClose, IconPlay, IconSpin, IconStop } from '@douyinfe/semi-icons';
+import { IconClose, IconPlay, IconSpin } from '@douyinfe/semi-icons';
 
 import { NodeStatusGroup } from '../node-status-bar/group';
 import { WorkflowRuntimeService } from '../../../plugins/runtime-plugin/runtime-service';
 import { SidebarContext } from '../../../context';
+import { IconCancel } from '../../../assets/icon-cancel';
 
 import styles from './index.module.less';
 
@@ -107,8 +109,11 @@ export const TestRunSidePanel: FC<TestRunSidePanelProps> = ({ visible, onCancel 
   const renderButton = (
     <Button
       onClick={onTestRun}
-      icon={isRunning ? <IconStop size="small" /> : <IconPlay size="small" />}
-      className={`${styles.button} ${isRunning ? styles.running : styles.default}`}
+      icon={isRunning ? <IconCancel /> : <IconPlay size="small" />}
+      className={classnames(styles.button, {
+        [styles.running]: isRunning,
+        [styles.default]: !isRunning,
+      })}
     >
       {isRunning ? 'Cancel' : 'Test Run'}
     </Button>
