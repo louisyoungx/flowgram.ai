@@ -22,32 +22,24 @@ export const basicLLMSchema: WorkflowSchema = {
           type: 'object',
           properties: {
             model_name: {
-              key: 14,
-              name: 'model_name',
               type: 'string',
               extra: {
                 index: 0,
               },
             },
             api_key: {
-              key: 19,
-              name: 'api_key',
               type: 'string',
               extra: {
                 index: 1,
               },
             },
             api_host: {
-              key: 20,
-              name: 'api_host',
               type: 'string',
               extra: {
                 index: 2,
               },
             },
             formula: {
-              key: 4,
-              name: 'formula',
               type: 'string',
               extra: {
                 index: 3,

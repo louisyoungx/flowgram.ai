@@ -22,8 +22,6 @@ export const branchSchema: WorkflowSchema = {
           type: 'object',
           properties: {
             model_id: {
-              key: 0,
-              name: 'model_id',
               type: 'integer',
               default: 'Hello Flow.',
               extra: {
@@ -31,8 +29,6 @@ export const branchSchema: WorkflowSchema = {
               },
             },
             prompt: {
-              key: 5,
-              name: 'prompt',
               type: 'string',
               extra: {
                 index: 1,
