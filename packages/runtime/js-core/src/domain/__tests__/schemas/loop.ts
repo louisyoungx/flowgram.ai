@@ -24,7 +24,6 @@ export const loopSchema: WorkflowSchema = {
             tasks: {
               key: 7,
               name: 'tasks',
-              isPropertyRequired: true,
               type: 'array',
               extra: {
                 index: 0,

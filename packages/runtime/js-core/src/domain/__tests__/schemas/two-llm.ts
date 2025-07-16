@@ -24,7 +24,6 @@ export const twoLLMSchema: WorkflowSchema = {
             query: {
               key: 5,
               name: 'query',
-              isPropertyRequired: false,
               type: 'string',
               default: 'Hello Flow.',
               extra: {
@@ -34,7 +33,6 @@ export const twoLLMSchema: WorkflowSchema = {
             enable: {
               key: 6,
               name: 'enable',
-              isPropertyRequired: false,
               type: 'boolean',
               default: true,
               extra: {
@@ -44,7 +42,6 @@ export const twoLLMSchema: WorkflowSchema = {
             array_obj: {
               key: 7,
               name: 'array_obj',
-              isPropertyRequired: false,
               type: 'array',
               items: {
                 type: 'object',
@@ -64,7 +61,6 @@ export const twoLLMSchema: WorkflowSchema = {
             num: {
               key: 10,
               name: 'num',
-              isPropertyRequired: false,
               type: 'number',
               extra: {
                 index: 3,

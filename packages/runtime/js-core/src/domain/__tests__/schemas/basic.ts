@@ -24,7 +24,6 @@ export const basicSchema: WorkflowSchema = {
             model_name: {
               key: 14,
               name: 'model_name',
-              isPropertyRequired: true,
               type: 'string',
               extra: {
                 index: 0,
@@ -33,7 +32,6 @@ export const basicSchema: WorkflowSchema = {
             llm_settings: {
               key: 17,
               name: 'llm_settings',
-              isPropertyRequired: false,
               type: 'object',
               extra: {
                 index: 1,
@@ -53,7 +51,6 @@ export const basicSchema: WorkflowSchema = {
             work: {
               key: 5,
               name: 'work',
-              isPropertyRequired: true,
               type: 'object',
               extra: {
                 index: 2,
@@ -62,7 +59,6 @@ export const basicSchema: WorkflowSchema = {
                 role: {
                   key: 6,
                   name: 'role',
-                  isPropertyRequired: true,
                   type: 'string',
                   extra: {
                     index: 0,
@@ -71,7 +67,6 @@ export const basicSchema: WorkflowSchema = {
                 task: {
                   key: 8,
                   name: 'task',
-                  isPropertyRequired: true,
                   type: 'string',
                   extra: {
                     index: 1,

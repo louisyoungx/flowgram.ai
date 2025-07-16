@@ -51,7 +51,6 @@ export const validateInputsSchema: WorkflowSchema = {
             AA: {
               key: 10,
               name: 'AA',
-              isPropertyRequired: true,
               type: 'string',
               extra: {
                 index: 0,
@@ -60,7 +59,6 @@ export const validateInputsSchema: WorkflowSchema = {
             BB: {
               key: 11,
               name: 'BB',
-              isPropertyRequired: false,
               type: 'integer',
               extra: {
                 index: 1,
@@ -69,7 +67,6 @@ export const validateInputsSchema: WorkflowSchema = {
             CC: {
               key: 12,
               name: 'CC',
-              isPropertyRequired: false,
               type: 'object',
               extra: {
                 index: 2,
@@ -78,7 +75,6 @@ export const validateInputsSchema: WorkflowSchema = {
                 CA: {
                   key: 13,
                   name: 'CA',
-                  isPropertyRequired: true,
                   type: 'string',
                   extra: {
                     index: 0,
@@ -87,7 +83,6 @@ export const validateInputsSchema: WorkflowSchema = {
                 CB: {
                   key: 14,
                   name: 'CB',
-                  isPropertyRequired: true,
                   type: 'integer',
                   extra: {
                     index: 1,
@@ -100,7 +95,6 @@ export const validateInputsSchema: WorkflowSchema = {
                   extra: {
                     index: 3,
                   },
-                  isPropertyRequired: true,
                 },
                 CD: {
                   key: 51,
@@ -109,7 +103,6 @@ export const validateInputsSchema: WorkflowSchema = {
                   extra: {
                     index: 4,
                   },
-                  isPropertyRequired: true,
                 },
                 CE: {
                   key: 52,
@@ -118,7 +111,6 @@ export const validateInputsSchema: WorkflowSchema = {
                   extra: {
                     index: 5,
                   },
-                  isPropertyRequired: true,
                   properties: {
                     CEA: {
                       key: 53,
@@ -127,7 +119,6 @@ export const validateInputsSchema: WorkflowSchema = {
                       extra: {
                         index: 1,
                       },
-                      isPropertyRequired: true,
                     },
                   },
                   required: ['CEA'],
@@ -142,7 +133,6 @@ export const validateInputsSchema: WorkflowSchema = {
                   items: {
                     type: 'string',
                   },
-                  isPropertyRequired: true,
                 },
               },
               required: ['CA', 'CB', 'CC', 'CD', 'CE', 'CF'],
@@ -150,7 +140,6 @@ export const validateInputsSchema: WorkflowSchema = {
             DD: {
               key: 15,
               name: 'DD',
-              isPropertyRequired: false,
               type: 'array',
               extra: {
                 index: 3,
@@ -181,7 +170,6 @@ export const validateInputsSchema: WorkflowSchema = {
                         extra: {
                           index: 1,
                         },
-                        isPropertyRequired: true,
                       },
                     },
                     required: ['DBA'],
@@ -193,7 +181,6 @@ export const validateInputsSchema: WorkflowSchema = {
             EE: {
               key: 20,
               name: 'EE',
-              isPropertyRequired: true,
               type: 'object',
               extra: {
                 index: 4,
@@ -210,7 +197,6 @@ export const validateInputsSchema: WorkflowSchema = {
                     EAA: {
                       key: 22,
                       name: 'EAA',
-                      isPropertyRequired: true,
                       type: 'string',
                       extra: {
                         index: 1,
@@ -218,7 +204,6 @@ export const validateInputsSchema: WorkflowSchema = {
                     },
                   },
                   required: ['EAA'],
-                  isPropertyRequired: true,
                 },
                 EB: {
                   key: 23,
@@ -227,7 +212,6 @@ export const validateInputsSchema: WorkflowSchema = {
                   extra: {
                     index: 2,
                   },
-                  isPropertyRequired: false,
                 },
               },
               required: ['EA'],

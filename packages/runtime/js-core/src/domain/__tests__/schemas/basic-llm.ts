@@ -24,7 +24,6 @@ export const basicLLMSchema: WorkflowSchema = {
             model_name: {
               key: 14,
               name: 'model_name',
-              isPropertyRequired: true,
               type: 'string',
               extra: {
                 index: 0,
@@ -33,7 +32,6 @@ export const basicLLMSchema: WorkflowSchema = {
             api_key: {
               key: 19,
               name: 'api_key',
-              isPropertyRequired: true,
               type: 'string',
               extra: {
                 index: 1,
@@ -42,7 +40,6 @@ export const basicLLMSchema: WorkflowSchema = {
             api_host: {
               key: 20,
               name: 'api_host',
-              isPropertyRequired: true,
               type: 'string',
               extra: {
                 index: 2,
@@ -51,7 +48,6 @@ export const basicLLMSchema: WorkflowSchema = {
             formula: {
               key: 4,
               name: 'formula',
-              isPropertyRequired: true,
               type: 'string',
               extra: {
                 index: 3,
