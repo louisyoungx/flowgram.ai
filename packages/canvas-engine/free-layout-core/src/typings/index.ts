@@ -11,7 +11,6 @@ export * from './workflow-line';
 export * from './workflow-sub-canvas';
 export * from './workflow-operation';
 export * from './workflow-drag';
-export * from './workflow-group';
 
 export const URLParams = Symbol('');
 

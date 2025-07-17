@@ -5,13 +5,11 @@
 
 import { type WorkflowLineEntity, type WorkflowNodeEntity } from '../entities';
 import { type WorkflowNodeJSON } from './workflow-node';
-import { type WorkflowGroupJSON } from './workflow-group';
 import { type WorkflowEdgeJSON } from './workflow-edge';
 
 export interface WorkflowJSON {
   nodes: WorkflowNodeJSON[];
   edges: WorkflowEdgeJSON[];
-  groups?: WorkflowGroupJSON[];
 }
 
 export enum WorkflowContentChangeType {

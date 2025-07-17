@@ -111,6 +111,22 @@ export const mockJSON: WorkflowJSON = {
       },
     },
     {
+      id: 'group_V-_st',
+      type: 'group',
+      meta: {
+        position: {
+          x: 1020,
+          y: 96.25,
+        },
+      },
+      data: {
+        title: 'LLM_Group',
+        color: 'Violet',
+        parentID: 'root',
+        blockIDs: ['llm_0', 'llm_l_TcE'],
+      },
+    },
+    {
       id: 'llm_0',
       type: 'llm',
       meta: {
@@ -165,24 +181,6 @@ export const mockJSON: WorkflowJSON = {
       targetNodeID: 'llm_0',
     },
   ],
-  groups: [
-    {
-      id: 'group_V-_st',
-      type: 'group',
-      meta: {
-        position: {
-          x: 1020,
-          y: 96.25,
-        },
-      },
-      data: {
-        title: 'LLM_Group',
-        color: 'Violet',
-        parentID: 'root',
-        blockIDs: ['llm_0', 'llm_l_TcE'],
-      },
-    },
-  ],
 };
 
 export const mockJSON2: WorkflowJSON = {
@@ -205,8 +203,8 @@ export const mockJSON2: WorkflowJSON = {
       type: 'condition',
       meta: {
         position: {
-          x: 50.05809128630706,
-          y: 158.80497925311204,
+          x: 235.74542284219706,
+          y: -157.7680906713165,
         },
       },
       data: {
@@ -218,8 +216,8 @@ export const mockJSON2: WorkflowJSON = {
       type: 'end',
       meta: {
         position: {
-          x: 652.48132780083,
-          y: -177.79253112033197,
+          x: 310.0959023539669,
+          y: 190.25,
         },
       },
       data: {
@@ -257,8 +255,8 @@ export const mockJSON2: WorkflowJSON = {
           type: 'llm changed',
           meta: {
             position: {
-              x: 7.726141078838174,
-              y: 98.39004149377594,
+              x: 9.626852659110725,
+              y: 121.49956408020925,
             },
           },
           data: {
@@ -278,8 +276,8 @@ export const mockJSON2: WorkflowJSON = {
       type: 'comment',
       meta: {
         position: {
-          x: 289.59336099585056,
-          y: 565.6222769709543,
+          x: 300,
+          y: 486.2002234088928,
         },
       },
       data: {
@@ -288,6 +286,22 @@ export const mockJSON2: WorkflowJSON = {
           height: 150,
         },
         note: 'hi ~\n\nthis is a comment node changed\n\n- flowgram.ai',
+      },
+    },
+    {
+      id: 'group_V-_st',
+      type: 'group',
+      meta: {
+        position: {
+          x: 869.4856146469051,
+          y: 56.4254577157803,
+        },
+      },
+      data: {
+        title: 'LLM_Group changed',
+        color: 'Violet',
+        parentID: 'root',
+        blockIDs: ['llm_0', 'llm_l_TcE'],
       },
     },
     {
@@ -343,24 +357,6 @@ export const mockJSON2: WorkflowJSON = {
     {
       sourceNodeID: 'llm_l_TcE',
       targetNodeID: 'llm_0',
-    },
-  ],
-  groups: [
-    {
-      id: 'group_V-_st',
-      type: 'group',
-      meta: {
-        position: {
-          x: 1020,
-          y: 96.25,
-        },
-      },
-      data: {
-        title: 'LLM_Group changed',
-        color: 'Violet',
-        parentID: 'root',
-        blockIDs: ['llm_0', 'llm_l_TcE'],
-      },
     },
   ],
 };

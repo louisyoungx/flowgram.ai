@@ -27,12 +27,11 @@ import {
   WorkflowDocumentOptionsDefault,
 } from './workflow-document-option';
 import { getFlowNodeFormData } from './utils/flow-node-form-data';
-import { delay, fitView, getAntiOverlapPosition, jsonJoinGroups } from './utils';
+import { buildGroupJSON, delay, fitView, getAntiOverlapPosition } from './utils';
 import {
   type WorkflowContentChangeEvent,
   WorkflowContentChangeType,
   WorkflowEdgeJSON,
-  WorkflowGroupJSON,
   type WorkflowJSON,
   type WorkflowNodeJSON,
   type WorkflowNodeMeta,
@@ -135,13 +134,10 @@ export class WorkflowDocument extends FlowDocument {
    */
   fromJSON(json: Partial<WorkflowJSON>, fireRender = true): void {
     if (this.disposed) return;
-    const hasGroups = Array.isArray(json.groups) && json.groups.length > 0;
-    const rawJSON: WorkflowJSON = {
+    const workflowJSON: WorkflowJSON = {
       nodes: json.nodes ?? [],
       edges: json.edges ?? [],
-      groups: json.groups ?? [],
     };
-    const workflowJSON = hasGroups ? jsonJoinGroups(rawJSON) : rawJSON;
     // 触发画布更新
     this.entityManager.changeEntityLocked = true;
 
@@ -650,17 +646,10 @@ export class WorkflowDocument extends FlowDocument {
    */
   toJSON(): WorkflowJSON {
     const rootJSON = this.toNodeJSON(this.root);
-    const groupJSON = this.toGroupJSON();
     const json = {
       nodes: rootJSON.blocks ?? [],
       edges: rootJSON.edges ?? [],
     };
-    if (groupJSON) {
-      return {
-        ...json,
-        groups: groupJSON,
-      };
-    }
     return json;
   }
 
@@ -685,11 +674,12 @@ export class WorkflowDocument extends FlowDocument {
     const { parent = this.root, isClone = false } = options ?? {};
     // 创建节点
     const containerID = this.getNodeSubCanvas(parent)?.canvasNode.id ?? parent.id;
-    const nodes = json.nodes.map((nodeJSON: WorkflowNodeJSON) =>
+    const processedJSON = buildGroupJSON(json);
+    const nodes = processedJSON.nodes.map((nodeJSON: WorkflowNodeJSON) =>
       this.createWorkflowNode(nodeJSON, isClone, containerID)
     );
     // 创建线条
-    const edges = json.edges
+    const edges = processedJSON.edges
       .map((edge) => this.createWorkflowLine(edge, containerID))
       .filter(Boolean) as WorkflowLineEntity[];
     return { nodes, edges };
@@ -703,7 +693,7 @@ export class WorkflowDocument extends FlowDocument {
   }
 
   private getNodeChildren(node: WorkflowNodeEntity): WorkflowNodeEntity[] {
-    if (!node) return [];
+    if (!node || node.flowNodeType === FlowNodeBaseType.GROUP) return [];
     const subCanvas = this.getNodeSubCanvas(node);
     // get real children
     const realChildren = subCanvas ? subCanvas.canvasNode.blocks : node.blocks;
@@ -718,7 +708,7 @@ export class WorkflowDocument extends FlowDocument {
     const children = childrenWithoutSubCanvas
       .map((child) => {
         if (child.flowNodeType === FlowNodeBaseType.GROUP) {
-          return child.blocks;
+          return [child, ...child.blocks];
         }
         return child;
       })
@@ -801,27 +791,5 @@ export class WorkflowDocument extends FlowDocument {
       });
     }
     return this.linesManager.createLine(lineInfo);
-  }
-
-  private toGroupJSON(): WorkflowGroupJSON[] | undefined {
-    const groups = this.getAllNodes().filter(
-      (node) => node.flowNodeType === FlowNodeBaseType.GROUP
-    );
-    if (!groups.length) {
-      return;
-    }
-    return groups.map((group) => {
-      const groupJSON = this.toNodeJSONFromOptions(group);
-      const parentID = group.parent?.id ?? FlowNodeBaseType.ROOT;
-      const blockIDs = group.blocks.map((block) => block.id) ?? [];
-      return {
-        ...groupJSON,
-        data: {
-          ...groupJSON.data,
-          parentID,
-          blockIDs,
-        },
-      };
-    });
   }
 }
