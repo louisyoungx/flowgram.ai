@@ -111,61 +111,30 @@ export const mockJSON: WorkflowJSON = {
       },
     },
     {
-      id: 'group_V-_st',
-      type: 'group',
+      id: 'llm_0',
+      type: 'llm',
       meta: {
         position: {
-          x: 1020,
-          y: 96.25,
+          x: 640,
+          y: 0,
         },
       },
       data: {
-        title: 'LLM_Group',
-        color: 'Violet',
+        title: 'LLM_0',
       },
-      blocks: [
-        {
-          id: 'llm_0',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 640,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_0',
-          },
+    },
+    {
+      id: 'llm_l_TcE',
+      type: 'llm',
+      meta: {
+        position: {
+          x: 180,
+          y: 0,
         },
-        {
-          id: 'llm_l_TcE',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 180,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_1',
-          },
-        },
-      ],
-      edges: [
-        {
-          sourceNodeID: 'llm_l_TcE',
-          targetNodeID: 'llm_0',
-        },
-        {
-          sourceNodeID: 'llm_0',
-          targetNodeID: 'end_0',
-        },
-        {
-          sourceNodeID: 'condition_0',
-          targetNodeID: 'llm_l_TcE',
-          sourcePortID: 'if_0',
-        },
-      ],
+      },
+      data: {
+        title: 'LLM_1',
+      },
     },
   ],
   edges: [
@@ -191,6 +160,28 @@ export const mockJSON: WorkflowJSON = {
       sourceNodeID: 'loop_H8M3U',
       targetNodeID: 'end_0',
     },
+    {
+      sourceNodeID: 'llm_l_TcE',
+      targetNodeID: 'llm_0',
+    },
+  ],
+  groups: [
+    {
+      id: 'group_V-_st',
+      type: 'group',
+      meta: {
+        position: {
+          x: 1020,
+          y: 96.25,
+        },
+      },
+      data: {
+        title: 'LLM_Group',
+        color: 'Violet',
+        parentID: 'root',
+        blockIDs: ['llm_0', 'llm_l_TcE'],
+      },
+    },
   ],
 };
 
@@ -214,8 +205,8 @@ export const mockJSON2: WorkflowJSON = {
       type: 'condition',
       meta: {
         position: {
-          x: 0,
-          y: 0,
+          x: 50.05809128630706,
+          y: 158.80497925311204,
         },
       },
       data: {
@@ -227,8 +218,8 @@ export const mockJSON2: WorkflowJSON = {
       type: 'end',
       meta: {
         position: {
-          x: 0,
-          y: 0,
+          x: 652.48132780083,
+          y: -177.79253112033197,
         },
       },
       data: {
@@ -266,8 +257,8 @@ export const mockJSON2: WorkflowJSON = {
           type: 'llm changed',
           meta: {
             position: {
-              x: 6,
-              y: 0,
+              x: 7.726141078838174,
+              y: 98.39004149377594,
             },
           },
           data: {
@@ -287,8 +278,8 @@ export const mockJSON2: WorkflowJSON = {
       type: 'comment',
       meta: {
         position: {
-          x: 640,
-          y: 522.46875,
+          x: 289.59336099585056,
+          y: 565.6222769709543,
         },
       },
       data: {
@@ -300,61 +291,30 @@ export const mockJSON2: WorkflowJSON = {
       },
     },
     {
-      id: 'group_V-_st',
-      type: 'group',
+      id: 'llm_0',
+      type: 'llm',
       meta: {
         position: {
-          x: 1020,
-          y: 96.25,
+          x: 640,
+          y: 0,
         },
       },
       data: {
-        title: 'LLM_Group changed',
-        color: 'Violet',
+        title: 'LLM_0 changed',
       },
-      blocks: [
-        {
-          id: 'llm_0',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 640,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_0 changed',
-          },
+    },
+    {
+      id: 'llm_l_TcE',
+      type: 'llm',
+      meta: {
+        position: {
+          x: 180,
+          y: 0,
         },
-        {
-          id: 'llm_l_TcE',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 180,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_1',
-          },
-        },
-      ],
-      edges: [
-        {
-          sourceNodeID: 'llm_l_TcE',
-          targetNodeID: 'llm_0',
-        },
-        {
-          sourceNodeID: 'llm_0',
-          targetNodeID: 'end_0',
-        },
-        {
-          sourceNodeID: 'condition_0',
-          targetNodeID: 'llm_l_TcE',
-          sourcePortID: 'if_0',
-        },
-      ],
+      },
+      data: {
+        title: 'LLM_1',
+      },
     },
   ],
   edges: [
@@ -380,6 +340,28 @@ export const mockJSON2: WorkflowJSON = {
       sourceNodeID: 'loop_H8M3U',
       targetNodeID: 'end_0',
     },
+    {
+      sourceNodeID: 'llm_l_TcE',
+      targetNodeID: 'llm_0',
+    },
+  ],
+  groups: [
+    {
+      id: 'group_V-_st',
+      type: 'group',
+      meta: {
+        position: {
+          x: 1020,
+          y: 96.25,
+        },
+      },
+      data: {
+        title: 'LLM_Group changed',
+        color: 'Violet',
+        parentID: 'root',
+        blockIDs: ['llm_0', 'llm_l_TcE'],
+      },
+    },
   ],
 };
 export const mockSimpleJSON: WorkflowJSON = {
@@ -391,7 +373,7 @@ export const mockSimpleJSON: WorkflowJSON = {
         position: { x: 0, y: 0 },
       },
       data: {
-        title: 'start'
+        title: 'start',
       },
     },
     {
@@ -401,7 +383,7 @@ export const mockSimpleJSON: WorkflowJSON = {
         position: { x: 800, y: 0 },
       },
       data: {
-        title: 'end'
+        title: 'end',
       },
     },
   ],
@@ -422,7 +404,7 @@ export const mockSimpleJSON2: WorkflowJSON = {
         position: { x: 1, y: 1 },
       },
       data: {
-        title: 'start changed'
+        title: 'start changed',
       },
     },
     {
@@ -432,7 +414,7 @@ export const mockSimpleJSON2: WorkflowJSON = {
         position: { x: 801, y: 1 },
       },
       data: {
-        title: 'end changed'
+        title: 'end changed',
       },
     },
   ],

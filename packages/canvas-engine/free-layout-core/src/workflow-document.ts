@@ -650,11 +650,18 @@ export class WorkflowDocument extends FlowDocument {
    */
   toJSON(): WorkflowJSON {
     const rootJSON = this.toNodeJSON(this.root);
-    return {
+    const groupJSON = this.toGroupJSON();
+    const json = {
       nodes: rootJSON.blocks ?? [],
       edges: rootJSON.edges ?? [],
-      groups: this.toGroupJSON(),
     };
+    if (groupJSON) {
+      return {
+        ...json,
+        groups: groupJSON,
+      };
+    }
+    return json;
   }
 
   dispose() {
