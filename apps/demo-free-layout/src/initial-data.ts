@@ -580,5 +580,25 @@ export const initialData: FlowDocumentJSON = {
       sourceNodeID: 'loop_Ycnsk',
       targetNodeID: 'end_0',
     },
+    {
+      sourceNodeID: 'llm_8--A3',
+      targetNodeID: 'llm_vTyMa',
+    },
+  ],
+  groups: [
+    {
+      id: 'group_5ci0o',
+      type: 'group',
+      meta: {
+        position: {
+          x: 163.32056949283722,
+          y: -76.50012170998413,
+        },
+      },
+      data: {
+        parentID: 'root',
+        blockIDs: ['llm_8--A3', 'llm_vTyMa'],
+      },
+    },
   ],
 };

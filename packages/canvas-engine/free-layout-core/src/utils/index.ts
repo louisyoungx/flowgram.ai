@@ -20,6 +20,7 @@ export { delay } from '@flowgram.ai/utils';
  */
 export { bindConfigEntity };
 
+export { jsonJoinGroups } from './json-join-groups';
 export * from './nanoid';
 export * from './compose';
 export * from './fit-view';

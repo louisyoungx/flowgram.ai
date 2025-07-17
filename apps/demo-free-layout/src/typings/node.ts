@@ -10,6 +10,7 @@ import {
   FlowNodeEntity,
   type WorkflowEdgeJSON,
   WorkflowNodeMeta,
+  WorkflowGroupJSON,
 } from '@flowgram.ai/free-layout-editor';
 import { IFlowValue } from '@flowgram.ai/form-materials';
 
@@ -72,4 +73,5 @@ export interface FlowNodeRegistry extends FlowNodeRegistryDefault {
 export interface FlowDocumentJSON {
   nodes: FlowNodeJSON[];
   edges: WorkflowEdgeJSON[];
+  groups: WorkflowGroupJSON[];
 }

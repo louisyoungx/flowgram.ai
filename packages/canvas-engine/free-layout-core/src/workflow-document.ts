@@ -27,11 +27,12 @@ import {
   WorkflowDocumentOptionsDefault,
 } from './workflow-document-option';
 import { getFlowNodeFormData } from './utils/flow-node-form-data';
-import { delay, fitView, getAntiOverlapPosition } from './utils';
+import { delay, fitView, getAntiOverlapPosition, jsonJoinGroups } from './utils';
 import {
   type WorkflowContentChangeEvent,
   WorkflowContentChangeType,
   WorkflowEdgeJSON,
+  WorkflowGroupJSON,
   type WorkflowJSON,
   type WorkflowNodeJSON,
   type WorkflowNodeMeta,
@@ -134,10 +135,13 @@ export class WorkflowDocument extends FlowDocument {
    */
   fromJSON(json: Partial<WorkflowJSON>, fireRender = true): void {
     if (this.disposed) return;
-    const workflowJSON: WorkflowJSON = {
+    const hasGroups = Array.isArray(json.groups) && json.groups.length > 0;
+    const rawJSON: WorkflowJSON = {
       nodes: json.nodes ?? [],
       edges: json.edges ?? [],
+      groups: json.groups ?? [],
     };
+    const workflowJSON = hasGroups ? jsonJoinGroups(rawJSON) : rawJSON;
     // 触发画布更新
     this.entityManager.changeEntityLocked = true;
 
@@ -649,6 +653,7 @@ export class WorkflowDocument extends FlowDocument {
     return {
       nodes: rootJSON.blocks ?? [],
       edges: rootJSON.edges ?? [],
+      groups: this.toGroupJSON(),
     };
   }
 
@@ -693,16 +698,24 @@ export class WorkflowDocument extends FlowDocument {
   private getNodeChildren(node: WorkflowNodeEntity): WorkflowNodeEntity[] {
     if (!node) return [];
     const subCanvas = this.getNodeSubCanvas(node);
-    const childrenWithCanvas = subCanvas
-      ? subCanvas.canvasNode.collapsedChildren
-      : node.collapsedChildren;
-    // 过滤掉子画布的JSON数据
-    const children = childrenWithCanvas
+    // get real children
+    const realChildren = subCanvas ? subCanvas.canvasNode.blocks : node.blocks;
+    // filter sub canvas node
+    const childrenWithoutSubCanvas = realChildren
       .filter((child) => {
         const childMeta = child.getNodeMeta<WorkflowNodeMeta>();
         return !childMeta.subCanvas?.(node)?.isCanvas;
       })
       .filter(Boolean);
+    // flat group nodes
+    const children = childrenWithoutSubCanvas
+      .map((child) => {
+        if (child.flowNodeType === FlowNodeBaseType.GROUP) {
+          return child.blocks;
+        }
+        return child;
+      })
+      .flat();
     return children;
   }
 
@@ -781,5 +794,27 @@ export class WorkflowDocument extends FlowDocument {
       });
     }
     return this.linesManager.createLine(lineInfo);
+  }
+
+  private toGroupJSON(): WorkflowGroupJSON[] | undefined {
+    const groups = this.getAllNodes().filter(
+      (node) => node.flowNodeType === FlowNodeBaseType.GROUP
+    );
+    if (!groups.length) {
+      return;
+    }
+    return groups.map((group) => {
+      const groupJSON = this.toNodeJSONFromOptions(group);
+      const parentID = group.parent?.id ?? FlowNodeBaseType.ROOT;
+      const blockIDs = group.blocks.map((block) => block.id) ?? [];
+      return {
+        ...groupJSON,
+        data: {
+          ...groupJSON.data,
+          parentID,
+          blockIDs,
+        },
+      };
+    });
   }
 }
