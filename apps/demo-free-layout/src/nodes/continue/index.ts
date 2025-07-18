@@ -21,6 +21,7 @@ export const ContinueNodeRegistry: FlowNodeRegistry = {
       height: 54,
     },
     expandable: false,
+    onlyInContainer: WorkflowNodeType.Loop,
   },
   info: {
     icon: iconContinue,

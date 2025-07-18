@@ -74,11 +74,13 @@ export const useAddNode = () => {
     async (targetBoundingRect: DOMRect): Promise<void> => {
       // calculate panel position based on target element - 根据目标元素计算面板位置
       const panelPosition = getPanelPosition(targetBoundingRect);
+      const containerNode = getContainerNode(selectService);
       await new Promise<void>((resolve) => {
         // call the node panel service to show the panel - 调用节点面板服务来显示面板
         nodePanelService.callNodePanel({
           position: panelPosition,
           enableMultiAdd: true,
+          containerNode,
           panelProps: {},
           // handle node selection from panel - 处理从面板中选择节点
           onSelect: async (panelParams?: NodePanelResult) => {
@@ -86,7 +88,6 @@ export const useAddNode = () => {
               return;
             }
             const { nodeType, nodeJSON } = panelParams;
-            const containerNode = getContainerNode(selectService);
             const position = Boolean(containerNode)
               ? getAntiOverlapPosition(workflowDocument, {
                   x: 0,

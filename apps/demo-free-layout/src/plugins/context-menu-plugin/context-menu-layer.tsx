@@ -43,8 +43,10 @@ export class ContextMenuLayer extends Layer {
 
   openNodePanel(e: MouseEvent) {
     const mousePos = this.getPosFromMouseEvent(e);
+    const containerNode = this.getContainerNode(mousePos);
     this.nodePanelService.callNodePanel({
       position: mousePos,
+      containerNode,
       panelProps: {},
       // handle node selection from panel - 处理从面板中选择节点
       onSelect: async (panelParams?: NodePanelResult) => {
@@ -52,7 +54,6 @@ export class ContextMenuLayer extends Layer {
           return;
         }
         const { nodeType, nodeJSON } = panelParams;
-        const containerNode = this.getContainerNode(mousePos);
         const position = this.dragService.adjustSubNodePosition(nodeType, containerNode, mousePos);
         // create new workflow node based on selected type - 根据选择的类型创建新的工作流节点
         const node: WorkflowNodeEntity = this.ctx.document.createWorkflowNodeByType(
