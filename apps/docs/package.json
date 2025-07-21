@@ -43,6 +43,7 @@
     "typedoc": "0.24.8",
     "typedoc-plugin-markdown": "3.17.1",
     "react": "^18",
+    "react-dom": "^18",
     "lodash-es": "^4.17.21",
     "@types/react": "^18"
   },
