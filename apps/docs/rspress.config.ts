@@ -57,9 +57,10 @@ export default defineConfig({
   },
   ssg: {
     experimentalWorker: true,
-    // experimentalLoose: true,
-    experimentalIgnoreRoutePaths: [
-      /\/auto-docs\//,
+    experimentalExcludeRoutePaths: [
+      // /\/auto-docs\//,
+      // does not support SSR
+      // document is not defined
       '/en/examples/node-form/basic',
       '/en/examples/node-form/array',
       '/en/examples/node-form/dynamic',
