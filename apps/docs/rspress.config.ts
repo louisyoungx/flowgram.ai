@@ -15,6 +15,9 @@ export default defineConfig({
   base: '/',
   title: 'FlowGram.AI',
   globalStyles: path.join(__dirname, './global.less'),
+  route: {
+    exclude: ['./global.d.ts'],
+  },
   builderConfig: {
     performance: {
       buildCache: false,
@@ -54,7 +57,37 @@ export default defineConfig({
   },
   ssg: {
     experimentalWorker: true,
-    experimentalLoose: true,
+    // experimentalLoose: true,
+    experimentalIgnoreRoutePaths: [
+      /\/auto-docs\//,
+      '/en/examples/node-form/basic',
+      '/en/examples/node-form/array',
+      '/en/examples/node-form/dynamic',
+      '/en/guide/getting-started/create-fixed-layout-simple',
+      '/en/guide/getting-started/create-free-layout-simple',
+      '/en/examples/node-form/effect',
+      '/en/guide/advanced/fixed-layout/composite-nodes',
+      '/en/examples/playground',
+      '/en/examples/fixed-layout/fixed-composite-nodes',
+      '/en/examples/fixed-layout/fixed-layout-simple',
+      '/en/examples/free-layout/free-layout-simple',
+      '/en/examples/fixed-layout/fixed-feature-overview',
+      '/en/examples/free-layout/free-feature-overview',
+
+      '/examples/node-form/basic',
+      '/examples/node-form/array',
+      '/examples/node-form/dynamic',
+      '/guide/getting-started/create-fixed-layout-simple',
+      '/guide/getting-started/create-free-layout-simple',
+      '/examples/node-form/effect',
+      '/guide/advanced/fixed-layout/composite-nodes',
+      '/examples/playground',
+      '/examples/fixed-layout/fixed-composite-nodes',
+      '/examples/fixed-layout/fixed-layout-simple',
+      '/examples/free-layout/free-layout-simple',
+      '/examples/fixed-layout/fixed-feature-overview',
+      '/examples/free-layout/free-feature-overview',
+    ],
   },
   // locales 为一个对象数组
   locales: [
@@ -93,16 +126,16 @@ export default defineConfig({
         llmsFullTxt: {
           name: 'llms-full.txt',
         },
-        include: ({ page }) => page.lang === 'en',
+        include: ({ page }) => page.lang === 'zh',
       },
       {
         llmsTxt: {
-          name: 'zh/llms.txt',
+          name: 'en/llms.txt',
         },
         llmsFullTxt: {
-          name: 'zh/llms-full.txt',
+          name: 'en/llms-full.txt',
         },
-        include: ({ page }) => page.lang === 'zh',
+        include: ({ page }) => page.lang === 'en',
       },
     ]),
   ],

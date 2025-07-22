@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 && shx rm -rf ./doc_build && rspress build && shx cp -r llms/* doc_build/",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 && shx rm -rf ./doc_build && rspress build",
     "docs": "cross-env NODE_OPTIONS=--max-old-space-size=8192 && tsx ./scripts/auto-generate.ts",
     "dev": "rspress dev",
     "lint": "eslint ./components --cache",
@@ -12,8 +12,8 @@
     "translate:en": "tsx ./scripts/translate.ts en"
   },
   "dependencies": {
-    "@rspress/core": "https://pkg.pr.new/@rspress/core@02bb926",
-    "@rspress/plugin-llms": "https://pkg.pr.new/@rspress/plugin-llms@02bb926",
+    "@rspress/core": "/Users/bytedance/Documents/codes/rspress/packages/core",
+    "@rspress/plugin-llms": "/Users/bytedance/Documents/codes/rspress/packages/plugin-llms",
     "@rsbuild/plugin-less": "^1.1.1",
     "@codesandbox/sandpack-react": "2.19.10",
     "@monaco-editor/react": "^4.6.0",
@@ -52,7 +52,7 @@
     "@flowgram.ai/eslint-config": "workspace:*",
     "@eslint/js": "^9.12.0",
     "raw-loader": "^4.0.2",
-    "@rspress/plugin-typedoc": "https://pkg.pr.new/@rspress/plugin-typedoc@02bb926",
+    "@rspress/plugin-typedoc": "/Users/bytedance/Documents/codes/rspress/packages/plugin-typedoc",
     "@types/node": "^18",
     "@types/lodash-es": "^4.17.12",
     "sucrase": "3.35.0",
