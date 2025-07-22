@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 && shx rm -rf ./doc_build && rspress build",
-    "docs": "cross-env NODE_OPTIONS=--max-old-space-size=8192 && tsx ./scripts/auto-generate.ts",
+    "build": "shx rm -rf ./doc_build && cross-env NODE_OPTIONS=--max-old-space-size=8192 RSPRESS_SSG_WORKER_THREAD_COUNT=8 rspress build",
+    "docs": "tsx ./scripts/auto-generate.ts",
     "dev": "rspress dev",
     "lint": "eslint ./components --cache",
     "preview": "rspress preview",
@@ -12,8 +12,8 @@
     "translate:en": "tsx ./scripts/translate.ts en"
   },
   "dependencies": {
-    "@rspress/core": "https://pkg.pr.new/@rspress/core@6cac176",
-    "@rspress/plugin-llms": "https://pkg.pr.new/@rspress/plugin-llms@6cac176",
+    "@rspress/core": "2.0.0-beta.22",
+    "@rspress/plugin-llms": "2.0.0-beta.22",
     "@rsbuild/plugin-less": "^1.1.1",
     "@codesandbox/sandpack-react": "2.19.10",
     "@monaco-editor/react": "^4.6.0",
@@ -52,7 +52,7 @@
     "@flowgram.ai/eslint-config": "workspace:*",
     "@eslint/js": "^9.12.0",
     "raw-loader": "^4.0.2",
-    "@rspress/plugin-typedoc": "https://pkg.pr.new/@rspress/plugin-typedoc@6cac176",
+    "@rspress/plugin-typedoc": "2.0.0-beta.22",
     "@types/node": "^18",
     "@types/lodash-es": "^4.17.12",
     "sucrase": "3.35.0",
