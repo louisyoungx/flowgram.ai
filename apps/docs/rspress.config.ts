@@ -21,6 +21,12 @@ export default defineConfig({
   builderConfig: {
     performance: {
       buildCache: false,
+      // 4MB log file size limit in Vercel platform
+      printFileSize: {
+        compressed: false,
+        detail: false,
+        total: true,
+      },
     },
     source: {
       decorators: {
