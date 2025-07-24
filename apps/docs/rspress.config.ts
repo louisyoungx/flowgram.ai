@@ -120,6 +120,7 @@ export default defineConfig({
   lang: 'zh',
   logoText: 'FlowGram.AI',
   markdown: {
+    checkDeadLinks: true,
     shiki: {
       transformers: [transformerCompatibleMetaHighlight()],
     },
