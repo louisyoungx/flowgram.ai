@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "shx rm -rf ./doc_build && cross-env NODE_OPTIONS=--max-old-space-size=8192 RSPRESS_SSG_WORKER_THREAD_COUNT=8 rspress build",
+    "build": "shx rm -rf ./doc_build && cross-env NODE_OPTIONS=--max-old-space-size=8192 RSPRESS_SSG_WORKER_THREAD_COUNT=4 rspress build",
     "docs": "cross-env NODE_OPTIONS=--max-old-space-size=8192 tsx ./scripts/auto-generate.ts",
     "dev": "rspress dev",
     "lint": "eslint ./components --cache",
