@@ -62,7 +62,6 @@ export default defineConfig({
     },
   },
   ssg: {
-    experimentalWorker: true,
     experimentalExcludeRoutePaths: [
       /\/auto-docs\//,
       // these pages do not support SSR
