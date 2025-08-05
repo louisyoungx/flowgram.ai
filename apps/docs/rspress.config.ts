@@ -40,58 +40,13 @@ export default defineConfig({
                 test: /\.mdc$/,
                 type: 'asset/source',
               },
-              {
-                resourceQuery: /raw/,
-                type: 'asset/source',
-              },
             ],
-          },
-          // 禁用 ES 模块输出（启用 CommonJS）
-          experiments: {
-            outputModule: false,
-          },
-          // 允许省略文件扩展名
-          resolve: {
-            fullySpecified: false,
           },
         });
       },
     },
   },
-  ssg: {
-    experimentalExcludeRoutePaths: [
-      /\/auto-docs\//,
-      // these pages do not support SSR
-      // document is not defined
-      '/en/examples/node-form/basic',
-      '/en/examples/node-form/array',
-      '/en/examples/node-form/dynamic',
-      '/en/guide/getting-started/create-fixed-layout-simple',
-      '/en/guide/getting-started/create-free-layout-simple',
-      '/en/examples/node-form/effect',
-      '/en/guide/advanced/fixed-layout/composite-nodes',
-      '/en/examples/playground',
-      '/en/examples/fixed-layout/fixed-composite-nodes',
-      '/en/examples/fixed-layout/fixed-layout-simple',
-      '/en/examples/free-layout/free-layout-simple',
-      '/en/examples/fixed-layout/fixed-feature-overview',
-      '/en/examples/free-layout/free-feature-overview',
-
-      '/examples/node-form/basic',
-      '/examples/node-form/array',
-      '/examples/node-form/dynamic',
-      '/guide/getting-started/create-fixed-layout-simple',
-      '/guide/getting-started/create-free-layout-simple',
-      '/examples/node-form/effect',
-      '/guide/advanced/fixed-layout/composite-nodes',
-      '/examples/playground',
-      '/examples/fixed-layout/fixed-composite-nodes',
-      '/examples/fixed-layout/fixed-layout-simple',
-      '/examples/free-layout/free-layout-simple',
-      '/examples/fixed-layout/fixed-feature-overview',
-      '/examples/free-layout/free-feature-overview',
-    ],
-  },
+  ssg: false,
   // locales 为一个对象数组
   locales: [
     {
