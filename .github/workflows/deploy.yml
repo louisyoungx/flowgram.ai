@@ -17,13 +17,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
-      - name: Check if branch is main
-        run: |
-          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
-            echo "Not on main branch, exiting workflow."
-            exit 1
-          fi
-          echo "On main branch, continuing workflow."
+      # - name: Check if branch is main
+      #   run: |
+      #     if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+      #       echo "Not on main branch, exiting workflow."
+      #       exit 1
+      #     fi
+      #     echo "On main branch, continuing workflow."
       - name: Config Git User
         run: |
           git config --local user.name "dragooncjw"
@@ -50,25 +50,31 @@ jobs:
         run: |
           rm -rf docs
           mv apps/docs/doc_build docs
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      # - name: Upload artifact
+      #   uses: actions/upload-pages-artifact@v3
+      #   with:
+      #     path: docs
+      #     name: github-pages
+      # 🔥 核心步骤：直接推送到 gh-pages 分支
+      - name: Push to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: docs
-          name: github-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          publish_branch: gh-pages
+  # deploy:
+  #   permissions:
+  #     contents: read
+  #     pages: write
+  #     id-token: write
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
 
-  deploy:
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4
 
