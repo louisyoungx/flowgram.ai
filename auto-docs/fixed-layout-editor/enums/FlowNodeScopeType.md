@@ -1,0 +1,23 @@
+# Enumeration: FlowNodeScopeType
+
+Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
+SPDX-License-Identifier: MIT
+
+## Table of contents
+
+### Enumeration Members
+
+* [private](/auto-docs/fixed-layout-editor/enums/FlowNodeScopeType.md#private)
+* [public](/auto-docs/fixed-layout-editor/enums/FlowNodeScopeType.md#public)
+
+## Enumeration Members
+
+### private
+
+**private** = `"private"`
+
+***
+
+### public
+
+**public** = `"public"`

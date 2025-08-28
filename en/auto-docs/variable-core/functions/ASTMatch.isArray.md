@@ -1,0 +1,15 @@
+# Function: isArray
+
+[ASTMatch](/en/auto-docs/variable-core/modules/ASTMatch.md).isArray
+
+**isArray**(`node?`): node is ArrayType
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `node?` | [`ASTNode`](/en/auto-docs/variable-core/classes/ASTNode.md)<`any`, `any`> |
+
+#### Returns
+
+node is ArrayType

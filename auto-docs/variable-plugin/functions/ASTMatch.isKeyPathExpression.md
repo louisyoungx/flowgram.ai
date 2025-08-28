@@ -1,0 +1,15 @@
+# Function: isKeyPathExpression
+
+[ASTMatch](/auto-docs/variable-plugin/modules/ASTMatch.md).isKeyPathExpression
+
+**isKeyPathExpression**(`node?`): node is KeyPathExpression\<KeyPathExpressionJSON>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `node?` | [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> |
+
+#### Returns
+
+node is KeyPathExpression\<KeyPathExpressionJSON>

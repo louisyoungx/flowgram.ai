@@ -1,0 +1,15 @@
+# Function: isInteger
+
+[ASTMatch](/en/auto-docs/variable-core/modules/ASTMatch.md).isInteger
+
+**isInteger**(`node?`): node is IntegerType
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `node?` | [`ASTNode`](/en/auto-docs/variable-core/classes/ASTNode.md)<`any`, `any`> |
+
+#### Returns
+
+node is IntegerType
