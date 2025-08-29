@@ -82,7 +82,7 @@ FlowDocumentOptions.allNodesDefaultExpanded
 
 ### canDeleteLine
 
-`Optional` **canDeleteLine**: (`line`: [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md), `newLineInfo?`: `Required`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md)>, `silent?`: `boolean`) => `boolean`
+`Optional` **canDeleteLine**: (`line`: [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md), `newLineInfo?`: `Required`<`Omit`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md), `"data"`>>, `silent?`: `boolean`) => `boolean`
 
 #### Type declaration
 
@@ -95,7 +95,7 @@ FlowDocumentOptions.allNodesDefaultExpanded
 | Name | Type |
 | :------ | :------ |
 | `line` | [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md) |
-| `newLineInfo?` | `Required`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md)> |
+| `newLineInfo?` | `Required`<`Omit`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md), `"data"`>> |
 | `silent?` | `boolean` |
 
 ##### Returns

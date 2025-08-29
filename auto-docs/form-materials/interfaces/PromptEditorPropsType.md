@@ -6,6 +6,10 @@
 
   ↳ **`PromptEditorPropsType`**
 
+  ↳↳ [`PromptEditorWithVariablesProps`](/auto-docs/form-materials/interfaces/PromptEditorWithVariablesProps.md)
+
+  ↳↳ [`PromptEditorWithInputsProps`](/auto-docs/form-materials/interfaces/PromptEditorWithInputsProps.md)
+
 ## Table of contents
 
 ### Properties

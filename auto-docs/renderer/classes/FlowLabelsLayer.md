@@ -262,7 +262,7 @@ Layer.observeManager
 
 ### onViewportChange
 
-**onViewportChange**: `DebouncedFuncLeading`<() => `void`>
+**onViewportChange**: `DebouncedFunc`<(...`args`: `any`) => `any`>
 
 可视区域变化
 

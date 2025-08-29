@@ -1,13 +1,13 @@
 # Function: JsonEditorWithVariables
 
-**JsonEditorWithVariables**(`props`): `Element`
+**JsonEditorWithVariables**(`props`): `null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `props` | `Omit`<[`CodeEditorPropsType`](/en/auto-docs/form-materials/interfaces/CodeEditorPropsType.md), `"languageId"`> |
+| `props` | [`JsonEditorWithVariablesProps`](/en/auto-docs/form-materials/interfaces/JsonEditorWithVariablesProps.md) |
 
 #### Returns
 
-`Element`
+`null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>

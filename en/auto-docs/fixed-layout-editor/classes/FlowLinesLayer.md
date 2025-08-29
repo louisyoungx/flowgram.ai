@@ -1,6 +1,7 @@
 # Class: FlowLinesLayer
 
-基础 layer
+Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
+SPDX-License-Identifier: MIT
 
 ## Hierarchy
 
@@ -267,7 +268,7 @@ layer 可能存在 dom 也可能没有，如果有，则会加入到 pipeline �
 
 ### onViewportChange
 
-**onViewportChange**: `DebouncedFuncLeading`<() => `void`>
+**onViewportChange**: `DebouncedFunc`<(...`args`: `any`) => `any`>
 
 可视区域变化
 

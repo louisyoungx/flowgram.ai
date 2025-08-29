@@ -1,13 +1,13 @@
 # Function: PromptEditorWithVariables
 
-**PromptEditorWithVariables**(`props`): `Element`
+**PromptEditorWithVariables**(`props`): `null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `props` | [`PromptEditorPropsType`](/auto-docs/form-materials/interfaces/PromptEditorPropsType.md) |
+| `props` | [`PromptEditorWithVariablesProps`](/auto-docs/form-materials/interfaces/PromptEditorWithVariablesProps.md) |
 
 #### Returns
 
-`Element`
+`null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>

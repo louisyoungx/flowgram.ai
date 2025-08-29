@@ -167,7 +167,7 @@
 | Name | Type |
 | :------ | :------ |
 | `line` | [`WorkflowLineEntity`](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md) |
-| `newLineInfo?` | `Required`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md)> |
+| `newLineInfo?` | `Required`<`Omit`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md), `"data"`>> |
 | `silent?` | `boolean` |
 
 #### Returns
@@ -269,7 +269,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `portInfo` | [`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md) |
+| `portInfo` | `Omit`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md), `"data"`> |
 
 #### Returns
 
@@ -369,7 +369,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `portInfo` | [`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md) |
+| `portInfo` | `Omit`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md), `"data"`> |
 
 #### Returns
 
@@ -503,8 +503,8 @@
 
 | Name | Type |
 | :------ | :------ |
-| `oldPortInfo` | [`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md) |
-| `newPortInfo` | [`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md) |
+| `oldPortInfo` | `Omit`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md), `"data"`> |
+| `newPortInfo` | `Omit`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md), `"data"`> |
 
 #### Returns
 
