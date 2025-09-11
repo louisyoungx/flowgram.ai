@@ -80,14 +80,14 @@ export class WorkflowRuntimeState implements IState {
     if (!declare || !values) {
       return {};
     }
-    return Object.entries(values).reduce((prev, [key, inputValue]) => {
+    return Object.entries(values).reduce((prev, [key, flowValue]) => {
       const typeInfo = declare.properties?.[key];
       if (!typeInfo) {
         return prev;
       }
       const declareType = typeInfo.type as WorkflowVariableType;
       // get value
-      const result = this.parseValue(inputValue, declareType);
+      const result = this.parseFlowValue({ flowValue, declareType });
       if (!result) {
         return prev;
       }
@@ -150,10 +150,11 @@ export class WorkflowRuntimeState implements IState {
     };
   }
 
-  public parseValue<T = unknown>(
-    flowValue: IFlowValue,
-    declareType?: WorkflowVariableType
-  ): IVariableParseResult<T> | null {
+  public parseFlowValue<T = unknown>(params: {
+    flowValue: IFlowValue;
+    declareType?: WorkflowVariableType;
+  }): IVariableParseResult<T> | null {
+    const { flowValue, declareType } = params;
     if (!flowValue?.type) {
       throw new Error(`Invalid flow value type: ${(flowValue as any).type}`);
     }
