@@ -26,7 +26,7 @@ export interface IState {
   parseTemplate(template: IFlowTemplateValue): IVariableParseResult<string> | null;
   parseValue<T = unknown>(
     flowValue: IFlowValue,
-    type?: WorkflowVariableType
+    declareType?: WorkflowVariableType
   ): IVariableParseResult<T> | null;
   isExecutedNode(node: INode): boolean;
   addExecutedNode(node: INode): void;
