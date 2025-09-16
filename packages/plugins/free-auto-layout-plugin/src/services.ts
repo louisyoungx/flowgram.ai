@@ -52,7 +52,7 @@ export class AutoLayoutService {
       return;
     }
     // 留出 30 像素的边界
-    return this.playground.config.fitView(rect, true, 30);
+    return this.playground.config.fitView(rect, options.enableAnimation, 30);
   }
 
   private async layoutNode(container: LayoutNode, options: LayoutOptions): Promise<Layout[]> {

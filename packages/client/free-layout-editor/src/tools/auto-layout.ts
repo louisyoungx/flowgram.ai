@@ -30,14 +30,10 @@ export class WorkflowAutoLayoutTool {
   @inject(HistoryService) @optional() private historyService: HistoryService;
 
   public async handle(options: AutoLayoutToolOptions = {}): Promise<AutoLayoutResetFn> {
-    const layoutOptions: LayoutOptions = {
-      disableFitView: false,
-      ...options,
-    };
     if (this.playground.config.readonly) {
       return () => {};
     }
-    const resetFn = await this.autoLayout(layoutOptions);
+    const resetFn = await this.autoLayout(options);
     return resetFn;
   }
 
