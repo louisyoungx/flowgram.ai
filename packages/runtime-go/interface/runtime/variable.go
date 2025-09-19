@@ -7,36 +7,34 @@ package runtimeType
 
 import "flowgram-runtime-go/interface/schema"
 
-type VariableTypeInfo struct {
+type IVariable struct {
+	ID        string                       `json:"id"`
+	NodeID    string                       `json:"nodeID"`
+	Key       string                       `json:"key"`
+	Value     any                          `json:"value"`
 	Type      schema.WorkflowVariableType  `json:"type"`
 	ItemsType *schema.WorkflowVariableType `json:"itemsType,omitempty"`
 }
 
-type IVariable struct {
-	VariableTypeInfo
-	ID     string      `json:"id"`
-	NodeID string      `json:"nodeID"`
-	Key    string      `json:"key"`
-	Value  interface{} `json:"value"`
-}
-
 type IVariableParseResult struct {
-	VariableTypeInfo
-	Value interface{} `json:"value"`
+	Value     any                          `json:"value"`
+	Type      schema.WorkflowVariableType  `json:"type"`
+	ItemsType *schema.WorkflowVariableType `json:"itemsType,omitempty"`
 }
 
 type SetVariableParams struct {
-	VariableTypeInfo
-	NodeID string
-	Key    string
-	Value  interface{}
+	NodeID    string
+	Key       string
+	Value     any
+	Type      schema.WorkflowVariableType  `json:"type"`
+	ItemsType *schema.WorkflowVariableType `json:"itemsType,omitempty"`
 }
 
 type SetValueParams struct {
 	NodeID       string
 	VariableKey  string
 	VariablePath []string
-	Value        interface{}
+	Value        any
 }
 
 type GetValueParams struct {
