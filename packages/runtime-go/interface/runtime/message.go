@@ -8,11 +8,11 @@ package runtimeType
 type WorkflowMessageType string
 
 const (
-	MessageTypeLog   WorkflowMessageType = "log"
-	MessageTypeInfo  WorkflowMessageType = "info"
-	MessageTypeDebug WorkflowMessageType = "debug"
-	MessageTypeError WorkflowMessageType = "error"
-	MessageTypeWarn  WorkflowMessageType = "warning"
+	WorkflowMessageTypeLog   WorkflowMessageType = "log"
+	WorkflowMessageTypeInfo  WorkflowMessageType = "info"
+	WorkflowMessageTypeDebug WorkflowMessageType = "debug"
+	WorkflowMessageTypeError WorkflowMessageType = "error"
+	WorkflowMessageTypeWarn  WorkflowMessageType = "warning"
 )
 
 type MessageData struct {
@@ -22,10 +22,11 @@ type MessageData struct {
 }
 
 type IMessage struct {
-	MessageData
 	ID        string              `json:"id"`
 	Type      WorkflowMessageType `json:"type"`
 	Timestamp int64               `json:"timestamp"`
+	Message   string              `json:"message"`
+	NodeID    string              `json:"nodeID,omitempty"`
 }
 
 type WorkflowMessages map[WorkflowMessageType][]IMessage
