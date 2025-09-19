@@ -1,11 +1,10 @@
 package document
 
 import (
+	"flowgram-runtime-go/infrastructure/utils"
 	"flowgram-runtime-go/interface/constant"
 	runtimeType "flowgram-runtime-go/interface/runtime"
 	"flowgram-runtime-go/interface/schema"
-
-	"github.com/google/uuid"
 )
 
 // WorkflowRuntimeDocument implements IDocument interface
@@ -22,7 +21,7 @@ func (d *WorkflowRuntimeDocument) GetID() string {
 // NewWorkflowRuntimeDocument creates a new WorkflowRuntimeDocument instance
 func NewWorkflowRuntimeDocument() *WorkflowRuntimeDocument {
 	return &WorkflowRuntimeDocument{
-		id: uuid.New().String(),
+		id: utils.UUID(),
 	}
 }
 
