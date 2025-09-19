@@ -18,14 +18,19 @@ type SnapshotData struct {
 	NodeID  string          `json:"nodeID"`
 	Inputs  WorkflowInputs  `json:"inputs"`
 	Outputs WorkflowOutputs `json:"outputs"`
-	Data    interface{}     `json:"data"`
+	Data    any             `json:"data"`
 	Branch  string          `json:"branch,omitempty"`
 	Error   string          `json:"error,omitempty"`
 }
 
 type Snapshot struct {
-	SnapshotData
-	ID string `json:"id"`
+	ID      string          `json:"id"`
+	NodeID  string          `json:"nodeID"`
+	Inputs  WorkflowInputs  `json:"inputs"`
+	Outputs WorkflowOutputs `json:"outputs"`
+	Data    any             `json:"data"`
+	Branch  string          `json:"branch,omitempty"`
+	Error   string          `json:"error,omitempty"`
 }
 
 type ISnapshot interface {

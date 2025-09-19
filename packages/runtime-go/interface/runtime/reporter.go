@@ -6,9 +6,13 @@
 package runtimeType
 
 type NodeReport struct {
-	StatusData
-	ID        string     `json:"id"`
-	Snapshots []Snapshot `json:"snapshots"`
+	ID         string         `json:"id"`
+	Snapshots  []Snapshot     `json:"snapshots"`
+	Status     WorkflowStatus `json:"status"`
+	Terminated bool           `json:"terminated"`
+	StartTime  int64          `json:"startTime"`
+	EndTime    *int64         `json:"endTime,omitempty"`
+	TimeCost   int64          `json:"timeCost"`
 }
 
 type WorkflowReports map[string]NodeReport
