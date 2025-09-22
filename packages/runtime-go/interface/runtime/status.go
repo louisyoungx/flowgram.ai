@@ -8,11 +8,11 @@ package runtimeType
 type WorkflowStatus string
 
 const (
-	StatusPending    WorkflowStatus = "pending"
-	StatusProcessing WorkflowStatus = "processing"
-	StatusSucceeded  WorkflowStatus = "succeeded"
-	StatusFailed     WorkflowStatus = "failed"
-	StatusCanceled   WorkflowStatus = "canceled"
+	WorkflowStatusPending    WorkflowStatus = "pending"
+	WorkflowStatusProcessing WorkflowStatus = "processing"
+	WorkflowStatusSucceeded  WorkflowStatus = "succeeded"
+	WorkflowStatusFailed     WorkflowStatus = "failed"
+	WorkflowStatusCanceled   WorkflowStatus = "canceled"
 )
 
 type StatusData struct {
@@ -25,6 +25,11 @@ type StatusData struct {
 
 type IStatus interface {
 	GetID() string
+	GetStatus() WorkflowStatus
+	IsTerminated() bool
+	GetStartTime() int64
+	GetEndTime() *int64
+	GetTimeCost() int64
 	Process()
 	Success()
 	Fail()
