@@ -73,3 +73,10 @@ func (c *WorkflowRuntimeMessageCenter) Export() runtimeType.WorkflowMessages {
 
 	return result
 }
+
+// NewWorkflowRuntimeMessageCenter creates a new WorkflowRuntimeMessageCenter instance
+func NewWorkflowRuntimeMessageCenter() *WorkflowRuntimeMessageCenter {
+	center := &WorkflowRuntimeMessageCenter{}
+	center.Init()
+	return center
+}

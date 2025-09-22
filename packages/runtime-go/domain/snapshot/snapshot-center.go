@@ -21,6 +21,11 @@ func NewWorkflowRuntimeSnapshotCenter() *WorkflowRuntimeSnapshotCenter {
 	}
 }
 
+// GetID returns the unique identifier of the snapshot center
+func (c *WorkflowRuntimeSnapshotCenter) GetID() string {
+	return c.Id
+}
+
 func (c *WorkflowRuntimeSnapshotCenter) Create(snapshotData runtimeType.SnapshotData) runtimeType.ISnapshot {
 	snapshot := WorkflowRuntimeSnapshot{}.Create(snapshotData)
 	c.snapshots = append(c.snapshots, snapshot)

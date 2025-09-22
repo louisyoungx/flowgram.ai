@@ -20,6 +20,16 @@ func (c *WorkflowRuntimeIOCenter) Init(inputs runtimeType.WorkflowInputs) {
 
 func (c *WorkflowRuntimeIOCenter) Dispose() {}
 
+// GetInputs returns the current inputs
+func (c *WorkflowRuntimeIOCenter) GetInputs() runtimeType.WorkflowInputs {
+	return c.Inputs()
+}
+
+// GetOutputs returns the current outputs
+func (c *WorkflowRuntimeIOCenter) GetOutputs() runtimeType.WorkflowOutputs {
+	return c.Outputs()
+}
+
 func (c *WorkflowRuntimeIOCenter) Inputs() runtimeType.WorkflowInputs {
 	if c._inputs == nil {
 		return runtimeType.WorkflowInputs{}
@@ -47,4 +57,9 @@ func (c *WorkflowRuntimeIOCenter) Export() runtimeType.IOData {
 		Inputs:  c._inputs,
 		Outputs: c._outputs,
 	}
+}
+
+// NewWorkflowRuntimeIOCenter creates a new WorkflowRuntimeIOCenter instance
+func NewWorkflowRuntimeIOCenter() *WorkflowRuntimeIOCenter {
+	return &WorkflowRuntimeIOCenter{}
 }
