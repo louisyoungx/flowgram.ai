@@ -89,11 +89,10 @@ func (d *WorkflowRuntimeDocument) GetEdges() []runtimeType.IEdge {
 }
 
 // Init initializes the document with a workflow schema
-func (d *WorkflowRuntimeDocument) Init(workflowSchema schema.WorkflowSchema) error {
+func (d *WorkflowRuntimeDocument) Init(workflowSchema schema.WorkflowSchema) {
 	flattenSchema := FlatSchema(&workflowSchema)
 	store := CreateStore(flattenSchema)
 	d.store = store
-	return nil
 }
 
 // Dispose clears all data in the document

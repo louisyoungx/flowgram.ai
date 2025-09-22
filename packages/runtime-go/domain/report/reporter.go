@@ -34,6 +34,21 @@ func (r *WorkflowRuntimeReporter) Init() {}
 
 func (r *WorkflowRuntimeReporter) Dispose() {}
 
+// GetMessageCenter returns the message center
+func (r *WorkflowRuntimeReporter) GetMessageCenter() runtimeType.IMessageCenter {
+	return r.MessageCenter
+}
+
+// GetSnapshotCenter returns the snapshot center
+func (r *WorkflowRuntimeReporter) GetSnapshotCenter() runtimeType.ISnapshotCenter {
+	return r.SnapshotCenter
+}
+
+// GetStatusCenter returns the status center
+func (r *WorkflowRuntimeReporter) GetStatusCenter() runtimeType.IStatusCenter {
+	return r.StatusCenter
+}
+
 func (r *WorkflowRuntimeReporter) Export() runtimeType.IReport {
 	reportData := CreateReportParams{
 		Inputs:         r.IoCenter.GetInputs(),

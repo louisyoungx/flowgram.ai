@@ -67,7 +67,7 @@ func (w *WorkflowRuntimeState) GetNodeInputs(node runtimeType.INode[any]) runtim
 func (w *WorkflowRuntimeState) SetNodeOutputs(node runtimeType.INode[any], outputs runtimeType.WorkflowOutputs) {
 	declare := node.GetDeclare()
 	outputsDeclare := declare.Outputs
-	
+
 	// Check if outputsDeclare is an object type with properties
 	if outputsDeclare.Type != schema.JsonSchemaBasicTypeObject || outputsDeclare.Properties == nil {
 		return
@@ -116,7 +116,7 @@ func (w *WorkflowRuntimeState) ParseInputs(values map[string]schema.IFlowValue, 
 		}
 
 		declareType := schema.WorkflowVariableType(fmt.Sprintf("%v", typeInfo.Type))
-		
+
 		// Get value
 		parseResult := w.ParseFlowValue(flowValue, declareType)
 		if parseResult == nil {
@@ -174,7 +174,7 @@ func (w *WorkflowRuntimeState) ParseTemplate(template schema.IFlowTemplateValue)
 	parsedValue := re.ReplaceAllStringFunc(*template.Content, func(match string) string {
 		// Extract pattern from {{pattern}}
 		pattern := strings.TrimSpace(match[2 : len(match)-2])
-		
+
 		// Split path like 'start_0.work.role' => ['start_0', 'work', 'role']
 		refContent := strings.Split(pattern, ".")
 
@@ -215,7 +215,7 @@ func (w *WorkflowRuntimeState) ParseFlowValue(flowValue schema.IFlowValue, decla
 					valueType = *workflowType
 				}
 			}
-			
+
 			if value == nil || valueType == "" {
 				return nil
 			}

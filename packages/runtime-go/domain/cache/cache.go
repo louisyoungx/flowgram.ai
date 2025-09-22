@@ -48,3 +48,10 @@ func (c *WorkflowRuntimeCache) Has(key string) bool {
     _, exists := c.m[key]
     return exists
 }
+
+// NewWorkflowRuntimeCache creates a new WorkflowRuntimeCache instance
+func NewWorkflowRuntimeCache() *WorkflowRuntimeCache {
+    return &WorkflowRuntimeCache{
+        m: make(map[string]any),
+    }
+}
