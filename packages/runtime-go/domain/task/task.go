@@ -45,9 +45,9 @@ func (t *WorkflowRuntimeTask) GetContext() runtimeType.IContext {
 func (t *WorkflowRuntimeTask) Cancel() {
 	// Cancel the workflow
 	t.context.GetStatusCenter().GetWorkflow().Cancel()
-	
+
 	// Get all processing node IDs and cancel them
-	cancelNodeIDs := t.context.GetStatusCenter().GetStatusNodeIDs(runtimeType.StatusProcessing)
+	cancelNodeIDs := t.context.GetStatusCenter().GetStatusNodeIDs(runtimeType.WorkflowStatusProcessing)
 	for _, nodeID := range cancelNodeIDs {
 		t.context.GetStatusCenter().GetNodeStatus(nodeID).Cancel()
 	}

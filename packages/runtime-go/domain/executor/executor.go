@@ -43,14 +43,14 @@ func (e *WorkflowRuntimeExecutor) Register(executor runtimeType.INodeExecutor) {
 }
 
 // Execute runs the execution for a given context
-func (e *WorkflowRuntimeExecutor) Execute(context *runtimeType.ExecutionContext) (*runtimeType.ExecutionResult, error) {
+func (e *WorkflowRuntimeExecutor) Execute(context runtimeType.ExecutionContext) (*runtimeType.ExecutionResult, error) {
 	nodeType := context.Node.GetType()
 	nodeExecutor, exists := e.nodeExecutors[nodeType]
 	if !exists {
 		return nil, fmt.Errorf("no executor found for node type %v", nodeType)
 	}
 
-	output, err := nodeExecutor.Execute(*context)
+	output, err := nodeExecutor.Execute(context)
 	if err != nil {
 		return nil, err
 	}
