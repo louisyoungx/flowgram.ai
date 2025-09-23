@@ -49,12 +49,12 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 		engine := containerInstance.Get(runtimeType.EngineKey).(runtimeType.IEngine)
 
 		// Prepare inputs
-		inputs := map[string]interface{}{
+		inputs := map[string]any{
 			"model_name": "ai-model",
-			"llm_settings": map[string]interface{}{
+			"llm_settings": map[string]any{
 				"temperature": 0.5,
 			},
-			"work": map[string]interface{}{
+			"work": map[string]any{
 				"role": "Chat",
 				"task": "Tell me a story about love",
 			},
@@ -71,7 +71,7 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 		processingChan := task.GetProcessing()
 
 		// Check initial status
-		assert.Equal(t, runtimeType.WorkflowStatusProcessing, context.GetStatusCenter().GetWorkflow().GetStatus())
+		assert.Equal(t, runtimeType.WorkflowStatusPending, context.GetStatusCenter().GetWorkflow().GetStatus())
 
 		// Wait for processing to complete
 		result := <-processingChan
@@ -80,7 +80,7 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 		assert.Equal(t, runtimeType.WorkflowStatusSucceeded, context.GetStatusCenter().GetWorkflow().GetStatus())
 
 		// Verify result
-		expectedResult := map[string]interface{}{
+		expectedResult := map[string]any{
 			"llm_res":  `Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is "You are a helpful AI assistant.", prompt is "<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>"`,
 			"llm_task": "Tell me a story about love",
 		}
@@ -94,12 +94,12 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 		startSnapshot := snapshots[0]
 		assert.Equal(t, "start_0", startSnapshot.NodeID)
 		assert.Empty(t, startSnapshot.Inputs)
-		expectedStartOutputs := map[string]interface{}{
+		expectedStartOutputs := map[string]any{
 			"model_name": "ai-model",
-			"llm_settings": map[string]interface{}{
+			"llm_settings": map[string]any{
 				"temperature": 0.5,
 			},
-			"work": map[string]interface{}{
+			"work": map[string]any{
 				"role": "Chat",
 				"task": "Tell me a story about love",
 			},
@@ -110,7 +110,7 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 		// Check LLM node snapshot
 		llmSnapshot := snapshots[1]
 		assert.Equal(t, "llm_0", llmSnapshot.NodeID)
-		expectedLLMInputs := map[string]interface{}{
+		expectedLLMInputs := map[string]any{
 			"modelName":    "ai-model",
 			"apiKey":       "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 			"apiHost":      "https://mock-ai-url/api/v3",
@@ -119,7 +119,7 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 			"systemPrompt": "You are a helpful AI assistant.",
 		}
 		assert.Equal(t, expectedLLMInputs, llmSnapshot.Inputs)
-		expectedLLMOutputs := map[string]interface{}{
+		expectedLLMOutputs := map[string]any{
 			"result": `Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is "You are a helpful AI assistant.", prompt is "<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>"`,
 		}
 		assert.Equal(t, expectedLLMOutputs, llmSnapshot.Outputs)
@@ -128,7 +128,7 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 		// Check end node snapshot
 		endSnapshot := snapshots[2]
 		assert.Equal(t, "end_0", endSnapshot.NodeID)
-		expectedEndInputs := map[string]interface{}{
+		expectedEndInputs := map[string]any{
 			"llm_res":  `Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is "You are a helpful AI assistant.", prompt is "<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>"`,
 			"llm_task": "Tell me a story about love",
 		}
