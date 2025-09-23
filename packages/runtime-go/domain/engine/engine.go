@@ -131,10 +131,15 @@ func (e *WorkflowRuntimeEngine) ExecuteNode(context runtimeType.IContext, node r
 	}
 
 	// Update snapshot with results
+	var branchValue string
+	if result.Branch != nil {
+		branchValue = *result.Branch
+	}
+	
 	snapshot.Update(runtimeType.SnapshotData{
 		NodeID:  node.GetID(),
 		Outputs: result.Outputs,
-		Branch:  *result.Branch,
+		Branch:  branchValue,
 	})
 
 	// Set node outputs and mark as executed
