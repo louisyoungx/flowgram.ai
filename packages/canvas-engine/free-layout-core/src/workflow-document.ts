@@ -147,7 +147,7 @@ export class WorkflowDocument extends FlowDocument {
     this.entityManager.changeEntityLocked = true;
 
     // 逐层渲染
-    this.renderJSON(workflowJSON);
+    this.batchAddFromJSON(workflowJSON);
 
     this.entityManager.changeEntityLocked = false;
     this.transformer.loading = false;
@@ -213,17 +213,21 @@ export class WorkflowDocument extends FlowDocument {
     });
 
     // 初始化表单数据
-    if (formMeta && formData && !formData.formModel.initialized) {
-      // 如果表单数据在前置步骤（fromJSON）内已定义，则跳过表单初始化逻辑
-      formData.createForm(formMeta, json.data);
+    if (formMeta && formData) {
+      if (!formData.formModel.initialized) {
+        // 如果表单数据在前置步骤（fromJSON）内已定义，则跳过表单初始化逻辑
+        formData.createForm(formMeta, json.data);
 
-      formData.onDataChange(() => {
-        this.fireContentChange({
-          type: WorkflowContentChangeType.NODE_DATA_CHANGE,
-          toJSON: () => formData.toJSON(),
-          entity: node,
+        formData.onDataChange(() => {
+          this.fireContentChange({
+            type: WorkflowContentChangeType.NODE_DATA_CHANGE,
+            toJSON: () => formData.toJSON(),
+            entity: node,
+          });
         });
-      });
+      } else {
+        formData.updateFormValues(json.data);
+      }
     }
     // 位置变更
     const positionData = node.getData<PositionData>(PositionData)!;
@@ -267,11 +271,10 @@ export class WorkflowDocument extends FlowDocument {
 
     // 若存在子节点，则创建子节点
     if (json.blocks) {
-      this.renderJSON(
+      this.batchAddFromJSON(
         { nodes: json.blocks, edges: json.edges ?? [] },
         {
           parent: node,
-          isClone,
         }
       );
     }
@@ -686,6 +689,7 @@ export class WorkflowDocument extends FlowDocument {
     json: WorkflowJSON,
     options?: {
       parent?: WorkflowNodeEntity;
+      /** @deprecated useless api */
       isClone?: boolean;
     }
   ): {
@@ -702,18 +706,17 @@ export class WorkflowDocument extends FlowDocument {
     json: WorkflowJSON,
     options?: {
       parent?: WorkflowNodeEntity;
-      isClone?: boolean;
     }
   ): {
     nodes: WorkflowNodeEntity[];
     edges: WorkflowLineEntity[];
   } {
-    const { parent = this.root, isClone = false } = options ?? {};
+    const { parent = this.root } = options ?? {};
     // 创建节点
     const containerID = this.getNodeSubCanvas(parent)?.canvasNode.id ?? parent.id;
     const processedJSON = buildGroupJSON(json);
     const nodes = processedJSON.nodes.map((nodeJSON: WorkflowNodeJSON) =>
-      this.createWorkflowNode(nodeJSON, isClone, containerID)
+      this.createWorkflowNode(nodeJSON, false, containerID)
     );
     // 创建线条
     const edges = processedJSON.edges
