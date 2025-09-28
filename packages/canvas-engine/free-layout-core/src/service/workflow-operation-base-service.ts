@@ -13,6 +13,8 @@ import {
   NodePostionUpdateEvent,
   WorkflowOperationBaseService,
 } from '../typings/workflow-operation';
+import { WorkflowJSON } from '../typings';
+import { WorkflowNodeEntity, WorkflowLineEntity } from '../entities';
 
 export class WorkflowOperationBaseServiceImpl
   extends FlowOperationBaseServiceImpl
@@ -46,5 +48,42 @@ export class WorkflowOperationBaseServiceImpl
       oldPosition,
       newPosition: position,
     });
+  }
+
+  fromJSON(json: WorkflowJSON) {
+    if (this.document.disposed) return;
+    const workflowJSON: WorkflowJSON = {
+      nodes: json.nodes ?? [],
+      edges: json.edges ?? [],
+    };
+
+    const oldNodes = this.document.getAllNodes();
+    const oldEdges = this.document.getAllEdges();
+
+    const newNodes: WorkflowNodeEntity[] = [];
+    const newEdges: WorkflowLineEntity[] = [];
+
+    // 逐层渲染
+    this.document.batchAddFromJSON(workflowJSON, {
+      onNodeCreated: (node) => newNodes.push(node),
+      onEdgeCreated: (edge) => newEdges.push(edge),
+    });
+
+    const newNodesSet = new Set<WorkflowNodeEntity>(newNodes);
+    oldNodes.forEach((node) => {
+      if (!newNodesSet.has(node)) {
+        node.dispose();
+      }
+    });
+
+    const newEdgesSet = new Set<WorkflowLineEntity>(newEdges);
+    oldEdges.forEach((edge) => {
+      if (!newEdgesSet.has(edge)) {
+        edge.dispose();
+      }
+    });
+
+    // 批量触发画布更新
+    this.document.fireRender();
   }
 }
