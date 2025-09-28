@@ -122,6 +122,9 @@ export class WorkflowDocument extends FlowDocument {
     this.onLoadedEmitter.fire();
   }
 
+  /**
+   * @deprecated use `fromJSON` instead
+   */
   async reload(json: WorkflowJSON, delayTime = 0): Promise<void> {
     if (this.disposed) return;
     this._loading = true;
@@ -146,8 +149,31 @@ export class WorkflowDocument extends FlowDocument {
     // 触发画布更新
     this.entityManager.changeEntityLocked = true;
 
+    const oldNodes = this.getAllNodes();
+    const oldEdges = this.getAllEdges();
+
+    const newNodes: WorkflowNodeEntity[] = [];
+    const newEdges: WorkflowLineEntity[] = [];
+
     // 逐层渲染
-    this.batchAddFromJSON(workflowJSON);
+    this.batchAddFromJSON(workflowJSON, {
+      onNodeCreated: (node) => newNodes.push(node),
+      onEdgeCreated: (edge) => newEdges.push(edge),
+    });
+
+    const newNodesSet = new Set<WorkflowNodeEntity>(newNodes);
+    oldNodes.forEach((node) => {
+      if (!newNodesSet.has(node)) {
+        node.dispose();
+      }
+    });
+
+    const newEdgesSet = new Set<WorkflowLineEntity>(newEdges);
+    oldEdges.forEach((edge) => {
+      if (!newEdgesSet.has(edge)) {
+        edge.dispose();
+      }
+    });
 
     this.entityManager.changeEntityLocked = false;
     this.transformer.loading = false;
@@ -173,12 +199,29 @@ export class WorkflowDocument extends FlowDocument {
    */
   createWorkflowNode(
     json: WorkflowNodeJSON,
+    /** @deprecated */
     isClone: boolean = false,
-    parentId?: string
+    parentID?: string
   ): WorkflowNodeEntity {
+    return this._createWorkflowNode(json, { parentID });
+  }
+
+  /**
+   * 创建流程节点
+   * @param json
+   */
+  private _createWorkflowNode(
+    json: WorkflowNodeJSON,
+    options?: {
+      parentID?: string;
+      onNodeCreated?: (node: WorkflowNodeEntity) => void;
+      onEdgeCreated?: (edge: WorkflowLineEntity) => void;
+    }
+  ): WorkflowNodeEntity {
+    const { parentID, onNodeCreated, onEdgeCreated } = options ?? {};
     // 是否是一个已经存在的节点
     const isExistedNode = this.getNode(json.id);
-    const parent = this.getNode(parentId ?? this.root.id) ?? this.root;
+    const parent = this.getNode(parentID ?? this.root.id) ?? this.root;
     const node = this.addNode(
       {
         ...json,
@@ -275,6 +318,8 @@ export class WorkflowDocument extends FlowDocument {
         { nodes: json.blocks, edges: json.edges ?? [] },
         {
           parent: node,
+          onNodeCreated,
+          onEdgeCreated,
         }
       );
     }
@@ -431,7 +476,7 @@ export class WorkflowDocument extends FlowDocument {
         throw new Error(`[WorkflowDocument.createWorkflowNodeByType] Node Id "${id}" duplicated.`);
       }
     }
-    return this.createWorkflowNode(
+    return this._createWorkflowNode(
       {
         ...json,
         id,
@@ -441,8 +486,7 @@ export class WorkflowDocument extends FlowDocument {
         blocks: json?.blocks,
         edges: json?.edges,
       },
-      false,
-      parentID
+      { parentID }
     );
   }
 
@@ -450,6 +494,10 @@ export class WorkflowDocument extends FlowDocument {
     return this.entityManager
       .getEntities<WorkflowNodeEntity>(WorkflowNodeEntity)
       .filter((n) => n.id !== FlowNodeBaseType.ROOT);
+  }
+
+  getAllEdges(): WorkflowLineEntity[] {
+    return this.entityManager.getEntities<WorkflowLineEntity>(WorkflowLineEntity);
   }
 
   getAllPorts(): WorkflowPortEntity[] {
@@ -590,7 +638,7 @@ export class WorkflowDocument extends FlowDocument {
       x: json.meta!.position!.x + 30,
       y: json.meta!.position!.y + 30,
     };
-    return this.createWorkflowNode(
+    return this._createWorkflowNode(
       {
         id: newNodeId || `1${nanoid()}`,
         type: node.flowNodeType,
@@ -602,8 +650,9 @@ export class WorkflowDocument extends FlowDocument {
         blocks: json.blocks,
         edges: json.edges,
       },
-      true,
-      node.parent?.id
+      {
+        parentID: node.parent?.id,
+      }
     );
   }
 
@@ -612,13 +661,13 @@ export class WorkflowDocument extends FlowDocument {
     nodeJSON: WorkflowNodeJSON,
     newNodeId?: string | undefined,
     position?: IPoint,
-    parentId?: string
+    parentID?: string
   ): WorkflowNodeEntity {
     position = position || {
       x: nodeJSON.meta!.position!.x + 30,
       y: nodeJSON.meta!.position!.y + 30,
     };
-    return this.createWorkflowNode(
+    return this._createWorkflowNode(
       {
         id: newNodeId || `1${nanoid()}`,
         type: flowNodeType,
@@ -630,8 +679,9 @@ export class WorkflowDocument extends FlowDocument {
         blocks: nodeJSON.blocks,
         edges: nodeJSON.edges,
       },
-      true,
-      parentId
+      {
+        parentID,
+      }
     );
   }
 
@@ -706,6 +756,8 @@ export class WorkflowDocument extends FlowDocument {
     json: WorkflowJSON,
     options?: {
       parent?: WorkflowNodeEntity;
+      onNodeCreated?: (node: WorkflowNodeEntity) => void;
+      onEdgeCreated?: (edge: WorkflowLineEntity) => void;
     }
   ): {
     nodes: WorkflowNodeEntity[];
@@ -713,15 +765,20 @@ export class WorkflowDocument extends FlowDocument {
   } {
     const { parent = this.root } = options ?? {};
     // 创建节点
-    const containerID = this.getNodeSubCanvas(parent)?.canvasNode.id ?? parent.id;
+    const parentID = this.getNodeSubCanvas(parent)?.canvasNode.id ?? parent.id;
     const processedJSON = buildGroupJSON(json);
     const nodes = processedJSON.nodes.map((nodeJSON: WorkflowNodeJSON) =>
-      this.createWorkflowNode(nodeJSON, false, containerID)
+      this._createWorkflowNode(nodeJSON, {
+        parentID,
+      })
     );
     // 创建线条
     const edges = processedJSON.edges
-      .map((edge) => this.createWorkflowLine(edge, containerID))
+      .map((edge) => this.createWorkflowLine(edge, parentID))
       .filter(Boolean) as WorkflowLineEntity[];
+    // 触发回调
+    nodes.forEach((node) => options?.onNodeCreated?.(node));
+    edges.forEach((edge) => options?.onEdgeCreated?.(edge));
     return { nodes, edges };
   }
 
@@ -792,7 +849,7 @@ export class WorkflowDocument extends FlowDocument {
 
   private createWorkflowLine(
     json: WorkflowEdgeJSON,
-    parentId?: string
+    parentID?: string
   ): WorkflowLineEntity | undefined {
     const fromNode = this.getNode(json.sourceNodeID);
     const toNode = this.getNode(json.targetNodeID);
@@ -807,11 +864,11 @@ export class WorkflowDocument extends FlowDocument {
       toPort: json.targetPortID,
       data: json.data,
     };
-    if (!parentId) {
+    if (!parentID) {
       return this.linesManager.createLine(lineInfo);
     }
     // 父子节点之间连线，需替换父节点为子画布
-    const canvasNode = this.getNode(parentId);
+    const canvasNode = this.getNode(parentID);
     if (!canvasNode) {
       return this.linesManager.createLine(lineInfo);
     }
