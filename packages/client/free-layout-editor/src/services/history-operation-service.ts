@@ -28,7 +28,12 @@ export class HistoryOperationServiceImpl
 
   fromJSON(json: WorkflowJSON): void {
     this.startTransaction();
-    super.fromJSON(json);
+    try {
+      super.fromJSON(json);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log('fromJSON error', e);
+    }
     this.endTransaction();
   }
 }

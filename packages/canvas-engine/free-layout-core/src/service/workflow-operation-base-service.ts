@@ -8,6 +8,7 @@ import { IPoint, Emitter } from '@flowgram.ai/utils';
 import { FlowNodeEntityOrId, FlowOperationBaseServiceImpl } from '@flowgram.ai/document';
 import { TransformData } from '@flowgram.ai/core';
 
+import { WorkflowLinesManager } from '../workflow-lines-manager';
 import { WorkflowDocument } from '../workflow-document';
 import {
   NodePostionUpdateEvent,
@@ -22,6 +23,8 @@ export class WorkflowOperationBaseServiceImpl
 {
   @inject(WorkflowDocument)
   protected declare document: WorkflowDocument;
+
+  @inject(WorkflowLinesManager) linesManager: WorkflowLinesManager;
 
   private onNodePostionUpdateEmitter = new Emitter<NodePostionUpdateEvent>();
 
@@ -58,10 +61,21 @@ export class WorkflowOperationBaseServiceImpl
     };
 
     const oldNodes = this.document.getAllNodes();
-    const oldEdges = this.document.getAllEdges();
+    const oldPositionMap = new Map<string, IPoint>(
+      oldNodes.map((node) => [
+        node.id,
+        {
+          x: node.transform.transform.position.x,
+          y: node.transform.transform.position.y,
+        },
+      ])
+    );
 
     const newNodes: WorkflowNodeEntity[] = [];
     const newEdges: WorkflowLineEntity[] = [];
+
+    // 清空线条
+    this.linesManager.getAllLines().map((line) => line.dispose());
 
     // 逐层渲染
     this.document.batchAddFromJSON(workflowJSON, {
@@ -69,17 +83,25 @@ export class WorkflowOperationBaseServiceImpl
       onEdgeCreated: (edge) => newEdges.push(edge),
     });
 
-    const newNodesSet = new Set<WorkflowNodeEntity>(newNodes);
+    const newNodeIDSet = new Set<string>(newNodes.map((node) => node.id));
     oldNodes.forEach((node) => {
-      if (!newNodesSet.has(node)) {
+      // 清空旧节点
+      if (!newNodeIDSet.has(node.id)) {
         node.dispose();
+        return;
       }
-    });
-
-    const newEdgesSet = new Set<WorkflowLineEntity>(newEdges);
-    oldEdges.forEach((edge) => {
-      if (!newEdgesSet.has(edge)) {
-        edge.dispose();
+      // 记录现有节点位置变更
+      const oldPosition = oldPositionMap.get(node.id);
+      const newPosition = {
+        x: node.transform.transform.position.x,
+        y: node.transform.transform.position.y,
+      };
+      if (oldPosition && (oldPosition.x !== newPosition.x || oldPosition.y !== newPosition.y)) {
+        this.onNodePostionUpdateEmitter.fire({
+          node,
+          oldPosition,
+          newPosition,
+        });
       }
     });
 
