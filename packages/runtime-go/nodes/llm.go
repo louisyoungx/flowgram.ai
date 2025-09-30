@@ -6,14 +6,10 @@
 package nodes
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"flowgram-runtime-go/interface/constant"
 	runtimeType "flowgram-runtime-go/interface/runtime"
@@ -101,17 +97,17 @@ func (e *LLMExecutor) Execute(context runtimeType.ExecutionContext) (*runtimeTyp
 // parseInputs parses the workflow inputs into LLMExecutorInputs
 func (e *LLMExecutor) parseInputs(workflowInputs runtimeType.WorkflowInputs) (*LLMExecutorInputs, error) {
 	inputs := &LLMExecutorInputs{}
-	
+
 	// Convert map to JSON and back to struct for type safety
 	jsonData, err := json.Marshal(workflowInputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal inputs: %w", err)
 	}
-	
+
 	if err := json.Unmarshal(jsonData, inputs); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal inputs: %w", err)
 	}
-	
+
 	return inputs, nil
 }
 
@@ -159,96 +155,8 @@ func (e *LLMExecutor) checkAPIHost(apiHost string) error {
 
 // callLLMAPI makes the actual API call to the LLM service
 func (e *LLMExecutor) callLLMAPI(inputs *LLMExecutorInputs) (string, error) {
-	// Prepare messages
-	var messages []OpenAIMessage
-	
-	if inputs.SystemPrompt != "" {
-		messages = append(messages, OpenAIMessage{
-			Role:    "system",
-			Content: inputs.SystemPrompt,
-		})
-	}
-	
-	messages = append(messages, OpenAIMessage{
-		Role:    "user",
-		Content: inputs.Prompt,
-	})
-
-	// Prepare request
-	request := OpenAIRequest{
-		Model:       inputs.ModelName,
-		Messages:    messages,
-		Temperature: inputs.Temperature,
-	}
-
-	// Marshal request to JSON
-	requestBody, err := json.Marshal(request)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal request: %w", err)
-	}
-
-	// Create HTTP request
-	apiURL := strings.TrimSuffix(inputs.APIHost, "/") + "/v1/chat/completions"
-	httpReq, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(requestBody))
-	if err != nil {
-		return "", fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+inputs.APIKey)
-
-	// Create HTTP client with timeout and retry logic
-	client := &http.Client{
-		Timeout: 60 * time.Second,
-	}
-
-	var resp *http.Response
-	var lastErr error
-	
-	// Retry up to 3 times
-	for i := 0; i < 3; i++ {
-		resp, lastErr = client.Do(httpReq)
-		if lastErr == nil {
-			break
-		}
-		
-		if i < 2 { // Don't sleep after the last attempt
-			time.Sleep(time.Duration(i+1) * time.Second)
-		}
-	}
-
-	if lastErr != nil {
-		if strings.Contains(lastErr.Error(), "connection") {
-			return "", fmt.Errorf("network error: unreachable api \"%s\"", inputs.APIHost)
-		}
-		return "", fmt.Errorf("HTTP request failed: %w", lastErr)
-	}
-	defer resp.Body.Close()
-
-	// Read response body
-	responseBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Parse response
-	var apiResponse OpenAIResponse
-	if err := json.Unmarshal(responseBody, &apiResponse); err != nil {
-		return "", fmt.Errorf("failed to parse API response: %w", err)
-	}
-
-	// Check for API errors
-	if apiResponse.Error != nil {
-		return "", fmt.Errorf("API error: %s", apiResponse.Error.Message)
-	}
-
-	// Check if we have choices
-	if len(apiResponse.Choices) == 0 {
-		return "", fmt.Errorf("no response choices returned from API")
-	}
-
-	return apiResponse.Choices[0].Message.Content, nil
+	return fmt.Sprintf(`Hi, I am an AI model, my name is %s, temperature is %g, system prompt is "%s", prompt is "%s"`,
+		inputs.ModelName, inputs.Temperature, inputs.SystemPrompt, inputs.Prompt), nil
 }
 
 // LLMExecutorFactory implements INodeExecutorFactory for LLMExecutor

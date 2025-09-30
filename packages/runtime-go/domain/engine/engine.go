@@ -93,6 +93,7 @@ func (e *WorkflowRuntimeEngine) ExecuteNode(context runtimeType.IContext, node r
 
 	// Get node inputs
 	inputs := context.GetState().GetNodeInputs(node)
+	log.Printf("@DEBUG ExecuteNode %v-node inputs: %v", string(node.GetType()), inputs)
 	snapshot.Update(runtimeType.SnapshotData{
 		NodeID: node.GetID(),
 		Inputs: inputs,
@@ -263,6 +264,8 @@ func (e *WorkflowRuntimeEngine) markNodeAndSuccessorsAsExecuted(context runtimeT
 
 // executeNext executes the next nodes in the workflow
 func (e *WorkflowRuntimeEngine) executeNext(context runtimeType.IContext, node runtimeType.INode[any], nextNodes []runtimeType.INode[any]) error {
+	log.Printf("@DEBUG executeNext node %s type %s has %d next nodes", node.GetID(), node.GetType(), len(nextNodes))
+	
 	// Check for terminating node types
 	terminatingNodeTypes := []constant.FlowGramNode{
 		constant.FlowGramNodeEnd,
@@ -273,17 +276,20 @@ func (e *WorkflowRuntimeEngine) executeNext(context runtimeType.IContext, node r
 
 	for _, terminatingType := range terminatingNodeTypes {
 		if node.GetType() == terminatingType {
+			log.Printf("@DEBUG executeNext node %s is terminating type %s, stopping execution", node.GetID(), terminatingType)
 			return nil
 		}
 	}
 
 	if len(nextNodes) == 0 {
+		log.Printf("@DEBUG executeNext node %s has no next nodes, returning error", node.GetID())
 		return fmt.Errorf("node %s has no next nodes", node.GetID())
 	}
 
 	// Execute all next nodes concurrently
 	errChan := make(chan error, len(nextNodes))
 	for _, nextNode := range nextNodes {
+		log.Printf("@DEBUG executeNext executing next node %s", nextNode.GetID())
 		go func(n runtimeType.INode[any]) {
 			errChan <- e.ExecuteNode(context, n)
 		}(nextNode)
@@ -292,6 +298,7 @@ func (e *WorkflowRuntimeEngine) executeNext(context runtimeType.IContext, node r
 	// Wait for all executions to complete
 	for i := 0; i < len(nextNodes); i++ {
 		if err := <-errChan; err != nil {
+			log.Printf("@DEBUG executeNext error from next node: %v", err)
 			return err
 		}
 	}

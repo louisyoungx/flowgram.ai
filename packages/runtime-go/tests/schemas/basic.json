@@ -105,6 +105,17 @@
               "type": "string"
             }
           }
+        },
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "llm_res": {
+              "type": "string"
+            },
+            "llm_task": {
+              "type": "string"
+            }
+          }
         }
       }
     },

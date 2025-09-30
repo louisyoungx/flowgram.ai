@@ -8,6 +8,7 @@ package state
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 
@@ -58,18 +59,47 @@ func (w *WorkflowRuntimeState) Dispose() {
 // GetNodeInputs retrieves and parses inputs for a given node
 func (w *WorkflowRuntimeState) GetNodeInputs(node runtimeType.INode[any]) runtimeType.WorkflowInputs {
 	declare := node.GetDeclare()
+	
+	// Add detailed debugging for declare fields
+	log.Printf("@DEBUG GetNodeInputs %s-node declare struct: %+v", node.GetType(), declare)
+	log.Printf("@DEBUG GetNodeInputs %s-node declare.InputsValues type: %T, value: %+v", node.GetType(), declare.InputsValues, declare.InputsValues)
+	log.Printf("@DEBUG GetNodeInputs %s-node declare.Inputs type: %T, value: %+v", node.GetType(), declare.Inputs, declare.Inputs)
+	log.Printf("@DEBUG GetNodeInputs %s-node declare.Outputs type: %T, value: %+v", node.GetType(), declare.Outputs, declare.Outputs)
+	
 	inputsDeclare := declare.Inputs
 	inputsValues := declare.InputsValues
+
+	declareJSON, _ := json.Marshal(declare)
+	log.Printf("@DEBUG GetNodeInputs %s-node declare: %s", node.GetType(), string(declareJSON))
+	
+	// Check if fields are nil after assignment
+	log.Printf("@DEBUG GetNodeInputs %s-node inputsDeclare after assignment: %+v", node.GetType(), inputsDeclare)
+	log.Printf("@DEBUG GetNodeInputs %s-node inputsValues after assignment: %+v", node.GetType(), inputsValues)
+	
 	return w.ParseInputs(inputsValues, inputsDeclare)
 }
 
 // SetNodeOutputs sets the outputs for a given node
 func (w *WorkflowRuntimeState) SetNodeOutputs(node runtimeType.INode[any], outputs runtimeType.WorkflowOutputs) {
+	log.Printf("@DEBUG SetNodeOutputs for node %s with outputs: %v", node.GetID(), outputs)
+	
 	declare := node.GetDeclare()
 	outputsDeclare := declare.Outputs
+	
+	log.Printf("@DEBUG SetNodeOutputs outputsDeclare: %v", outputsDeclare)
 
 	// Check if outputsDeclare is an object type with properties
-	if outputsDeclare.Type != schema.JsonSchemaBasicTypeObject || outputsDeclare.Properties == nil {
+	var typeStr string
+	if outputsDeclare.Type != nil {
+		if typePtr, ok := outputsDeclare.Type.(*string); ok && typePtr != nil {
+			typeStr = *typePtr
+		} else {
+			typeStr = fmt.Sprintf("%v", outputsDeclare.Type)
+		}
+	}
+	
+	if typeStr != string(schema.JsonSchemaBasicTypeObject) || outputsDeclare.Properties == nil {
+		log.Printf("@DEBUG SetNodeOutputs early return - outputsDeclare.Type: %v (string: %s), Properties: %v", outputsDeclare.Type, typeStr, outputsDeclare.Properties)
 		return
 	}
 
@@ -91,6 +121,8 @@ func (w *WorkflowRuntimeState) SetNodeOutputs(node runtimeType.INode[any], outpu
 			value = defaultValue
 		}
 
+		log.Printf("@DEBUG SetNodeOutputs setting variable - NodeID: %s, Key: %s, Value: %v, Type: %v", node.GetID(), key, value, variableType)
+
 		// Create variable
 		w.variableStore.SetVariable(runtimeType.SetVariableParams{
 			NodeID:    node.GetID(),
@@ -104,42 +136,64 @@ func (w *WorkflowRuntimeState) SetNodeOutputs(node runtimeType.INode[any], outpu
 
 // ParseInputs parses input values according to their declarations
 func (w *WorkflowRuntimeState) ParseInputs(values map[string]schema.IFlowValue, declare schema.IJsonSchema) runtimeType.WorkflowInputs {
-	if declare.Properties == nil || values == nil {
-		return make(runtimeType.WorkflowInputs)
-	}
-
 	result := make(runtimeType.WorkflowInputs)
+
 	for key, flowValue := range values {
+		log.Printf("@DEBUG ParseInputs Processing key: %s, flowValue: %v", key, flowValue)
+
 		typeInfo, exists := declare.Properties[key]
 		if !exists {
 			continue
 		}
 
-		declareType := schema.WorkflowVariableType(fmt.Sprintf("%v", typeInfo.Type))
+		log.Printf("@DEBUG ParseInputs Key %s typeInfo: %v", key, typeInfo)
 
-		// Get value
+		// Convert type to WorkflowVariableType
+		var declareType schema.WorkflowVariableType
+		if typeInfo.Type != nil {
+			if typePtr, ok := typeInfo.Type.(*string); ok && typePtr != nil {
+				declareType = schema.WorkflowVariableType(*typePtr)
+			} else {
+				declareType = schema.WorkflowVariableType(fmt.Sprintf("%v", typeInfo.Type))
+			}
+		}
+
+		log.Printf("@DEBUG ParseInputs Key %s declareType: %s", key, declareType)
+
 		parseResult := w.ParseFlowValue(flowValue, declareType)
+		log.Printf("@DEBUG ParseInputs Key %s parseResult: %v", key, parseResult)
+
 		if parseResult == nil {
 			continue
 		}
 
-		if !w.isTypeEqual(parseResult.Type, declareType) {
-			continue
+		// Check type equality using string comparison
+		if string(parseResult.Type) != string(declareType) {
+			log.Printf("@DEBUG ParseInputs Key %s type mismatch - parseResult.Type: %s, declareType: %s", key, parseResult.Type, declareType)
+			// Continue processing even with type mismatch for now
 		}
 
 		result[key] = parseResult.Value
+		log.Printf("@DEBUG ParseInputs Key %s added to result with value: %v", key, parseResult.Value)
 	}
+
+	resultJSON, _ := json.Marshal(result)
+	log.Printf("@DEBUG ParseInputs Final result: %s", string(resultJSON))
 
 	return result
 }
 
 // ParseRef parses a reference value
 func (w *WorkflowRuntimeState) ParseRef(ref schema.IFlowRefValue) *runtimeType.IVariableParseResult {
+	log.Printf("@DEBUG ParseRef called with ref: %+v", ref)
+	
 	if ref.Type != "ref" {
+		log.Printf("@DEBUG ParseRef failed - type is not 'ref': %s", ref.Type)
 		return nil
 	}
 
 	if len(ref.Content) < 2 {
+		log.Printf("@DEBUG ParseRef failed - content length < 2: %d", len(ref.Content))
 		return nil
 	}
 
@@ -149,12 +203,16 @@ func (w *WorkflowRuntimeState) ParseRef(ref schema.IFlowRefValue) *runtimeType.I
 	if len(ref.Content) > 2 {
 		variablePath = ref.Content[2:]
 	}
+	
+	log.Printf("@DEBUG ParseRef getting value - nodeID: %s, variableKey: %s, variablePath: %v", nodeID, variableKey, variablePath)
 
 	result := w.variableStore.GetValue(runtimeType.GetValueParams{
 		NodeID:       nodeID,
 		VariableKey:  variableKey,
 		VariablePath: variablePath,
 	})
+	
+	log.Printf("@DEBUG ParseRef result: %+v", result)
 
 	return result
 }

@@ -6,6 +6,7 @@
 package document
 
 import (
+	"log"
 	"flowgram-runtime-go/infrastructure/utils"
 	"flowgram-runtime-go/interface/constant"
 	runtimeType "flowgram-runtime-go/interface/runtime"
@@ -38,12 +39,19 @@ type WorkflowRuntimeNode[T any] struct {
 
 // NewWorkflowRuntimeNode creates a new WorkflowRuntimeNode instance
 func NewWorkflowRuntimeNode[T any](params runtimeType.CreateNodeParams) *WorkflowRuntimeNode[T] {
+	log.Printf("@DEBUG NewWorkflowRuntimeNode creating node %s with params: %+v", params.ID, params)
+	log.Printf("@DEBUG NewWorkflowRuntimeNode Variable param: %+v", params.Variable)
+	
 	var declare runtimeType.NodeDeclare
 	if params.Variable != nil {
 		declare = *params.Variable
+		log.Printf("@DEBUG NewWorkflowRuntimeNode using provided Variable: %+v", declare)
 	} else {
 		declare = runtimeType.NodeDeclare{}
+		log.Printf("@DEBUG NewWorkflowRuntimeNode using empty NodeDeclare")
 	}
+	
+	log.Printf("@DEBUG NewWorkflowRuntimeNode final declare: %+v", declare)
 
 	var data T
 	if params.Data != nil {

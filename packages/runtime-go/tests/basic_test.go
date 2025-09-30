@@ -80,21 +80,21 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 		assert.Equal(t, runtimeType.WorkflowStatusSucceeded, context.GetStatusCenter().GetWorkflow().GetStatus())
 
 		// Verify result
-		expectedResult := map[string]any{
-			"llm_res":  `Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is "You are a helpful AI assistant.", prompt is "<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>"`,
+		expectedResult := runtimeType.WorkflowOutputs{
+			"llm_res":  "Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is \"You are a helpful AI assistant.\", prompt is \"<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>\"",
 			"llm_task": "Tell me a story about love",
 		}
 		assert.Equal(t, expectedResult, result)
 
 		// Verify snapshots
 		snapshots := context.GetSnapshotCenter().ExportAll()
-		require.Len(t, snapshots, 3, "Expected 3 snapshots")
+		require.Len(t, snapshots, 3)
 
 		// Check start node snapshot
 		startSnapshot := snapshots[0]
 		assert.Equal(t, "start_0", startSnapshot.NodeID)
 		assert.Empty(t, startSnapshot.Inputs)
-		expectedStartOutputs := map[string]any{
+		expectedStartOutputs := runtimeType.WorkflowOutputs{
 			"model_name": "ai-model",
 			"llm_settings": map[string]any{
 				"temperature": 0.5,
@@ -105,12 +105,12 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 			},
 		}
 		assert.Equal(t, expectedStartOutputs, startSnapshot.Outputs)
-		assert.Empty(t, startSnapshot.Data)
+		assert.NotEmpty(t, startSnapshot.Data) // Start node should have data (node configuration)
 
 		// Check LLM node snapshot
 		llmSnapshot := snapshots[1]
 		assert.Equal(t, "llm_0", llmSnapshot.NodeID)
-		expectedLLMInputs := map[string]any{
+		expectedLLMInputs := runtimeType.WorkflowInputs{
 			"modelName":    "ai-model",
 			"apiKey":       "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 			"apiHost":      "https://mock-ai-url/api/v3",
@@ -119,22 +119,26 @@ func TestWorkflowRuntimeBasicSchema(t *testing.T) {
 			"systemPrompt": "You are a helpful AI assistant.",
 		}
 		assert.Equal(t, expectedLLMInputs, llmSnapshot.Inputs)
-		expectedLLMOutputs := map[string]any{
-			"result": `Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is "You are a helpful AI assistant.", prompt is "<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>"`,
+		expectedLLMOutputs := runtimeType.WorkflowOutputs{
+			"result": "Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is \"You are a helpful AI assistant.\", prompt is \"<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>\"",
 		}
 		assert.Equal(t, expectedLLMOutputs, llmSnapshot.Outputs)
-		assert.Empty(t, llmSnapshot.Data)
+		assert.NotEmpty(t, llmSnapshot.Data) // LLM node should have data (node configuration)
 
 		// Check end node snapshot
 		endSnapshot := snapshots[2]
 		assert.Equal(t, "end_0", endSnapshot.NodeID)
-		expectedEndInputs := map[string]any{
-			"llm_res":  `Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is "You are a helpful AI assistant.", prompt is "<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>"`,
+		expectedEndInputs := runtimeType.WorkflowInputs{
+			"llm_res":  "Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is \"You are a helpful AI assistant.\", prompt is \"<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>\"",
 			"llm_task": "Tell me a story about love",
 		}
 		assert.Equal(t, expectedEndInputs, endSnapshot.Inputs)
-		assert.Equal(t, expectedEndInputs, endSnapshot.Outputs) // End node outputs same as inputs
-		assert.Empty(t, endSnapshot.Data)
+		expectedEndOutputs := runtimeType.WorkflowOutputs{
+			"llm_res":  "Hi, I am an AI model, my name is ai-model, temperature is 0.5, system prompt is \"You are a helpful AI assistant.\", prompt is \"<Role>Chat</Role>\n\n<Task>\nTell me a story about love\n</Task>\"",
+			"llm_task": "Tell me a story about love",
+		}
+		assert.Equal(t, expectedEndOutputs, endSnapshot.Outputs) // End node outputs same as inputs
+		assert.NotEmpty(t, endSnapshot.Data)                     // End node should have data
 
 		// Verify report
 		report := context.GetReporter().Export()
