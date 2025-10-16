@@ -10,7 +10,7 @@
 
 # FlowGram｜Workflow development framework
 
-[English](README.md) | [中文](README_ZH.md)
+[English](README.md) | [中文](README_ZH.md) | [Español](README_ES.md) | [Русский](README_RU.md) | [Português](README_PT.md) | [Deutsch](README_DE.md) | [日本語](README_JA.md)
 
 FlowGram is a composable, visual, easy-to-integrate, and extensible workflow development framework & toolkit.
 Our goal is to help developers build AI workflow platforms **faster** and **simpler**.
