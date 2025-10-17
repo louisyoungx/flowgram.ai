@@ -22,6 +22,8 @@ Erfahren Sie mehr unter 🌐 [FlowGram.AI](https://flowgram.ai)
 
 <https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
 
+[In CodeSandbox öffnen](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main)
+
 In dieser Demo durchlaufen wir eine Liste von Städten, rufen das Echtzeit-Wetter über HTTP ab, parsen die Temperaturen mit einem Code-Knoten, generieren Outfit-Vorschläge mit einem LLM, steuern durch eine Bedingung, aggregieren die Ergebnisse über die Schleife und verwenden schließlich einen Berater-LLM, um die komfortabelste Stadt auszuwählen, bevor das Ergebnis an den Endknoten gesendet wird.
 
 ## 🚀 Schnellstart

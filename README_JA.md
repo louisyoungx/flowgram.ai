@@ -22,6 +22,8 @@ FlowGramには、ワークフロー開発用の組み込みツール一式が付
 
 <https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
 
+[CodeSandboxで開く](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main)
+
 このデモでは、都市のリストを反復処理し、HTTP経由でリアルタイムの天気を取得し、コードノードで気温を解析し、LLMで服装の提案を生成し、条件でゲートし、ループ全体で結果を集計し、最後にアドバイザーLLMを使用して最も快適な都市を選択してから、結果を終了ノードに送信します。
 
 ## 🚀 クイックスタート

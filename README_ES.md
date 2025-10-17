@@ -22,6 +22,8 @@ Obtenga más información en 🌐 [FlowGram.AI](https://flowgram.ai)
 
 <https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
 
+[Abrir en CodeSandbox](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main)
+
 En esta demostración, iteramos a través de una lista de ciudades, obtenemos el clima en tiempo real a través de HTTP, analizamos las temperaturas con un nodo de código, generamos sugerencias de atuendos con un LLM, controlamos mediante una condición, agregamos los resultados a lo largo del bucle y, finalmente, usamos un LLM asesor para elegir la ciudad más cómoda antes de enviar el resultado al nodo final.
 
 ## 🚀 Inicio rápido
