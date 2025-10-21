@@ -104,10 +104,10 @@ export default defineConfig({
       description: '静态网站生成器',
     },
   ],
-  icon: '/logo.png',
+  icon: '/flowgram-logo.svg',
   logo: {
-    light: '/logo.png',
-    dark: '/logo.png',
+    light: '/flowgram-logo.svg',
+    dark: '/flowgram-logo.svg',
   },
   lang: 'zh',
   logoText: 'FlowGram.AI',

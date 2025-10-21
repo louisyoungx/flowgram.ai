@@ -13,7 +13,7 @@ hero:
       text: GitHub
       link: https://github.com/bytedance/flowgram.ai
   image:
-    src: /logo.png
+    src: /flowgram-logo.svg
     alt: Logo
 features:
   - title: 扣子
