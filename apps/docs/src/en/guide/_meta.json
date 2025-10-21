@@ -1,10 +1,9 @@
 [
   "introduction",
-  "contact-us",
   {
     "type": "dir",
-    "name": "getting-started",
-    "label": "Getting Started"
+    "name": "quick-start",
+    "label": "Quick Start"
   },
   {
     "type": "dir",
@@ -45,5 +44,6 @@
     "type": "dir",
     "name": "runtime",
     "label": "Runtime (WIP)"
-  }
+  },
+  "contact-us"
 ]
