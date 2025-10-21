@@ -25,6 +25,7 @@
 - [Concepts](/en/guide/variable/concept.md): Introduces the core concepts of the variable engine.
 - [Output Variables](/en/guide/variable/variable-output.md): Learn how to use the variable engine to output variables in FlowGram
 - [Consume Variables](/en/guide/variable/variable-consume.md): Learn how to consume variables from the variable engine in FlowGram
+- [Scope Chain](/en/guide/variable/custom-scope-chain.md): How to customize the scope chain
 - [@flowgram.ai/background-plugin](/en/guide/plugin/background-plugin.md)
 - [@flowgram.ai/minimap-plugin](/en/guide/plugin/minimap-plugin.md)
 - [@flowgram.ai/panel-manager-plugin](/en/guide/plugin/panel-manager-plugin.md)
@@ -94,7 +95,7 @@
 - [validateFlowValue (WIP)](/en/materials/validate/validate-flow-value.md)
 - [Flow Value](/en/materials/common/flow-value.md)
 - [DisableDeclarationPlugin (WIP)](/en/materials/common/disable-declaration-plugin.md)
-- [InjectMaterial (WIP)](/en/materials/common/inject-material.md)
+- [Material Dependency Injection (WIP)](/en/materials/common/inject-material.md)
 - [JsonSchemaPreset (WIP)](/en/materials/common/json-schema-preset.md)
 
 ## Examples

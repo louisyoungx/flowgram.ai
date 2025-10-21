@@ -8,7 +8,6 @@
 - [批处理变量实现思路 (WIP)](/guide/variable/cases/case-batch-variable.md): 介绍如何实现批处理节点中的变量逻辑
 - [底层 API (WIP)](/guide/variable/core-api.md): 介绍变量引擎的底层 API 的设计与使用
 - [内置 AST(WIP)](/guide/variable/core-ast.md): 介绍变量引擎的内置 AST 节点
-- [定制作用域链(WIP)](/guide/variable/custom-scope-chain.md): 介绍如何定制作用域链
 - [介绍](/guide/introduction.md)
 - [联系我们](/guide/contact-us.md)
 - [安装](/guide/getting-started/install.md)
@@ -29,6 +28,7 @@
 - [概念](/guide/variable/concept.md): 介绍变量引擎的核心概念
 - [输出变量](/guide/variable/variable-output.md): 介绍如何在 FlowGram 中使用变量引擎输出变量
 - [消费变量](/guide/variable/variable-consume.md): 介绍如何在 FlowGram 中消费变量引擎输出的变量
+- [作用域链](/guide/variable/custom-scope-chain.md): 介绍如何定制作用域链
 - [@flowgram.ai/background-plugin](/guide/plugin/background-plugin.md)
 - [@flowgram.ai/minimap-plugin](/guide/plugin/minimap-plugin.md)
 - [@flowgram.ai/panel-manager-plugin](/guide/plugin/panel-manager-plugin.md)
@@ -63,29 +63,28 @@
 - [VariableSelector](/materials/components/variable-selector.md)
 - [DynamicValueInput](/materials/components/dynamic-value-input.md)
 - [ConditionRow](/materials/components/condition-row.md)
+- [DbConditionRow (WIP)](/materials/components/db-condition-row.md)
+- [ConditionContext (WIP)](/materials/components/condition-context.md)
 - [InputsValues](/materials/components/inputs-values.md)
-- [CodeEditor](/materials/components/code-editor.md)
-- [JsonEditorWithVariables](/materials/components/json-editor-with-variables.md)
+- [InputsValuesTree (WIP)](/materials/components/inputs-values-tree.md)
+- [PromptEditor (WIP)](/materials/components/prompt-editor.md)
 - [PromptEditorWithVariables](/materials/components/prompt-editor-with-variables.md)
 - [PromptEditorWithInputs](/materials/components/prompt-editor-with-inputs.md)
+- [CodeEditor](/materials/components/code-editor.md)
+- [JsonEditorWithVariables](/materials/components/json-editor-with-variables.md)
 - [SQLEditorWithVariables](/materials/components/sql-editor-with-variables.md)
+- [CozeEditorExtensions (WIP)](/materials/components/coze-editor-extensions.md)
 - [AssignRow (WIP)](/materials/components/assign-row.md)
 - [AssignRows (WIP)](/materials/components/assign-rows.md)
 - [BatchOutputs (WIP)](/materials/components/batch-outputs.md)
 - [BatchVariableSelector (WIP)](/materials/components/batch-variable-selector.md)
 - [BlurInput (WIP)](/materials/components/blur-input.md)
-- [CodeEditorMini (WIP)](/materials/components/code-editor-mini.md)
-- [ConditionContext (WIP)](/materials/components/condition-context.md)
 - [ConstantInput (WIP)](/materials/components/constant-input.md)
-- [CozeEditorExtensions (WIP)](/materials/components/coze-editor-extensions.md)
-- [DbConditionRow (WIP)](/materials/components/db-condition-row.md)
 - [DisplayFlowValue (WIP)](/materials/components/display-flow-value.md)
 - [DisplayInputsValues (WIP)](/materials/components/display-inputs-values.md)
 - [DisplayOutputs (WIP)](/materials/components/display-outputs.md)
 - [DisplaySchemaTag (WIP)](/materials/components/display-schema-tag.md)
 - [DisplaySchemaTree (WIP)](/materials/components/display-schema-tree.md)
-- [InputsValuesTree (WIP)](/materials/components/inputs-values-tree.md)
-- [PromptEditor (WIP)](/materials/components/prompt-editor.md)
 - [autoRenameRef](/materials/effects/auto-rename-ref.md)
 - [listenRefValueChange](/materials/effects/listen-ref-value-change.md)
 - [listenRefSchemaChange](/materials/effects/listen-ref-schema-change.md)
