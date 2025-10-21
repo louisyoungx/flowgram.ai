@@ -3,8 +3,8 @@ pageType: home
 
 hero:
   name: FlowGram.AI
-  text: Build Flow Engine with Plugins
-  tagline: High Performance, Scalable, Customizable
+  text: Workflow development framework
+  tagline: Building workflow platforms easily - Canvas, Form, Variable, Materials
   actions:
     - theme: brand
       text: Quick Start

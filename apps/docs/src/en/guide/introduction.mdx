@@ -1,67 +1,34 @@
 # Introduction
 
-FlowGram is a node-based flow building engine that helps developers quickly create workflows in either fixed layout or free connection layout modes, providing a set of interactive best practices. It's particularly suitable for visual workflows with clear inputs and outputs.
+FlowGram is a workflow development framework and toolkit. It helps developers build AI workflow platforms **faster** and **more easily**.
+FlowGram comes with a suite of built-in tools for workflow development: visual flow canvas, node configuration forms, variable scope chain, and ready-to-use materials.
+Use FlowGram to build your own AI workflow platform.
 
-In today's AI-driven era, we are focusing more on how to empower workflows with AI, hence the AI suffix in our name.
+## Why FlowGram?
 
-<div className="rs-highlight">
-  FlowGram = Flow + Program, suggesting that flows are like programs, with
-  Condition, Loop, and even TryCatch nodes.
-</div>
+FlowGram was originally designed to build diverse AI workflow platforms within ByteDance. These large-scale workflow platforms often have complex business logic and processes, and building them from scratch is not only time-consuming but also results in high development and maintenance costs.
 
-## Official Demo
+Many developers initially tried to use mainstream visual graphics libraries (like `ReactFlow`) to quickly build workflow platforms. However, these general-purpose libraries couldn't solve the core problems of workflow scenarios. Developers still had to handle a series of challenges themselves, such as node data management, dynamic forms, data validation, and variable scope chains. This led to low development efficiency and difficult long-term maintenance.
 
-<div style={{ marginTop: 16, display: "flex", gap: 8 }}>
-  <div>
-    <div>
-      <a
-        className="rs-link"
-        href="/en/examples/fixed-layout/fixed-feature-overview.html"
-      >
-        Fixed Layout
-      </a>
-    </div>
-    <div className="rs-tip" style={{ height: 84 }}>
-      Fixed layout with nodes/branches supporting specified position drag and
-      drop, offering compound nodes like branches and loops
-    </div>
-    <div>
-      <img loading="lazy" src="/fixed-layout/fixed-layout-demo.gif" />
-    </div>
-  </div>
-  <div>
-    <div>
-      <a
-        className="rs-link"
-        href="/en/examples/free-layout/free-feature-overview.html"
-      >
-        Free Connection Layout
-      </a>
-    </div>
-    <div className="rs-tip" style={{ height: 84 }}>
-      Free layout where nodes can be moved to any position and connected through
-      free connections
-    </div>
-    <div>
-      <img loading="lazy" src="/free-layout/free-layout-demo.gif" />
-    </div>
-  </div>
-</div>
+To address these pain points, we introduced FlowGram, a development framework specifically designed for workflow scenarios, aiming to help developers improve the efficiency and shorten the development cycle of creating workflow platforms. FlowGram provides the following core features:
+
+- **Workflow Canvas**: Provides visual orchestration for nodes and edges, supporting both free and fixed layouts to easily build complex flowcharts.
+- **Forms**: The form engine manages the CRUD operations of node data and provides rendering, validation, side effects, linkage, and error-capturing capabilities, simplifying the development of node configurations.
+- **Variables**: The variable engine supports scope constraints, variable structure inspection, and type inference, making it easy to manage data flow within the workflow.
+- **Materials**: Offers out-of-the-box components, side effects, and validators that developers can quickly reuse and extend, boosting development efficiency.
+
+By combining these features, developers can focus on implementing business logic, thereby rapidly building full-featured, high-performance AI workflow platforms.
 
 ## Interactive Experience
 
-Providing a set of interactive best practices for smoother workflow operations
+FlowGram offers a suite of interactive features designed for a seamless and intuitive workflow-building experience.
 
 <table className="rs-table">
   <tr>
-    <td>Motion Transitions</td>
+    <td>Smooth Motion Transitions</td>
     <td>
       <p>
-        Motion animations in web applications can be traced back to Material
-        Design, which suggests that element changes in width, height, or
-        position need a transition process. The canvas engine separates the
-        drawing of lines and nodes, greatly reducing the cost of implementing
-        motion transitions
+        FlowGram provides smooth motion transitions for all canvas elements. When nodes are resized or moved, animated transitions create a more natural and intuitive user experience. Our canvas engine is optimized for performance by rendering nodes and edges separately, making these animations fluid and efficient.
       </p>
       <div className="rs-center">
         <img loading="lazy" src="/common/motion.gif" />
@@ -69,12 +36,10 @@ Providing a set of interactive best practices for smoother workflow operations
     </td>
   </tr>
   <tr>
-    <td>Touchpad Gesture Zoom + Space Key Canvas Drag</td>
+    <td>Intuitive Canvas Navigation</td>
     <td>
       <p>
-        Gestures refer to Mac touchpad two-finger spread/pinch for canvas zoom
-        in/out, or holding space to drag the canvas, interactions inspired by
-        Sketch and Figma
+        Navigate the canvas with familiar gestures inspired by professional design tools like Sketch and Figma. Use a two-finger pinch-to-zoom on your touchpad, or simply hold the spacebar and drag to pan across the canvas with ease.
       </p>
       <div className="rs-center">
         <img loading="lazy" src="/common/touch-pad.gif" />
@@ -188,61 +153,8 @@ Providing a set of interactive best practices for smoother workflow operations
   </tr>
 </table>
 
-## Online Applications
+## Next step
 
-<div style={{ marginTop: 16, display: "flex", gap: 8, flexWrap: 'wrap' }}>
-  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
-    <div>
-      <a
-        className="rs-link"
-        href="https://www.coze.com/open/docs/guides/workflow"
-        target="_blank"
-      >
-        Coze Workflow
-      </a>
-    </div>
-    <div>
-      <img loading="lazy" src="/ref-coze-en.png" />
-    </div>
-  </div>
-  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
-    <a
-      className="rs-link"
-      href="https://ae.feishu.cn/hc/zh-CN/articles/120610822514"
-      target="_blank"
-    >
-      Lark Low-code Platform Workflow
-    </a>
-    <div>
-      <img loading="lazy" src="/ref-apaas-en.png" />
-    </div>
-  </div>
-  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
-    <a
-      className="rs-link"
-      href="https://www.feishu.cn/hc/en-US/articles/908751305974-overview-of-workflow-in-base"
-      target="_blank"
-    >
-      Lark Base Workflow
-    </a>
-    <div>
-      <img loading="lazy" src="/ref-bitable-en.png" />
-    </div>
-  </div>
-  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
-    <a className="rs-link" href="https://github.com/NNDeploy/nndeploy" target="_blank" >
-      nndeploy
-    </a>
-    <div>
-      <img loading="lazy" src="/ref-nndeploy.png"/>
-    </div>
-  </div>
-  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
-    <a className="rs-link" href="https://github.com/certimate-go/certimate" target="_blank" >
-      Certimate
-    </a>
-    <div>
-      <img loading="lazy" src="/ref-certimate.png"/>
-    </div>
-  </div>
-</div>
+Please read [Quick start](/guide/quick-start/install) to start using FlowGram.
+
+Welcome to the [GitHub Discussions](https://github.com/bytedance/flowgram.ai/discussions) and [Discord](https://discord.com/invite/SwDWdrgA9f) to communicate with us.
