@@ -12,6 +12,7 @@
 
 * [activeLinePlaceholder](/en/auto-docs/form-materials/interfaces/JsonEditorWithVariablesProps.md#activelineplaceholder)
 * [children](/en/auto-docs/form-materials/interfaces/JsonEditorWithVariablesProps.md#children)
+* [mini](/en/auto-docs/form-materials/interfaces/JsonEditorWithVariablesProps.md#mini)
 * [onChange](/en/auto-docs/form-materials/interfaces/JsonEditorWithVariablesProps.md#onchange)
 * [options](/en/auto-docs/form-materials/interfaces/JsonEditorWithVariablesProps.md#options)
 * [placeholder](/en/auto-docs/form-materials/interfaces/JsonEditorWithVariablesProps.md#placeholder)
@@ -41,6 +42,16 @@ Omit.children
 
 ***
 
+### mini
+
+`Optional` **mini**: `boolean`
+
+#### Inherited from
+
+Omit.mini
+
+***
+
 ### onChange
 
 `Optional` **onChange**: (`value`: `string`) => `void`
@@ -67,7 +78,7 @@ Omit.onChange
 
 ### options
 
-`Optional` **options**: `Partial`<{ `fontSize`: `number`  } & { `placeholder`: `string` | `HTMLElement`  } & { `readOnly`: `boolean`  } & { `editable`: `boolean`  } & { `minHeight`: `string` | `number`  } & { `maxHeight`: `string` | `number`  } & { `height`: `string` | `number`  } & { `lineWrapping`: `boolean`  } & { `tabSize`: `number`  } & { `scrollBeyondLastLine`: `boolean`  } & { `uri`: `string`  } & { `theme`: `string`  } & { `languageId`: `string`  } & { `transformer`: `Transformer`  } & { `overlayScrollbar`: `unknown`  } & { `lineNumbersGutter`: `unknown`  } & { `foldGutter`: `unknown`  } & { `colorizeBrackets`: `unknown`  }>
+`Optional` **options**: `Partial`<{ `fontSize`: `number`  } & { `placeholder`: `string` | `HTMLElement`  } & { `readOnly`: `boolean`  } & { `editable`: `boolean`  } & { `lineWrapping`: `boolean`  } & { `height`: `string` | `number`  } & { `minHeight`: `string` | `number`  } & { `maxHeight`: `string` | `number`  } & { `tabSize`: `number`  } & { `scrollBeyondLastLine`: `boolean`  } & { `uri`: `string`  } & { `theme`: `string`  } & { `languageId`: `string`  } & { `transformer`: `Transformer`  } & { `overlayScrollbar`: `unknown`  } & { `lineNumbersGutter`: `unknown`  } & { `foldGutter`: `unknown`  } & { `colorizeBrackets`: `unknown`  }>
 
 #### Inherited from
 

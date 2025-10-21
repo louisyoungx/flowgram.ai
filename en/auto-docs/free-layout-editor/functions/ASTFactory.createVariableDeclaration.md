@@ -4,7 +4,7 @@
 
 **createVariableDeclaration**<`VariableMeta`>(`json`): `Object`
 
-声明相关
+Creates a `VariableDeclaration` node.
 
 #### Type parameters
 

@@ -12,7 +12,6 @@ SPDX-License-Identifier: MIT
 * [addFromNode](/auto-docs/editor/enums/OperationType.md#addfromnode)
 * [addNode](/auto-docs/editor/enums/OperationType.md#addnode)
 * [addNodes](/auto-docs/editor/enums/OperationType.md#addnodes)
-* [changeNode](/auto-docs/editor/enums/OperationType.md#changenode)
 * [createGroup](/auto-docs/editor/enums/OperationType.md#creategroup)
 * [deleteBlock](/auto-docs/editor/enums/OperationType.md#deleteblock)
 * [deleteChildNode](/auto-docs/editor/enums/OperationType.md#deletechildnode)
@@ -53,12 +52,6 @@ SPDX-License-Identifier: MIT
 ### addNodes
 
 **addNodes** = `"addNodes"`
-
-***
-
-### changeNode
-
-**changeNode** = `"changeNode"`
 
 ***
 

@@ -16,7 +16,6 @@
 
 ### Properties
 
-* [key](/auto-docs/node-variable-plugin/interfaces/VariableConsumerAbilityOptions.md#key)
 * [namespace](/auto-docs/node-variable-plugin/interfaces/VariableConsumerAbilityOptions.md#namespace)
 * [onInit](/auto-docs/node-variable-plugin/interfaces/VariableConsumerAbilityOptions.md#oninit)
 * [parse](/auto-docs/node-variable-plugin/interfaces/VariableConsumerAbilityOptions.md#parse)
@@ -24,16 +23,6 @@
 * [scope](/auto-docs/node-variable-plugin/interfaces/VariableConsumerAbilityOptions.md#scope)
 
 ## Properties
-
-### key
-
-`Optional` **key**: `string`
-
-#### Inherited from
-
-VariableAbilityOptions.key
-
-***
 
 ### namespace
 

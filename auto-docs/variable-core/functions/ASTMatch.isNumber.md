@@ -4,6 +4,8 @@
 
 **isNumber**(`node?`): node is NumberType
 
+Check if the node is a `NumberType`.
+
 #### Parameters
 
 | Name | Type |

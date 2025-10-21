@@ -1,7 +1,6 @@
 # Interface: ListNodeJSON
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+ASTNodeJSON representation of `ListNode`
 
 ## Table of contents
 
@@ -14,3 +13,5 @@ SPDX-License-Identifier: MIT
 ### list
 
 **list**: [`ASTNodeJSON`](/en/auto-docs/variable-plugin/interfaces/ASTNodeJSON.md)\[]
+
+The list of nodes.

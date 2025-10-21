@@ -4,6 +4,8 @@
 
 **isBoolean**(`node?`): node is BooleanType
 
+Check if the node is a `BooleanType`.
+
 #### Parameters
 
 | Name | Type |

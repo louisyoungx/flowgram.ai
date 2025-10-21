@@ -4,7 +4,7 @@
 
 **isString**(`node?`): node is StringType
 
-类型相关
+Check if the node is a `StringType`.
 
 #### Parameters
 

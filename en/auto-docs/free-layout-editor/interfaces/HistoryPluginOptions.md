@@ -11,6 +11,7 @@
 ### Properties
 
 * [enable](/en/auto-docs/free-layout-editor/interfaces/HistoryPluginOptions.md#enable)
+* [enableChangeNode](/en/auto-docs/free-layout-editor/interfaces/HistoryPluginOptions.md#enablechangenode)
 * [onApply](/en/auto-docs/free-layout-editor/interfaces/HistoryPluginOptions.md#onapply)
 
 ## Properties
@@ -18,6 +19,12 @@
 ### enable
 
 `Optional` **enable**: `boolean`
+
+***
+
+### enableChangeNode
+
+`Optional` **enableChangeNode**: `boolean`
 
 ***
 

@@ -1,6 +1,6 @@
 # Function: useWatchFormWarnings
 
-**useWatchFormWarnings**(`node`): `Warnings` | `undefined`
+**useWatchFormWarnings**(`node`): [`Warnings`](/en/auto-docs/fixed-layout-editor/types/Warnings.md) | `undefined`
 
 Get Form's warnings, Form warnings is a proxy, it will refresh the React component when the value you accessed changed
 By providing related node, you can use this hook outside the Form Component.
@@ -13,4 +13,4 @@ By providing related node, you can use this hook outside the Form Component.
 
 #### Returns
 
-`Warnings` | `undefined`
+[`Warnings`](/en/auto-docs/fixed-layout-editor/types/Warnings.md) | `undefined`

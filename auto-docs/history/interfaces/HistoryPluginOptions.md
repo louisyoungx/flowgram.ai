@@ -11,6 +11,7 @@
 ### Properties
 
 * [enable](/auto-docs/history/interfaces/HistoryPluginOptions.md#enable)
+* [enableChangeNode](/auto-docs/history/interfaces/HistoryPluginOptions.md#enablechangenode)
 * [onApply](/auto-docs/history/interfaces/HistoryPluginOptions.md#onapply)
 
 ## Properties
@@ -18,6 +19,12 @@
 ### enable
 
 `Optional` **enable**: `boolean`
+
+***
+
+### enableChangeNode
+
+`Optional` **enableChangeNode**: `boolean`
 
 ***
 

@@ -1,5 +1,7 @@
 # Interface: VariableChainConfig
 
+Configuration for the variable chain.
+
 ## Table of contents
 
 ### Properties
@@ -81,7 +83,7 @@ The output variables of a node's children cannot be accessed by subsequent nodes
 
 `Optional` **transformCovers**: `IScopeTransformer`
 
-对依赖作用域进行微调
+Fine-tune the cover scope.
 
 ***
 
@@ -89,4 +91,4 @@ The output variables of a node's children cannot be accessed by subsequent nodes
 
 `Optional` **transformDeps**: `IScopeTransformer`
 
-Fine-tune the dependency scope
+Fine-tune the dependency scope.

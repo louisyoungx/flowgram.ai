@@ -4,6 +4,8 @@
 
 **createWrapArrayExpression**(`json`): `Object`
 
+Creates a `WrapArrayExpression` node.
+
 #### Parameters
 
 | Name | Type |
@@ -14,7 +16,7 @@
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
-| `kind` | [`ASTKind`](/en/auto-docs/variable-core/enums/ASTKind.md) |
-| `wrapFor` | [`ASTNodeJSON`](/en/auto-docs/variable-core/interfaces/ASTNodeJSON.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `kind` | [`ASTKind`](/en/auto-docs/variable-core/enums/ASTKind.md) | - |
+| `wrapFor` | [`ASTNodeJSON`](/en/auto-docs/variable-core/interfaces/ASTNodeJSON.md) | The expression to be wrapped. |

@@ -1,7 +1,6 @@
 # Class: ObjectType
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+Represents an object type.
 
 ## Hierarchy
 
@@ -55,13 +54,13 @@ SPDX-License-Identifier: MIT
 
 **new ObjectType**(`createParams`, `opts?`)
 
-构造函数
+Constructor.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `createParams` | [`CreateASTParams`](/en/auto-docs/fixed-layout-editor/interfaces/CreateASTParams.md) | 创建 ASTNode 的必要参数 |
+| `createParams` | [`CreateASTParams`](/en/auto-docs/fixed-layout-editor/interfaces/CreateASTParams.md) | Necessary parameters for creating an ASTNode. |
 | `opts?` | `any` | - |
 
 #### Inherited from
@@ -74,7 +73,10 @@ SPDX-License-Identifier: MIT
 
 **changeLocked**: `boolean`
 
-更新锁
+Update lock.
+
+* When set to `true`, `fireChange` will not trigger any events.
+* This is useful when multiple updates are needed, and you want to avoid multiple triggers.
 
 #### Inherited from
 
@@ -86,7 +88,7 @@ SPDX-License-Identifier: MIT
 
 **flags**: [`ASTNodeFlags`](/en/auto-docs/fixed-layout-editor/enums/ASTNodeFlags.md)
 
-节点 Flags，记录一些 Flag 信息
+Node flags, used to record some flag information.
 
 #### Overrides
 
@@ -98,9 +100,11 @@ SPDX-License-Identifier: MIT
 
 `Readonly` **key**: `string`
 
-节点的唯一标识符，节点不指定则默认由 nanoid 生成，不可更改
+The unique identifier of the ASTNode, which is **immutable**.
 
-* 如需要生成新 key，则销毁当前节点并生成新的节点
+* Immutable: Once assigned, the key cannot be changed.
+* Automatically generated if not specified, and cannot be changed as well.
+* If a new key needs to be generated, the current ASTNode should be destroyed and a new ASTNode should be generated.
 
 #### Inherited from
 
@@ -112,7 +116,7 @@ SPDX-License-Identifier: MIT
 
 **onDispose**: [`Event`](/en/auto-docs/fixed-layout-editor/interfaces/Event-1.md)<`void`>
 
-销毁时触发的回调
+Callback triggered upon disposal.
 
 #### Inherited from
 
@@ -126,9 +130,9 @@ SPDX-License-Identifier: MIT
 
 **`Deprecated`**
 
-获取 ASTNode 注入的 opts
+Get the injected options for the ASTNode.
 
-请使用 @injectToAst(XXXService) declare xxxService: XXXService 实现外部依赖注入
+Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve external dependency injection.
 
 #### Inherited from
 
@@ -140,7 +144,7 @@ SPDX-License-Identifier: MIT
 
 `Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>
 
-父节点
+The parent ASTNode.
 
 #### Inherited from
 
@@ -152,11 +156,15 @@ SPDX-License-Identifier: MIT
 
 **properties**: [`Property`](/en/auto-docs/fixed-layout-editor/classes/Property.md)<`any`>\[]
 
+An array of `Property` instances.
+
 ***
 
 ### propertyTable
 
 **propertyTable**: `Map`<`string`, [`Property`](/en/auto-docs/fixed-layout-editor/classes/Property.md)<`any`>>
+
+A map of property keys to `Property` instances.
 
 ***
 
@@ -164,7 +172,7 @@ SPDX-License-Identifier: MIT
 
 `Readonly` **scope**: [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>
 
-节点所处的作用域
+The scope in which the ASTNode is located.
 
 #### Inherited from
 
@@ -176,7 +184,7 @@ SPDX-License-Identifier: MIT
 
 `Readonly` **toDispose**: [`DisposableCollection`](/en/auto-docs/fixed-layout-editor/classes/DisposableCollection.md)
 
-删除节点处理事件列表
+List of disposal handlers for the ASTNode.
 
 #### Inherited from
 
@@ -188,9 +196,10 @@ SPDX-License-Identifier: MIT
 
 `Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>>
 
-AST 节点变化事件，基于 Rxjs 实现
+AST node change Observable events, implemented based on RxJS.
 
-* 使用了 BehaviorSubject, 在订阅时会自动触发一次事件，事件为当前值
+* Emits the current ASTNode value upon subscription.
+* Emits a new value whenever `fireChange` is called.
 
 #### Inherited from
 
@@ -202,7 +211,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `Static` **kind**: `string`
 
-节点类型
+The kind of the ASTNode.
 
 #### Overrides
 
@@ -214,7 +223,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `get` **children**(): [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
 
-获取当前节点所有子节点
+Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
@@ -244,7 +253,10 @@ BaseType.disposed
 
 `get` **hash**(): `string`
 
-节点唯一 hash 值
+The unique hash value of the ASTNode.
+
+* It will update when the ASTNode is updated.
+* You can used to check two ASTNode are equal.
 
 #### Returns
 
@@ -260,7 +272,7 @@ BaseType.hash
 
 `get` **kind**(): `string`
 
-AST 节点的类型
+The type of the ASTNode.
 
 #### Returns
 
@@ -276,9 +288,9 @@ BaseType.kind
 
 `get` **version**(): `number`
 
-节点的版本值
+The version value of the ASTNode.
 
-* 通过 NodeA === NodeB && versionA === versionB 可以比较两者是否相等
+* You can used to check whether ASTNode are updated.
 
 #### Returns
 
@@ -294,6 +306,8 @@ BaseType.version
 
 **dispatchGlobalEvent**<`ActionType`>(`event`): `void`
 
+Dispatches a global event for the current ASTNode.
+
 #### Type parameters
 
 | Name | Type |
@@ -302,9 +316,9 @@ BaseType.version
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `event` | `Omit`<`ActionType`, `"ast"`> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `event` | `Omit`<`ActionType`, `"ast"`> | The global event. |
 
 #### Returns
 
@@ -320,7 +334,7 @@ BaseType.version
 
 **dispose**(): `void`
 
-销毁
+Disposes the ASTNode.
 
 #### Returns
 
@@ -336,7 +350,7 @@ BaseType.version
 
 **fireChange**(): `void`
 
-触发当前节点更新
+Triggers an update for the current node.
 
 #### Returns
 
@@ -350,15 +364,15 @@ BaseType.version
 
 ### fromJSON
 
-**fromJSON**(`«destructured»`): `void`
+**fromJSON**(`json`): `void`
 
-解析 AST JSON 数据
+Deserializes the `ObjectJSON` to the `ObjectType`.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `«destructured»` | [`ObjectJSON`](/en/auto-docs/fixed-layout-editor/interfaces/ObjectJSON.md)<`any`> | AST JSON 数据 |
+| `json` | [`ObjectJSON`](/en/auto-docs/fixed-layout-editor/interfaces/ObjectJSON.md)<`any`> | The `ObjectJSON` to deserialize. |
 
 #### Returns
 
@@ -374,17 +388,19 @@ BaseType.version
 
 **getByKeyPath**(`keyPath`): `undefined` | [`Property`](/en/auto-docs/fixed-layout-editor/classes/Property.md)<`any`>
 
-根据 KeyPath 找到对应的变量
+Get a variable field by key path.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `keyPath` | `string`\[] | 变量路径 |
+| `keyPath` | `string`\[] | The key path to search for. |
 
 #### Returns
 
 `undefined` | [`Property`](/en/auto-docs/fixed-layout-editor/classes/Property.md)<`any`>
+
+The variable field if found, otherwise `undefined`.
 
 #### Overrides
 
@@ -396,17 +412,19 @@ BaseType.version
 
 **isTypeEqual**(`targetTypeJSONOrKind?`): `boolean`
 
-类型是否一致
+Check if the current type is equal to the target type.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `targetTypeJSONOrKind?` | `ASTNodeJSONOrKind` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `targetTypeJSONOrKind?` | `ASTNodeJSONOrKind` | The type to compare with. |
 
 #### Returns
 
 `boolean`
+
+`true` if the types are equal, `false` otherwise.
 
 #### Overrides
 
@@ -418,7 +436,7 @@ BaseType.version
 
 **subscribe**<`Data`>(`observer`, `selector?`): [`Disposable`](/en/auto-docs/fixed-layout-editor/interfaces/Disposable-1.md)
 
-监听 AST 节点的变化
+Listens for changes to the ASTNode.
 
 #### Type parameters
 
@@ -430,8 +448,8 @@ BaseType.version
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `observer` | `ObserverOrNext`<`Data`> | 监听回调 |
-| `selector?` | `SubscribeConfig`<[`ObjectType`](/en/auto-docs/fixed-layout-editor/classes/ObjectType.md), `Data`> | 监听指定数据 |
+| `observer` | `ObserverOrNext`<`Data`> | The listener callback. |
+| `selector?` | `SubscribeConfig`<[`ObjectType`](/en/auto-docs/fixed-layout-editor/classes/ObjectType.md), `Data`> | Listens for specified data. |
 
 #### Returns
 
@@ -447,11 +465,13 @@ BaseType.version
 
 **toJSON**(): [`ASTNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/ASTNodeJSON.md)
 
-Get AST JSON for current base type
+Serialize the `ObjectType` to `ObjectJSON`.
 
 #### Returns
 
 [`ASTNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/ASTNodeJSON.md)
+
+The JSON representation of `ObjectType`.
 
 #### Overrides
 

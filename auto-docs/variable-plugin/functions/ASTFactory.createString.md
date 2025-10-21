@@ -2,9 +2,15 @@
 
 [ASTFactory](/auto-docs/variable-plugin/modules/ASTFactory.md).createString
 
-**createString**(): `Object`
+**createString**(`json?`): `Object`
 
-类型相关
+Creates a `String` type node.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `json?` | `StringJSON` |
 
 #### Returns
 
@@ -12,4 +18,5 @@
 
 | Name | Type |
 | :------ | :------ |
+| `format?` | `string` |
 | `kind` | [`ASTKind`](/auto-docs/variable-plugin/enums/ASTKind.md) |

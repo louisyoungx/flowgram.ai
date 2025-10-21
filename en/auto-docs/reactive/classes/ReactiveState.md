@@ -98,17 +98,23 @@ ReactiveBaseState.value
 
 ### get
 
-**get**(`key`): `V`\[keyof `V` & `string`]
+**get**<`K`>(`key`): `V`\[`K`]
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `K` | extends `string` |
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `key` | keyof `V` & `string` |
+| `key` | `K` |
 
 #### Returns
 
-`V`\[keyof `V` & `string`]
+`V`\[`K`]
 
 ***
 
@@ -138,14 +144,20 @@ ReactiveBaseState.value
 
 ### set
 
-**set**(`key`, `value`): `boolean`
+**set**<`K`>(`key`, `value`): `boolean`
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `K` | extends `string` |
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `key` | keyof `V` & `string` |
-| `value` | `any` |
+| `key` | `K` |
+| `value` | `V`\[`K`] |
 
 #### Returns
 

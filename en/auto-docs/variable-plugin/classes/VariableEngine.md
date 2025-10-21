@@ -1,5 +1,8 @@
 # Class: VariableEngine
 
+The core of the variable engine system.
+It manages scopes, variables, and events within the system.
+
 ## Implements
 
 * `Disposable`
@@ -40,10 +43,10 @@
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `chain` | [`ScopeChain`](/en/auto-docs/variable-plugin/classes/ScopeChain.md) |
-| `astRegisters` | [`ASTRegisters`](/en/auto-docs/variable-plugin/classes/ASTRegisters.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `chain` | [`ScopeChain`](/en/auto-docs/variable-plugin/classes/ScopeChain.md) | The scope chain, which manages the dependency relationships between scopes. |
+| `astRegisters` | [`ASTRegisters`](/en/auto-docs/variable-plugin/classes/ASTRegisters.md) | The registry for all AST node types. |
 
 ## Properties
 
@@ -51,11 +54,15 @@
 
 `Readonly` **astRegisters**: [`ASTRegisters`](/en/auto-docs/variable-plugin/classes/ASTRegisters.md)
 
+The registry for all AST node types.
+
 ***
 
 ### chain
 
 `Readonly` **chain**: [`ScopeChain`](/en/auto-docs/variable-plugin/classes/ScopeChain.md)
+
+The scope chain, which manages the dependency relationships between scopes.
 
 ***
 
@@ -63,11 +70,15 @@
 
 **globalEvent$**: `Subject`<[`GlobalEventActionType`](/en/auto-docs/variable-plugin/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>>>
 
+A rxjs subject that emits global events occurring within the variable engine.
+
 ***
 
 ### globalVariableTable
 
 **globalVariableTable**: [`IVariableTable`](/en/auto-docs/variable-plugin/interfaces/IVariableTable.md)
+
+A table containing all global variables.
 
 ***
 
@@ -75,11 +86,15 @@
 
 **onScopeChange**: `Event`<`ScopeChangeAction`>
 
+An event that fires whenever a scope is added, updated, or deleted.
+
 ## Accessors
 
 ### container
 
 `get` **container**(): `Container`
+
+The Inversify container instance.
 
 #### Returns
 
@@ -91,26 +106,30 @@
 
 **createScope**(`id`, `meta?`, `options?`): [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>
 
-Get Scope, if Scope exists and type is same, will use it directly
+Creates a new scope or retrieves an existing one if the ID and type match.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `id` | `string` | `symbol` | scope id |
-| `meta?` | `Record`<`string`, `any`> | scope meta, defined by user |
-| `options?` | `Object` | - |
-| `options.ScopeConstructor?` | `IScopeConstructor` | - |
+| `id` | `string` | `symbol` | The unique identifier for the scope. |
+| `meta?` | `Record`<`string`, `any`> | Optional metadata for the scope, defined by the user. |
+| `options?` | `Object` | Options for creating the scope. |
+| `options.ScopeConstructor?` | `IScopeConstructor` | The constructor to use for creating the scope. Defaults to `Scope`. |
 
 #### Returns
 
 [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>
+
+The created or existing scope.
 
 ***
 
 ### dispose
 
 **dispose**(): `void`
+
+Disposes of all resources used by the variable engine.
 
 #### Returns
 
@@ -126,11 +145,13 @@ Disposable.dispose
 
 **fireGlobalEvent**(`event`): `void`
 
+Fires a global event to be broadcast to all listeners.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `event` | [`GlobalEventActionType`](/en/auto-docs/variable-plugin/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `event` | [`GlobalEventActionType`](/en/auto-docs/variable-plugin/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>> | The global event to fire. |
 
 #### Returns
 
@@ -140,18 +161,22 @@ Disposable.dispose
 
 ### getAllScopes
 
-**getAllScopes**(`«destructured»?`): [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+**getAllScopes**(`options?`): [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+Retrieves all scopes currently managed by the engine.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `«destructured»` | `Object` |
-| › `sort?` | `boolean` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `options?` | `Object` | Options for retrieving the scopes. |
+| `options.sort?` | `boolean` | Whether to sort the scopes based on their dependency chain. |
 
 #### Returns
 
 [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+An array of all scopes.
 
 ***
 
@@ -159,21 +184,27 @@ Disposable.dispose
 
 **getScopeById**(`scopeId`): `undefined` | [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>
 
+Retrieves a scope by its unique identifier.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scopeId` | `string` | `symbol` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scopeId` | `string` | `symbol` | The ID of the scope to retrieve. |
 
 #### Returns
 
 `undefined` | [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>
+
+The scope if found, otherwise undefined.
 
 ***
 
 ### onGlobalEvent
 
 **onGlobalEvent**<`ActionType`>(`type`, `observer`): `Disposable`
+
+Subscribes to a specific type of global event.
 
 #### Type parameters
 
@@ -183,14 +214,16 @@ Disposable.dispose
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `type` | `ActionType`\[`"type"`] |
-| `observer` | (`action`: `ActionType`) => `void` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `type` | `ActionType`\[`"type"`] | The type of the event to listen for. |
+| `observer` | (`action`: `ActionType`) => `void` | A function to be called when the event is observed. |
 
 #### Returns
 
 `Disposable`
+
+A disposable object to unsubscribe from the event.
 
 ***
 
@@ -198,11 +231,13 @@ Disposable.dispose
 
 **removeScopeById**(`scopeId`): `void`
 
+Removes a scope by its unique identifier and disposes of it.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scopeId` | `string` | `symbol` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scopeId` | `string` | `symbol` | The ID of the scope to remove. |
 
 #### Returns
 

@@ -1,7 +1,8 @@
 # Namespace: ASTMatch
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+Variable-core ASTNode matchers.
+
+* Typescript code inside if statement will be type guarded.
 
 ## Table of contents
 
@@ -9,6 +10,7 @@ SPDX-License-Identifier: MIT
 
 * [is](/auto-docs/fixed-layout-editor/functions/ASTMatch.is.md)
 * [isArray](/auto-docs/fixed-layout-editor/functions/ASTMatch.isArray.md)
+* [isBaseVariableField](/auto-docs/fixed-layout-editor/functions/ASTMatch.isBaseVariableField.md)
 * [isBoolean](/auto-docs/fixed-layout-editor/functions/ASTMatch.isBoolean.md)
 * [isCustomType](/auto-docs/fixed-layout-editor/functions/ASTMatch.isCustomType.md)
 * [isEnumerateExpression](/auto-docs/fixed-layout-editor/functions/ASTMatch.isEnumerateExpression.md)
@@ -21,3 +23,4 @@ SPDX-License-Identifier: MIT
 * [isString](/auto-docs/fixed-layout-editor/functions/ASTMatch.isString.md)
 * [isVariableDeclaration](/auto-docs/fixed-layout-editor/functions/ASTMatch.isVariableDeclaration.md)
 * [isVariableDeclarationList](/auto-docs/fixed-layout-editor/functions/ASTMatch.isVariableDeclarationList.md)
+* [isWrapArrayExpression](/auto-docs/fixed-layout-editor/functions/ASTMatch.isWrapArrayExpression.md)

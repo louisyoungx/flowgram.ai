@@ -10,11 +10,44 @@
 
 ### Properties
 
+* [form](/en/auto-docs/node-variable-plugin/interfaces/VariableAbilityParseContext.md#form)
+* [formValues](/en/auto-docs/node-variable-plugin/interfaces/VariableAbilityParseContext.md#formvalues)
+* [name](/en/auto-docs/node-variable-plugin/interfaces/VariableAbilityParseContext.md#name)
 * [node](/en/auto-docs/node-variable-plugin/interfaces/VariableAbilityParseContext.md#node)
 * [options](/en/auto-docs/node-variable-plugin/interfaces/VariableAbilityParseContext.md#options)
 * [scope](/en/auto-docs/node-variable-plugin/interfaces/VariableAbilityParseContext.md#scope)
 
 ## Properties
+
+### form
+
+**form**: `Form$1`<`any`>
+
+#### Inherited from
+
+VariableAbilityCommonContext.form
+
+***
+
+### formValues
+
+**formValues**: `any`
+
+#### Inherited from
+
+VariableAbilityCommonContext.formValues
+
+***
+
+### name
+
+**name**: `string`
+
+#### Inherited from
+
+VariableAbilityCommonContext.name
+
+***
 
 ### node
 

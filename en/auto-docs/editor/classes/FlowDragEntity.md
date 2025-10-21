@@ -55,7 +55,6 @@
 * [removeData](/en/auto-docs/editor/classes/FlowDragEntity.md#removedata)
 * [reset](/en/auto-docs/editor/classes/FlowDragEntity.md#reset)
 * [scrollDirection](/en/auto-docs/editor/classes/FlowDragEntity.md#scrolldirection)
-* [setDomStyle](/en/auto-docs/editor/classes/FlowDragEntity.md#setdomstyle)
 * [stopAllScroll](/en/auto-docs/editor/classes/FlowDragEntity.md#stopallscroll)
 * [toJSON](/en/auto-docs/editor/classes/FlowDragEntity.md#tojson)
 * [updateConfig](/en/auto-docs/editor/classes/FlowDragEntity.md#updateconfig)
@@ -630,30 +629,19 @@ ConfigEntity.version
 
 ### scrollDirection
 
-**scrollDirection**(`e`, `containerDom`, `x`, `y`): `undefined` | `ScrollDirection`
+**scrollDirection**(`e`, `x`, `y`): `undefined` | `ScrollDirection`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `e` | `MouseEvent` |
-| `containerDom` | `HTMLDivElement` |
 | `x` | `number` |
 | `y` | `number` |
 
 #### Returns
 
 `undefined` | `ScrollDirection`
-
-***
-
-### setDomStyle
-
-**setDomStyle**(): `void`
-
-#### Returns
-
-`void`
 
 ***
 

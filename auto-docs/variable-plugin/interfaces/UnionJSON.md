@@ -1,7 +1,6 @@
 # Interface: UnionJSON
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+ASTNodeJSON representation of `UnionType`, which union multiple `BaseType`.
 
 ## Table of contents
 

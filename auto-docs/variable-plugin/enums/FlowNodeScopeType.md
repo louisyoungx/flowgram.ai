@@ -1,7 +1,6 @@
 # Enumeration: FlowNodeScopeType
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+Enum for flow node scope types.
 
 ## Table of contents
 
@@ -16,8 +15,12 @@ SPDX-License-Identifier: MIT
 
 **private** = `"private"`
 
+Private scope.
+
 ***
 
 ### public
 
 **public** = `"public"`
+
+Public scope.

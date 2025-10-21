@@ -1,6 +1,6 @@
 # Class: FlowNodeVariableData
 
-实体的数据块
+Manages variable data for a flow node, including public and private scopes.
 
 ## Hierarchy
 
@@ -150,6 +150,8 @@
 
 `get` **allScopes**(): [`FlowNodeScope`](/en/auto-docs/free-layout-editor/interfaces/FlowNodeScope.md)\[]
 
+An array containing all scopes (public and private) of the node.
+
 #### Returns
 
 [`FlowNodeScope`](/en/auto-docs/free-layout-editor/interfaces/FlowNodeScope.md)\[]
@@ -234,6 +236,8 @@ EntityData.onDispose
 
 `get` **private**(): `undefined` | [`FlowNodeScope`](/en/auto-docs/free-layout-editor/interfaces/FlowNodeScope.md)
 
+The private scope of the node.
+
 #### Returns
 
 `undefined` | [`FlowNodeScope`](/en/auto-docs/free-layout-editor/interfaces/FlowNodeScope.md)
@@ -243,6 +247,8 @@ EntityData.onDispose
 ### public
 
 `get` **public**(): [`FlowNodeScope`](/en/auto-docs/free-layout-editor/interfaces/FlowNodeScope.md)
+
+The public scope of the node.
 
 #### Returns
 
@@ -530,9 +536,14 @@ The value of the variable, or undefined if not found.
 
 **initPrivate**(): [`FlowNodeScope`](/en/auto-docs/free-layout-editor/interfaces/FlowNodeScope.md)
 
+Initializes and returns the private scope for the node.
+If the private scope already exists, it returns the existing one.
+
 #### Returns
 
 [`FlowNodeScope`](/en/auto-docs/free-layout-editor/interfaces/FlowNodeScope.md)
+
+The private scope of the node.
 
 ***
 

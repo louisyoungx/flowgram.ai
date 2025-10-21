@@ -34,8 +34,6 @@ SPDX-License-Identifier: MIT
 * [registry](/auto-docs/editor/classes/Playground.md#registry)
 * [selectionService](/auto-docs/editor/classes/Playground.md#selectionservice)
 * [toDispose](/auto-docs/editor/classes/Playground.md#todispose)
-* [onInstanceCreate](/auto-docs/editor/classes/Playground.md#oninstancecreate)
-* [onInstanceDispose](/auto-docs/editor/classes/Playground.md#oninstancedispose)
 
 ### Accessors
 
@@ -45,6 +43,7 @@ SPDX-License-Identifier: MIT
 * [editorState](/auto-docs/editor/classes/Playground.md#editorstate)
 * [focused](/auto-docs/editor/classes/Playground.md#focused)
 * [onAllLayersRendered](/auto-docs/editor/classes/Playground.md#onalllayersrendered)
+* [onResize](/auto-docs/editor/classes/Playground.md#onresize)
 * [pipelineNode](/auto-docs/editor/classes/Playground.md#pipelinenode)
 * [zoomEnable](/auto-docs/editor/classes/Playground.md#zoomenable)
 
@@ -62,8 +61,6 @@ SPDX-License-Identifier: MIT
 * [scrollToView](/auto-docs/editor/classes/Playground.md#scrolltoview)
 * [setParent](/auto-docs/editor/classes/Playground.md#setparent)
 * [toReactComponent](/auto-docs/editor/classes/Playground.md#toreactcomponent)
-* [getAllInstances](/auto-docs/editor/classes/Playground.md#getallinstances)
-* [getLatest](/auto-docs/editor/classes/Playground.md#getlatest)
 
 ## Constructors
 
@@ -173,22 +170,6 @@ SPDX-License-Identifier: MIT
 
 `Readonly` **toDispose**: [`DisposableCollection`](/auto-docs/editor/classes/DisposableCollection.md)
 
-***
-
-### onInstanceCreate
-
-`Static` **onInstanceCreate**: [`Event`](/auto-docs/editor/interfaces/Event-1.md)<[`Playground`](/auto-docs/editor/classes/Playground.md)<`any`>>
-
-有实例创建
-
-***
-
-### onInstanceDispose
-
-`Static` **onInstanceDispose**: [`Event`](/auto-docs/editor/interfaces/Event-1.md)<[`Playground`](/auto-docs/editor/classes/Playground.md)<`any`>>
-
-有实例销毁
-
 ## Accessors
 
 ### config
@@ -252,6 +233,16 @@ SPDX-License-Identifier: MIT
 #### Returns
 
 [`Event`](/auto-docs/editor/interfaces/Event-1.md)<`void`>
+
+***
+
+### onResize
+
+`get` **onResize**(): [`Event`](/auto-docs/editor/interfaces/Event-1.md)<[`PipelineDimension`](/auto-docs/editor/interfaces/PipelineDimension.md)>
+
+#### Returns
+
+[`Event`](/auto-docs/editor/interfaces/Event-1.md)<[`PipelineDimension`](/auto-docs/editor/interfaces/PipelineDimension.md)>
 
 ***
 
@@ -426,7 +417,7 @@ SPDX-License-Identifier: MIT
 
 ### resize
 
-**resize**(`msg?`, `scrollToCenter?`): `void`
+**resize**(`msg?`, `scrollToCenter?`): `boolean`
 
 这里会由 widget 透传进来
 
@@ -439,7 +430,7 @@ SPDX-License-Identifier: MIT
 
 #### Returns
 
-`void`
+`boolean`
 
 ***
 
@@ -490,23 +481,3 @@ SPDX-License-Identifier: MIT
 #### Returns
 
 `FC`<{}>
-
-***
-
-### getAllInstances
-
-`Static` **getAllInstances**(): [`Playground`](/auto-docs/editor/classes/Playground.md)<`any`>\[]
-
-#### Returns
-
-[`Playground`](/auto-docs/editor/classes/Playground.md)<`any`>\[]
-
-***
-
-### getLatest
-
-`Static` **getLatest**(): `undefined` | [`Playground`](/auto-docs/editor/classes/Playground.md)<`any`>
-
-#### Returns
-
-`undefined` | [`Playground`](/auto-docs/editor/classes/Playground.md)<`any`>

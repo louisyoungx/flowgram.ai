@@ -19,10 +19,12 @@
 
 `Optional` **declarations**: [`VariableDeclarationJSON`](/en/auto-docs/variable-core/types/VariableDeclarationJSON.md)<`VariableMeta`>\[]
 
-declarations 一定是 VariableDeclaration 类型，因此业务可以不用填 kind
+`declarations` must be of type `VariableDeclaration`, so the business can omit the `kind` field.
 
 ***
 
 ### startOrder
 
 `Optional` **startOrder**: `number`
+
+The starting order number for variables.

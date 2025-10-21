@@ -24,6 +24,7 @@
 * [onEntityChange](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#onentitychange)
 * [onGrabDisableChange](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#ongrabdisablechange)
 * [onReadonlyOrDisabledChange](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#onreadonlyordisabledchange)
+* [playgroundDomNode](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#playgrounddomnode)
 * [preDispose](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#predispose)
 * [toDispose](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#todispose)
 * [type](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#type)
@@ -60,6 +61,7 @@
 * [fitView](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#fitview)
 * [fixLayerPosition](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#fixlayerposition)
 * [fromJSON](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#fromjson)
+* [getClientBounds](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#getclientbounds)
 * [getData](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#getdata)
 * [getDefaultConfig](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#getdefaultconfig)
 * [getDefaultDataRegistries](/en/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#getdefaultdataregistries)
@@ -170,6 +172,12 @@
 ### onReadonlyOrDisabledChange
 
 `Readonly` **onReadonlyOrDisabledChange**: [`Event`](/en/auto-docs/playground-react/interfaces/Event-1.md)<{ `disabled`: `boolean` ; `readonly`: `boolean`  }>
+
+***
+
+### playgroundDomNode
+
+**playgroundDomNode**: `HTMLElement`
 
 ***
 
@@ -714,6 +722,16 @@ use 'zoomDisable' instead
 #### Inherited from
 
 [ConfigEntity](/en/auto-docs/playground-react/classes/ConfigEntity.md).[fromJSON](/en/auto-docs/playground-react/classes/ConfigEntity.md#fromjson)
+
+***
+
+### getClientBounds
+
+**getClientBounds**(): `Rectangle`
+
+#### Returns
+
+`Rectangle`
 
 ***
 

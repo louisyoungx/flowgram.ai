@@ -251,7 +251,7 @@
 
 ### startDrawingLine
 
-**startDrawingLine**(`fromPort`, `event`, `originLine?`): `Promise`<{ `dragSuccess?`: `boolean` ; `newLine?`: [`WorkflowLineEntity`](/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)  }>
+**startDrawingLine**(`port`, `event`, `originLine?`): `Promise`<{ `dragSuccess?`: `boolean` ; `newLine?`: [`WorkflowLineEntity`](/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)  }>
 
 绘制线条
 
@@ -259,7 +259,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `fromPort` | [`WorkflowPortEntity`](/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) |
+| `port` | [`WorkflowPortEntity`](/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) |
 | `event` | `Object` |
 | `event.clientX` | `number` |
 | `event.clientY` | `number` |

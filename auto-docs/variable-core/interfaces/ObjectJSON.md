@@ -1,5 +1,7 @@
 # Interface: ObjectJSON\<VariableMeta>
 
+ASTNodeJSON representation of `ObjectType`
+
 ## Type parameters
 
 | Name | Type |
@@ -18,4 +20,6 @@
 
 `Optional` **properties**: [`PropertyJSON`](/auto-docs/variable-core/types/PropertyJSON.md)<`VariableMeta`>\[]
 
-Object 的 properties 一定是 Property 类型，因此业务可以不用填 kind
+The properties of the object.
+
+The `properties` of an Object must be of type `Property`, so the business can omit the `kind` field.

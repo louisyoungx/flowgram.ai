@@ -21,17 +21,20 @@
 
 ### autoLayout
 
-**autoLayout**: (`options?`: [`AutoLayoutToolOptions`](/auto-docs/free-layout-editor/types/AutoLayoutToolOptions.md)) => `Promise`<[`AutoLayoutResetFn`](/auto-docs/free-layout-editor/types/AutoLayoutResetFn.md)>
+**autoLayout**: (`options?`: `LayoutOptions`) => `Promise`<[`AutoLayoutResetFn`](/auto-docs/free-layout-editor/types/AutoLayoutResetFn.md)>
 
 #### Type declaration
 
 (`options?`): `Promise`<[`AutoLayoutResetFn`](/auto-docs/free-layout-editor/types/AutoLayoutResetFn.md)>
 
+Auto layout tool - 自动布局工具
+https://flowgram.ai/guide/plugin/free-auto-layout-plugin.html
+
 ##### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `options?` | [`AutoLayoutToolOptions`](/auto-docs/free-layout-editor/types/AutoLayoutToolOptions.md) |
+| `options?` | `LayoutOptions` |
 
 ##### Returns
 

@@ -1,6 +1,6 @@
 # Function: BatchVariableSelector
 
-**BatchVariableSelector**(`props`): `Element`
+**BatchVariableSelector**(`props`): `any`
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`Element`
+`any`

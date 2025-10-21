@@ -1,0 +1,9 @@
+# 定制作用域链(WIP)
+
+## 常见场景
+
+## 配置 variableEngine.chainConfig
+
+## 通过 ScopeChainTransformService
+
+## 通过插件定制作用域链

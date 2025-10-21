@@ -6,9 +6,9 @@
 
   ↳ **`PromptEditorPropsType`**
 
-  ↳↳ [`PromptEditorWithVariablesProps`](/en/auto-docs/form-materials/interfaces/PromptEditorWithVariablesProps.md)
-
   ↳↳ [`PromptEditorWithInputsProps`](/en/auto-docs/form-materials/interfaces/PromptEditorWithInputsProps.md)
+
+  ↳↳ [`PromptEditorWithVariablesProps`](/en/auto-docs/form-materials/interfaces/PromptEditorWithVariablesProps.md)
 
 ## Table of contents
 
@@ -93,7 +93,7 @@ PropsType.onChange
 
 ### options
 
-`Optional` **options**: `Partial`<{ `fontSize`: `number`  } & { `placeholder`: `string` | `HTMLElement`  } & { `readOnly`: `boolean`  } & { `editable`: `boolean`  } & { `inputRules`: `InputRule`\[]  } & { `contentAttributes`: `Attrs` | (`view`: `EditorView`) => `null` | `Attrs`  } & { `minHeight`: `string` | `number`  } & { `maxHeight`: `string` | `number`  } & { `height`: `string` | `number`  }>
+`Optional` **options**: `Partial`<{ `fontSize`: `number`  } & { `placeholder`: `string` | `HTMLElement`  } & { `readOnly`: `boolean`  } & { `editable`: `boolean`  } & { `height`: `string` | `number`  } & { `minHeight`: `string` | `number`  } & { `maxHeight`: `string` | `number`  } & { `inputRules`: `InputRule`\[]  } & { `contentAttributes`: `Attrs` | (`view`: `EditorView`) => `null` | `Attrs`  }>
 
 ***
 

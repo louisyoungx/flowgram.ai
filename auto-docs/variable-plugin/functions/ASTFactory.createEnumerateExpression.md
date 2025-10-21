@@ -4,7 +4,7 @@
 
 **createEnumerateExpression**(`json`): `Object`
 
-表达式相关
+Creates an `EnumerateExpression` node.
 
 #### Parameters
 

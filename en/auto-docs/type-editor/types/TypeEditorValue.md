@@ -7,4 +7,4 @@
 | Name | Type |
 | :------ | :------ |
 | `Mode` | extends [`TypeEditorMode`](/en/auto-docs/type-editor/types/TypeEditorMode.md) |
-| `TypeSchema` | extends `Partial`<[`IJsonSchema`](/en/auto-docs/type-editor/interfaces/IJsonSchema.md)> |
+| `TypeSchema` | extends `Partial`<`IJsonSchema`> |

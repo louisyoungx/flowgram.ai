@@ -1,8 +1,5 @@
 # Interface: FlowDragOptions
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
-
 ## Table of contents
 
 ### Properties
@@ -14,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 ### canDrop
 
-`Optional` **canDrop**: (`opts`: { `dragNodes`: [`FlowNodeEntity`](/en/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)\[] ; `dropNode`: [`FlowNodeEntity`](/en/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md) ; `isBranch?`: `boolean`  }) => `boolean`
+`Optional` **canDrop**: (`opts`: `Object`) => `boolean`
 
 #### Type declaration
 
@@ -25,9 +22,6 @@ SPDX-License-Identifier: MIT
 | Name | Type |
 | :------ | :------ |
 | `opts` | `Object` |
-| `opts.dragNodes` | [`FlowNodeEntity`](/en/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)\[] |
-| `opts.dropNode` | [`FlowNodeEntity`](/en/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md) |
-| `opts.isBranch?` | `boolean` |
 
 ##### Returns
 

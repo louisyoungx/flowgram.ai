@@ -5,7 +5,7 @@
 | Name | Type |
 | :------ | :------ |
 | `Mode` | extends [`TypeEditorMode`](/auto-docs/type-editor/types/TypeEditorMode.md) |
-| `TypeSchema` | extends `Partial`<[`IJsonSchema`](/auto-docs/type-editor/interfaces/IJsonSchema.md)> |
+| `TypeSchema` | extends `Partial`<`IJsonSchema`> |
 
 ## Table of contents
 
@@ -23,57 +23,57 @@
 
 ### getContainer
 
-**getContainer**: () => `undefined` | `HTMLDivElement`
+**getContainer**: () => `HTMLDivElement`
 
 #### Type declaration
 
-(): `undefined` | `HTMLDivElement`
+(): `HTMLDivElement`
 
 ##### Returns
 
-`undefined` | `HTMLDivElement`
+`HTMLDivElement`
 
 ***
 
 ### getOperator
 
-**getOperator**: () => `undefined` | `TypeEditorOperationService`<`TypeSchema`>
+**getOperator**: () => `TypeEditorOperationService`<`TypeSchema`>
 
 #### Type declaration
 
-(): `undefined` | `TypeEditorOperationService`<`TypeSchema`>
+(): `TypeEditorOperationService`<`TypeSchema`>
 
 ##### Returns
 
-`undefined` | `TypeEditorOperationService`<`TypeSchema`>
+`TypeEditorOperationService`<`TypeSchema`>
 
 ***
 
 ### getService
 
-**getService**: () => `undefined` | [`TypeEditorService`](/auto-docs/type-editor/classes/TypeEditorService.md)<`TypeSchema`>
+**getService**: () => [`TypeEditorService`](/auto-docs/type-editor/classes/TypeEditorService.md)<`TypeSchema`>
 
 #### Type declaration
 
-(): `undefined` | [`TypeEditorService`](/auto-docs/type-editor/classes/TypeEditorService.md)<`TypeSchema`>
+(): [`TypeEditorService`](/auto-docs/type-editor/classes/TypeEditorService.md)<`TypeSchema`>
 
 ##### Returns
 
-`undefined` | [`TypeEditorService`](/auto-docs/type-editor/classes/TypeEditorService.md)<`TypeSchema`>
+[`TypeEditorService`](/auto-docs/type-editor/classes/TypeEditorService.md)<`TypeSchema`>
 
 ***
 
 ### getValue
 
-**getValue**: () => `undefined` | [`TypeEditorValue`](/auto-docs/type-editor/types/TypeEditorValue.md)<`Mode`, `TypeSchema`>
+**getValue**: () => [`TypeEditorValue`](/auto-docs/type-editor/types/TypeEditorValue.md)<`Mode`, `TypeSchema`>
 
 #### Type declaration
 
-(): `undefined` | [`TypeEditorValue`](/auto-docs/type-editor/types/TypeEditorValue.md)<`Mode`, `TypeSchema`>
+(): [`TypeEditorValue`](/auto-docs/type-editor/types/TypeEditorValue.md)<`Mode`, `TypeSchema`>
 
 ##### Returns
 
-`undefined` | [`TypeEditorValue`](/auto-docs/type-editor/types/TypeEditorValue.md)<`Mode`, `TypeSchema`>
+[`TypeEditorValue`](/auto-docs/type-editor/types/TypeEditorValue.md)<`Mode`, `TypeSchema`>
 
 ***
 

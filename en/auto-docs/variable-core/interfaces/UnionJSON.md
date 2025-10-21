@@ -1,5 +1,7 @@
 # Interface: UnionJSON
 
+ASTNodeJSON representation of `UnionType`, which union multiple `BaseType`.
+
 ## Table of contents
 
 ### Properties

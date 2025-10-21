@@ -18,7 +18,7 @@
 
 ### canDrop
 
-`Optional` **canDrop**: (`ctx`: `CTX`, `dropData`: { `dragNodes`: `FlowNodeEntity`\[] ; `dropNode`: `FlowNodeEntity` ; `isBranch?`: `boolean`  }) => `boolean`
+`Optional` **canDrop**: (`ctx`: `CTX`, `dropData`: `Object`) => `boolean`
 
 #### Type declaration
 
@@ -32,9 +32,6 @@ Check can drop
 | :------ | :------ |
 | `ctx` | `CTX` |
 | `dropData` | `Object` |
-| `dropData.dragNodes` | `FlowNodeEntity`\[] |
-| `dropData.dropNode` | `FlowNodeEntity` |
-| `dropData.isBranch?` | `boolean` |
 
 ##### Returns
 

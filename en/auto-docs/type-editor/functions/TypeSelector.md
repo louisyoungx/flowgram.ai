@@ -1,12 +1,12 @@
 # Function: TypeSelector
 
-**TypeSelector**<`TypeSchema`>(`props`): `Element`
+**TypeSelector**<`TypeSchema`>(`props`): `any`
 
 #### Type parameters
 
 | Name | Type |
 | :------ | :------ |
-| `TypeSchema` | extends `Partial`<[`IJsonSchema`](/en/auto-docs/type-editor/interfaces/IJsonSchema.md)<`string`>> |
+| `TypeSchema` | extends `IJsonSchema` |
 
 #### Parameters
 
@@ -16,4 +16,4 @@
 
 #### Returns
 
-`Element`
+`any`

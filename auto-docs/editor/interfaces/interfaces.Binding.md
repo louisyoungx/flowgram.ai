@@ -77,7 +77,7 @@
 
 ### implementationType
 
-**implementationType**: `null` | `TActivated` | [`Newable`](/auto-docs/editor/types/interfaces.Newable.md)<`TActivated`>
+**implementationType**: `null` | `TActivated` | `Newable`<`TActivated`>
 
 ***
 
@@ -113,7 +113,7 @@
 
 ### serviceIdentifier
 
-**serviceIdentifier**: [`ServiceIdentifier`](/auto-docs/editor/types/interfaces.ServiceIdentifier.md)<`TActivated`>
+**serviceIdentifier**: `ServiceIdentifier`<`TActivated`>
 
 ***
 

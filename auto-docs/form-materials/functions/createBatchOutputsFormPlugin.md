@@ -1,16 +1,17 @@
 # Function: createBatchOutputsFormPlugin
 
-**createBatchOutputsFormPlugin**(`opts`): `FormPlugin`<{ `outputKey`: `string`  }>
+**createBatchOutputsFormPlugin**(`opts`): `FormPlugin`<{ `inferTargetKey?`: `string` ; `outputKey`: `string`  }>
 
 Free Layout only right now
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `opts` | `Object` |
-| `opts.outputKey` | `string` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `opts` | `Object` | - |
+| `opts.inferTargetKey?` | `string` | if set, infer json schema to inferTargetKey when submit |
+| `opts.outputKey` | `string` | - |
 
 #### Returns
 
-`FormPlugin`<{ `outputKey`: `string`  }>
+`FormPlugin`<{ `inferTargetKey?`: `string` ; `outputKey`: `string`  }>

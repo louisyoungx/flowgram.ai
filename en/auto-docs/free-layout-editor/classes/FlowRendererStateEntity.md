@@ -29,7 +29,9 @@
 * [config](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#config)
 * [context](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#context)
 * [disposed](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#disposed)
+* [dragging](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#dragging)
 * [id](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#id)
+* [isBranch](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#isbranch)
 * [onDispose](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#ondispose)
 * [savedInManager](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#savedinmanager)
 * [type](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#type-1)
@@ -59,6 +61,8 @@
 * [setDragEntities](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#setdragentities)
 * [setDragLabelSide](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#setdraglabelside)
 * [setDragStartEntity](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#setdragstartentity)
+* [setDragging](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#setdragging)
+* [setIsBranch](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#setisbranch)
 * [setNodeDroppingId](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#setnodedroppingid)
 * [setNodeHovered](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#setnodehovered)
 * [toJSON](/en/auto-docs/free-layout-editor/classes/FlowRendererStateEntity.md#tojson)
@@ -205,6 +209,16 @@ ConfigEntity.disposed
 
 ***
 
+### dragging
+
+`get` **dragging**(): `undefined` | `boolean`
+
+#### Returns
+
+`undefined` | `boolean`
+
+***
+
 ### id
 
 `get` **id**(): `string`
@@ -218,6 +232,16 @@ ConfigEntity.disposed
 #### Inherited from
 
 ConfigEntity.id
+
+***
+
+### isBranch
+
+`get` **isBranch**(): `undefined` | `boolean`
+
+#### Returns
+
+`undefined` | `boolean`
 
 ***
 
@@ -676,6 +700,38 @@ ConfigEntity.version
 | Name | Type |
 | :------ | :------ |
 | `node?` | [`FlowNodeEntity`](/en/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md) |
+
+#### Returns
+
+`void`
+
+***
+
+### setDragging
+
+**setDragging**(`dragging`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `dragging` | `boolean` |
+
+#### Returns
+
+`void`
+
+***
+
+### setIsBranch
+
+**setIsBranch**(`isBranch`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `isBranch` | `boolean` |
 
 #### Returns
 

@@ -1,6 +1,6 @@
 # Function: useWatchFormErrors
 
-**useWatchFormErrors**(`node`): `Errors` | `undefined`
+**useWatchFormErrors**(`node`): [`Errors`](/en/auto-docs/free-layout-editor/types/Errors.md) | `undefined`
 
 Get Form's errors, Form errors is a proxy, it will refresh the React component when the value you accessed changed
 By providing related node, you can use this hook outside the Form Component.
@@ -13,4 +13,4 @@ By providing related node, you can use this hook outside the Form Component.
 
 #### Returns
 
-`Errors` | `undefined`
+[`Errors`](/en/auto-docs/free-layout-editor/types/Errors.md) | `undefined`

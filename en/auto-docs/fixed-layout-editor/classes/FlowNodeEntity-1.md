@@ -25,12 +25,15 @@ Some examples of how disposables are used:
 * [document](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#document)
 * [entityManager](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#entitymanager)
 * [flowNodeType](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#flownodetype)
+* [form](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#form)
 * [index](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#index)
 * [metaFromJSON](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#metafromjson)
 * [onDataChange](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#ondatachange)
 * [onEntityChange](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#onentitychange)
 * [originParent](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#originparent)
 * [preDispose](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#predispose)
+* [privateScope](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#privatescope)
+* [scope](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#scope)
 * [toDispose](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#todispose)
 * [type](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md#type)
 
@@ -155,6 +158,12 @@ Some examples of how disposables are used:
 
 ***
 
+### form
+
+**form**: `undefined` | [`NodeFormProps`](/en/auto-docs/fixed-layout-editor/interfaces/NodeFormProps.md)<`any`>
+
+***
+
 ### index
 
 **index**: `number`
@@ -208,6 +217,18 @@ Some examples of how disposables are used:
 #### Inherited from
 
 [Entity](/en/auto-docs/fixed-layout-editor/classes/Entity-1.md).[preDispose](/en/auto-docs/fixed-layout-editor/classes/Entity-1.md#predispose)
+
+***
+
+### privateScope
+
+**privateScope**: `undefined` | [`FlowNodeScope`](/en/auto-docs/fixed-layout-editor/interfaces/FlowNodeScope.md)
+
+***
+
+### scope
+
+**scope**: `undefined` | [`FlowNodeScope`](/en/auto-docs/fixed-layout-editor/interfaces/FlowNodeScope.md)
 
 ***
 
@@ -1161,7 +1182,7 @@ Check node type
 
 ### updateExtInfo
 
-**updateExtInfo**<`T`>(`extInfo`): `void`
+**updateExtInfo**<`T`>(`extInfo`, `fullUpdate?`): `void`
 
 修改节点扩展信息
 
@@ -1176,6 +1197,7 @@ Check node type
 | Name | Type |
 | :------ | :------ |
 | `extInfo` | `T` |
+| `fullUpdate?` | `boolean` |
 
 #### Returns
 

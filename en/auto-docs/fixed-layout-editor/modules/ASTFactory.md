@@ -1,5 +1,7 @@
 # Namespace: ASTFactory
 
+Variable-core ASTNode factories.
+
 ## Table of contents
 
 ### Functions

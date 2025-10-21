@@ -26,7 +26,6 @@
 * [addFromNodes](/auto-docs/fixed-history-plugin/classes/FixedHistoryService.md#addfromnodes)
 * [canRedo](/auto-docs/fixed-history-plugin/classes/FixedHistoryService.md#canredo)
 * [canUndo](/auto-docs/fixed-history-plugin/classes/FixedHistoryService.md#canundo)
-* [changeFormData](/auto-docs/fixed-history-plugin/classes/FixedHistoryService.md#changeformdata)
 * [deleteNode](/auto-docs/fixed-history-plugin/classes/FixedHistoryService.md#deletenode)
 * [deleteNodes](/auto-docs/fixed-history-plugin/classes/FixedHistoryService.md#deletenodes)
 * [getHistoryOperations](/auto-docs/fixed-history-plugin/classes/FixedHistoryService.md#gethistoryoperations)
@@ -197,25 +196,6 @@
 #### Returns
 
 `boolean`
-
-***
-
-### changeFormData
-
-**changeFormData**(`node`, `data`): `void`
-
-修改节点
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `node` | `FlowNodeEntity` | 节点 |
-| `data` | `Omit`<`ChangeNodeOperationValue`, `"id"`> | - |
-
-#### Returns
-
-`void`
 
 ***
 

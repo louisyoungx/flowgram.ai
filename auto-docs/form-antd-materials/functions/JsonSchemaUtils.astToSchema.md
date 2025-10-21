@@ -10,7 +10,7 @@ Convert AST To JSON Schema
 
 | Name | Type |
 | :------ | :------ |
-| `typeAST` | `ASTNode`<`any`, `any`> |
+| `typeAST` | `ASTNode` |
 | `options?` | `Object` |
 | `options.drilldown?` | `boolean` |
 

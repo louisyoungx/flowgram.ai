@@ -1,6 +1,6 @@
 # Function: DynamicValueInput
 
-**DynamicValueInput**(`«destructured»`): `Element`
+**DynamicValueInput**(`«destructured»`): `any`
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`Element`
+`any`

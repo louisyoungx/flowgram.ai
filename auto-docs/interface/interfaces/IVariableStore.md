@@ -101,7 +101,7 @@
 | :------ | :------ |
 | `params` | `Object` |
 | `params.nodeID` | `string` |
-| `params.value` | `Object` |
+| `params.value` | `unknown` |
 | `params.variableKey` | `string` |
 | `params.variablePath?` | `string`\[] |
 
@@ -119,7 +119,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `params` | { `key`: `string` ; `nodeID`: `string` ; `value`: `Object`  } & `VariableTypeInfo` |
+| `params` | { `key`: `string` ; `nodeID`: `string` ; `value`: `unknown`  } & `VariableTypeInfo` |
 
 #### Returns
 

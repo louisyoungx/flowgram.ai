@@ -1,0 +1,5 @@
+import { SourceCode } from '@theme';
+
+# 物料依赖注入 (WIP)
+
+<SourceCode href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/shared/inject-material" />

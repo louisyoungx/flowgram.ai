@@ -7,9 +7,9 @@
 | Name | Type |
 | :------ | :------ |
 | `params` | `Object` |
-| `params.customSkip?` | (`variable`: `VariableField`) => `boolean` |
 | `params.excludeSchema?` | [`IJsonSchema`](/en/auto-docs/form-materials/interfaces/IJsonSchema.md)<`string`> | [`IJsonSchema`](/en/auto-docs/form-materials/interfaces/IJsonSchema.md)<`string`>\[] |
 | `params.includeSchema?` | [`IJsonSchema`](/en/auto-docs/form-materials/interfaces/IJsonSchema.md)<`string`> | [`IJsonSchema`](/en/auto-docs/form-materials/interfaces/IJsonSchema.md)<`string`>\[] |
+| `params.skipVariable?` | (`variable`: `VariableField`) => `boolean` |
 
 #### Returns
 

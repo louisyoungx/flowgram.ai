@@ -263,7 +263,6 @@ export const useEditorProps = () =>
             nodeBorderColor: 'rgba(6, 7, 9, 0.10)',
             overlayColor: 'rgba(255, 255, 255, 0)',
           },
-          inactiveDebounceTime: 1,
         }),
         // Auto-alignment plugin
         createFreeSnapPlugin({
@@ -352,11 +351,9 @@ export const Tools: React.FC = () => {
 };
 
 // src/components/minimap.tsx
-import { FlowMinimapService, MinimapRender } from '@flowgram.ai/minimap-plugin';
-import { useService } from '@flowgram.ai/free-layout-editor';
+import { MinimapRender } from '@flowgram.ai/minimap-plugin';
 
 export const Minimap = () => {
-  const minimapService = useService(FlowMinimapService);
   return (
     <div
       style={{
@@ -368,7 +365,6 @@ export const Minimap = () => {
       }}
     >
       <MinimapRender
-        service={minimapService}
         containerStyles={{
           pointerEvents: 'auto',
           position: 'relative',

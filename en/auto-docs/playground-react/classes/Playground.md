@@ -34,8 +34,6 @@ SPDX-License-Identifier: MIT
 * [registry](/en/auto-docs/playground-react/classes/Playground.md#registry)
 * [selectionService](/en/auto-docs/playground-react/classes/Playground.md#selectionservice)
 * [toDispose](/en/auto-docs/playground-react/classes/Playground.md#todispose)
-* [onInstanceCreate](/en/auto-docs/playground-react/classes/Playground.md#oninstancecreate)
-* [onInstanceDispose](/en/auto-docs/playground-react/classes/Playground.md#oninstancedispose)
 
 ### Accessors
 
@@ -45,6 +43,7 @@ SPDX-License-Identifier: MIT
 * [editorState](/en/auto-docs/playground-react/classes/Playground.md#editorstate)
 * [focused](/en/auto-docs/playground-react/classes/Playground.md#focused)
 * [onAllLayersRendered](/en/auto-docs/playground-react/classes/Playground.md#onalllayersrendered)
+* [onResize](/en/auto-docs/playground-react/classes/Playground.md#onresize)
 * [pipelineNode](/en/auto-docs/playground-react/classes/Playground.md#pipelinenode)
 * [zoomEnable](/en/auto-docs/playground-react/classes/Playground.md#zoomenable)
 
@@ -62,8 +61,6 @@ SPDX-License-Identifier: MIT
 * [scrollToView](/en/auto-docs/playground-react/classes/Playground.md#scrolltoview)
 * [setParent](/en/auto-docs/playground-react/classes/Playground.md#setparent)
 * [toReactComponent](/en/auto-docs/playground-react/classes/Playground.md#toreactcomponent)
-* [getAllInstances](/en/auto-docs/playground-react/classes/Playground.md#getallinstances)
-* [getLatest](/en/auto-docs/playground-react/classes/Playground.md#getlatest)
 
 ## Constructors
 
@@ -173,22 +170,6 @@ SPDX-License-Identifier: MIT
 
 `Readonly` **toDispose**: `DisposableCollection`
 
-***
-
-### onInstanceCreate
-
-`Static` **onInstanceCreate**: [`Event`](/en/auto-docs/playground-react/interfaces/Event-1.md)<[`Playground`](/en/auto-docs/playground-react/classes/Playground.md)<`any`>>
-
-有实例创建
-
-***
-
-### onInstanceDispose
-
-`Static` **onInstanceDispose**: [`Event`](/en/auto-docs/playground-react/interfaces/Event-1.md)<[`Playground`](/en/auto-docs/playground-react/classes/Playground.md)<`any`>>
-
-有实例销毁
-
 ## Accessors
 
 ### config
@@ -252,6 +233,16 @@ SPDX-License-Identifier: MIT
 #### Returns
 
 [`Event`](/en/auto-docs/playground-react/interfaces/Event-1.md)<`void`>
+
+***
+
+### onResize
+
+`get` **onResize**(): [`Event`](/en/auto-docs/playground-react/interfaces/Event-1.md)<[`PipelineDimension`](/en/auto-docs/playground-react/interfaces/PipelineDimension.md)>
+
+#### Returns
+
+[`Event`](/en/auto-docs/playground-react/interfaces/Event-1.md)<[`PipelineDimension`](/en/auto-docs/playground-react/interfaces/PipelineDimension.md)>
 
 ***
 
@@ -426,7 +417,7 @@ SPDX-License-Identifier: MIT
 
 ### resize
 
-**resize**(`msg?`, `scrollToCenter?`): `void`
+**resize**(`msg?`, `scrollToCenter?`): `boolean`
 
 这里会由 widget 透传进来
 
@@ -439,7 +430,7 @@ SPDX-License-Identifier: MIT
 
 #### Returns
 
-`void`
+`boolean`
 
 ***
 
@@ -490,23 +481,3 @@ SPDX-License-Identifier: MIT
 #### Returns
 
 `FC`<{}>
-
-***
-
-### getAllInstances
-
-`Static` **getAllInstances**(): [`Playground`](/en/auto-docs/playground-react/classes/Playground.md)<`any`>\[]
-
-#### Returns
-
-[`Playground`](/en/auto-docs/playground-react/classes/Playground.md)<`any`>\[]
-
-***
-
-### getLatest
-
-`Static` **getLatest**(): `undefined` | [`Playground`](/en/auto-docs/playground-react/classes/Playground.md)<`any`>
-
-#### Returns
-
-`undefined` | [`Playground`](/en/auto-docs/playground-react/classes/Playground.md)<`any`>

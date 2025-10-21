@@ -1,5 +1,7 @@
 # Interface: IVariableTable
 
+Interface for a variable table.
+
 ## Hierarchy
 
 * `Disposable`
@@ -32,11 +34,17 @@
 
 **onDataChange**: `Event`<`void`>
 
+**`Deprecated`**
+
+Use `onVariableListChange` or `onAnyVariableChange` instead.
+
 ***
 
 ### parentTable
 
 `Optional` **parentTable**: [`IVariableTable`](/auto-docs/variable-core/interfaces/IVariableTable.md)
+
+The parent variable table.
 
 ***
 
@@ -44,11 +52,15 @@
 
 **variableKeys**: `string`\[]
 
+The keys of the variables in the table.
+
 ***
 
 ### variables
 
 **variables**: [`VariableDeclaration`](/auto-docs/variable-core/classes/VariableDeclaration.md)<`any`>\[]
+
+The list of variables in the table.
 
 ***
 
@@ -56,11 +68,15 @@
 
 **version**: `number`
 
+The current version of the variable table.
+
 ## Methods
 
 ### dispose
 
 **dispose**(): `void`
+
+Disposes the variable table.
 
 #### Returns
 
@@ -76,6 +92,8 @@ Disposable.dispose
 
 **fireChange**(): `void`
 
+Fires a change event.
+
 #### Returns
 
 `void`
@@ -86,15 +104,19 @@ Disposable.dispose
 
 **getByKeyPath**(`keyPath`): `undefined` | [`BaseVariableField`](/auto-docs/variable-core/classes/BaseVariableField.md)<`any`>
 
+Gets a variable or property by its key path.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `keyPath` | `string`\[] |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `keyPath` | `string`\[] | The key path to the variable or property. |
 
 #### Returns
 
 `undefined` | [`BaseVariableField`](/auto-docs/variable-core/classes/BaseVariableField.md)<`any`>
+
+The found `BaseVariableField` or `undefined`.
 
 ***
 
@@ -102,15 +124,19 @@ Disposable.dispose
 
 **getVariableByKey**(`key`): `undefined` | [`VariableDeclaration`](/auto-docs/variable-core/classes/VariableDeclaration.md)<`any`>
 
+Gets a variable by its key.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `key` | `string` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `key` | `string` | The key of the variable. |
 
 #### Returns
 
 `undefined` | [`VariableDeclaration`](/auto-docs/variable-core/classes/VariableDeclaration.md)<`any`>
+
+The found `VariableDeclaration` or `undefined`.
 
 ***
 
@@ -118,15 +144,19 @@ Disposable.dispose
 
 **onAnyVariableChange**(`observer`): `Disposable`
 
+Subscribes to changes in any variable's value.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `observer` | (`changedVariable`: [`VariableDeclaration`](/auto-docs/variable-core/classes/VariableDeclaration.md)<`any`>) => `void` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `observer` | (`changedVariable`: [`VariableDeclaration`](/auto-docs/variable-core/classes/VariableDeclaration.md)<`any`>) => `void` | The observer function. |
 
 #### Returns
 
 `Disposable`
+
+A disposable to unsubscribe.
 
 ***
 
@@ -134,15 +164,19 @@ Disposable.dispose
 
 **onListOrAnyVarChange**(`observer`): `Disposable`
 
+Subscribes to both variable list changes and any variable's value changes.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `observer` | () => `void` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `observer` | () => `void` | The observer function. |
 
 #### Returns
 
 `Disposable`
+
+A disposable to unsubscribe.
 
 ***
 
@@ -150,12 +184,16 @@ Disposable.dispose
 
 **onVariableListChange**(`observer`): `Disposable`
 
+Subscribes to changes in the variable list.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `observer` | (`variables`: [`VariableDeclaration`](/auto-docs/variable-core/classes/VariableDeclaration.md)<`any`>\[]) => `void` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `observer` | (`variables`: [`VariableDeclaration`](/auto-docs/variable-core/classes/VariableDeclaration.md)<`any`>\[]) => `void` | The observer function. |
 
 #### Returns
 
 `Disposable`
+
+A disposable to unsubscribe.

@@ -1,5 +1,7 @@
 # Interface: ASTNodeJSON
 
+ASTNodeJSON is the JSON representation of an ASTNode.
+
 ## Indexable
 
 ▪ \[key: `string`]: `any`
@@ -17,8 +19,13 @@
 
 `Optional` **key**: `string`
 
+Key is the unique identifier of the node.
+If not provided, the node will generate a default key value.
+
 ***
 
 ### kind
 
 `Optional` **kind**: `string`
+
+Kind is the type of the AST node.

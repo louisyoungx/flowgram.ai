@@ -60,6 +60,7 @@
 * [fireRender](/auto-docs/free-layout-core/classes/WorkflowDocument.md#firerender)
 * [fitView](/auto-docs/free-layout-core/classes/WorkflowDocument.md#fitview)
 * [fromJSON](/auto-docs/free-layout-core/classes/WorkflowDocument.md#fromjson)
+* [getAllEdges](/auto-docs/free-layout-core/classes/WorkflowDocument.md#getalledges)
 * [getAllNodes](/auto-docs/free-layout-core/classes/WorkflowDocument.md#getallnodes)
 * [getAllPorts](/auto-docs/free-layout-core/classes/WorkflowDocument.md#getallports)
 * [getAssociatedNodes](/auto-docs/free-layout-core/classes/WorkflowDocument.md#getassociatednodes)
@@ -460,7 +461,8 @@ FlowDocument.addNode
 | :------ | :------ |
 | `json` | [`WorkflowJSON`](/auto-docs/free-layout-core/interfaces/WorkflowJSON.md) |
 | `options?` | `Object` |
-| `options.isClone?` | `boolean` |
+| `options.onEdgeCreated?` | (`edge`: [`WorkflowLineEntity`](/auto-docs/free-layout-core/classes/WorkflowLineEntity.md)) => `void` |
+| `options.onNodeCreated?` | (`node`: `FlowNodeEntity`) => `void` |
 | `options.parent?` | `FlowNodeEntity` |
 
 #### Returns
@@ -524,7 +526,7 @@ FlowDocument.addNode
 
 ### copyNodeFromJSON
 
-**copyNodeFromJSON**(`flowNodeType`, `nodeJSON`, `newNodeId?`, `position?`, `parentId?`): `FlowNodeEntity`
+**copyNodeFromJSON**(`flowNodeType`, `nodeJSON`, `newNodeId?`, `position?`, `parentID?`): `FlowNodeEntity`
 
 #### Parameters
 
@@ -534,7 +536,7 @@ FlowDocument.addNode
 | `nodeJSON` | [`WorkflowNodeJSON`](/auto-docs/free-layout-core/interfaces/WorkflowNodeJSON.md) |
 | `newNodeId?` | `string` |
 | `position?` | `IPoint` |
-| `parentId?` | `string` |
+| `parentID?` | `string` |
 
 #### Returns
 
@@ -544,17 +546,17 @@ FlowDocument.addNode
 
 ### createWorkflowNode
 
-**createWorkflowNode**(`json`, `isClone?`, `parentId?`): `FlowNodeEntity`
+**createWorkflowNode**(`json`, `isClone?`, `parentID?`): `FlowNodeEntity`
 
 创建流程节点
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `json` | [`WorkflowNodeJSON`](/auto-docs/free-layout-core/interfaces/WorkflowNodeJSON.md) | `undefined` |
-| `isClone` | `boolean` | `false` |
-| `parentId?` | `string` | `undefined` |
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `json` | [`WorkflowNodeJSON`](/auto-docs/free-layout-core/interfaces/WorkflowNodeJSON.md) | `undefined` |  |
+| `isClone` | `boolean` | `false` | **`Deprecated`** |
+| `parentID?` | `string` | `undefined` | - |
 
 #### Returns
 
@@ -669,6 +671,16 @@ use `ctx.tools.fitView()` instead
 #### Overrides
 
 FlowDocument.fromJSON
+
+***
+
+### getAllEdges
+
+**getAllEdges**(): [`WorkflowLineEntity`](/auto-docs/free-layout-core/classes/WorkflowLineEntity.md)\[]
+
+#### Returns
+
+[`WorkflowLineEntity`](/auto-docs/free-layout-core/classes/WorkflowLineEntity.md)\[]
 
 ***
 
@@ -1072,6 +1084,10 @@ FlowDocument.registerNodeDatas
 
 `Promise`<`void`>
 
+**`Deprecated`**
+
+use `ctx.operation.fromJSON` instead
+
 ***
 
 ### removeNode
@@ -1102,12 +1118,12 @@ FlowDocument.removeNode
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `json` | [`WorkflowJSON`](/auto-docs/free-layout-core/interfaces/WorkflowJSON.md) |
-| `options?` | `Object` |
-| `options.isClone?` | `boolean` |
-| `options.parent?` | `FlowNodeEntity` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `json` | [`WorkflowJSON`](/auto-docs/free-layout-core/interfaces/WorkflowJSON.md) |  |
+| `options?` | `Object` |  |
+| `options.isClone?` | `boolean` | **`Deprecated`** useless api |
+| `options.parent?` | `FlowNodeEntity` | - |
 
 #### Returns
 

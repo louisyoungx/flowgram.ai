@@ -11,7 +11,7 @@
 
 ### canDrop
 
-`Optional` **canDrop**: (`opts`: { `dragNodes`: `FlowNodeEntity`\[] ; `dropNode`: `FlowNodeEntity` ; `isBranch?`: `boolean`  }) => `boolean`
+`Optional` **canDrop**: (`opts`: `Object`) => `boolean`
 
 #### Type declaration
 
@@ -22,9 +22,6 @@
 | Name | Type |
 | :------ | :------ |
 | `opts` | `Object` |
-| `opts.dragNodes` | `FlowNodeEntity`\[] |
-| `opts.dropNode` | `FlowNodeEntity` |
-| `opts.isBranch?` | `boolean` |
 
 ##### Returns
 

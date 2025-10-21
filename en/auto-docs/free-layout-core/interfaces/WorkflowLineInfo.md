@@ -11,6 +11,7 @@
 ### Properties
 
 * [data](/en/auto-docs/free-layout-core/interfaces/WorkflowLineInfo.md#data)
+* [drawingFrom](/en/auto-docs/free-layout-core/interfaces/WorkflowLineInfo.md#drawingfrom)
 * [drawingTo](/en/auto-docs/free-layout-core/interfaces/WorkflowLineInfo.md#drawingto)
 * [from](/en/auto-docs/free-layout-core/interfaces/WorkflowLineInfo.md#from)
 * [fromPort](/en/auto-docs/free-layout-core/interfaces/WorkflowLineInfo.md#fromport)
@@ -29,6 +30,12 @@
 
 ***
 
+### drawingFrom
+
+`Optional` **drawingFrom**: [`LinePoint`](/en/auto-docs/free-layout-core/interfaces/LinePoint.md)
+
+***
+
 ### drawingTo
 
 `Optional` **drawingTo**: [`LinePoint`](/en/auto-docs/free-layout-core/interfaces/LinePoint.md)
@@ -37,7 +44,7 @@
 
 ### from
 
-**from**: `string`
+`Optional` **from**: `string`
 
 #### Inherited from
 

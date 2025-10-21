@@ -31,7 +31,7 @@
 
 ### from
 
-**from**: `string`
+`Optional` **from**: `string`
 
 #### Inherited from
 

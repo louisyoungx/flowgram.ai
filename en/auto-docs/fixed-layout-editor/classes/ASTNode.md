@@ -1,11 +1,18 @@
 # Class: ASTNode\<JSON, InjectOpts>
 
-An object that performs a cleanup operation when `.dispose()` is called.
+An `ASTNode` represents a fundamental unit of variable information within the system's Abstract Syntax Tree.
+It can model various constructs, for example:
 
-Some examples of how disposables are used:
+* **Declarations**: `const a = 1`
+* **Expressions**: `a.b.c`
+* **Types**: `number`, `string`, `boolean`
 
-* An event listener that removes itself when `.dispose()` is called.
-* The return value from registering a provider. When `.dispose()` is called, the provider is unregistered.
+Here is some characteristic of ASTNode:
+
+* **Tree-like Structure**: ASTNodes can be nested to form a tree, representing complex variable structures.
+* **Extendable**: New features can be added by extending the base ASTNode class.
+* **Reactive**: Changes in an ASTNode's value trigger events, enabling reactive programming patterns.
+* **Serializable**: ASTNodes can be converted to and from a JSON format (ASTNodeJSON) for storage or transmission.
 
 ## Type parameters
 
@@ -82,7 +89,7 @@ Some examples of how disposables are used:
 
 **new ASTNode**<`JSON`, `InjectOpts`>(`createParams`, `opts?`)
 
-构造函数
+Constructor.
 
 #### Type parameters
 
@@ -95,7 +102,7 @@ Some examples of how disposables are used:
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `createParams` | [`CreateASTParams`](/en/auto-docs/fixed-layout-editor/interfaces/CreateASTParams.md) | 创建 ASTNode 的必要参数 |
+| `createParams` | [`CreateASTParams`](/en/auto-docs/fixed-layout-editor/interfaces/CreateASTParams.md) | Necessary parameters for creating an ASTNode. |
 | `opts?` | `InjectOpts` | - |
 
 ## Properties
@@ -104,7 +111,10 @@ Some examples of how disposables are used:
 
 **changeLocked**: `boolean`
 
-更新锁
+Update lock.
+
+* When set to `true`, `fireChange` will not trigger any events.
+* This is useful when multiple updates are needed, and you want to avoid multiple triggers.
 
 ***
 
@@ -112,7 +122,7 @@ Some examples of how disposables are used:
 
 `Readonly` **flags**: `number`
 
-节点 Flags，记录一些 Flag 信息
+Node flags, used to record some flag information.
 
 ***
 
@@ -120,9 +130,11 @@ Some examples of how disposables are used:
 
 `Readonly` **key**: `string`
 
-节点的唯一标识符，节点不指定则默认由 nanoid 生成，不可更改
+The unique identifier of the ASTNode, which is **immutable**.
 
-* 如需要生成新 key，则销毁当前节点并生成新的节点
+* Immutable: Once assigned, the key cannot be changed.
+* Automatically generated if not specified, and cannot be changed as well.
+* If a new key needs to be generated, the current ASTNode should be destroyed and a new ASTNode should be generated.
 
 ***
 
@@ -130,7 +142,7 @@ Some examples of how disposables are used:
 
 **onDispose**: [`Event`](/en/auto-docs/fixed-layout-editor/interfaces/Event-1.md)<`void`>
 
-销毁时触发的回调
+Callback triggered upon disposal.
 
 ***
 
@@ -140,9 +152,9 @@ Some examples of how disposables are used:
 
 **`Deprecated`**
 
-获取 ASTNode 注入的 opts
+Get the injected options for the ASTNode.
 
-请使用 @injectToAst(XXXService) declare xxxService: XXXService 实现外部依赖注入
+Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve external dependency injection.
 
 ***
 
@@ -150,7 +162,7 @@ Some examples of how disposables are used:
 
 `Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>
 
-父节点
+The parent ASTNode.
 
 ***
 
@@ -158,7 +170,7 @@ Some examples of how disposables are used:
 
 `Readonly` **scope**: [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>
 
-节点所处的作用域
+The scope in which the ASTNode is located.
 
 ***
 
@@ -166,7 +178,7 @@ Some examples of how disposables are used:
 
 `Readonly` **toDispose**: [`DisposableCollection`](/en/auto-docs/fixed-layout-editor/classes/DisposableCollection.md)
 
-删除节点处理事件列表
+List of disposal handlers for the ASTNode.
 
 ***
 
@@ -174,9 +186,10 @@ Some examples of how disposables are used:
 
 `Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>>
 
-AST 节点变化事件，基于 Rxjs 实现
+AST node change Observable events, implemented based on RxJS.
 
-* 使用了 BehaviorSubject, 在订阅时会自动触发一次事件，事件为当前值
+* Emits the current ASTNode value upon subscription.
+* Emits a new value whenever `fireChange` is called.
 
 ***
 
@@ -184,7 +197,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `Static` `Readonly` **kind**: `string`
 
-节点类型
+The kind of the ASTNode.
 
 ## Accessors
 
@@ -192,7 +205,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `get` **children**(): [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
 
-获取当前节点所有子节点
+Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
@@ -214,7 +227,10 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `get` **hash**(): `string`
 
-节点唯一 hash 值
+The unique hash value of the ASTNode.
+
+* It will update when the ASTNode is updated.
+* You can used to check two ASTNode are equal.
 
 #### Returns
 
@@ -226,7 +242,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `get` **kind**(): `string`
 
-AST 节点的类型
+The type of the ASTNode.
 
 #### Returns
 
@@ -238,9 +254,9 @@ AST 节点的类型
 
 `get` **version**(): `number`
 
-节点的版本值
+The version value of the ASTNode.
 
-* 通过 NodeA === NodeB && versionA === versionB 可以比较两者是否相等
+* You can used to check whether ASTNode are updated.
 
 #### Returns
 
@@ -252,6 +268,8 @@ AST 节点的类型
 
 **dispatchGlobalEvent**<`ActionType`>(`event`): `void`
 
+Dispatches a global event for the current ASTNode.
+
 #### Type parameters
 
 | Name | Type |
@@ -260,9 +278,9 @@ AST 节点的类型
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `event` | `Omit`<`ActionType`, `"ast"`> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `event` | `Omit`<`ActionType`, `"ast"`> | The global event. |
 
 #### Returns
 
@@ -274,7 +292,7 @@ AST 节点的类型
 
 **dispose**(): `void`
 
-销毁
+Disposes the ASTNode.
 
 #### Returns
 
@@ -290,7 +308,7 @@ AST 节点的类型
 
 **fireChange**(): `void`
 
-触发当前节点更新
+Triggers an update for the current node.
 
 #### Returns
 
@@ -302,13 +320,13 @@ AST 节点的类型
 
 `Abstract` **fromJSON**(`json`): `void`
 
-解析 AST JSON 数据
+Parses AST JSON data.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `json` | `JSON` | AST JSON 数据 |
+| `json` | `JSON` | AST JSON data. |
 
 #### Returns
 
@@ -320,7 +338,7 @@ AST 节点的类型
 
 **subscribe**<`Data`>(`observer`, `selector?`): [`Disposable`](/en/auto-docs/fixed-layout-editor/interfaces/Disposable-1.md)
 
-监听 AST 节点的变化
+Listens for changes to the ASTNode.
 
 #### Type parameters
 
@@ -332,8 +350,8 @@ AST 节点的类型
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `observer` | `ObserverOrNext`<`Data`> | 监听回调 |
-| `selector?` | `SubscribeConfig`<[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`JSON`, `InjectOpts`>, `Data`> | 监听指定数据 |
+| `observer` | `ObserverOrNext`<`Data`> | The listener callback. |
+| `selector?` | `SubscribeConfig`<[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`JSON`, `InjectOpts`>, `Data`> | Listens for specified data. |
 
 #### Returns
 
@@ -345,7 +363,7 @@ AST 节点的类型
 
 **toJSON**(): [`ASTNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/ASTNodeJSON.md)
 
-转化为 ASTNodeJSON
+Serializes the current ASTNode to ASTNodeJSON.
 
 #### Returns
 

@@ -20,6 +20,7 @@
 
 ### Properties
 
+* [linesManager](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#linesmanager)
 * [onNodeAdd](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#onnodeadd)
 * [onNodeMove](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#onnodemove)
 * [onNodePostionUpdate](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#onnodepostionupdate)
@@ -34,6 +35,7 @@
 * [deleteNodes](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#deletenodes)
 * [dispose](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#dispose)
 * [dragNodes](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#dragnodes)
+* [fromJSON](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#fromjson)
 * [moveNode](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#movenode)
 * [transact](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#transact)
 * [updateNodePosition](/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#updatenodeposition)
@@ -49,6 +51,12 @@
 [FlowOperationBaseServiceImpl](/auto-docs/free-layout-editor/classes/FlowOperationBaseServiceImpl.md).[constructor](/auto-docs/free-layout-editor/classes/FlowOperationBaseServiceImpl.md#constructor)
 
 ## Properties
+
+### linesManager
+
+**linesManager**: [`WorkflowLinesManager`](/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md)
+
+***
 
 ### onNodeAdd
 
@@ -283,6 +291,26 @@ WorkflowOperationBaseService.dragNodes
 #### Inherited from
 
 [FlowOperationBaseServiceImpl](/auto-docs/free-layout-editor/classes/FlowOperationBaseServiceImpl.md).[dragNodes](/auto-docs/free-layout-editor/classes/FlowOperationBaseServiceImpl.md#dragnodes)
+
+***
+
+### fromJSON
+
+**fromJSON**(`json`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `json` | [`WorkflowJSON`](/auto-docs/free-layout-editor/interfaces/WorkflowJSON.md) |
+
+#### Returns
+
+`void`
+
+#### Implementation of
+
+WorkflowOperationBaseService.fromJSON
 
 ***
 

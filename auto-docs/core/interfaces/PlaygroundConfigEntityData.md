@@ -4,8 +4,6 @@
 
 ### Properties
 
-* [clientX](/auto-docs/core/interfaces/PlaygroundConfigEntityData.md#clientx)
-* [clientY](/auto-docs/core/interfaces/PlaygroundConfigEntityData.md#clienty)
 * [disabled](/auto-docs/core/interfaces/PlaygroundConfigEntityData.md#disabled)
 * [grabDisable](/auto-docs/core/interfaces/PlaygroundConfigEntityData.md#grabdisable)
 * [height](/auto-docs/core/interfaces/PlaygroundConfigEntityData.md#height)
@@ -29,18 +27,6 @@
 * [zoomDisable](/auto-docs/core/interfaces/PlaygroundConfigEntityData.md#zoomdisable)
 
 ## Properties
-
-### clientX
-
-**clientX**: `number`
-
-***
-
-### clientY
-
-**clientY**: `number`
-
-***
 
 ### disabled
 

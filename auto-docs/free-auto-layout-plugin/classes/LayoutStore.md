@@ -1,5 +1,9 @@
 # Class: LayoutStore
 
+## Implements
+
+* `ILayoutStore`
+
 ## Table of contents
 
 ### Constructors
@@ -9,6 +13,7 @@
 ### Properties
 
 * [config](/auto-docs/free-auto-layout-plugin/classes/LayoutStore.md#config)
+* [container](/auto-docs/free-auto-layout-plugin/classes/LayoutStore.md#container)
 * [options](/auto-docs/free-auto-layout-plugin/classes/LayoutStore.md#options)
 
 ### Accessors
@@ -44,9 +49,23 @@
 
 ***
 
+### container
+
+**container**: [`LayoutNode`](/auto-docs/free-auto-layout-plugin/interfaces/LayoutNode.md)
+
+#### Implementation of
+
+ILayoutStore.container
+
+***
+
 ### options
 
 **options**: [`LayoutOptions`](/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md)
+
+#### Implementation of
+
+ILayoutStore.options
 
 ## Accessors
 
@@ -58,6 +77,10 @@
 
 [`LayoutEdge`](/auto-docs/free-auto-layout-plugin/interfaces/LayoutEdge.md)\[]
 
+#### Implementation of
+
+ILayoutStore.edges
+
 ***
 
 ### initialized
@@ -68,6 +91,10 @@
 
 `boolean`
 
+#### Implementation of
+
+ILayoutStore.initialized
+
 ***
 
 ### nodes
@@ -77,6 +104,10 @@
 #### Returns
 
 [`LayoutNode`](/auto-docs/free-auto-layout-plugin/interfaces/LayoutNode.md)\[]
+
+#### Implementation of
+
+ILayoutStore.nodes
 
 ## Methods
 
@@ -95,6 +126,10 @@
 
 `void`
 
+#### Implementation of
+
+ILayoutStore.create
+
 ***
 
 ### getEdge
@@ -110,6 +145,10 @@
 #### Returns
 
 `undefined` | [`LayoutEdge`](/auto-docs/free-auto-layout-plugin/interfaces/LayoutEdge.md)
+
+#### Implementation of
+
+ILayoutStore.getEdge
 
 ***
 
@@ -127,6 +166,10 @@
 
 `undefined` | [`LayoutNode`](/auto-docs/free-auto-layout-plugin/interfaces/LayoutNode.md)
 
+#### Implementation of
+
+ILayoutStore.getNode
+
 ***
 
 ### getNodeByIndex
@@ -142,3 +185,7 @@
 #### Returns
 
 `undefined` | [`LayoutNode`](/auto-docs/free-auto-layout-plugin/interfaces/LayoutNode.md)
+
+#### Implementation of
+
+ILayoutStore.getNodeByIndex

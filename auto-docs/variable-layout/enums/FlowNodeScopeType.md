@@ -1,5 +1,7 @@
 # Enumeration: FlowNodeScopeType
 
+Enum for flow node scope types.
+
 ## Table of contents
 
 ### Enumeration Members
@@ -13,8 +15,12 @@
 
 **private** = `"private"`
 
+Private scope.
+
 ***
 
 ### public
 
 **public** = `"public"`
+
+Public scope.

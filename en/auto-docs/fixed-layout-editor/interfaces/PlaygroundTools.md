@@ -8,8 +8,10 @@
 * [canUndo](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#canundo)
 * [changeLayout](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#changelayout)
 * [fitView](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#fitview)
+* [interactiveType](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#interactivetype)
 * [isVertical](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#isvertical)
 * [redo](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#redo)
+* [setInteractiveType](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#setinteractivetype)
 * [undo](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#undo)
 * [updateZoom](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#updatezoom)
 * [zoom](/en/auto-docs/fixed-layout-editor/interfaces/PlaygroundTools.md#zoom)
@@ -80,6 +82,14 @@
 
 ***
 
+### interactiveType
+
+**interactiveType**: [`PlaygroundInteractiveType`](/en/auto-docs/fixed-layout-editor/types/PlaygroundInteractiveType.md)
+
+交互模式：鼠标 or 触控板
+
+***
+
 ### isVertical
 
 **isVertical**: `boolean`
@@ -97,6 +107,26 @@
 (): `void`
 
 redo
+
+##### Returns
+
+`void`
+
+***
+
+### setInteractiveType
+
+**setInteractiveType**: (`type`: [`PlaygroundInteractiveType`](/en/auto-docs/fixed-layout-editor/types/PlaygroundInteractiveType.md)) => `void`
+
+#### Type declaration
+
+(`type`): `void`
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `type` | [`PlaygroundInteractiveType`](/en/auto-docs/fixed-layout-editor/types/PlaygroundInteractiveType.md) |
 
 ##### Returns
 

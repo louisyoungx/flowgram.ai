@@ -9,10 +9,9 @@
 * [hide](/auto-docs/free-lines-plugin/interfaces/ArrowRendererProps.md#hide)
 * [id](/auto-docs/free-lines-plugin/interfaces/ArrowRendererProps.md#id)
 * [line](/auto-docs/free-lines-plugin/interfaces/ArrowRendererProps.md#line)
+* [location](/auto-docs/free-lines-plugin/interfaces/ArrowRendererProps.md#location)
 * [pos](/auto-docs/free-lines-plugin/interfaces/ArrowRendererProps.md#pos)
-* [reverseArrow](/auto-docs/free-lines-plugin/interfaces/ArrowRendererProps.md#reversearrow)
 * [strokeWidth](/auto-docs/free-lines-plugin/interfaces/ArrowRendererProps.md#strokewidth)
-* [vertical](/auto-docs/free-lines-plugin/interfaces/ArrowRendererProps.md#vertical)
 
 ## Properties
 
@@ -40,6 +39,12 @@
 
 ***
 
+### location
+
+**location**: `LinePointLocation`
+
+***
+
 ### pos
 
 **pos**: `IPoint`
@@ -48,24 +53,8 @@
 
 ***
 
-### reverseArrow
-
-**reverseArrow**: `boolean`
-
-是否反转箭头方向
-
-***
-
 ### strokeWidth
 
 **strokeWidth**: `number`
 
 描边宽度
-
-***
-
-### vertical
-
-`Optional` **vertical**: `boolean`
-
-是否为垂直方向

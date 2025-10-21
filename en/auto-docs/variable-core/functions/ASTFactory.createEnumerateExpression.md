@@ -4,7 +4,7 @@
 
 **createEnumerateExpression**(`json`): `Object`
 
-表达式相关
+Creates an `EnumerateExpression` node.
 
 #### Parameters
 
@@ -16,7 +16,7 @@
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
-| `enumerateFor` | [`ASTNodeJSON`](/en/auto-docs/variable-core/interfaces/ASTNodeJSON.md) |
-| `kind` | [`ASTKind`](/en/auto-docs/variable-core/enums/ASTKind.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `enumerateFor` | [`ASTNodeJSON`](/en/auto-docs/variable-core/interfaces/ASTNodeJSON.md) | The expression to be enumerated. |
+| `kind` | [`ASTKind`](/en/auto-docs/variable-core/enums/ASTKind.md) | - |

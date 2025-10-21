@@ -24,6 +24,7 @@
 * [onEntityChange](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#onentitychange)
 * [onGrabDisableChange](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#ongrabdisablechange)
 * [onReadonlyOrDisabledChange](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#onreadonlyordisabledchange)
+* [playgroundDomNode](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#playgrounddomnode)
 * [preDispose](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#predispose)
 * [toDispose](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#todispose)
 * [type](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#type)
@@ -60,6 +61,7 @@
 * [fitView](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#fitview)
 * [fixLayerPosition](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#fixlayerposition)
 * [fromJSON](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#fromjson)
+* [getClientBounds](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#getclientbounds)
 * [getData](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#getdata)
 * [getDefaultConfig](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#getdefaultconfig)
 * [getDefaultDataRegistries](/auto-docs/free-layout-editor/classes/PlaygroundConfigEntity.md#getdefaultdataregistries)
@@ -170,6 +172,12 @@
 ### onReadonlyOrDisabledChange
 
 `Readonly` **onReadonlyOrDisabledChange**: [`Event`](/auto-docs/free-layout-editor/interfaces/Event-1.md)<{ `disabled`: `boolean` ; `readonly`: `boolean`  }>
+
+***
+
+### playgroundDomNode
+
+**playgroundDomNode**: `HTMLElement`
 
 ***
 
@@ -714,6 +722,16 @@ use 'zoomDisable' instead
 #### Inherited from
 
 [ConfigEntity](/auto-docs/free-layout-editor/classes/ConfigEntity.md).[fromJSON](/auto-docs/free-layout-editor/classes/ConfigEntity.md#fromjson)
+
+***
+
+### getClientBounds
+
+**getClientBounds**(): [`Rectangle`](/auto-docs/free-layout-editor/classes/Rectangle-1.md)
+
+#### Returns
+
+[`Rectangle`](/auto-docs/free-layout-editor/classes/Rectangle-1.md)
 
 ***
 

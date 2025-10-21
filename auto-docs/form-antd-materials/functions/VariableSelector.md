@@ -1,6 +1,6 @@
 # Function: VariableSelector
 
-**VariableSelector**(`«destructured»`): `Element`
+**VariableSelector**(`«destructured»`): `any`
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`Element`
+`any`

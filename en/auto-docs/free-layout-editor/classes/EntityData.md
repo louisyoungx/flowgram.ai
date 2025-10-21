@@ -41,11 +41,11 @@
 
   ↳↳ [`FlowNodeVariableData`](/en/auto-docs/free-layout-editor/classes/FlowNodeVariableData.md)
 
-  ↳↳ [`WorkflowLineRenderData`](/en/auto-docs/free-layout-editor/classes/WorkflowLineRenderData.md)
-
   ↳↳ [`WorkflowNodeLinesData`](/en/auto-docs/free-layout-editor/classes/WorkflowNodeLinesData.md)
 
   ↳↳ [`WorkflowNodePortsData`](/en/auto-docs/free-layout-editor/classes/WorkflowNodePortsData.md)
+
+  ↳↳ [`WorkflowLineRenderData`](/en/auto-docs/free-layout-editor/classes/WorkflowLineRenderData.md)
 
 ## Table of contents
 

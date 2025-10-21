@@ -34,7 +34,7 @@
 | Name | Type |
 | :------ | :------ |
 | `moduleId` | `number` |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `onActivation` | [`BindingActivation`](/auto-docs/fixed-layout-editor/types/interfaces.BindingActivation.md)<`T`> |
 
 #### Returns
@@ -58,7 +58,7 @@
 | Name | Type |
 | :------ | :------ |
 | `moduleId` | `number` |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `onDeactivation` | [`BindingDeactivation`](/auto-docs/fixed-layout-editor/types/interfaces.BindingDeactivation.md)<`T`> |
 
 #### Returns

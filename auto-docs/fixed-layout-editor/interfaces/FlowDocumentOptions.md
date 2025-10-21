@@ -12,6 +12,7 @@
 * [formatNodeLabels](/auto-docs/fixed-layout-editor/interfaces/FlowDocumentOptions.md#formatnodelabels)
 * [formatNodeLines](/auto-docs/fixed-layout-editor/interfaces/FlowDocumentOptions.md#formatnodelines)
 * [getNodeDefaultRegistry](/auto-docs/fixed-layout-editor/interfaces/FlowDocumentOptions.md#getnodedefaultregistry)
+* [preNodeCreate](/auto-docs/fixed-layout-editor/interfaces/FlowDocumentOptions.md#prenodecreate)
 
 ### Methods
 
@@ -103,6 +104,26 @@
 ##### Returns
 
 [`FlowNodeRegistry`](/auto-docs/fixed-layout-editor/interfaces/FlowNodeRegistry-1.md)<[`FlowNodeMeta`](/auto-docs/fixed-layout-editor/interfaces/FlowNodeMeta.md)>
+
+***
+
+### preNodeCreate
+
+`Optional` **preNodeCreate**: (`node`: [`FlowNodeEntity`](/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)) => `void`
+
+#### Type declaration
+
+(`node`): `void`
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `node` | [`FlowNodeEntity`](/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md) |
+
+##### Returns
+
+`void`
 
 ## Methods
 

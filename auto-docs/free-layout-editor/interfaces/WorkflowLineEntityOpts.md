@@ -15,6 +15,7 @@
 * [data](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#data)
 * [datas](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#datas)
 * [document](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#document)
+* [drawingFrom](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#drawingfrom)
 * [drawingTo](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#drawingto)
 * [entityManager](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#entitymanager)
 * [from](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#from)
@@ -53,6 +54,12 @@
 
 ***
 
+### drawingFrom
+
+`Optional` **drawingFrom**: [`LinePoint`](/auto-docs/free-layout-editor/interfaces/LinePoint.md)
+
+***
+
 ### drawingTo
 
 `Optional` **drawingTo**: [`LinePoint`](/auto-docs/free-layout-editor/interfaces/LinePoint.md)
@@ -71,7 +78,7 @@
 
 ### from
 
-**from**: `string`
+`Optional` **from**: `string`
 
 #### Inherited from
 

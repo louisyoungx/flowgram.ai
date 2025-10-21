@@ -4,6 +4,8 @@
 
 **createNumber**(): `Object`
 
+Creates a `Number` type node.
+
 #### Returns
 
 `Object`

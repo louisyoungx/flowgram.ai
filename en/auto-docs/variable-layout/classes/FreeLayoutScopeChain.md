@@ -1,6 +1,6 @@
 # Class: FreeLayoutScopeChain
 
-自由布局作用域链实现
+Scope chain implementation for free layout.
 
 ## Hierarchy
 
@@ -109,6 +109,8 @@ ScopeChain.onDispose
 
 `get` **tree**(): `FlowVirtualTree`<`FlowNodeEntity`>
 
+The virtual tree of the flow document.
+
 #### Returns
 
 `FlowVirtualTree`<`FlowNodeEntity`>
@@ -165,15 +167,19 @@ Get All children of nodes
 
 **getCovers**(`scope`): [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md)\[]
 
+Gets the covering scopes for a given scope.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scope` | [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scope` | [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md) | The scope to get covering scopes for. |
 
 #### Returns
 
 [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md)\[]
+
+An array of covering scopes.
 
 #### Overrides
 
@@ -185,15 +191,19 @@ ScopeChain.getCovers
 
 **getDeps**(`scope`): [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md)\[]
 
+Gets the dependency scopes for a given scope.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scope` | [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scope` | [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md) | The scope to get dependencies for. |
 
 #### Returns
 
 [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md)\[]
+
+An array of dependency scopes.
 
 #### Overrides
 
@@ -205,15 +215,19 @@ ScopeChain.getDeps
 
 **getNodeChildren**(`node`): `FlowNodeEntity`\[]
 
+Gets the children of a node.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `node` | `FlowNodeEntity` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `node` | `FlowNodeEntity` | The node to get children for. |
 
 #### Returns
 
 `FlowNodeEntity`\[]
+
+An array of child nodes.
 
 ***
 
@@ -221,15 +235,19 @@ ScopeChain.getDeps
 
 **getNodeParent**(`node`): `undefined` | `FlowNodeEntity`
 
+Gets the parent of a node.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `node` | `FlowNodeEntity` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `node` | `FlowNodeEntity` | The node to get the parent for. |
 
 #### Returns
 
 `undefined` | `FlowNodeEntity`
+
+The parent node or `undefined` if not found.
 
 ***
 
@@ -247,7 +265,7 @@ ScopeChain.getDeps
 
 **refreshAllChange**(): `void`
 
-所有作用域依赖关系刷新
+Refreshes the dependency and coverage relationships for all scopes.
 
 #### Returns
 
@@ -263,9 +281,13 @@ ScopeChain.refreshAllChange
 
 **sortAll**(): `Scope`<`Record`<`string`, `any`>>\[]
 
+Sorts all scopes in the scope chain.
+
 #### Returns
 
 `Scope`<`Record`<`string`, `any`>>\[]
+
+An empty array, as this method is not implemented.
 
 #### Overrides
 

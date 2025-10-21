@@ -2,14 +2,21 @@
 
 [ASTFactory](/auto-docs/variable-core/modules/ASTFactory.md).createString
 
-**createString**(): `Object`
+**createString**(`json?`): `Object`
 
-类型相关
+Creates a `String` type node.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `json?` | `StringJSON` |
 
 #### Returns
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
-| `kind` | [`ASTKind`](/auto-docs/variable-core/enums/ASTKind.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `format?` | `string` | see https://json-schema.org/understanding-json-schema/reference/type#format |
+| `kind` | [`ASTKind`](/auto-docs/variable-core/enums/ASTKind.md) | - |

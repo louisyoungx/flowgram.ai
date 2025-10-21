@@ -1,7 +1,6 @@
 # Interface: KeyPathExpressionJSON
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+ASTNodeJSON representation of `KeyPathExpression`
 
 ## Table of contents
 
@@ -14,3 +13,5 @@ SPDX-License-Identifier: MIT
 ### keyPath
 
 **keyPath**: `string`\[]
+
+The key path of the variable.

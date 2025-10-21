@@ -1,7 +1,6 @@
 # Enumeration: ASTNodeFlags
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+ASTNode flags. Stored in the `flags` property of the `ASTNode`.
 
 ## Table of contents
 
@@ -22,7 +21,7 @@ SPDX-License-Identifier: MIT
 
 **BasicType** = `8`
 
-变量类型
+Basic type.
 
 ***
 
@@ -30,11 +29,15 @@ SPDX-License-Identifier: MIT
 
 **DrilldownType** = `16`
 
+Drillable variable type.
+
 ***
 
 ### EnumerateType
 
 **EnumerateType** = `32`
+
+Enumerable variable type.
 
 ***
 
@@ -42,7 +45,7 @@ SPDX-License-Identifier: MIT
 
 **Expression** = `4`
 
-表达式
+Expression.
 
 ***
 
@@ -50,11 +53,15 @@ SPDX-License-Identifier: MIT
 
 **None** = `0`
 
+None.
+
 ***
 
 ### UnionType
 
 **UnionType** = `64`
+
+Composite type, currently not in use.
 
 ***
 
@@ -62,10 +69,12 @@ SPDX-License-Identifier: MIT
 
 **VariableField** = `1`
 
-变量字段
+Variable Field.
 
 ***
 
 ### VariableType
 
 **VariableType** = `120`
+
+Variable type.

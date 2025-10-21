@@ -1,6 +1,7 @@
 # Class: WorkflowAutoLayoutTool
 
 Auto layout tool - 自动布局工具
+https://flowgram.ai/guide/plugin/free-auto-layout-plugin.html
 
 ## Table of contents
 
@@ -28,7 +29,7 @@ Auto layout tool - 自动布局工具
 
 | Name | Type |
 | :------ | :------ |
-| `options` | [`AutoLayoutToolOptions`](/auto-docs/free-layout-editor/types/AutoLayoutToolOptions.md) |
+| `options` | `LayoutOptions` |
 
 #### Returns
 

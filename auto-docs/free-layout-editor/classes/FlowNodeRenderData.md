@@ -660,13 +660,14 @@ EntityData.version
 
 ### updateExtInfo
 
-**updateExtInfo**(`info`): `void`
+**updateExtInfo**(`info`, `fullUpdate?`): `void`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `info` | `Record`<`string`, `any`> |
+| `fullUpdate?` | `boolean` |
 
 #### Returns
 

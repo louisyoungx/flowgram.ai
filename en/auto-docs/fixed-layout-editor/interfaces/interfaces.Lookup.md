@@ -38,7 +38,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/en/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`unknown`> |
+| `serviceIdentifier` | `ServiceIdentifier` |
 | `value` | `T` |
 
 #### Returns
@@ -69,7 +69,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/en/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`unknown`> |
+| `serviceIdentifier` | `ServiceIdentifier` |
 
 #### Returns
 
@@ -95,7 +95,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/en/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`unknown`> |
+| `serviceIdentifier` | `ServiceIdentifier` |
 
 #### Returns
 

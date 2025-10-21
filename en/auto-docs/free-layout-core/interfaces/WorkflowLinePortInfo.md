@@ -28,7 +28,7 @@
 
 ### from
 
-**from**: `string`
+`Optional` **from**: `string`
 
 ***
 

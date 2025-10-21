@@ -62,6 +62,7 @@
 * [fireRender](/auto-docs/free-layout-editor/classes/WorkflowDocument.md#firerender)
 * [fitView](/auto-docs/free-layout-editor/classes/WorkflowDocument.md#fitview)
 * [fromJSON](/auto-docs/free-layout-editor/classes/WorkflowDocument.md#fromjson)
+* [getAllEdges](/auto-docs/free-layout-editor/classes/WorkflowDocument.md#getalledges)
 * [getAllNodes](/auto-docs/free-layout-editor/classes/WorkflowDocument.md#getallnodes)
 * [getAllPorts](/auto-docs/free-layout-editor/classes/WorkflowDocument.md#getallports)
 * [getAssociatedNodes](/auto-docs/free-layout-editor/classes/WorkflowDocument.md#getassociatednodes)
@@ -464,7 +465,8 @@ blockOrderIcon
 | :------ | :------ |
 | `json` | [`WorkflowJSON`](/auto-docs/free-layout-editor/interfaces/WorkflowJSON.md) |
 | `options?` | `Object` |
-| `options.isClone?` | `boolean` |
+| `options.onEdgeCreated?` | (`edge`: [`WorkflowLineEntity`](/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)) => `void` |
+| `options.onNodeCreated?` | (`node`: [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)) => `void` |
 | `options.parent?` | [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md) |
 
 #### Returns
@@ -528,7 +530,7 @@ blockOrderIcon
 
 ### copyNodeFromJSON
 
-**copyNodeFromJSON**(`flowNodeType`, `nodeJSON`, `newNodeId?`, `position?`, `parentId?`): [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)
+**copyNodeFromJSON**(`flowNodeType`, `nodeJSON`, `newNodeId?`, `position?`, `parentID?`): [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)
 
 #### Parameters
 
@@ -538,7 +540,7 @@ blockOrderIcon
 | `nodeJSON` | [`WorkflowNodeJSON`](/auto-docs/free-layout-editor/interfaces/WorkflowNodeJSON.md) |
 | `newNodeId?` | `string` |
 | `position?` | [`IPoint`](/auto-docs/free-layout-editor/interfaces/IPoint.md) |
-| `parentId?` | `string` |
+| `parentID?` | `string` |
 
 #### Returns
 
@@ -548,17 +550,17 @@ blockOrderIcon
 
 ### createWorkflowNode
 
-**createWorkflowNode**(`json`, `isClone?`, `parentId?`): [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)
+**createWorkflowNode**(`json`, `isClone?`, `parentID?`): [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)
 
 创建流程节点
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `json` | [`WorkflowNodeJSON`](/auto-docs/free-layout-editor/interfaces/WorkflowNodeJSON.md) |
-| `isClone?` | `boolean` |
-| `parentId?` | `string` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `json` | [`WorkflowNodeJSON`](/auto-docs/free-layout-editor/interfaces/WorkflowNodeJSON.md) |  |
+| `isClone?` | `boolean` | **`Deprecated`** |
+| `parentID?` | `string` | - |
 
 #### Returns
 
@@ -673,6 +675,16 @@ use `ctx.tools.fitView()` instead
 #### Overrides
 
 [FlowDocument](/auto-docs/free-layout-editor/classes/FlowDocument.md).[fromJSON](/auto-docs/free-layout-editor/classes/FlowDocument.md#fromjson)
+
+***
+
+### getAllEdges
+
+**getAllEdges**(): [`WorkflowLineEntity`](/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)\[]
+
+#### Returns
+
+[`WorkflowLineEntity`](/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)\[]
 
 ***
 
@@ -1076,6 +1088,10 @@ Check node type
 
 `Promise`<`void`>
 
+**`Deprecated`**
+
+use `ctx.operation.fromJSON` instead
+
 ***
 
 ### removeNode
@@ -1106,12 +1122,12 @@ Check node type
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `json` | [`WorkflowJSON`](/auto-docs/free-layout-editor/interfaces/WorkflowJSON.md) |
-| `options?` | `Object` |
-| `options.isClone?` | `boolean` |
-| `options.parent?` | [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `json` | [`WorkflowJSON`](/auto-docs/free-layout-editor/interfaces/WorkflowJSON.md) |  |
+| `options?` | `Object` |  |
+| `options.isClone?` | `boolean` | **`Deprecated`** useless api |
+| `options.parent?` | [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md) | - |
 
 #### Returns
 

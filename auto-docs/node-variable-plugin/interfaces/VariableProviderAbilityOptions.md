@@ -16,7 +16,6 @@
 
 ### Properties
 
-* [key](/auto-docs/node-variable-plugin/interfaces/VariableProviderAbilityOptions.md#key)
 * [namespace](/auto-docs/node-variable-plugin/interfaces/VariableProviderAbilityOptions.md#namespace)
 * [onInit](/auto-docs/node-variable-plugin/interfaces/VariableProviderAbilityOptions.md#oninit)
 * [parse](/auto-docs/node-variable-plugin/interfaces/VariableProviderAbilityOptions.md#parse)
@@ -24,16 +23,6 @@
 * [scope](/auto-docs/node-variable-plugin/interfaces/VariableProviderAbilityOptions.md#scope)
 
 ## Properties
-
-### key
-
-`Optional` **key**: `string`
-
-#### Inherited from
-
-VariableAbilityOptions.key
-
-***
 
 ### namespace
 
@@ -71,11 +60,11 @@ VariableAbilityOptions.onInit
 
 ### parse
 
-**parse**: (`v`: `V`, `ctx`: [`VariableAbilityParseContext`](/auto-docs/node-variable-plugin/interfaces/VariableAbilityParseContext.md)) => `VariableDeclarationJSON`\[]
+**parse**: (`v`: `V`, `ctx`: [`VariableAbilityParseContext`](/auto-docs/node-variable-plugin/interfaces/VariableAbilityParseContext.md)) => `VariableDeclarationJSON` | `VariableDeclarationJSON`\[]
 
 #### Type declaration
 
-(`v`, `ctx`): `VariableDeclarationJSON`\[]
+(`v`, `ctx`): `VariableDeclarationJSON` | `VariableDeclarationJSON`\[]
 
 ##### Parameters
 
@@ -86,7 +75,7 @@ VariableAbilityOptions.onInit
 
 ##### Returns
 
-`VariableDeclarationJSON`\[]
+`VariableDeclarationJSON` | `VariableDeclarationJSON`\[]
 
 ***
 

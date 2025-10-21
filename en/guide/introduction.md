@@ -214,8 +214,8 @@ Providing a set of interactive best practices for smoother workflow operations
 
 ## Online Applications
 
-<div style={{ marginTop: 16, display: "flex", gap: 8 }}>
-  <div>
+<div style={{ marginTop: 16, display: "flex", gap: 8, flexWrap: 'wrap' }}>
+  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
     <div>
       <a className="rs-link" href="https://www.coze.com/open/docs/guides/workflow" target="_blank">
         Coze Workflow
@@ -227,7 +227,7 @@ Providing a set of interactive best practices for smoother workflow operations
     </div>
   </div>
 
-  <div>
+  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
     <a className="rs-link" href="https://ae.feishu.cn/hc/zh-CN/articles/120610822514" target="_blank">
       Lark Low-code Platform Workflow
     </a>
@@ -237,13 +237,33 @@ Providing a set of interactive best practices for smoother workflow operations
     </div>
   </div>
 
-  <div>
+  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
     <a className="rs-link" href="https://www.feishu.cn/hc/en-US/articles/908751305974-overview-of-workflow-in-base" target="_blank">
       Lark Base Workflow
     </a>
 
     <div>
       <img loading="lazy" src="/ref-bitable-en.png" />
+    </div>
+  </div>
+
+  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
+    <a className="rs-link" href="https://github.com/NNDeploy/nndeploy" target="_blank">
+      nndeploy
+    </a>
+
+    <div>
+      <img loading="lazy" src="/ref-nndeploy.png" />
+    </div>
+  </div>
+
+  <div style={{flex: '0 0 30%', boxSizing: 'border-box'}}>
+    <a className="rs-link" href="https://github.com/certimate-go/certimate" target="_blank">
+      Certimate
+    </a>
+
+    <div>
+      <img loading="lazy" src="/ref-certimate.png" />
     </div>
   </div>
 </div>

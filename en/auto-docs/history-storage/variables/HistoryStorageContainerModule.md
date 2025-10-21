@@ -1,3 +1,3 @@
 # Variable: HistoryStorageContainerModule
 
-`Const` **HistoryStorageContainerModule**: `ContainerModule`
+`Const` **HistoryStorageContainerModule**: `any`

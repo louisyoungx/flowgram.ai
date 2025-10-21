@@ -2,7 +2,7 @@
 
 **VariableDeclarationJSON**<`VariableMeta`>: `BaseVariableFieldJSON`<`VariableMeta`> & { `order?`: `number`  }
 
-声明类 AST 节点
+ASTNodeJSON representation of the `VariableDeclaration`.
 
 #### Type parameters
 

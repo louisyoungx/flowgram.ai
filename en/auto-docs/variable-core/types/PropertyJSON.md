@@ -2,6 +2,8 @@
 
 **PropertyJSON**<`VariableMeta`>: `BaseVariableFieldJSON`<`VariableMeta`> & { `key`: `string`  }
 
+ASTNodeJSON representation of the `Property`.
+
 #### Type parameters
 
 | Name | Type |

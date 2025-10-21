@@ -9,7 +9,6 @@
 * [addFromNode](/auto-docs/document/enums/OperationType.md#addfromnode)
 * [addNode](/auto-docs/document/enums/OperationType.md#addnode)
 * [addNodes](/auto-docs/document/enums/OperationType.md#addnodes)
-* [changeNode](/auto-docs/document/enums/OperationType.md#changenode)
 * [createGroup](/auto-docs/document/enums/OperationType.md#creategroup)
 * [deleteBlock](/auto-docs/document/enums/OperationType.md#deleteblock)
 * [deleteChildNode](/auto-docs/document/enums/OperationType.md#deletechildnode)
@@ -50,12 +49,6 @@
 ### addNodes
 
 **addNodes** = `"addNodes"`
-
-***
-
-### changeNode
-
-**changeNode** = `"changeNode"`
 
 ***
 

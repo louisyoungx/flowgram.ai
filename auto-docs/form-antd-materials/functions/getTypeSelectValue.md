@@ -1,6 +1,6 @@
 # Function: getTypeSelectValue
 
-**getTypeSelectValue**(`value?`): `undefined` | `string`\[]
+**getTypeSelectValue**(`value?`): `string`\[]
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`undefined` | `string`\[]
+`string`\[]

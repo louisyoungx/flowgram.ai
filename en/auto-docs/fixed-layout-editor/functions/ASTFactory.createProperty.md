@@ -4,6 +4,8 @@
 
 **createProperty**<`VariableMeta`>(`json`): `Object`
 
+Creates a `Property` node.
+
 #### Type parameters
 
 | Name | Type |

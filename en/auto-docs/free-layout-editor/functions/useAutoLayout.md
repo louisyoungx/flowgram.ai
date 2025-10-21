@@ -1,6 +1,6 @@
 # Function: useAutoLayout
 
-**useAutoLayout**(): (`options`: [`AutoLayoutToolOptions`](/en/auto-docs/free-layout-editor/types/AutoLayoutToolOptions.md)) => `Promise`<[`AutoLayoutResetFn`](/en/auto-docs/free-layout-editor/types/AutoLayoutResetFn.md)>
+**useAutoLayout**(): (`options`: `LayoutOptions`) => `Promise`<[`AutoLayoutResetFn`](/en/auto-docs/free-layout-editor/types/AutoLayoutResetFn.md)>
 
 #### Returns
 
@@ -12,7 +12,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `options` | [`AutoLayoutToolOptions`](/en/auto-docs/free-layout-editor/types/AutoLayoutToolOptions.md) |
+| `options` | `LayoutOptions` |
 
 ##### Returns
 

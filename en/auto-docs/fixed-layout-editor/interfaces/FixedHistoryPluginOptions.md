@@ -46,6 +46,10 @@
 
 `Optional` **enableChangeNode**: `boolean`
 
+#### Inherited from
+
+[HistoryPluginOptions](/en/auto-docs/fixed-layout-editor/interfaces/HistoryPluginOptions.md).[enableChangeNode](/en/auto-docs/fixed-layout-editor/interfaces/HistoryPluginOptions.md#enablechangenode)
+
 ***
 
 ### getBlockLabel

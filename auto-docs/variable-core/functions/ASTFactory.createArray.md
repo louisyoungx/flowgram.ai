@@ -4,6 +4,8 @@
 
 **createArray**(`json`): `Object`
 
+Creates an `Array` type node.
+
 #### Parameters
 
 | Name | Type |
@@ -14,7 +16,7 @@
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
-| `items?` | `ASTNodeJSONOrKind` |
-| `kind` | [`ASTKind`](/auto-docs/variable-core/enums/ASTKind.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `items?` | `ASTNodeJSONOrKind` | The type of the items in the array. |
+| `kind` | [`ASTKind`](/auto-docs/variable-core/enums/ASTKind.md) | - |

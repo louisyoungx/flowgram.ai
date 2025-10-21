@@ -4,6 +4,8 @@
 
 **createCustomType**(`json`): `Object`
 
+Creates a `CustomType` node.
+
 #### Parameters
 
 | Name | Type |
@@ -14,7 +16,7 @@
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
-| `kind` | [`ASTKind`](/en/auto-docs/variable-core/enums/ASTKind.md) |
-| `typeName` | `string` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `kind` | [`ASTKind`](/en/auto-docs/variable-core/enums/ASTKind.md) | - |
+| `typeName` | `string` | The name of the custom type. |

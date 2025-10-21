@@ -12,6 +12,7 @@
 
 * [disabled](/en/auto-docs/free-layout-core/interfaces/WorkflowPort.md#disabled)
 * [location](/en/auto-docs/free-layout-core/interfaces/WorkflowPort.md#location)
+* [locationConfig](/en/auto-docs/free-layout-core/interfaces/WorkflowPort.md#locationconfig)
 * [offset](/en/auto-docs/free-layout-core/interfaces/WorkflowPort.md#offset)
 * [portID](/en/auto-docs/free-layout-core/interfaces/WorkflowPort.md#portid)
 * [size](/en/auto-docs/free-layout-core/interfaces/WorkflowPort.md#size)
@@ -36,11 +37,43 @@
 
 ***
 
+### locationConfig
+
+`Optional` **locationConfig**: `Object`
+
+端口位置配置
+
+**`Example`**
+
+```ts
+// bottom-center
+ {
+   left: '50%',
+   bottom: 0
+ }
+ // right-center
+ {
+   right: 0,
+   top: '50%'
+ }
+```
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `bottom?` | `string` | `number` |
+| `left?` | `string` | `number` |
+| `right?` | `string` | `number` |
+| `top?` | `string` | `number` |
+
+***
+
 ### offset
 
 `Optional` **offset**: `IPoint`
 
-相对于 position 的偏移
+相对于 location 的偏移
 
 ***
 

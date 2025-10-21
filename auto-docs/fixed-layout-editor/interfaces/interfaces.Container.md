@@ -130,7 +130,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 
 #### Returns
 
@@ -162,7 +162,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 
 #### Returns
 
@@ -184,7 +184,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `options?` | [`GetAllOptions`](/auto-docs/fixed-layout-editor/interfaces/interfaces.GetAllOptions.md) |
 
 #### Returns
@@ -207,7 +207,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `options?` | [`GetAllOptions`](/auto-docs/fixed-layout-editor/interfaces/interfaces.GetAllOptions.md) |
 
 #### Returns
@@ -230,7 +230,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `named` | `string` | `number` | `symbol` |
 
 #### Returns
@@ -253,7 +253,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `named` | `string` | `number` | `symbol` |
 
 #### Returns
@@ -276,7 +276,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `key` | `string` | `number` | `symbol` |
 | `value` | `unknown` |
 
@@ -300,7 +300,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `key` | `string` | `number` | `symbol` |
 | `value` | `unknown` |
 
@@ -324,7 +324,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 
 #### Returns
 
@@ -346,7 +346,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `named` | `string` | `number` | `symbol` |
 
 #### Returns
@@ -369,7 +369,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `named` | `string` | `number` | `symbol` |
 
 #### Returns
@@ -392,7 +392,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `key` | `string` | `number` | `symbol` |
 | `value` | `unknown` |
 
@@ -416,7 +416,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `key` | `string` | `number` | `symbol` |
 | `value` | `unknown` |
 
@@ -434,7 +434,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`unknown`> |
+| `serviceIdentifier` | `ServiceIdentifier` |
 
 #### Returns
 
@@ -450,7 +450,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`unknown`> |
+| `serviceIdentifier` | `ServiceIdentifier` |
 | `named` | `string` | `number` | `symbol` |
 
 #### Returns
@@ -467,7 +467,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`unknown`> |
+| `serviceIdentifier` | `ServiceIdentifier` |
 | `key` | `string` | `number` | `symbol` |
 | `value` | `unknown` |
 
@@ -491,7 +491,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 
 #### Returns
 
@@ -545,7 +545,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `onActivation` | [`BindingActivation`](/auto-docs/fixed-layout-editor/types/interfaces.BindingActivation.md)<`T`> |
 
 #### Returns
@@ -568,7 +568,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `onDeactivation` | [`BindingDeactivation`](/auto-docs/fixed-layout-editor/types/interfaces.BindingDeactivation.md)<`T`> |
 
 #### Returns
@@ -949,7 +949,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`unknown`> |
+| `serviceIdentifier` | `ServiceIdentifier` |
 
 #### Returns
 

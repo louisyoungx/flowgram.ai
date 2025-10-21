@@ -18,6 +18,7 @@
 
 * [ConstantRenderer](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#constantrenderer)
 * [canAddField](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#canaddfield)
+* [conditionRule](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#conditionrule)
 * [container](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#container)
 * [customComplexText](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#customcomplextext)
 * [extend](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#extend)
@@ -73,6 +74,14 @@ Whether to allow adding fields, such as object
 #### Inherited from
 
 OriginJsonSchemaTypeRegistry.canAddField
+
+***
+
+### conditionRule
+
+`Optional` **conditionRule**: [`IConditionRuleFactory`](/en/auto-docs/form-materials/types/IConditionRuleFactory.md) | [`IConditionRule`](/en/auto-docs/form-materials/types/IConditionRule.md)
+
+Condition Rules
 
 ***
 

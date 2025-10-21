@@ -16,6 +16,7 @@
 * [description](/auto-docs/form-materials/interfaces/IJsonSchema.md#description)
 * [enum](/auto-docs/form-materials/interfaces/IJsonSchema.md#enum)
 * [extra](/auto-docs/form-materials/interfaces/IJsonSchema.md#extra)
+* [format](/auto-docs/form-materials/interfaces/IJsonSchema.md#format)
 * [items](/auto-docs/form-materials/interfaces/IJsonSchema.md#items)
 * [properties](/auto-docs/form-materials/interfaces/IJsonSchema.md#properties)
 * [required](/auto-docs/form-materials/interfaces/IJsonSchema.md#required)
@@ -69,6 +70,15 @@
 | `formComponent?` | `string` |
 | `index?` | `number` |
 | `weak?` | `boolean` |
+
+***
+
+### format
+
+`Optional` **format**: `string`
+
+The format of string
+https://json-schema.org/understanding-json-schema/reference/type#format
 
 ***
 

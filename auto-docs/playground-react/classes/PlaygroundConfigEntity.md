@@ -24,6 +24,7 @@
 * [onEntityChange](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#onentitychange)
 * [onGrabDisableChange](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#ongrabdisablechange)
 * [onReadonlyOrDisabledChange](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#onreadonlyordisabledchange)
+* [playgroundDomNode](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#playgrounddomnode)
 * [preDispose](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#predispose)
 * [toDispose](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#todispose)
 * [type](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#type)
@@ -60,6 +61,7 @@
 * [fitView](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#fitview)
 * [fixLayerPosition](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#fixlayerposition)
 * [fromJSON](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#fromjson)
+* [getClientBounds](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#getclientbounds)
 * [getData](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#getdata)
 * [getDefaultConfig](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#getdefaultconfig)
 * [getDefaultDataRegistries](/auto-docs/playground-react/classes/PlaygroundConfigEntity.md#getdefaultdataregistries)
@@ -170,6 +172,12 @@
 ### onReadonlyOrDisabledChange
 
 `Readonly` **onReadonlyOrDisabledChange**: [`Event`](/auto-docs/playground-react/interfaces/Event-1.md)<{ `disabled`: `boolean` ; `readonly`: `boolean`  }>
+
+***
+
+### playgroundDomNode
+
+**playgroundDomNode**: `HTMLElement`
 
 ***
 
@@ -714,6 +722,16 @@ use 'zoomDisable' instead
 #### Inherited from
 
 [ConfigEntity](/auto-docs/playground-react/classes/ConfigEntity.md).[fromJSON](/auto-docs/playground-react/classes/ConfigEntity.md#fromjson)
+
+***
+
+### getClientBounds
+
+**getClientBounds**(): `Rectangle`
+
+#### Returns
+
+`Rectangle`
 
 ***
 

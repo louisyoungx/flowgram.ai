@@ -1,6 +1,6 @@
 # Class: ScopeOutputData
 
-作用域输出
+Manages the output variables of a scope.
 
 ## Table of contents
 
@@ -26,10 +26,8 @@
 
 ### Methods
 
-* [addVariableToTable](/en/auto-docs/editor/classes/ScopeOutputData.md#addvariabletotable)
 * [getVariableByKey](/en/auto-docs/editor/classes/ScopeOutputData.md#getvariablebykey)
 * [notifyCoversChange](/en/auto-docs/editor/classes/ScopeOutputData.md#notifycoverschange)
-* [removeVariableFromTable](/en/auto-docs/editor/classes/ScopeOutputData.md#removevariablefromtable)
 
 ## Constructors
 
@@ -55,6 +53,8 @@
 
 `get` **globalVariableTable**(): [`IVariableTable`](/en/auto-docs/editor/interfaces/IVariableTable.md)
 
+The global variable table from the variable engine.
+
 #### Returns
 
 [`IVariableTable`](/en/auto-docs/editor/interfaces/IVariableTable.md)
@@ -65,7 +65,7 @@
 
 `get` **onAnyVariableChange**(): (`observer`: (`changedVariable`: [`VariableDeclaration`](/en/auto-docs/editor/classes/VariableDeclaration.md)<`any`>) => `void`) => [`Disposable`](/en/auto-docs/editor/interfaces/Disposable-1.md)
 
-listen to any variable update in list
+An event that fires when any output variable's value changes.
 
 #### Returns
 
@@ -73,7 +73,7 @@ listen to any variable update in list
 
 (`observer`): [`Disposable`](/en/auto-docs/editor/interfaces/Disposable-1.md)
 
-listen to any variable update in list
+An event that fires when any output variable's value changes.
 
 ##### Parameters
 
@@ -105,7 +105,7 @@ use onListOrAnyVarChange instead
 
 `get` **onListOrAnyVarChange**(): (`observer`: () => `void`) => [`Disposable`](/en/auto-docs/editor/interfaces/Disposable-1.md)
 
-listen to variable list change + any variable update in list
+An event that fires when the output variable list changes or any variable's value is updated.
 
 #### Returns
 
@@ -113,7 +113,7 @@ listen to variable list change + any variable update in list
 
 (`observer`): [`Disposable`](/en/auto-docs/editor/interfaces/Disposable-1.md)
 
-listen to variable list change + any variable update in list
+An event that fires when the output variable list changes or any variable's value is updated.
 
 ##### Parameters
 
@@ -131,7 +131,7 @@ listen to variable list change + any variable update in list
 
 `get` **onVariableListChange**(): (`observer`: (`variables`: [`VariableDeclaration`](/en/auto-docs/editor/classes/VariableDeclaration.md)<`any`>\[]) => `void`) => [`Disposable`](/en/auto-docs/editor/interfaces/Disposable-1.md)
 
-listen to variable list change
+An event that fires when the list of output variables changes.
 
 #### Returns
 
@@ -139,7 +139,7 @@ listen to variable list change
 
 (`observer`): [`Disposable`](/en/auto-docs/editor/interfaces/Disposable-1.md)
 
-listen to variable list change
+An event that fires when the list of output variables changes.
 
 ##### Parameters
 
@@ -157,6 +157,8 @@ listen to variable list change
 
 `get` **variableEngine**(): [`VariableEngine`](/en/auto-docs/editor/classes/VariableEngine.md)
 
+The variable engine instance.
+
 #### Returns
 
 [`VariableEngine`](/en/auto-docs/editor/classes/VariableEngine.md)
@@ -167,7 +169,7 @@ listen to variable list change
 
 `get` **variableKeys**(): `string`\[]
 
-Output Variable Keys
+The keys of the output variables.
 
 #### Returns
 
@@ -179,7 +181,7 @@ Output Variable Keys
 
 `get` **variables**(): [`VariableDeclaration`](/en/auto-docs/editor/classes/VariableDeclaration.md)<`any`>\[]
 
-Scope Output Variable Declarations
+The output variable declarations of the scope, sorted by order.
 
 #### Returns
 
@@ -191,41 +193,31 @@ Scope Output Variable Declarations
 
 `get` **version**(): `number`
 
+The current version of the output data, which increments on each change.
+
 #### Returns
 
 `number`
 
 ## Methods
 
-### addVariableToTable
-
-**addVariableToTable**(`variable`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `variable` | [`VariableDeclaration`](/en/auto-docs/editor/classes/VariableDeclaration.md)<`any`> |
-
-#### Returns
-
-`void`
-
-***
-
 ### getVariableByKey
 
 **getVariableByKey**(`key`): `undefined` | [`VariableDeclaration`](/en/auto-docs/editor/classes/VariableDeclaration.md)<`any`>
 
+Retrieves a variable declaration by its key.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `key` | `string` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `key` | `string` | The key of the variable. |
 
 #### Returns
 
 `undefined` | [`VariableDeclaration`](/en/auto-docs/editor/classes/VariableDeclaration.md)<`any`>
+
+The `VariableDeclaration` or `undefined` if not found.
 
 ***
 
@@ -233,21 +225,7 @@ Scope Output Variable Declarations
 
 **notifyCoversChange**(): `void`
 
-#### Returns
-
-`void`
-
-***
-
-### removeVariableFromTable
-
-**removeVariableFromTable**(`key`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `key` | `string` |
+Notifies the covering scopes that the available variables have changed.
 
 #### Returns
 

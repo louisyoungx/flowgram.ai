@@ -30,7 +30,7 @@ SPDX-License-Identifier: MIT
 | Name | Type |
 | :------ | :------ |
 | `params` | `Object` |
-| `params.context` | [`StackingContext`](/auto-docs/free-layout-editor/types/StackingContext.md) |
+| `params.context` | [`StackingContext`](/auto-docs/free-layout-editor/interfaces/StackingContext.md) |
 | `params.nodes` | [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)\[] |
 | `params.root` | [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md) |
 

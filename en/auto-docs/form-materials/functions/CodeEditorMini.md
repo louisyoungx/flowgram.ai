@@ -11,3 +11,7 @@
 #### Returns
 
 `Element`
+
+**`Deprecated`**
+
+use mini in CodeEditorPropsType instead

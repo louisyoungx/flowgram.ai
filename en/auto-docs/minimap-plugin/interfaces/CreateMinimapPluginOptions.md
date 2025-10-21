@@ -12,27 +12,25 @@
 
 ### Properties
 
-* [activeDebounceTime](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#activedebouncetime)
+* [activeThrottleTime](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#activethrottletime)
 * [canvasClassName](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#canvasclassname)
 * [canvasStyle](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#canvasstyle)
 * [containerStyles](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#containerstyles)
 * [disableLayer](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#disablelayer)
-* [enableActiveDebounce](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#enableactivedebounce)
 * [enableDisplayAllNodes](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#enabledisplayallnodes)
-* [enableInactiveDebounce](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#enableinactivedebounce)
-* [inactiveDebounceTime](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#inactivedebouncetime)
 * [inactiveStyle](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#inactivestyle)
+* [inactiveThrottleTime](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#inactivethrottletime)
 * [panelStyles](/en/auto-docs/minimap-plugin/interfaces/CreateMinimapPluginOptions.md#panelstyles)
 
 ## Properties
 
-### activeDebounceTime
+### activeThrottleTime
 
-`Optional` **activeDebounceTime**: `number`
+`Optional` **activeThrottleTime**: `number`
 
 #### Inherited from
 
-Partial.activeDebounceTime
+Partial.activeThrottleTime
 
 ***
 
@@ -76,16 +74,6 @@ Partial.canvasStyle
 
 ***
 
-### enableActiveDebounce
-
-`Optional` **enableActiveDebounce**: `boolean`
-
-#### Inherited from
-
-Partial.enableActiveDebounce
-
-***
-
 ### enableDisplayAllNodes
 
 `Optional` **enableDisplayAllNodes**: `boolean`
@@ -96,26 +84,6 @@ Partial.enableDisplayAllNodes
 
 ***
 
-### enableInactiveDebounce
-
-`Optional` **enableInactiveDebounce**: `boolean`
-
-#### Inherited from
-
-Partial.enableInactiveDebounce
-
-***
-
-### inactiveDebounceTime
-
-`Optional` **inactiveDebounceTime**: `number`
-
-#### Inherited from
-
-Partial.inactiveDebounceTime
-
-***
-
 ### inactiveStyle
 
 `Optional` **inactiveStyle**: `Partial`<[`MinimapInactiveStyle`](/en/auto-docs/minimap-plugin/interfaces/MinimapInactiveStyle.md)>
@@ -123,6 +91,16 @@ Partial.inactiveDebounceTime
 #### Inherited from
 
 [MinimapLayerOptions](/en/auto-docs/minimap-plugin/interfaces/MinimapLayerOptions.md).[inactiveStyle](/en/auto-docs/minimap-plugin/interfaces/MinimapLayerOptions.md#inactivestyle)
+
+***
+
+### inactiveThrottleTime
+
+`Optional` **inactiveThrottleTime**: `number`
+
+#### Inherited from
+
+Partial.inactiveThrottleTime
 
 ***
 

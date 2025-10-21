@@ -1,6 +1,6 @@
 # Class: DataNode\<Data>
 
-通用数据 AST 节点，无子节点
+Represents a general data node with no child nodes.
 
 ## Type parameters
 
@@ -58,7 +58,7 @@
 
 **new DataNode**<`Data`>(`createParams`, `opts?`)
 
-构造函数
+Constructor.
 
 #### Type parameters
 
@@ -70,7 +70,7 @@
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `createParams` | [`CreateASTParams`](/en/auto-docs/variable-plugin/interfaces/CreateASTParams.md) | 创建 ASTNode 的必要参数 |
+| `createParams` | [`CreateASTParams`](/en/auto-docs/variable-plugin/interfaces/CreateASTParams.md) | Necessary parameters for creating an ASTNode. |
 | `opts?` | `any` | - |
 
 #### Inherited from
@@ -83,7 +83,10 @@
 
 **changeLocked**: `boolean`
 
-更新锁
+Update lock.
+
+* When set to `true`, `fireChange` will not trigger any events.
+* This is useful when multiple updates are needed, and you want to avoid multiple triggers.
 
 #### Inherited from
 
@@ -95,7 +98,7 @@
 
 `Readonly` **flags**: `number`
 
-节点 Flags，记录一些 Flag 信息
+Node flags, used to record some flag information.
 
 #### Inherited from
 
@@ -107,9 +110,11 @@
 
 `Readonly` **key**: `string`
 
-节点的唯一标识符，节点不指定则默认由 nanoid 生成，不可更改
+The unique identifier of the ASTNode, which is **immutable**.
 
-* 如需要生成新 key，则销毁当前节点并生成新的节点
+* Immutable: Once assigned, the key cannot be changed.
+* Automatically generated if not specified, and cannot be changed as well.
+* If a new key needs to be generated, the current ASTNode should be destroyed and a new ASTNode should be generated.
 
 #### Inherited from
 
@@ -121,7 +126,7 @@
 
 **onDispose**: `Event`<`void`>
 
-销毁时触发的回调
+Callback triggered upon disposal.
 
 #### Inherited from
 
@@ -135,9 +140,9 @@
 
 **`Deprecated`**
 
-获取 ASTNode 注入的 opts
+Get the injected options for the ASTNode.
 
-请使用 @injectToAst(XXXService) declare xxxService: XXXService 实现外部依赖注入
+Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve external dependency injection.
 
 #### Inherited from
 
@@ -149,7 +154,7 @@
 
 `Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>
 
-父节点
+The parent ASTNode.
 
 #### Inherited from
 
@@ -161,7 +166,7 @@
 
 `Readonly` **scope**: [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>
 
-节点所处的作用域
+The scope in which the ASTNode is located.
 
 #### Inherited from
 
@@ -173,7 +178,7 @@
 
 `Readonly` **toDispose**: `DisposableCollection`
 
-删除节点处理事件列表
+List of disposal handlers for the ASTNode.
 
 #### Inherited from
 
@@ -185,9 +190,10 @@
 
 `Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>>
 
-AST 节点变化事件，基于 Rxjs 实现
+AST node change Observable events, implemented based on RxJS.
 
-* 使用了 BehaviorSubject, 在订阅时会自动触发一次事件，事件为当前值
+* Emits the current ASTNode value upon subscription.
+* Emits a new value whenever `fireChange` is called.
 
 #### Inherited from
 
@@ -199,7 +205,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `Static` **kind**: `string`
 
-节点类型
+The kind of the ASTNode.
 
 #### Overrides
 
@@ -211,7 +217,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `get` **children**(): [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>\[]
 
-获取当前节点所有子节点
+Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
@@ -226,6 +232,8 @@ ASTNode.children
 ### data
 
 `get` **data**(): `Data`
+
+The data of the node.
 
 #### Returns
 
@@ -251,7 +259,10 @@ ASTNode.disposed
 
 `get` **hash**(): `string`
 
-节点唯一 hash 值
+The unique hash value of the ASTNode.
+
+* It will update when the ASTNode is updated.
+* You can used to check two ASTNode are equal.
 
 #### Returns
 
@@ -267,7 +278,7 @@ ASTNode.hash
 
 `get` **kind**(): `string`
 
-AST 节点的类型
+The type of the ASTNode.
 
 #### Returns
 
@@ -283,9 +294,9 @@ ASTNode.kind
 
 `get` **version**(): `number`
 
-节点的版本值
+The version value of the ASTNode.
 
-* 通过 NodeA === NodeB && versionA === versionB 可以比较两者是否相等
+* You can used to check whether ASTNode are updated.
 
 #### Returns
 
@@ -301,6 +312,8 @@ ASTNode.version
 
 **dispatchGlobalEvent**<`ActionType`>(`event`): `void`
 
+Dispatches a global event for the current ASTNode.
+
 #### Type parameters
 
 | Name | Type |
@@ -309,9 +322,9 @@ ASTNode.version
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `event` | `Omit`<`ActionType`, `"ast"`> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `event` | `Omit`<`ActionType`, `"ast"`> | The global event. |
 
 #### Returns
 
@@ -327,7 +340,7 @@ ASTNode.version
 
 **dispose**(): `void`
 
-销毁
+Disposes the ASTNode.
 
 #### Returns
 
@@ -343,7 +356,7 @@ ASTNode.version
 
 **fireChange**(): `void`
 
-触发当前节点更新
+Triggers an update for the current node.
 
 #### Returns
 
@@ -359,13 +372,13 @@ ASTNode.version
 
 **fromJSON**(`json`): `void`
 
-解析 AST JSON 数据
+Deserializes the `DataNodeJSON` to the `DataNode`.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `json` | `Data` | AST JSON 数据 |
+| `json` | `Data` | The `DataNodeJSON` to deserialize. |
 
 #### Returns
 
@@ -381,11 +394,13 @@ ASTNode.version
 
 **partialUpdate**(`nextData`): `void`
 
+Partially update the data of the node.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `nextData` | `Data` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `nextData` | `Data` | The data to be updated. |
 
 #### Returns
 
@@ -397,7 +412,7 @@ ASTNode.version
 
 **subscribe**<`Data`>(`observer`, `selector?`): `Disposable`
 
-监听 AST 节点的变化
+Listens for changes to the ASTNode.
 
 #### Type parameters
 
@@ -409,8 +424,8 @@ ASTNode.version
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `observer` | `ObserverOrNext`<`Data`> | 监听回调 |
-| `selector?` | `SubscribeConfig`<[`DataNode`](/en/auto-docs/variable-plugin/classes/DataNode.md)<`Data`>, `Data`> | 监听指定数据 |
+| `observer` | `ObserverOrNext`<`Data`> | The listener callback. |
+| `selector?` | `SubscribeConfig`<[`DataNode`](/en/auto-docs/variable-plugin/classes/DataNode.md)<`Data`>, `Data`> | Listens for specified data. |
 
 #### Returns
 
@@ -426,11 +441,13 @@ ASTNode.version
 
 **toJSON**(): { `kind`: [`ASTKind`](/en/auto-docs/variable-plugin/enums/ASTKind.md)  } & `Data`
 
-转化为 ASTNodeJSON
+Serialize the `DataNode` to `DataNodeJSON`.
 
 #### Returns
 
 { `kind`: [`ASTKind`](/en/auto-docs/variable-plugin/enums/ASTKind.md)  } & `Data`
+
+The JSON representation of `DataNode`.
 
 #### Overrides
 

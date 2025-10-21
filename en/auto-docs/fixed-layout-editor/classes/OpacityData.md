@@ -384,7 +384,7 @@ EntityData.version
 
 | Name | Type |
 | :------ | :------ |
-| `props` | `number` | `"toString"` | `"toFixed"` | `"toExponential"` | `"toPrecision"` | `"valueOf"` | `"toLocaleString"` |
+| `props` | `number` | `"toFixed"` | `"toExponential"` | `"toPrecision"` | `"toString"` | `"valueOf"` | `"toLocaleString"` |
 | `value?` | `any` |
 
 #### Returns

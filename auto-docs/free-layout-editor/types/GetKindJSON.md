@@ -2,6 +2,8 @@
 
 **GetKindJSON**<`KindType`, `JSON`>: { `key?`: `Identifier` ; `kind`: `KindType`  } & `JSON`
 
+TypeUtils to get the JSON representation of an AST node with a specific kind.
+
 #### Type parameters
 
 | Name | Type |

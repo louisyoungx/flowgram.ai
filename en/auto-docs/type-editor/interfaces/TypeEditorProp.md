@@ -5,7 +5,7 @@
 | Name | Type |
 | :------ | :------ |
 | `Mode` | extends [`TypeEditorMode`](/en/auto-docs/type-editor/types/TypeEditorMode.md) |
-| `TypeSchema` | extends `Partial`<[`IJsonSchema`](/en/auto-docs/type-editor/interfaces/IJsonSchema.md)> |
+| `TypeSchema` | extends `Partial`<`IJsonSchema`> |
 
 ## Table of contents
 
@@ -36,7 +36,7 @@
 
 ### customEmptyNode
 
-`Optional` **customEmptyNode**: `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>
+`Optional` **customEmptyNode**: `ReactElement`
 
 自定义空状态
 
@@ -210,7 +210,7 @@ onError
 
 ### onInit
 
-`Optional` **onInit**: (`editor`: `MutableRefObject`<`undefined` | [`TypeEditorRef`](/en/auto-docs/type-editor/interfaces/TypeEditorRef.md)<`Mode`, `TypeSchema`>>) => `void`
+`Optional` **onInit**: (`editor`: `MutableRefObject`<[`TypeEditorRef`](/en/auto-docs/type-editor/interfaces/TypeEditorRef.md)<`Mode`, `TypeSchema`>>) => `void`
 
 #### Type declaration
 
@@ -222,7 +222,7 @@ onInit
 
 | Name | Type |
 | :------ | :------ |
-| `editor` | `MutableRefObject`<`undefined` | [`TypeEditorRef`](/en/auto-docs/type-editor/interfaces/TypeEditorRef.md)<`Mode`, `TypeSchema`>> |
+| `editor` | `MutableRefObject`<[`TypeEditorRef`](/en/auto-docs/type-editor/interfaces/TypeEditorRef.md)<`Mode`, `TypeSchema`>> |
 
 ##### Returns
 
@@ -232,11 +232,11 @@ onInit
 
 ### onPaste
 
-`Optional` **onPaste**: (`typeSchema?`: `TypeSchema`) => `undefined` | `TypeSchema`
+`Optional` **onPaste**: (`typeSchema?`: `TypeSchema`) => `TypeSchema`
 
 #### Type declaration
 
-(`typeSchema?`): `undefined` | `TypeSchema`
+(`typeSchema?`): `TypeSchema`
 
 onPaste
 
@@ -248,7 +248,7 @@ onPaste
 
 ##### Returns
 
-`undefined` | `TypeSchema`
+`TypeSchema`
 
 ***
 
@@ -284,7 +284,7 @@ onPaste
 
 ### typeRegistryCreators
 
-`Optional` **typeRegistryCreators**: `TypeRegistryCreatorsAdapter`<[`IJsonSchema`](/en/auto-docs/type-editor/interfaces/IJsonSchema.md)<`string`>>\[]
+`Optional` **typeRegistryCreators**: `TypeRegistryCreatorsAdapter`<`IJsonSchema`>\[]
 
 ***
 

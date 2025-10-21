@@ -4,7 +4,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `TypeSchema` | extends `Partial`<[`IJsonSchema`](/auto-docs/type-editor/interfaces/IJsonSchema.md)> |
+| `TypeSchema` | extends `Partial`<`IJsonSchema`> |
 
 ## Table of contents
 
@@ -103,11 +103,11 @@ type
 
 ### validateCell
 
-`Optional` **validateCell**: (`rowData`: [`TypeEditorRowData`](/auto-docs/type-editor/types/TypeEditorRowData.md)<`TypeSchema`>, `extra`: [`TypeEditorSpecialConfig`](/auto-docs/type-editor/interfaces/TypeEditorSpecialConfig.md)<`TypeSchema`>) => `undefined` | { `level`: `"error"` | `"warning"` ; `msg?`: `string`  }
+`Optional` **validateCell**: (`rowData`: [`TypeEditorRowData`](/auto-docs/type-editor/types/TypeEditorRowData.md)<`TypeSchema`>, `extra`: [`TypeEditorSpecialConfig`](/auto-docs/type-editor/interfaces/TypeEditorSpecialConfig.md)<`TypeSchema`>) => { `level`: `"error"` | `"warning"` ; `msg?`: `string`  }
 
 #### Type declaration
 
-(`rowData`, `extra`): `undefined` | { `level`: `"error"` | `"warning"` ; `msg?`: `string`  }
+(`rowData`, `extra`): `Object`
 
 校验该行是否存在错误
 
@@ -120,7 +120,12 @@ type
 
 ##### Returns
 
-`undefined` | { `level`: `"error"` | `"warning"` ; `msg?`: `string`  }
+`Object`
+
+| Name | Type |
+| :------ | :------ |
+| `level` | `"error"` | `"warning"` |
+| `msg?` | `string` |
 
 ***
 

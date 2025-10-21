@@ -31,8 +31,6 @@
 * [registry](/auto-docs/core/classes/Playground.md#registry)
 * [selectionService](/auto-docs/core/classes/Playground.md#selectionservice)
 * [toDispose](/auto-docs/core/classes/Playground.md#todispose)
-* [onInstanceCreate](/auto-docs/core/classes/Playground.md#oninstancecreate)
-* [onInstanceDispose](/auto-docs/core/classes/Playground.md#oninstancedispose)
 
 ### Accessors
 
@@ -42,6 +40,7 @@
 * [editorState](/auto-docs/core/classes/Playground.md#editorstate)
 * [focused](/auto-docs/core/classes/Playground.md#focused)
 * [onAllLayersRendered](/auto-docs/core/classes/Playground.md#onalllayersrendered)
+* [onResize](/auto-docs/core/classes/Playground.md#onresize)
 * [pipelineNode](/auto-docs/core/classes/Playground.md#pipelinenode)
 * [zoomEnable](/auto-docs/core/classes/Playground.md#zoomenable)
 
@@ -59,8 +58,6 @@
 * [scrollToView](/auto-docs/core/classes/Playground.md#scrolltoview)
 * [setParent](/auto-docs/core/classes/Playground.md#setparent)
 * [toReactComponent](/auto-docs/core/classes/Playground.md#toreactcomponent)
-* [getAllInstances](/auto-docs/core/classes/Playground.md#getallinstances)
-* [getLatest](/auto-docs/core/classes/Playground.md#getlatest)
 
 ## Constructors
 
@@ -170,22 +167,6 @@
 
 `Readonly` **toDispose**: `DisposableCollection`
 
-***
-
-### onInstanceCreate
-
-`Static` **onInstanceCreate**: `Event`<[`Playground`](/auto-docs/core/classes/Playground.md)<`any`>> = `playgroundInstanceCreateEmitter.event`
-
-有实例创建
-
-***
-
-### onInstanceDispose
-
-`Static` **onInstanceDispose**: `Event`<[`Playground`](/auto-docs/core/classes/Playground.md)<`any`>> = `playgroundInstanceDisposeEmitter.event`
-
-有实例销毁
-
 ## Accessors
 
 ### config
@@ -249,6 +230,16 @@
 #### Returns
 
 `Event`<`void`>
+
+***
+
+### onResize
+
+`get` **onResize**(): `Event`<[`PipelineDimension`](/auto-docs/core/interfaces/PipelineDimension.md)>
+
+#### Returns
+
+`Event`<[`PipelineDimension`](/auto-docs/core/interfaces/PipelineDimension.md)>
 
 ***
 
@@ -423,7 +414,7 @@ Disposable.dispose
 
 ### resize
 
-**resize**(`msg?`, `scrollToCenter?`): `void`
+**resize**(`msg?`, `scrollToCenter?`): `boolean`
 
 这里会由 widget 透传进来
 
@@ -436,7 +427,7 @@ Disposable.dispose
 
 #### Returns
 
-`void`
+`boolean`
 
 ***
 
@@ -487,23 +478,3 @@ Disposable.dispose
 #### Returns
 
 `FC`<{}>
-
-***
-
-### getAllInstances
-
-`Static` **getAllInstances**(): [`Playground`](/auto-docs/core/classes/Playground.md)<`any`>\[]
-
-#### Returns
-
-[`Playground`](/auto-docs/core/classes/Playground.md)<`any`>\[]
-
-***
-
-### getLatest
-
-`Static` **getLatest**(): `undefined` | [`Playground`](/auto-docs/core/classes/Playground.md)<`any`>
-
-#### Returns
-
-`undefined` | [`Playground`](/auto-docs/core/classes/Playground.md)<`any`>

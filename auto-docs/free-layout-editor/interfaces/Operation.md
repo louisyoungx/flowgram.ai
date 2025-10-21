@@ -18,8 +18,6 @@
 
   ↳ [`ChangeLineDataOperation`](/auto-docs/free-layout-editor/interfaces/ChangeLineDataOperation.md)
 
-  ↳ [`ChangeNodeDataOperation`](/auto-docs/free-layout-editor/interfaces/ChangeNodeDataOperation.md)
-
   ↳ [`DeleteLineOperation`](/auto-docs/free-layout-editor/interfaces/DeleteLineOperation.md)
 
   ↳ [`DeleteWorkflowNodeOperation`](/auto-docs/free-layout-editor/interfaces/DeleteWorkflowNodeOperation.md)

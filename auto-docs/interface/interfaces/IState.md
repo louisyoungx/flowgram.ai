@@ -14,10 +14,10 @@
 * [getNodeInputs](/auto-docs/interface/interfaces/IState.md#getnodeinputs)
 * [init](/auto-docs/interface/interfaces/IState.md#init)
 * [isExecutedNode](/auto-docs/interface/interfaces/IState.md#isexecutednode)
+* [parseFlowValue](/auto-docs/interface/interfaces/IState.md#parseflowvalue)
 * [parseInputs](/auto-docs/interface/interfaces/IState.md#parseinputs)
 * [parseRef](/auto-docs/interface/interfaces/IState.md#parseref)
 * [parseTemplate](/auto-docs/interface/interfaces/IState.md#parsetemplate)
-* [parseValue](/auto-docs/interface/interfaces/IState.md#parsevalue)
 * [setNodeOutputs](/auto-docs/interface/interfaces/IState.md#setnodeoutputs)
 
 ## Properties
@@ -78,7 +78,13 @@
 
 ### init
 
-**init**(): `void`
+**init**(`schema?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `schema?` | [`WorkflowSchema`](/auto-docs/interface/interfaces/WorkflowSchema.md) |
 
 #### Returns
 
@@ -99,6 +105,30 @@
 #### Returns
 
 `boolean`
+
+***
+
+### parseFlowValue
+
+**parseFlowValue**<`T`>(`params`): `null` | [`IVariableParseResult`](/auto-docs/interface/interfaces/IVariableParseResult.md)<`T`>
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | `unknown` |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `params` | `Object` |
+| `params.declareType` | [`WorkflowVariableType`](/auto-docs/interface/enums/WorkflowVariableType.md) |
+| `params.flowValue` | [`IFlowValue`](/auto-docs/interface/types/IFlowValue.md) |
+
+#### Returns
+
+`null` | [`IVariableParseResult`](/auto-docs/interface/interfaces/IVariableParseResult.md)<`T`>
 
 ***
 
@@ -155,29 +185,6 @@
 #### Returns
 
 `null` | [`IVariableParseResult`](/auto-docs/interface/interfaces/IVariableParseResult.md)<`string`>
-
-***
-
-### parseValue
-
-**parseValue**<`T`>(`flowValue`, `type?`): `null` | [`IVariableParseResult`](/auto-docs/interface/interfaces/IVariableParseResult.md)<`T`>
-
-#### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `T` | `unknown` |
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `flowValue` | [`IFlowValue`](/auto-docs/interface/types/IFlowValue.md) |
-| `type?` | [`WorkflowVariableType`](/auto-docs/interface/enums/WorkflowVariableType.md) |
-
-#### Returns
-
-`null` | [`IVariableParseResult`](/auto-docs/interface/interfaces/IVariableParseResult.md)<`T`>
 
 ***
 

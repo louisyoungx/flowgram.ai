@@ -1,6 +1,6 @@
 # Function: SvgIcon
 
-**SvgIcon**(`props`): `Element`
+**SvgIcon**(`props`): `any`
 
 #### Parameters
 
@@ -12,4 +12,4 @@
 
 #### Returns
 
-`Element`
+`any`

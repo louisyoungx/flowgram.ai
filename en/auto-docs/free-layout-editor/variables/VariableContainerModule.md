@@ -2,5 +2,5 @@
 
 `Const` **VariableContainerModule**: [`ContainerModule`](/en/auto-docs/free-layout-editor/classes/ContainerModule.md)
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+An InversifyJS container module that binds all the necessary services for the variable engine.
+This module sets up the dependency injection for the core components of the variable engine.

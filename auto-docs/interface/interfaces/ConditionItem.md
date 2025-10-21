@@ -24,5 +24,5 @@
 | Name | Type |
 | :------ | :------ |
 | `left` | [`IFlowRefValue`](/auto-docs/interface/interfaces/IFlowRefValue.md) |
-| `operator` | [`ConditionOperation`](/auto-docs/interface/enums/ConditionOperation.md) |
+| `operator` | [`ConditionOperator`](/auto-docs/interface/enums/ConditionOperator.md) |
 | `right` | [`IFlowConstantRefValue`](/auto-docs/interface/types/IFlowConstantRefValue.md) |

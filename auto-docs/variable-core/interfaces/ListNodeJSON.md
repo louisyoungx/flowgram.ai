@@ -1,5 +1,7 @@
 # Interface: ListNodeJSON
 
+ASTNodeJSON representation of `ListNode`
+
 ## Table of contents
 
 ### Properties
@@ -11,3 +13,5 @@
 ### list
 
 **list**: [`ASTNodeJSON`](/auto-docs/variable-core/interfaces/ASTNodeJSON.md)\[]
+
+The list of nodes.

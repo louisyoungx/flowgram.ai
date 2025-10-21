@@ -1,5 +1,7 @@
 # Interface: CustomTypeJSON
 
+ASTNodeJSON representation of `CustomType`
+
 ## Table of contents
 
 ### Properties
@@ -11,3 +13,5 @@
 ### typeName
 
 **typeName**: `string`
+
+The name of the custom type.

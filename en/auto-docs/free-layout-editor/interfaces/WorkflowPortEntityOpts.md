@@ -17,6 +17,7 @@
 * [entityManager](/en/auto-docs/free-layout-editor/interfaces/WorkflowPortEntityOpts.md#entitymanager)
 * [id](/en/auto-docs/free-layout-editor/interfaces/WorkflowPortEntityOpts.md#id)
 * [location](/en/auto-docs/free-layout-editor/interfaces/WorkflowPortEntityOpts.md#location)
+* [locationConfig](/en/auto-docs/free-layout-editor/interfaces/WorkflowPortEntityOpts.md#locationconfig)
 * [node](/en/auto-docs/free-layout-editor/interfaces/WorkflowPortEntityOpts.md#node)
 * [offset](/en/auto-docs/free-layout-editor/interfaces/WorkflowPortEntityOpts.md#offset)
 * [portID](/en/auto-docs/free-layout-editor/interfaces/WorkflowPortEntityOpts.md#portid)
@@ -81,6 +82,42 @@
 
 ***
 
+### locationConfig
+
+`Optional` **locationConfig**: `Object`
+
+端口位置配置
+
+**`Example`**
+
+```ts
+// bottom-center
+ {
+   left: '50%',
+   bottom: 0
+ }
+ // right-center
+ {
+   right: 0,
+   top: '50%'
+ }
+```
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `bottom?` | `string` | `number` |
+| `left?` | `string` | `number` |
+| `right?` | `string` | `number` |
+| `top?` | `string` | `number` |
+
+#### Inherited from
+
+[WorkflowPort](/en/auto-docs/free-layout-editor/interfaces/WorkflowPort.md).[locationConfig](/en/auto-docs/free-layout-editor/interfaces/WorkflowPort.md#locationconfig)
+
+***
+
 ### node
 
 **node**: [`FlowNodeEntity`](/en/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)
@@ -93,7 +130,7 @@ port 属于哪个节点
 
 `Optional` **offset**: [`IPoint`](/en/auto-docs/free-layout-editor/interfaces/IPoint.md)
 
-相对于 position 的偏移
+相对于 location 的偏移
 
 #### Inherited from
 

@@ -4,6 +4,8 @@
 
 **isArray**(`node?`): node is ArrayType
 
+Check if the node is a `ArrayType`.
+
 #### Parameters
 
 | Name | Type |

@@ -6,7 +6,9 @@
 
 * [Array](/auto-docs/interface/enums/WorkflowVariableType.md#array)
 * [Boolean](/auto-docs/interface/enums/WorkflowVariableType.md#boolean)
+* [DateTime](/auto-docs/interface/enums/WorkflowVariableType.md#datetime)
 * [Integer](/auto-docs/interface/enums/WorkflowVariableType.md#integer)
+* [Map](/auto-docs/interface/enums/WorkflowVariableType.md#map)
 * [Null](/auto-docs/interface/enums/WorkflowVariableType.md#null)
 * [Number](/auto-docs/interface/enums/WorkflowVariableType.md#number)
 * [Object](/auto-docs/interface/enums/WorkflowVariableType.md#object)
@@ -26,9 +28,21 @@
 
 ***
 
+### DateTime
+
+**DateTime** = `"date-time"`
+
+***
+
 ### Integer
 
 **Integer** = `"integer"`
+
+***
+
+### Map
+
+**Map** = `"map"`
 
 ***
 

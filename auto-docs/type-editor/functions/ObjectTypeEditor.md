@@ -1,6 +1,6 @@
 # Function: ObjectTypeEditor
 
-**ObjectTypeEditor**(`props`): `Element`
+**ObjectTypeEditor**(`props`): `any`
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`Element`
+`any`

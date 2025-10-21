@@ -1,6 +1,6 @@
 # Class: FixedLayoutScopeChain
 
-基于 FlowVirtualTree 的 ScopeOrder 实现
+Scope chain implementation based on `FlowVirtualTree`.
 
 ## Hierarchy
 
@@ -126,11 +126,13 @@ ScopeChain.variableEngine
 
 **bindTree**(`tree`): `void`
 
+Binds the scope chain to a `FlowVirtualTree`.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `tree` | `FlowVirtualTree`<`ScopeChainNode`> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `tree` | `FlowVirtualTree`<`ScopeChainNode`> | The `FlowVirtualTree` to bind to. |
 
 #### Returns
 
@@ -156,15 +158,19 @@ ScopeChain.dispose
 
 **getCovers**(`scope`): [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md)\[]
 
+Gets the covering scopes for a given scope.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scope` | [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scope` | [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md) | The scope to get covering scopes for. |
 
 #### Returns
 
 [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md)\[]
+
+An array of covering scopes.
 
 #### Overrides
 
@@ -176,15 +182,19 @@ ScopeChain.getCovers
 
 **getDeps**(`scope`): [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md)\[]
 
+Gets the dependency scopes for a given scope.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scope` | [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scope` | [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md) | The scope to get dependencies for. |
 
 #### Returns
 
 [`FlowNodeScope`](/en/auto-docs/variable-layout/interfaces/FlowNodeScope.md)\[]
+
+An array of dependency scopes.
 
 #### Overrides
 
@@ -196,7 +206,7 @@ ScopeChain.getDeps
 
 **refreshAllChange**(): `void`
 
-所有作用域依赖关系刷新
+Refreshes the dependency and coverage relationships for all scopes.
 
 #### Returns
 
@@ -212,9 +222,13 @@ ScopeChain.refreshAllChange
 
 **sortAll**(): `Scope`<`Record`<`string`, `any`>>\[]
 
+Sorts all scopes in the scope chain.
+
 #### Returns
 
 `Scope`<`Record`<`string`, `any`>>\[]
+
+A sorted array of all scopes.
 
 #### Overrides
 

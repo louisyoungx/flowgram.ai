@@ -1,7 +1,6 @@
 # Interface: WrapArrayExpressionJSON
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+ASTNodeJSON representation of `WrapArrayExpression`
 
 ## Table of contents
 
@@ -14,3 +13,5 @@ SPDX-License-Identifier: MIT
 ### wrapFor
 
 **wrapFor**: [`ASTNodeJSON`](/auto-docs/fixed-layout-editor/interfaces/ASTNodeJSON.md)
+
+The expression to be wrapped.

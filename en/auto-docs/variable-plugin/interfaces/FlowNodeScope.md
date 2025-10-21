@@ -1,5 +1,7 @@
 # Interface: FlowNodeScope
 
+Represents a scope associated with a flow node.
+
 ## Hierarchy
 
 * [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<[`FlowNodeScopeMeta`](/en/auto-docs/variable-plugin/interfaces/FlowNodeScopeMeta.md)>
@@ -41,9 +43,8 @@
 
 `Readonly` **ast**: [`MapNode`](/en/auto-docs/variable-plugin/classes/MapNode.md)
 
-作用域 AST 根节点
-
-* Map\<formItemKey, formItemValue>
+The root AST node for this scope, which is a MapNode.
+It stores various data related to the scope, such as `outputs`.
 
 #### Inherited from
 
@@ -55,7 +56,7 @@
 
 `Readonly` **available**: `ScopeAvailableData`
 
-可用变量数据管理
+Manages the available variables for this scope.
 
 #### Inherited from
 
@@ -67,7 +68,7 @@
 
 `Readonly` **event**: `ScopeEventData`
 
-作用域事件管理
+Manages event dispatching and handling for this scope.
 
 #### Inherited from
 
@@ -79,7 +80,7 @@
 
 `Readonly` **id**: `string` | `symbol`
 
-Scope 唯一索引
+A unique identifier for the scope.
 
 #### Inherited from
 
@@ -91,7 +92,7 @@ Scope 唯一索引
 
 `Readonly` **meta**: [`FlowNodeScopeMeta`](/en/auto-docs/variable-plugin/interfaces/FlowNodeScopeMeta.md)
 
-作用域的基本元信息，包括作用域所在节点及一些 flag 信息，上层业务可以额外扩展
+Metadata associated with the scope, which can be extended by higher-level business logic.
 
 #### Inherited from
 
@@ -113,7 +114,7 @@ Scope 唯一索引
 
 `Readonly` **output**: [`ScopeOutputData`](/en/auto-docs/variable-plugin/classes/ScopeOutputData.md)
 
-输出变量数据管理
+Manages the output variables for this scope.
 
 #### Inherited from
 
@@ -135,7 +136,7 @@ Scope 唯一索引
 
 `Readonly` **variableEngine**: [`VariableEngine`](/en/auto-docs/variable-plugin/classes/VariableEngine.md)
 
-Scope 依赖变量引擎
+The variable engine instance this scope belongs to.
 
 #### Inherited from
 
@@ -146,6 +147,8 @@ Scope 依赖变量引擎
 ### coverScopes
 
 `get` **coverScopes**(): [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+Gets the scopes that are covered by this scope.
 
 #### Returns
 
@@ -160,6 +163,8 @@ Scope.coverScopes
 ### depScopes
 
 `get` **depScopes**(): [`Scope`](/en/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+Gets the scopes that this scope depends on.
 
 #### Returns
 
@@ -189,7 +194,7 @@ Scope.disposed
 
 **clearVar**(`key?`): `void`
 
-Clears a variable from the Scope by key.
+Clears a variable from the scope by its key.
 
 #### Parameters
 
@@ -201,8 +206,6 @@ Clears a variable from the Scope by key.
 
 `void`
 
-The updated AST node.
-
 #### Inherited from
 
 [Scope](/en/auto-docs/variable-plugin/classes/Scope.md).[clearVar](/en/auto-docs/variable-plugin/classes/Scope.md#clearvar)
@@ -212,6 +215,9 @@ The updated AST node.
 ### dispose
 
 **dispose**(): `void`
+
+Disposes of the scope and its resources.
+This will also trigger updates in dependent and covering scopes.
 
 #### Returns
 
@@ -225,9 +231,15 @@ The updated AST node.
 
 ### getVar
 
-**getVar**(`key?`): `undefined` | [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>
+**getVar**<`Node`>(`key?`): `undefined` | `Node`
 
-Retrieves a variable from the Scope by key.
+Retrieves a variable from the scope by its key.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Node` | extends [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`, `Node`> = [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> |
 
 #### Parameters
 
@@ -237,9 +249,9 @@ Retrieves a variable from the Scope by key.
 
 #### Returns
 
-`undefined` | [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>
+`undefined` | `Node`
 
-The value of the variable, or undefined if not found.
+The AST node for the variable, or `undefined` if not found.
 
 #### Inherited from
 
@@ -250,6 +262,8 @@ The value of the variable, or undefined if not found.
 ### refreshCovers
 
 **refreshCovers**(): `void`
+
+Refreshes the covering scopes.
 
 #### Returns
 
@@ -265,6 +279,8 @@ The value of the variable, or undefined if not found.
 
 **refreshDeps**(): `void`
 
+Refreshes the dependency scopes and the available variables.
+
 #### Returns
 
 `void`
@@ -277,42 +293,54 @@ The value of the variable, or undefined if not found.
 
 ### setVar
 
-**setVar**(`json`): [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>
+**setVar**<`Node`>(`json`): `Node`
 
-Sets a variable in the Scope with the default key 'outputs'.
+Sets a variable in the scope with the default key 'outputs'.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Node` | extends [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`, `Node`> = [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> |
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `json` | [`ASTNodeJSON`](/en/auto-docs/variable-plugin/interfaces/ASTNodeJSON.md) | The JSON value to store. |
+| `json` | [`ASTNodeJSON`](/en/auto-docs/variable-plugin/interfaces/ASTNodeJSON.md) | The JSON representation of the AST node to set. |
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>
+`Node`
 
-The updated AST node.
+The created or updated AST node.
 
 #### Inherited from
 
 [Scope](/en/auto-docs/variable-plugin/classes/Scope.md).[setVar](/en/auto-docs/variable-plugin/classes/Scope.md#setvar)
 
-**setVar**(`key`, `json`): [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>
+**setVar**<`Node`>(`key`, `json`): `Node`
 
-Sets a variable in the Scope by key.
+Sets a variable in the scope with a specified key.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Node` | extends [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`, `Node`> = [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> |
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `key` | `string` | The key of the variable to set. |
-| `json` | [`ASTNodeJSON`](/en/auto-docs/variable-plugin/interfaces/ASTNodeJSON.md) | The JSON value to store. |
+| `json` | [`ASTNodeJSON`](/en/auto-docs/variable-plugin/interfaces/ASTNodeJSON.md) | The JSON representation of the AST node to set. |
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`>
+`Node`
 
-The updated AST node.
+The created or updated AST node.
 
 #### Inherited from
 

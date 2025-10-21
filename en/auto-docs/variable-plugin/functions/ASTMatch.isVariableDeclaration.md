@@ -4,7 +4,7 @@
 
 **isVariableDeclaration**<`VariableMeta`>(`node?`): node is VariableDeclaration\<VariableMeta>
 
-声明相关
+Check if the node is a `VariableDeclaration`.
 
 #### Type parameters
 

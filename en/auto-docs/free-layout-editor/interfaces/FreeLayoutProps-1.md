@@ -58,6 +58,7 @@ Free layout configuration
 * [setLineClassName](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#setlineclassname)
 * [setLineRenderType](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#setlinerendertype)
 * [shortcuts](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#shortcuts)
+* [twoWayConnection](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#twowayconnection)
 * [variableEngine](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#variableengine)
 
 ### Methods
@@ -200,11 +201,11 @@ Whether to allow dragging into the sub-canvas (loop or group)
 
 ### canResetLine
 
-`Optional` **canResetLine**: (`ctx`: [`FreeLayoutPluginContext`](/en/auto-docs/free-layout-editor/variables/FreeLayoutPluginContext-1.md), `fromPort`: [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md), `oldToPort`: [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md), `newToPort`: [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md), `lines`: [`WorkflowLinesManager`](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md)) => `boolean`
+`Optional` **canResetLine**: (`ctx`: [`FreeLayoutPluginContext`](/en/auto-docs/free-layout-editor/variables/FreeLayoutPluginContext-1.md), `oldLine`: [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md), `newLineInfo`: `Required`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md)>, `lines`: [`WorkflowLinesManager`](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md)) => `boolean`
 
 #### Type declaration
 
-(`ctx`, `fromPort`, `oldToPort`, `newToPort`, `lines`): `boolean`
+(`ctx`, `oldLine`, `newLineInfo`, `lines`): `boolean`
 
 Whether to allow lines to be reset
 是否允许重置线条
@@ -213,10 +214,9 @@ Whether to allow lines to be reset
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `ctx` | [`FreeLayoutPluginContext`](/en/auto-docs/free-layout-editor/variables/FreeLayoutPluginContext-1.md) | - |
-| `fromPort` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) | source port |
-| `oldToPort` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) | old target port |
-| `newToPort` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) | new target port |
+| `ctx` | [`FreeLayoutPluginContext`](/en/auto-docs/free-layout-editor/variables/FreeLayoutPluginContext-1.md) |  |
+| `oldLine` | [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md) | old line |
+| `newLineInfo` | `Required`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md)> | new line info |
 | `lines` | [`WorkflowLinesManager`](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md) | lines manager |
 
 ##### Returns
@@ -950,6 +950,15 @@ Set the line renderer type
 #### Inherited from
 
 [EditorProps](/en/auto-docs/free-layout-editor/interfaces/EditorProps-1.md).[shortcuts](/en/auto-docs/free-layout-editor/interfaces/EditorProps-1.md#shortcuts)
+
+***
+
+### twoWayConnection
+
+`Optional` **twoWayConnection**: `boolean`
+
+Line support both-way connection (default true)
+线条支持双向连接
 
 ***
 

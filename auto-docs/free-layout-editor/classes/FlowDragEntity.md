@@ -55,7 +55,6 @@
 * [removeData](/auto-docs/free-layout-editor/classes/FlowDragEntity.md#removedata)
 * [reset](/auto-docs/free-layout-editor/classes/FlowDragEntity.md#reset)
 * [scrollDirection](/auto-docs/free-layout-editor/classes/FlowDragEntity.md#scrolldirection)
-* [setDomStyle](/auto-docs/free-layout-editor/classes/FlowDragEntity.md#setdomstyle)
 * [stopAllScroll](/auto-docs/free-layout-editor/classes/FlowDragEntity.md#stopallscroll)
 * [toJSON](/auto-docs/free-layout-editor/classes/FlowDragEntity.md#tojson)
 * [updateConfig](/auto-docs/free-layout-editor/classes/FlowDragEntity.md#updateconfig)
@@ -630,30 +629,19 @@ ConfigEntity.version
 
 ### scrollDirection
 
-**scrollDirection**(`e`, `containerDom`, `x`, `y`): `undefined` | `ScrollDirection`
+**scrollDirection**(`e`, `x`, `y`): `undefined` | `ScrollDirection`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `e` | `MouseEvent` |
-| `containerDom` | `HTMLDivElement` |
 | `x` | `number` |
 | `y` | `number` |
 
 #### Returns
 
 `undefined` | `ScrollDirection`
-
-***
-
-### setDomStyle
-
-**setDomStyle**(): `void`
-
-#### Returns
-
-`void`
 
 ***
 

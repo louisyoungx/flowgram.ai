@@ -4,6 +4,8 @@
 
 **createUnion**(`json`): `Object`
 
+Creates a `Union` type node.
+
 #### Parameters
 
 | Name | Type |

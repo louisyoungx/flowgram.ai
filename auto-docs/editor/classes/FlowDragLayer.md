@@ -20,8 +20,10 @@
 * [containerRef](/auto-docs/editor/classes/FlowDragLayer.md#containerref)
 * [context](/auto-docs/editor/classes/FlowDragLayer.md#context)
 * [document](/auto-docs/editor/classes/FlowDragLayer.md#document)
+* [dragOffset](/auto-docs/editor/classes/FlowDragLayer.md#dragoffset)
 * [draggingNodeMask](/auto-docs/editor/classes/FlowDragLayer.md#draggingnodemask)
 * [entityManager](/auto-docs/editor/classes/FlowDragLayer.md#entitymanager)
+* [flowDragService](/auto-docs/editor/classes/FlowDragLayer.md#flowdragservice)
 * [getOtherLayer](/auto-docs/editor/classes/FlowDragLayer.md#getotherlayer)
 * [isFocused](/auto-docs/editor/classes/FlowDragLayer.md#isfocused)
 * [listenGlobalEvent](/auto-docs/editor/classes/FlowDragLayer.md#listenglobalevent)
@@ -34,7 +36,6 @@
 * [reloadEntities](/auto-docs/editor/classes/FlowDragLayer.md#reloadentities)
 * [renderWithReactMemo](/auto-docs/editor/classes/FlowDragLayer.md#renderwithreactmemo)
 * [rendererRegistry](/auto-docs/editor/classes/FlowDragLayer.md#rendererregistry)
-* [service](/auto-docs/editor/classes/FlowDragLayer.md#service)
 * [transforms](/auto-docs/editor/classes/FlowDragLayer.md#transforms)
 
 ### Accessors
@@ -110,6 +111,19 @@
 
 ***
 
+### dragOffset
+
+**dragOffset**: `Object`
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `x` | `number` |
+| `y` | `number` |
+
+***
+
 ### draggingNodeMask
 
 **draggingNodeMask**: `HTMLDivElement`
@@ -125,6 +139,12 @@
 #### Inherited from
 
 [Layer](/auto-docs/editor/classes/Layer.md).[entityManager](/auto-docs/editor/classes/Layer.md#entitymanager)
+
+***
+
+### flowDragService
+
+`Readonly` **flowDragService**: [`FlowDragService`](/auto-docs/editor/classes/FlowDragService.md)
 
 ***
 
@@ -340,12 +360,6 @@ layer 的配置, 由 registerLayer(Layer, LayerOptions) 传入
 
 ***
 
-### service
-
-`Readonly` **service**: [`FlowDragService`](/auto-docs/editor/classes/FlowDragService.md)
-
-***
-
 ### transforms
 
 **transforms**: [`FlowNodeTransformData`](/auto-docs/editor/classes/FlowNodeTransformData.md)\[]
@@ -461,7 +475,7 @@ layer 的配置, 由 registerLayer(Layer, LayerOptions) 传入
 
 `void`
 
-#### Inherited from
+#### Overrides
 
 [Layer](/auto-docs/editor/classes/Layer.md).[dispose](/auto-docs/editor/classes/Layer.md#dispose)
 
@@ -526,11 +540,11 @@ layer 的配置, 由 registerLayer(Layer, LayerOptions) 传入
 
 ### handleMouseUp
 
-**handleMouseUp**(): `void`
+**handleMouseUp**(): `Promise`<`void`>
 
 #### Returns
 
-`void`
+`Promise`<`void`>
 
 ***
 
@@ -692,13 +706,13 @@ viewport 更新触发
 
 ### render
 
-**render**(): `Element`
+**render**(): `ReactPortal`
 
 绘制 react
 
 #### Returns
 
-`Element`
+`ReactPortal`
 
 #### Overrides
 
@@ -735,10 +749,9 @@ viewport 更新触发
 | `e` | `Object` |
 | `e.clientX` | `number` |
 | `e.clientY` | `number` |
-| `«destructured»` | `Object` |
-| › `dragEntities?` | [`FlowNodeEntity`](/auto-docs/editor/classes/FlowNodeEntity-1.md)\[] |
-| › `dragStartEntity` | [`FlowNodeEntity`](/auto-docs/editor/classes/FlowNodeEntity-1.md) |
+| `«destructured»` | `StartDragProps` |
 | `options?` | `Object` |
+| `options.disableDragScroll?` | `boolean` |
 | `options.dragOffsetX?` | `number` |
 | `options.dragOffsetY?` | `number` |
 

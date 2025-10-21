@@ -34,7 +34,7 @@
 | Name | Type |
 | :------ | :------ |
 | `moduleId` | `number` |
-| `serviceIdentifier` | [`ServiceIdentifier`](/en/auto-docs/editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `onActivation` | [`BindingActivation`](/en/auto-docs/editor/types/interfaces.BindingActivation.md)<`T`> |
 
 #### Returns
@@ -58,7 +58,7 @@
 | Name | Type |
 | :------ | :------ |
 | `moduleId` | `number` |
-| `serviceIdentifier` | [`ServiceIdentifier`](/en/auto-docs/editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `onDeactivation` | [`BindingDeactivation`](/en/auto-docs/editor/types/interfaces.BindingDeactivation.md)<`T`> |
 
 #### Returns

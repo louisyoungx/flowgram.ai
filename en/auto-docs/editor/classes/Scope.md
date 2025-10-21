@@ -1,5 +1,10 @@
 # Class: Scope\<ScopeMeta>
 
+Represents a variable scope, which manages its own set of variables and their lifecycle.
+
+* `scope.output` represents the variables declared within this scope.
+* `scope.available` represents all variables accessible from this scope, including those from parent scopes.
+
 ## Type parameters
 
 | Name | Type |
@@ -74,9 +79,8 @@
 
 `Readonly` **ast**: [`MapNode`](/en/auto-docs/editor/classes/MapNode.md)
 
-作用域 AST 根节点
-
-* Map\<formItemKey, formItemValue>
+The root AST node for this scope, which is a MapNode.
+It stores various data related to the scope, such as `outputs`.
 
 ***
 
@@ -84,7 +88,7 @@
 
 `Readonly` **available**: `ScopeAvailableData`
 
-可用变量数据管理
+Manages the available variables for this scope.
 
 ***
 
@@ -92,7 +96,7 @@
 
 `Readonly` **event**: `ScopeEventData`
 
-作用域事件管理
+Manages event dispatching and handling for this scope.
 
 ***
 
@@ -100,7 +104,7 @@
 
 `Readonly` **id**: `string` | `symbol`
 
-Scope 唯一索引
+A unique identifier for the scope.
 
 ***
 
@@ -108,7 +112,7 @@ Scope 唯一索引
 
 `Readonly` **meta**: `ScopeMeta`
 
-作用域的基本元信息，包括作用域所在节点及一些 flag 信息，上层业务可以额外扩展
+Metadata associated with the scope, which can be extended by higher-level business logic.
 
 ***
 
@@ -122,7 +126,7 @@ Scope 唯一索引
 
 `Readonly` **output**: [`ScopeOutputData`](/en/auto-docs/editor/classes/ScopeOutputData.md)
 
-输出变量数据管理
+Manages the output variables for this scope.
 
 ***
 
@@ -136,13 +140,15 @@ Scope 唯一索引
 
 `Readonly` **variableEngine**: [`VariableEngine`](/en/auto-docs/editor/classes/VariableEngine.md)
 
-Scope 依赖变量引擎
+The variable engine instance this scope belongs to.
 
 ## Accessors
 
 ### coverScopes
 
 `get` **coverScopes**(): [`Scope`](/en/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+Gets the scopes that are covered by this scope.
 
 #### Returns
 
@@ -153,6 +159,8 @@ Scope 依赖变量引擎
 ### depScopes
 
 `get` **depScopes**(): [`Scope`](/en/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+Gets the scopes that this scope depends on.
 
 #### Returns
 
@@ -174,7 +182,7 @@ Scope 依赖变量引擎
 
 **clearVar**(`key?`): `void`
 
-Clears a variable from the Scope by key.
+Clears a variable from the scope by its key.
 
 #### Parameters
 
@@ -186,13 +194,14 @@ Clears a variable from the Scope by key.
 
 `void`
 
-The updated AST node.
-
 ***
 
 ### dispose
 
 **dispose**(): `void`
+
+Disposes of the scope and its resources.
+This will also trigger updates in dependent and covering scopes.
 
 #### Returns
 
@@ -202,9 +211,15 @@ The updated AST node.
 
 ### getVar
 
-**getVar**(`key?`): `undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+**getVar**<`Node`>(`key?`): `undefined` | `Node`
 
-Retrieves a variable from the Scope by key.
+Retrieves a variable from the scope by its key.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Node` | extends [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`, `Node`> = [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`> |
 
 #### Parameters
 
@@ -214,15 +229,17 @@ Retrieves a variable from the Scope by key.
 
 #### Returns
 
-`undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+`undefined` | `Node`
 
-The value of the variable, or undefined if not found.
+The AST node for the variable, or `undefined` if not found.
 
 ***
 
 ### refreshCovers
 
 **refreshCovers**(): `void`
+
+Refreshes the covering scopes.
 
 #### Returns
 
@@ -234,6 +251,8 @@ The value of the variable, or undefined if not found.
 
 **refreshDeps**(): `void`
 
+Refreshes the dependency scopes and the available variables.
+
 #### Returns
 
 `void`
@@ -242,35 +261,47 @@ The value of the variable, or undefined if not found.
 
 ### setVar
 
-**setVar**(`json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+**setVar**<`Node`>(`json`): `Node`
 
-Sets a variable in the Scope with the default key 'outputs'.
+Sets a variable in the scope with the default key 'outputs'.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Node` | extends [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`, `Node`> = [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`> |
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `json` | [`ASTNodeJSON`](/en/auto-docs/editor/interfaces/ASTNodeJSON.md) | The JSON value to store. |
+| `json` | [`ASTNodeJSON`](/en/auto-docs/editor/interfaces/ASTNodeJSON.md) | The JSON representation of the AST node to set. |
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+`Node`
 
-The updated AST node.
+The created or updated AST node.
 
-**setVar**(`key`, `json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+**setVar**<`Node`>(`key`, `json`): `Node`
 
-Sets a variable in the Scope by key.
+Sets a variable in the scope with a specified key.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Node` | extends [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`, `Node`> = [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`> |
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `key` | `string` | The key of the variable to set. |
-| `json` | [`ASTNodeJSON`](/en/auto-docs/editor/interfaces/ASTNodeJSON.md) | The JSON value to store. |
+| `json` | [`ASTNodeJSON`](/en/auto-docs/editor/interfaces/ASTNodeJSON.md) | The JSON representation of the AST node to set. |
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+`Node`
 
-The updated AST node.
+The created or updated AST node.

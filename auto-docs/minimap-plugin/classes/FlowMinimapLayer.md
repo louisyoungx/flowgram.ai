@@ -15,7 +15,9 @@
 ### Properties
 
 * [config](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#config)
+* [configEntity](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#configentity)
 * [context](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#context)
+* [documentTransformer](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#documenttransformer)
 * [entityManager](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#entitymanager)
 * [getOtherLayer](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#getotherlayer)
 * [isFocused](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#isfocused)
@@ -28,6 +30,7 @@
 * [playgroundNode](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#playgroundnode)
 * [reloadEntities](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#reloadentities)
 * [renderWithReactMemo](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#renderwithreactmemo)
+* [transformDatas](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#transformdatas)
 * [type](/auto-docs/minimap-plugin/classes/FlowMinimapLayer.md#type)
 
 ### Methods
@@ -70,6 +73,12 @@ Layer.config
 
 ***
 
+### configEntity
+
+**configEntity**: `PlaygroundConfigEntity`
+
+***
+
 ### context
 
 `Readonly` **context**: `any`
@@ -77,6 +86,12 @@ Layer.config
 #### Inherited from
 
 Layer.context
+
+***
+
+### documentTransformer
+
+`Readonly` **documentTransformer**: `FlowDocumentTransformerEntity`
 
 ***
 
@@ -293,6 +308,12 @@ Layer.reloadEntities
 #### Inherited from
 
 Layer.renderWithReactMemo
+
+***
+
+### transformDatas
+
+**transformDatas**: `FlowNodeTransformData`\[]
 
 ***
 

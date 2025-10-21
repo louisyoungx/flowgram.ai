@@ -18,6 +18,7 @@ hover 状态管理
 ### Accessors
 
 * [hoveredNode](/auto-docs/free-layout-editor/classes/WorkflowHoverService.md#hoverednode)
+* [someHovered](/auto-docs/free-layout-editor/classes/WorkflowHoverService.md#somehovered)
 
 ### Methods
 
@@ -66,6 +67,22 @@ hover 状态管理
 ### hoveredNode
 
 `get` **hoveredNode**(): `undefined` | [`WorkflowEntityHoverable`](/auto-docs/free-layout-editor/types/WorkflowEntityHoverable.md)
+
+获取被 hover 的节点或线条
+
+#### Returns
+
+`undefined` | [`WorkflowEntityHoverable`](/auto-docs/free-layout-editor/types/WorkflowEntityHoverable.md)
+
+**`Deprecated`**
+
+use 'someHovered' instead
+
+***
+
+### someHovered
+
+`get` **someHovered**(): `undefined` | [`WorkflowEntityHoverable`](/auto-docs/free-layout-editor/types/WorkflowEntityHoverable.md)
 
 获取被 hover 的节点或线条
 

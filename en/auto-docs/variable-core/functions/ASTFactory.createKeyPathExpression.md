@@ -4,6 +4,8 @@
 
 **createKeyPathExpression**(`json`): `Object`
 
+Creates a `KeyPathExpression` node.
+
 #### Parameters
 
 | Name | Type |
@@ -14,7 +16,7 @@
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
-| `keyPath` | `string`\[] |
-| `kind` | [`ASTKind`](/en/auto-docs/variable-core/enums/ASTKind.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `keyPath` | `string`\[] | The key path of the variable. |
+| `kind` | [`ASTKind`](/en/auto-docs/variable-core/enums/ASTKind.md) | - |

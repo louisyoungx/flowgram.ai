@@ -1,11 +1,6 @@
 # Interface: IVariableTable
 
-An object that performs a cleanup operation when `.dispose()` is called.
-
-Some examples of how disposables are used:
-
-* An event listener that removes itself when `.dispose()` is called.
-* The return value from registering a provider. When `.dispose()` is called, the provider is unregistered.
+Interface for a variable table.
 
 ## Hierarchy
 
@@ -39,11 +34,17 @@ Some examples of how disposables are used:
 
 **onDataChange**: [`Event`](/auto-docs/free-layout-editor/interfaces/Event-1.md)<`void`>
 
+**`Deprecated`**
+
+Use `onVariableListChange` or `onAnyVariableChange` instead.
+
 ***
 
 ### parentTable
 
 `Optional` **parentTable**: [`IVariableTable`](/auto-docs/free-layout-editor/interfaces/IVariableTable.md)
+
+The parent variable table.
 
 ***
 
@@ -51,11 +52,15 @@ Some examples of how disposables are used:
 
 **variableKeys**: `string`\[]
 
+The keys of the variables in the table.
+
 ***
 
 ### variables
 
 **variables**: [`VariableDeclaration`](/auto-docs/free-layout-editor/classes/VariableDeclaration.md)<`any`>\[]
+
+The list of variables in the table.
 
 ***
 
@@ -63,11 +68,15 @@ Some examples of how disposables are used:
 
 **version**: `number`
 
+The current version of the variable table.
+
 ## Methods
 
 ### dispose
 
 **dispose**(): `void`
+
+Disposes the variable table.
 
 #### Returns
 
@@ -83,6 +92,8 @@ Some examples of how disposables are used:
 
 **fireChange**(): `void`
 
+Fires a change event.
+
 #### Returns
 
 `void`
@@ -93,15 +104,19 @@ Some examples of how disposables are used:
 
 **getByKeyPath**(`keyPath`): `undefined` | [`BaseVariableField`](/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>
 
+Gets a variable or property by its key path.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `keyPath` | `string`\[] |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `keyPath` | `string`\[] | The key path to the variable or property. |
 
 #### Returns
 
 `undefined` | [`BaseVariableField`](/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>
+
+The found `BaseVariableField` or `undefined`.
 
 ***
 
@@ -109,15 +124,19 @@ Some examples of how disposables are used:
 
 **getVariableByKey**(`key`): `undefined` | [`VariableDeclaration`](/auto-docs/free-layout-editor/classes/VariableDeclaration.md)<`any`>
 
+Gets a variable by its key.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `key` | `string` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `key` | `string` | The key of the variable. |
 
 #### Returns
 
 `undefined` | [`VariableDeclaration`](/auto-docs/free-layout-editor/classes/VariableDeclaration.md)<`any`>
+
+The found `VariableDeclaration` or `undefined`.
 
 ***
 
@@ -125,15 +144,19 @@ Some examples of how disposables are used:
 
 **onAnyVariableChange**(`observer`): [`Disposable`](/auto-docs/free-layout-editor/interfaces/Disposable-1.md)
 
+Subscribes to changes in any variable's value.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `observer` | (`changedVariable`: [`VariableDeclaration`](/auto-docs/free-layout-editor/classes/VariableDeclaration.md)<`any`>) => `void` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `observer` | (`changedVariable`: [`VariableDeclaration`](/auto-docs/free-layout-editor/classes/VariableDeclaration.md)<`any`>) => `void` | The observer function. |
 
 #### Returns
 
 [`Disposable`](/auto-docs/free-layout-editor/interfaces/Disposable-1.md)
+
+A disposable to unsubscribe.
 
 ***
 
@@ -141,15 +164,19 @@ Some examples of how disposables are used:
 
 **onListOrAnyVarChange**(`observer`): [`Disposable`](/auto-docs/free-layout-editor/interfaces/Disposable-1.md)
 
+Subscribes to both variable list changes and any variable's value changes.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `observer` | () => `void` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `observer` | () => `void` | The observer function. |
 
 #### Returns
 
 [`Disposable`](/auto-docs/free-layout-editor/interfaces/Disposable-1.md)
+
+A disposable to unsubscribe.
 
 ***
 
@@ -157,12 +184,16 @@ Some examples of how disposables are used:
 
 **onVariableListChange**(`observer`): [`Disposable`](/auto-docs/free-layout-editor/interfaces/Disposable-1.md)
 
+Subscribes to changes in the variable list.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `observer` | (`variables`: [`VariableDeclaration`](/auto-docs/free-layout-editor/classes/VariableDeclaration.md)<`any`>\[]) => `void` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `observer` | (`variables`: [`VariableDeclaration`](/auto-docs/free-layout-editor/classes/VariableDeclaration.md)<`any`>\[]) => `void` | The observer function. |
 
 #### Returns
 
 [`Disposable`](/auto-docs/free-layout-editor/interfaces/Disposable-1.md)
+
+A disposable to unsubscribe.

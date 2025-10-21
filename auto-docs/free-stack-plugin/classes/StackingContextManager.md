@@ -42,7 +42,13 @@
 
 ### init
 
-**init**(): `void`
+**init**(`options?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `options` | `Partial`<[`StackContextManagerOptions`](/auto-docs/free-stack-plugin/interfaces/StackContextManagerOptions.md)> |
 
 #### Returns
 

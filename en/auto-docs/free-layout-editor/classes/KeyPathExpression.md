@@ -1,11 +1,11 @@
 # Class: KeyPathExpression\<CustomPathJSON>
 
-An object that performs a cleanup operation when `.dispose()` is called.
+Represents a key path expression, which is used to reference a variable by its key path.
 
-Some examples of how disposables are used:
+This is the V2 of `KeyPathExpression`, with the following improvements:
 
-* An event listener that removes itself when `.dispose()` is called.
-* The return value from registering a provider. When `.dispose()` is called, the provider is unregistered.
+* `returnType` is copied to a new instance to avoid reference issues.
+* Circular reference detection is introduced.
 
 ## Type parameters
 
@@ -27,6 +27,7 @@ Some examples of how disposables are used:
 
 ### Properties
 
+* [\_returnType](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#_returntype)
 * [changeLocked](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#changelocked)
 * [flags](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#flags)
 * [key](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#key)
@@ -59,6 +60,7 @@ Some examples of how disposables are used:
 * [fireChange](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#firechange)
 * [fromJSON](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#fromjson)
 * [getRefFields](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#getreffields)
+* [getReturnTypeJSONByRef](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#getreturntypejsonbyref)
 * [refreshRefs](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#refreshrefs)
 * [subscribe](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#subscribe)
 * [toJSON](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md#tojson)
@@ -88,11 +90,24 @@ Some examples of how disposables are used:
 
 ## Properties
 
+### \_returnType
+
+**\_returnType**: [`BaseType`](/en/auto-docs/free-layout-editor/classes/BaseType.md)<`any`, `any`>
+
+The return type of the expression.
+
+A new `returnType` node is generated directly, instead of reusing the existing one, to ensure that different key paths do not point to the same field.
+
+***
+
 ### changeLocked
 
 **changeLocked**: `boolean`
 
-更新锁
+Update lock.
+
+* When set to `true`, `fireChange` will not trigger any events.
+* This is useful when multiple updates are needed, and you want to avoid multiple triggers.
 
 #### Inherited from
 
@@ -104,7 +119,7 @@ Some examples of how disposables are used:
 
 **flags**: [`ASTNodeFlags`](/en/auto-docs/free-layout-editor/enums/ASTNodeFlags.md)
 
-节点 Flags，记录一些 Flag 信息
+Node flags, used to record some flag information.
 
 #### Inherited from
 
@@ -116,9 +131,11 @@ Some examples of how disposables are used:
 
 `Readonly` **key**: `string`
 
-节点的唯一标识符，节点不指定则默认由 nanoid 生成，不可更改
+The unique identifier of the ASTNode, which is **immutable**.
 
-* 如需要生成新 key，则销毁当前节点并生成新的节点
+* Immutable: Once assigned, the key cannot be changed.
+* Automatically generated if not specified, and cannot be changed as well.
+* If a new key needs to be generated, the current ASTNode should be destroyed and a new ASTNode should be generated.
 
 #### Inherited from
 
@@ -130,7 +147,7 @@ Some examples of how disposables are used:
 
 **onDispose**: [`Event`](/en/auto-docs/free-layout-editor/interfaces/Event-1.md)<`void`>
 
-销毁时触发的回调
+Callback triggered upon disposal.
 
 #### Inherited from
 
@@ -144,9 +161,9 @@ Some examples of how disposables are used:
 
 **`Deprecated`**
 
-获取 ASTNode 注入的 opts
+Get the injected options for the ASTNode.
 
-请使用 @injectToAst(XXXService) declare xxxService: XXXService 实现外部依赖注入
+Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve external dependency injection.
 
 #### Inherited from
 
@@ -158,7 +175,7 @@ Some examples of how disposables are used:
 
 `Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>
 
-父节点
+The parent ASTNode.
 
 #### Inherited from
 
@@ -170,8 +187,7 @@ Some examples of how disposables are used:
 
 **refs$**: `Observable`<`ExpressionRefs`>
 
-监听引用变量变化
-监听 \[a.b.c] -> \[a.b]
+An observable that emits the referenced variable fields when they change.
 
 #### Inherited from
 
@@ -183,7 +199,7 @@ Some examples of how disposables are used:
 
 `Readonly` **scope**: [`Scope`](/en/auto-docs/free-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>
 
-节点所处的作用域
+The scope in which the ASTNode is located.
 
 #### Inherited from
 
@@ -195,7 +211,7 @@ Some examples of how disposables are used:
 
 `Readonly` **toDispose**: [`DisposableCollection`](/en/auto-docs/free-layout-editor/classes/DisposableCollection.md)
 
-删除节点处理事件列表
+List of disposal handlers for the ASTNode.
 
 #### Inherited from
 
@@ -207,9 +223,10 @@ Some examples of how disposables are used:
 
 `Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>>
 
-AST 节点变化事件，基于 Rxjs 实现
+AST node change Observable events, implemented based on RxJS.
 
-* 使用了 BehaviorSubject, 在订阅时会自动触发一次事件，事件为当前值
+* Emits the current ASTNode value upon subscription.
+* Emits a new value whenever `fireChange` is called.
 
 #### Inherited from
 
@@ -221,7 +238,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `Static` **kind**: `string`
 
-节点类型
+The kind of the ASTNode.
 
 #### Overrides
 
@@ -233,7 +250,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `get` **children**(): [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
 
-获取当前节点所有子节点
+Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
@@ -263,7 +280,7 @@ BaseExpression.disposed
 
 `get` **globalVariableTable**(): [`IVariableTable`](/en/auto-docs/free-layout-editor/interfaces/IVariableTable.md)
 
-获取全局变量表，方便表达式获取引用变量
+Get the global variable table, which is used to access referenced variables.
 
 #### Returns
 
@@ -279,7 +296,10 @@ BaseExpression.globalVariableTable
 
 `get` **hash**(): `string`
 
-节点唯一 hash 值
+The unique hash value of the ASTNode.
+
+* It will update when the ASTNode is updated.
+* You can used to check two ASTNode are equal.
 
 #### Returns
 
@@ -295,6 +315,8 @@ BaseExpression.hash
 
 `get` **keyPath**(): `string`\[]
 
+The key path of the variable.
+
 #### Returns
 
 `string`\[]
@@ -305,7 +327,7 @@ BaseExpression.hash
 
 `get` **kind**(): `string`
 
-AST 节点的类型
+The type of the ASTNode.
 
 #### Returns
 
@@ -321,7 +343,7 @@ BaseExpression.kind
 
 `get` **parentFields**(): [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[]
 
-父变量字段，通过由近而远的方式进行排序
+Parent variable fields, sorted from closest to farthest.
 
 #### Returns
 
@@ -337,6 +359,8 @@ BaseExpression.parentFields
 
 `get` **refs**(): `ExpressionRefs`
 
+The variable fields referenced by the expression.
+
 #### Returns
 
 `ExpressionRefs`
@@ -349,13 +373,13 @@ BaseExpression.refs
 
 ### returnType
 
-`get` **returnType**(): `undefined` | [`BaseType`](/en/auto-docs/free-layout-editor/classes/BaseType.md)<`any`, `any`>
+`get` **returnType**(): [`BaseType`](/en/auto-docs/free-layout-editor/classes/BaseType.md)<`any`, `any`>
 
-表达式返回的数据类型
+The return type of the expression.
 
 #### Returns
 
-`undefined` | [`BaseType`](/en/auto-docs/free-layout-editor/classes/BaseType.md)<`any`, `any`>
+[`BaseType`](/en/auto-docs/free-layout-editor/classes/BaseType.md)<`any`, `any`>
 
 #### Overrides
 
@@ -367,9 +391,9 @@ BaseExpression.returnType
 
 `get` **version**(): `number`
 
-节点的版本值
+The version value of the ASTNode.
 
-* 通过 NodeA === NodeB && versionA === versionB 可以比较两者是否相等
+* You can used to check whether ASTNode are updated.
 
 #### Returns
 
@@ -385,6 +409,8 @@ BaseExpression.version
 
 **dispatchGlobalEvent**<`ActionType`>(`event`): `void`
 
+Dispatches a global event for the current ASTNode.
+
 #### Type parameters
 
 | Name | Type |
@@ -393,9 +419,9 @@ BaseExpression.version
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `event` | `Omit`<`ActionType`, `"ast"`> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `event` | `Omit`<`ActionType`, `"ast"`> | The global event. |
 
 #### Returns
 
@@ -411,7 +437,7 @@ BaseExpression.version
 
 **dispose**(): `void`
 
-销毁
+Disposes the ASTNode.
 
 #### Returns
 
@@ -427,7 +453,7 @@ BaseExpression.version
 
 **fireChange**(): `void`
 
-触发当前节点更新
+Triggers an update for the current node.
 
 #### Returns
 
@@ -443,13 +469,13 @@ BaseExpression.version
 
 **fromJSON**(`json`): `void`
 
-解析 AST JSON 数据
+Deserializes the `KeyPathExpressionJSON` to the `KeyPathExpression`.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `json` | `CustomPathJSON` | AST JSON 数据 |
+| `json` | `CustomPathJSON` | The `KeyPathExpressionJSON` to deserialize. |
 
 #### Returns
 
@@ -465,13 +491,13 @@ BaseExpression.version
 
 **getRefFields**(): [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[]
 
-获取表达式引用的变量字段
-
-* 通常是 变量 VariableDeclaration，或者 属性 Property 节点
+Get the variable fields referenced by the expression.
 
 #### Returns
 
 [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[]
+
+An array of referenced variable fields.
 
 #### Overrides
 
@@ -479,11 +505,31 @@ BaseExpression.version
 
 ***
 
+### getReturnTypeJSONByRef
+
+**getReturnTypeJSONByRef**(`_ref`): `undefined` | [`ASTNodeJSON`](/en/auto-docs/free-layout-editor/interfaces/ASTNodeJSON.md)
+
+Get the return type JSON by reference.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `_ref` | `undefined` | [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`> | The referenced variable field. |
+
+#### Returns
+
+`undefined` | [`ASTNodeJSON`](/en/auto-docs/free-layout-editor/interfaces/ASTNodeJSON.md)
+
+The JSON representation of the return type.
+
+***
+
 ### refreshRefs
 
 **refreshRefs**(): `void`
 
-刷新变量引用
+Refresh the variable references.
 
 #### Returns
 
@@ -499,7 +545,7 @@ BaseExpression.version
 
 **subscribe**<`Data`>(`observer`, `selector?`): [`Disposable`](/en/auto-docs/free-layout-editor/interfaces/Disposable-1.md)
 
-监听 AST 节点的变化
+Listens for changes to the ASTNode.
 
 #### Type parameters
 
@@ -511,8 +557,8 @@ BaseExpression.version
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `observer` | `ObserverOrNext`<`Data`> | 监听回调 |
-| `selector?` | `SubscribeConfig`<[`KeyPathExpression`](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md)<`CustomPathJSON`>, `Data`> | 监听指定数据 |
+| `observer` | `ObserverOrNext`<`Data`> | The listener callback. |
+| `selector?` | `SubscribeConfig`<[`KeyPathExpression`](/en/auto-docs/free-layout-editor/classes/KeyPathExpression.md)<`CustomPathJSON`>, `Data`> | Listens for specified data. |
 
 #### Returns
 
@@ -528,11 +574,13 @@ BaseExpression.version
 
 **toJSON**(): [`ASTNodeJSON`](/en/auto-docs/free-layout-editor/interfaces/ASTNodeJSON.md)
 
-转化为 ASTNodeJSON
+Serialize the `KeyPathExpression` to `KeyPathExpressionJSON`.
 
 #### Returns
 
 [`ASTNodeJSON`](/en/auto-docs/free-layout-editor/interfaces/ASTNodeJSON.md)
+
+The JSON representation of `KeyPathExpression`.
 
 #### Overrides
 

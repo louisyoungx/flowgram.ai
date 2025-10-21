@@ -4,6 +4,8 @@
 
 **createVariableDeclarationList**(`json`): `Object`
 
+Creates a `VariableDeclarationList` node.
+
 #### Parameters
 
 | Name | Type |

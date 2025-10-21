@@ -31,7 +31,7 @@ WorkflowLinePortInfo.data
 
 ### from
 
-**from**: `string`
+`Optional` **from**: `string`
 
 #### Inherited from
 

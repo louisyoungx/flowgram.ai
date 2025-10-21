@@ -1,7 +1,6 @@
 # Interface: EnumerateExpressionJSON
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+ASTNodeJSON representation of `EnumerateExpression`
 
 ## Table of contents
 
@@ -14,3 +13,5 @@ SPDX-License-Identifier: MIT
 ### enumerateFor
 
 **enumerateFor**: [`ASTNodeJSON`](/auto-docs/variable-plugin/interfaces/ASTNodeJSON.md)
+
+The expression to be enumerated.

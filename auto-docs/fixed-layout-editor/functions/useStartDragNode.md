@@ -11,4 +11,7 @@ SPDX-License-Identifier: MIT
 
 | Name | Type |
 | :------ | :------ |
-| `startDrag` | (`e`: { `clientX`: `number` ; `clientY`: `number`  }, `{ dragStartEntity: startEntityFromProps, dragEntities, }`: { `dragEntities?`: [`FlowNodeEntity`](/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)\[] ; `dragStartEntity`: [`FlowNodeEntity`](/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)  }, `options?`: { `dragOffsetX?`: `number` ; `dragOffsetY?`: `number`  }) => `Promise`<`void`> | (`e`: `any`) => `void` |
+| `dragOffset` | { `x`: `number` ; `y`: `number`  } |
+| `dragOffset.x` | `number` |
+| `dragOffset.y` | `number` |
+| `startDrag` | (`e`: { `clientX`: `number` ; `clientY`: `number`  }, `{ dragStartEntity: startEntityFromProps, dragEntities, dragJSON, isBranch, onCreateNode, }`: { `dragEntities?`: [`FlowNodeEntity`](/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)\[]  } & { `dragStartEntity?`: `undefined`  } & { `dragJSON`: [`FlowNodeJSON`](/auto-docs/fixed-layout-editor/interfaces/FlowNodeJSON.md) ; `isBranch?`: `boolean` ; `onCreateNode`: (`json`: [`FlowNodeJSON`](/auto-docs/fixed-layout-editor/interfaces/FlowNodeJSON.md), `dropEntity`: [`FlowNodeEntity`](/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)) => `Promise`<[`FlowNodeEntity`](/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)>  } | { `dragJSON?`: `undefined` ; `isBranch?`: `undefined` ; `onCreateNode?`: `undefined`  } & { `dragStartEntity`: [`FlowNodeEntity`](/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)  }, `options?`: { `disableDragScroll?`: `boolean` ; `dragOffsetX?`: `number` ; `dragOffsetY?`: `number`  }) => `Promise`<`void`> | (`e`: `any`) => `void` |

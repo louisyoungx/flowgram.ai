@@ -1,0 +1,5 @@
+import { SourceCode } from '@theme';
+
+# DisableDeclarationPlugin (WIP)
+
+<SourceCode href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/plugins/disable-declaration-plugin" />

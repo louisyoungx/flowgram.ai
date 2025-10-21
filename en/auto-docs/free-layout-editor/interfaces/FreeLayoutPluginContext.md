@@ -1,8 +1,5 @@
 # Interface: FreeLayoutPluginContext
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
-
 ## Hierarchy
 
 * [`EditorPluginContext`](/en/auto-docs/free-layout-editor/interfaces/EditorPluginContext.md)
@@ -17,6 +14,7 @@ SPDX-License-Identifier: MIT
 * [container](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutPluginContext.md#container)
 * [document](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutPluginContext.md#document)
 * [history](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutPluginContext.md#history)
+* [operation](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutPluginContext.md#operation)
 * [playground](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutPluginContext.md#playground)
 * [selection](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutPluginContext.md#selection)
 * [tools](/en/auto-docs/free-layout-editor/interfaces/FreeLayoutPluginContext.md#tools)
@@ -61,6 +59,14 @@ IOC 容器
 ### history
 
 **history**: [`HistoryService`](/en/auto-docs/free-layout-editor/classes/HistoryService.md)
+
+***
+
+### operation
+
+**operation**: `WorkflowOperationService`
+
+提供对画布节点相关操作方法, 并 支持 redo/undo
 
 ***
 

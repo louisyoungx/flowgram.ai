@@ -1,5 +1,9 @@
 # Class: Layout
 
+## Implements
+
+* `ILayout`
+
 ## Table of contents
 
 ### Constructors
@@ -41,6 +45,10 @@
 
 `void`
 
+#### Implementation of
+
+ILayout.init
+
 ***
 
 ### layout
@@ -51,6 +59,10 @@
 
 `void`
 
+#### Implementation of
+
+ILayout.layout
+
 ***
 
 ### position
@@ -60,3 +72,7 @@
 #### Returns
 
 `Promise`<`void`>
+
+#### Implementation of
+
+ILayout.position

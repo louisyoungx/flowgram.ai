@@ -1,6 +1,6 @@
 # Function: ConstantInput
 
-**ConstantInput**(`props`): `Element`
+**ConstantInput**(`props`): `any`
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`Element`
+`any`

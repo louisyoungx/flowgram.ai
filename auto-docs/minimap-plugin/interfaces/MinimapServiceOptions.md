@@ -4,19 +4,17 @@
 
 ### Properties
 
-* [activeDebounceTime](/auto-docs/minimap-plugin/interfaces/MinimapServiceOptions.md#activedebouncetime)
+* [activeThrottleTime](/auto-docs/minimap-plugin/interfaces/MinimapServiceOptions.md#activethrottletime)
 * [canvasClassName](/auto-docs/minimap-plugin/interfaces/MinimapServiceOptions.md#canvasclassname)
 * [canvasStyle](/auto-docs/minimap-plugin/interfaces/MinimapServiceOptions.md#canvasstyle)
-* [enableActiveDebounce](/auto-docs/minimap-plugin/interfaces/MinimapServiceOptions.md#enableactivedebounce)
 * [enableDisplayAllNodes](/auto-docs/minimap-plugin/interfaces/MinimapServiceOptions.md#enabledisplayallnodes)
-* [enableInactiveDebounce](/auto-docs/minimap-plugin/interfaces/MinimapServiceOptions.md#enableinactivedebounce)
-* [inactiveDebounceTime](/auto-docs/minimap-plugin/interfaces/MinimapServiceOptions.md#inactivedebouncetime)
+* [inactiveThrottleTime](/auto-docs/minimap-plugin/interfaces/MinimapServiceOptions.md#inactivethrottletime)
 
 ## Properties
 
-### activeDebounceTime
+### activeThrottleTime
 
-**activeDebounceTime**: `number`
+**activeThrottleTime**: `number`
 
 ***
 
@@ -32,24 +30,12 @@
 
 ***
 
-### enableActiveDebounce
-
-**enableActiveDebounce**: `boolean`
-
-***
-
 ### enableDisplayAllNodes
 
 **enableDisplayAllNodes**: `boolean`
 
 ***
 
-### enableInactiveDebounce
+### inactiveThrottleTime
 
-**enableInactiveDebounce**: `boolean`
-
-***
-
-### inactiveDebounceTime
-
-**inactiveDebounceTime**: `number`
+**inactiveThrottleTime**: `number`

@@ -4,6 +4,8 @@
 
 **isMap**(`node?`): node is MapType
 
+Check if the node is a `MapType`.
+
 #### Parameters
 
 | Name | Type |

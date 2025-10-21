@@ -2,7 +2,7 @@
 
 **getNodeForm**<`TValues`>(`node`): [`NodeFormProps`](/en/auto-docs/node/interfaces/NodeFormProps.md)<`TValues`> | `undefined`
 
-Only support FormModelV2
+Use `node.form` instead
 
 #### Type parameters
 
@@ -19,3 +19,5 @@ Only support FormModelV2
 #### Returns
 
 [`NodeFormProps`](/en/auto-docs/node/interfaces/NodeFormProps.md)<`TValues`> | `undefined`
+
+**`Deprecated`**

@@ -4,24 +4,10 @@
 
 ### Properties
 
-* [clientX](/en/auto-docs/free-layout-editor/interfaces/PipelineDimension.md#clientx)
-* [clientY](/en/auto-docs/free-layout-editor/interfaces/PipelineDimension.md#clienty)
 * [height](/en/auto-docs/free-layout-editor/interfaces/PipelineDimension.md#height)
 * [width](/en/auto-docs/free-layout-editor/interfaces/PipelineDimension.md#width)
 
 ## Properties
-
-### clientX
-
-**clientX**: `number`
-
-***
-
-### clientY
-
-**clientY**: `number`
-
-***
 
 ### height
 

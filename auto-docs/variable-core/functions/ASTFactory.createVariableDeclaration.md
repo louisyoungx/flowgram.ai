@@ -4,7 +4,7 @@
 
 **createVariableDeclaration**<`VariableMeta`>(`json`): `Object`
 
-声明相关
+Creates a `VariableDeclaration` node.
 
 #### Type parameters
 
@@ -22,11 +22,11 @@
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
-| `initializer?` | [`ASTNodeJSON`](/auto-docs/variable-core/interfaces/ASTNodeJSON.md) |
-| `key?` | `string` |
-| `kind` | [`ASTKind`](/auto-docs/variable-core/enums/ASTKind.md) |
-| `meta?` | `VariableMeta` |
-| `order?` | `number` |
-| `type?` | `ASTNodeJSONOrKind` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `initializer?` | [`ASTNodeJSON`](/auto-docs/variable-core/interfaces/ASTNodeJSON.md) | initializer of the variable field, similar to js code: `const v = 'hello'` with initializer, the type of field will be inferred from the initializer. |
+| `key?` | `string` | key of the variable field - For `VariableDeclaration`, the key should be global unique. - For `Property`, the key is the property name. |
+| `kind` | [`ASTKind`](/auto-docs/variable-core/enums/ASTKind.md) | - |
+| `meta?` | `VariableMeta` | meta data of the variable field, you cans store information like `title`, `icon`, etc. |
+| `order?` | `number` | Variable sorting order, which is used to sort variables in `scope.outputs.variables` |
+| `type?` | `ASTNodeJSONOrKind` | type of the variable field, similar to js code: `const v: string` |

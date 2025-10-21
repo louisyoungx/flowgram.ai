@@ -4,6 +4,8 @@
 
 **isInteger**(`node?`): node is IntegerType
 
+Check if the node is a `IntegerType`.
+
 #### Parameters
 
 | Name | Type |

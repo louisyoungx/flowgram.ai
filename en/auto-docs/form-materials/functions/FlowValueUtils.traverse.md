@@ -2,7 +2,7 @@
 
 [FlowValueUtils](/en/auto-docs/form-materials/modules/FlowValueUtils.md).traverse
 
-**traverse**(`value`, `options`): `Generator`<{ `path`: `string` ; `value`: [`IFlowValue`](/en/auto-docs/form-materials/types/IFlowValue.md)  }>
+**traverse**(`value`, `options`): `Generator`<{ `path`: `string` ; `pathArr`: `string`\[] ; `value`: [`IFlowValue`](/en/auto-docs/form-materials/types/IFlowValue.md)  }>
 
 Traverse all flow values in the given value
 
@@ -12,11 +12,12 @@ Traverse all flow values in the given value
 | :------ | :------ | :------ |
 | `value` | `any` | The value to traverse |
 | `options` | `Object` | The options to traverse |
-| `options.includeTypes?` | [`FlowValueType`](/en/auto-docs/form-materials/types/FlowValueType.md)\[] | - |
+| `options.includeTypes` | [`FlowValueType`](/en/auto-docs/form-materials/types/FlowValueType.md)\[] | - |
 | `options.path?` | `string` | - |
+| `options.pathArr?` | `string`\[] | - |
 
 #### Returns
 
-`Generator`<{ `path`: `string` ; `value`: [`IFlowValue`](/en/auto-docs/form-materials/types/IFlowValue.md)  }>
+`Generator`<{ `path`: `string` ; `pathArr`: `string`\[] ; `value`: [`IFlowValue`](/en/auto-docs/form-materials/types/IFlowValue.md)  }>
 
 A generator of flow values

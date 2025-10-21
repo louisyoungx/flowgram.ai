@@ -1,7 +1,6 @@
 # Interface: MapNodeJSON
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+ASTNodeJSON representation of `MapNode`
 
 ## Table of contents
 
@@ -14,3 +13,5 @@ SPDX-License-Identifier: MIT
 ### map
 
 **map**: \[`string`, [`ASTNodeJSON`](/auto-docs/editor/interfaces/ASTNodeJSON.md)]\[]
+
+The map of nodes.

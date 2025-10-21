@@ -59,7 +59,7 @@ function SomeReact() {
 
 ## 自定义箭头渲染器
 
-WorkflowLinesManager 支持通过渲染器注册表自定义箭头样式。详细使用方法请参考 [线条配置指南](/guide/advanced/free-layout/line.md#4自定义箭头渲染器) 文档。
+WorkflowLinesManager 支持通过渲染器注册表自定义箭头样式。详细使用方法请参考 [线条配置指南](/guide/free-layout/line.md#4自定义箭头渲染器) 文档。
 
 ```tsx
 // 简单示例：注册自定义箭头

@@ -1,5 +1,9 @@
 # Class: VariableFieldKeyRenameService
 
+This service is responsible for detecting when a variable field's key is renamed.
+It listens for changes in variable declaration lists and object properties, and
+determines if a change constitutes a rename operation.
+
 ## Table of contents
 
 ### Constructors
@@ -34,17 +38,24 @@
 
 **disposeInListEmitter**: [`Emitter`](/en/auto-docs/free-layout-editor/classes/Emitter.md)<[`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>>
 
+Emits events for fields that are disposed of during a list change, but not renamed.
+This helps distinguish between a field that was truly removed and one that was renamed.
+
 ***
 
 ### onDisposeInList
 
 **onDisposeInList**: [`Event`](/en/auto-docs/free-layout-editor/interfaces/Event-1.md)<[`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>>
 
+An event that fires when a field is removed from a list (and not part of a rename).
+
 ***
 
 ### onRename
 
 **onRename**: [`Event`](/en/auto-docs/free-layout-editor/interfaces/Event-1.md)<`RenameInfo`>
+
+An event that fires when a variable field key is successfully renamed.
 
 ***
 
@@ -80,13 +91,15 @@
 
 **handleFieldListChange**(`ast?`, `prev?`, `next?`): `void`
 
+Handles changes in a list of fields to detect rename operations.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `ast?` | [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`> |
-| `prev?` | [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[] |
-| `next?` | [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[] |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `ast?` | [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`> | The AST node where the change occurred. |
+| `prev?` | [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[] | The list of fields before the change. |
+| `next?` | [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[] | The list of fields after the change. |
 
 #### Returns
 
@@ -108,12 +121,14 @@
 
 **notifyFieldsDispose**(`prev?`, `next?`): `void`
 
+Notifies listeners about fields that were removed from a list.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `prev?` | [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[] |
-| `next?` | [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[] |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `prev?` | [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[] | The list of fields before the change. |
+| `next?` | [`BaseVariableField`](/en/auto-docs/free-layout-editor/classes/BaseVariableField.md)<`any`>\[] | The list of fields after the change. |
 
 #### Returns
 

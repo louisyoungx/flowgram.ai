@@ -24,6 +24,7 @@
 * [onEntityChange](/auto-docs/core/classes/PlaygroundConfigEntity.md#onentitychange)
 * [onGrabDisableChange](/auto-docs/core/classes/PlaygroundConfigEntity.md#ongrabdisablechange)
 * [onReadonlyOrDisabledChange](/auto-docs/core/classes/PlaygroundConfigEntity.md#onreadonlyordisabledchange)
+* [playgroundDomNode](/auto-docs/core/classes/PlaygroundConfigEntity.md#playgrounddomnode)
 * [preDispose](/auto-docs/core/classes/PlaygroundConfigEntity.md#predispose)
 * [toDispose](/auto-docs/core/classes/PlaygroundConfigEntity.md#todispose)
 * [type](/auto-docs/core/classes/PlaygroundConfigEntity.md#type)
@@ -60,6 +61,7 @@
 * [fitView](/auto-docs/core/classes/PlaygroundConfigEntity.md#fitview)
 * [fixLayerPosition](/auto-docs/core/classes/PlaygroundConfigEntity.md#fixlayerposition)
 * [fromJSON](/auto-docs/core/classes/PlaygroundConfigEntity.md#fromjson)
+* [getClientBounds](/auto-docs/core/classes/PlaygroundConfigEntity.md#getclientbounds)
 * [getData](/auto-docs/core/classes/PlaygroundConfigEntity.md#getdata)
 * [getDefaultConfig](/auto-docs/core/classes/PlaygroundConfigEntity.md#getdefaultconfig)
 * [getDefaultDataRegistries](/auto-docs/core/classes/PlaygroundConfigEntity.md#getdefaultdataregistries)
@@ -170,6 +172,12 @@
 ### onReadonlyOrDisabledChange
 
 `Readonly` **onReadonlyOrDisabledChange**: `Event`<{ `disabled`: `boolean` ; `readonly`: `boolean`  }>
+
+***
+
+### playgroundDomNode
+
+**playgroundDomNode**: `HTMLElement`
 
 ***
 
@@ -714,6 +722,16 @@ use 'zoomDisable' instead
 #### Inherited from
 
 [ConfigEntity](/auto-docs/core/classes/ConfigEntity.md).[fromJSON](/auto-docs/core/classes/ConfigEntity.md#fromjson)
+
+***
+
+### getClientBounds
+
+**getClientBounds**(): `Rectangle`
+
+#### Returns
+
+`Rectangle`
 
 ***
 

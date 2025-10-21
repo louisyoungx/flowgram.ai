@@ -4,6 +4,8 @@
 
 **createWrapArrayExpression**(`json`): `Object`
 
+Creates a `WrapArrayExpression` node.
+
 #### Parameters
 
 | Name | Type |

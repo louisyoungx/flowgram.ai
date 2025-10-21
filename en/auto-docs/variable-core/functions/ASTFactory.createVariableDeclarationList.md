@@ -4,6 +4,8 @@
 
 **createVariableDeclarationList**(`json`): `Object`
 
+Creates a `VariableDeclarationList` node.
+
 #### Parameters
 
 | Name | Type |
@@ -16,6 +18,6 @@
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `declarations?` | [`VariableDeclarationJSON`](/en/auto-docs/variable-core/types/VariableDeclarationJSON.md)<`any`>\[] | declarations 一定是 VariableDeclaration 类型，因此业务可以不用填 kind |
+| `declarations?` | [`VariableDeclarationJSON`](/en/auto-docs/variable-core/types/VariableDeclarationJSON.md)<`any`>\[] | `declarations` must be of type `VariableDeclaration`, so the business can omit the `kind` field. |
 | `kind` | [`ASTKind`](/en/auto-docs/variable-core/enums/ASTKind.md) | - |
-| `startOrder?` | `number` | - |
+| `startOrder?` | `number` | The starting order number for variables. |

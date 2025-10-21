@@ -249,7 +249,7 @@ BlockOrderIcon节点，一般用于分支的第一个占位节点
 
 ### updateExtInfo
 
-**updateExtInfo**<`T`>(`extInfo`): `void`
+**updateExtInfo**<`T`>(`extInfo`, `fullUpdate?`): `void`
 
 更新节点的扩展数据
 
@@ -264,6 +264,7 @@ BlockOrderIcon节点，一般用于分支的第一个占位节点
 | Name | Type |
 | :------ | :------ |
 | `extInfo` | `T` |
+| `fullUpdate?` | `boolean` |
 
 #### Returns
 

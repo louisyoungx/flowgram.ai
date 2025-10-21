@@ -46,6 +46,10 @@
 
 `Optional` **enableChangeNode**: `boolean`
 
+#### Inherited from
+
+[HistoryPluginOptions](/auto-docs/fixed-history-plugin/interfaces/HistoryPluginOptions.md).[enableChangeNode](/auto-docs/fixed-history-plugin/interfaces/HistoryPluginOptions.md#enablechangenode)
+
 ***
 
 ### getBlockLabel

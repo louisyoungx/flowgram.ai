@@ -11,6 +11,7 @@
 * [activated](/en/auto-docs/minimap-plugin/classes/FlowMinimapService.md#activated)
 * [canvas](/en/auto-docs/minimap-plugin/classes/FlowMinimapService.md#canvas)
 * [context2D](/en/auto-docs/minimap-plugin/classes/FlowMinimapService.md#context2d)
+* [render](/en/auto-docs/minimap-plugin/classes/FlowMinimapService.md#render)
 
 ### Methods
 
@@ -18,6 +19,7 @@
 * [init](/en/auto-docs/minimap-plugin/classes/FlowMinimapService.md#init)
 * [onActive](/en/auto-docs/minimap-plugin/classes/FlowMinimapService.md#onactive)
 * [setActivate](/en/auto-docs/minimap-plugin/classes/FlowMinimapService.md#setactivate)
+* [setVisible](/en/auto-docs/minimap-plugin/classes/FlowMinimapService.md#setvisible)
 
 ## Constructors
 
@@ -42,6 +44,22 @@
 ### context2D
 
 `Readonly` **context2D**: `CanvasRenderingContext2D`
+
+***
+
+### render
+
+**render**: () => `void`
+
+#### Type declaration
+
+(): `void`
+
+触发渲染
+
+##### Returns
+
+`void`
 
 ## Methods
 
@@ -96,6 +114,22 @@
 | Name | Type |
 | :------ | :------ |
 | `activate` | `boolean` |
+
+#### Returns
+
+`void`
+
+***
+
+### setVisible
+
+**setVisible**(`visible`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `visible` | `boolean` |
 
 #### Returns
 

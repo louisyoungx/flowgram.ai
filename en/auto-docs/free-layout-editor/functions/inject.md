@@ -1,6 +1,6 @@
 # Function: inject
 
-**inject**<`T`>(`serviceIdentifier`): (`target`: `DecoratorTarget`, `targetKey?`: `string` | `symbol`, `indexOrPropertyDescriptor?`: `number` | `TypedPropertyDescriptor`<`T`>) => `void`
+**inject**<`T`>(`serviceIdentifier`): (`target`: `DecoratorTarget`<`unknown`>, `targetKey?`: `string` | `symbol`, `indexOrPropertyDescriptor?`: `number` | `TypedPropertyDescriptor`<`T`>) => `void`
 
 #### Type parameters
 
@@ -24,7 +24,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `target` | `DecoratorTarget` |
+| `target` | `DecoratorTarget`<`unknown`> |
 | `targetKey?` | `string` | `symbol` |
 | `indexOrPropertyDescriptor?` | `number` | `TypedPropertyDescriptor`<`T`> |
 

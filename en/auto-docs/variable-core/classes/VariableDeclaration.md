@@ -1,5 +1,7 @@
 # Class: VariableDeclaration\<VariableMeta>
 
+`VariableDeclaration` is a variable field that represents a variable declaration.
+
 ## Type parameters
 
 | Name | Type |
@@ -88,7 +90,10 @@
 
 **changeLocked**: `boolean` = `false`
 
-更新锁
+Update lock.
+
+* When set to `true`, `fireChange` will not trigger any events.
+* This is useful when multiple updates are needed, and you want to avoid multiple triggers.
 
 #### Inherited from
 
@@ -100,7 +105,7 @@
 
 **flags**: [`ASTNodeFlags`](/en/auto-docs/variable-core/enums/ASTNodeFlags.md) = `ASTNodeFlags.VariableField`
 
-节点 Flags，记录一些 Flag 信息
+Node flags, used to record some flag information.
 
 #### Inherited from
 
@@ -112,9 +117,11 @@
 
 `Readonly` **key**: `string`
 
-节点的唯一标识符，节点不指定则默认由 nanoid 生成，不可更改
+The unique identifier of the ASTNode, which is **immutable**.
 
-* 如需要生成新 key，则销毁当前节点并生成新的节点
+* Immutable: Once assigned, the key cannot be changed.
+* Automatically generated if not specified, and cannot be changed as well.
+* If a new key needs to be generated, the current ASTNode should be destroyed and a new ASTNode should be generated.
 
 #### Inherited from
 
@@ -126,7 +133,7 @@
 
 **onDispose**: `Event`<`void`>
 
-销毁时触发的回调
+Callback triggered upon disposal.
 
 #### Inherited from
 
@@ -140,9 +147,9 @@
 
 **`Deprecated`**
 
-获取 ASTNode 注入的 opts
+Get the injected options for the ASTNode.
 
-请使用 @injectToAst(XXXService) declare xxxService: XXXService 实现外部依赖注入
+Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve external dependency injection.
 
 #### Inherited from
 
@@ -154,7 +161,7 @@
 
 `Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/variable-core/classes/ASTNode.md)<`any`, `any`>
 
-父节点
+The parent ASTNode.
 
 #### Inherited from
 
@@ -166,7 +173,7 @@
 
 `Readonly` **scope**: [`Scope`](/en/auto-docs/variable-core/classes/Scope.md)<`Record`<`string`, `any`>>
 
-节点所处的作用域
+The scope in which the ASTNode is located.
 
 #### Inherited from
 
@@ -178,7 +185,7 @@
 
 `Readonly` **toDispose**: `DisposableCollection`
 
-删除节点处理事件列表
+List of disposal handlers for the ASTNode.
 
 #### Inherited from
 
@@ -190,9 +197,10 @@
 
 `Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/variable-core/classes/ASTNode.md)<`any`, `any`>>
 
-AST 节点变化事件，基于 Rxjs 实现
+AST node change Observable events, implemented based on RxJS.
 
-* 使用了 BehaviorSubject, 在订阅时会自动触发一次事件，事件为当前值
+* Emits the current ASTNode value upon subscription.
+* Emits a new value whenever `fireChange` is called.
 
 #### Inherited from
 
@@ -204,7 +212,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `Static` **kind**: `string` = `ASTKind.VariableDeclaration`
 
-节点类型
+The kind of the ASTNode.
 
 #### Overrides
 
@@ -216,7 +224,7 @@ AST 节点变化事件，基于 Rxjs 实现
 
 `get` **children**(): [`ASTNode`](/en/auto-docs/variable-core/classes/ASTNode.md)<`any`, `any`>\[]
 
-获取当前节点所有子节点
+Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
@@ -246,7 +254,7 @@ BaseVariableField.disposed
 
 `get` **hash**(): `string`
 
-节点唯一 hash 值
+The global unique hash of the field, and will be changed when the field is updated.
 
 #### Returns
 
@@ -262,6 +270,11 @@ BaseVariableField.hash
 
 `get` **initializer**(): `undefined` | [`BaseExpression`](/en/auto-docs/variable-core/classes/BaseExpression.md)<`any`, `any`>
 
+Initializer of the variable field, similar to js code:
+`const v = 'hello'`
+
+with initializer, the type of field will be inferred from the initializer.
+
 #### Returns
 
 `undefined` | [`BaseExpression`](/en/auto-docs/variable-core/classes/BaseExpression.md)<`any`, `any`>
@@ -275,6 +288,8 @@ BaseVariableField.initializer
 ### keyPath
 
 `get` **keyPath**(): `string`\[]
+
+KeyPath of the variable field, sorted from farthest to closest
 
 #### Returns
 
@@ -290,7 +305,7 @@ BaseVariableField.keyPath
 
 `get` **kind**(): `string`
 
-AST 节点的类型
+The type of the ASTNode.
 
 #### Returns
 
@@ -306,6 +321,8 @@ BaseVariableField.kind
 
 `get` **meta**(): `VariableMeta`
 
+Metadata of the variable field, you cans store information like `title`, `icon`, etc.
+
 #### Returns
 
 `VariableMeta`
@@ -320,6 +337,8 @@ BaseVariableField.meta
 
 `get` **order**(): `number`
 
+Variable sorting order, which is used to sort variables in `scope.outputs.variables`
+
 #### Returns
 
 `number`
@@ -330,7 +349,7 @@ BaseVariableField.meta
 
 `get` **parentFields**(): [`BaseVariableField`](/en/auto-docs/variable-core/classes/BaseVariableField.md)<`any`>\[]
 
-父变量字段，通过由近而远的方式进行排序
+Parent variable fields, sorted from closest to farthest
 
 #### Returns
 
@@ -346,6 +365,9 @@ BaseVariableField.parentFields
 
 `get` **type**(): [`BaseType`](/en/auto-docs/variable-core/classes/BaseType.md)<`any`, `any`>
 
+Type of the variable field, similar to js code:
+`const v: string`
+
 #### Returns
 
 [`BaseType`](/en/auto-docs/variable-core/classes/BaseType.md)<`any`, `any`>
@@ -360,9 +382,9 @@ BaseVariableField.type
 
 `get` **version**(): `number`
 
-节点的版本值
+The version value of the ASTNode.
 
-* 通过 NodeA === NodeB && versionA === versionB 可以比较两者是否相等
+* You can used to check whether ASTNode are updated.
 
 #### Returns
 
@@ -378,6 +400,8 @@ BaseVariableField.version
 
 **dispatchGlobalEvent**<`ActionType`>(`event`): `void`
 
+Dispatches a global event for the current ASTNode.
+
 #### Type parameters
 
 | Name | Type |
@@ -386,9 +410,9 @@ BaseVariableField.version
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `event` | `Omit`<`ActionType`, `"ast"`> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `event` | `Omit`<`ActionType`, `"ast"`> | The global event. |
 
 #### Returns
 
@@ -404,7 +428,7 @@ BaseVariableField.version
 
 **dispose**(): `void`
 
-销毁
+Disposes the ASTNode.
 
 #### Returns
 
@@ -420,7 +444,7 @@ BaseVariableField.version
 
 **fireChange**(): `void`
 
-触发当前节点更新
+Triggers an update for the current node.
 
 #### Returns
 
@@ -436,7 +460,7 @@ BaseVariableField.version
 
 **fromJSON**(`«destructured»`): `void`
 
-解析 VariableDeclarationJSON 从而生成变量声明节点
+Deserialize the `VariableDeclarationJSON` to the `VariableDeclaration`.
 
 #### Parameters
 
@@ -458,7 +482,8 @@ BaseVariableField.version
 
 **getByKeyPath**(`keyPath`): `undefined` | [`BaseVariableField`](/en/auto-docs/variable-core/classes/BaseVariableField.md)<`any`>
 
-根据 keyPath 去找下钻的变量字段
+Get the variable field by keyPath, similar to js code:
+`v.a.b`
 
 #### Parameters
 
@@ -480,7 +505,7 @@ BaseVariableField.version
 
 **onTypeChange**(`observer`): `Disposable`
 
-监听类型变化
+Subscribe to type change of the variable field
 
 #### Parameters
 
@@ -492,7 +517,7 @@ BaseVariableField.version
 
 `Disposable`
 
-#### Overrides
+#### Inherited from
 
 [BaseVariableField](/en/auto-docs/variable-core/classes/BaseVariableField.md).[onTypeChange](/en/auto-docs/variable-core/classes/BaseVariableField.md#ontypechange)
 
@@ -502,7 +527,7 @@ BaseVariableField.version
 
 **subscribe**<`Data`>(`observer`, `selector?`): `Disposable`
 
-监听 AST 节点的变化
+Listens for changes to the ASTNode.
 
 #### Type parameters
 
@@ -514,8 +539,8 @@ BaseVariableField.version
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `observer` | `ObserverOrNext`<`Data`> | 监听回调 |
-| `selector` | `SubscribeConfig`<[`VariableDeclaration`](/en/auto-docs/variable-core/classes/VariableDeclaration.md)<`VariableMeta`>, `Data`> | 监听指定数据 |
+| `observer` | `ObserverOrNext`<`Data`> | The listener callback. |
+| `selector` | `SubscribeConfig`<[`VariableDeclaration`](/en/auto-docs/variable-core/classes/VariableDeclaration.md)<`VariableMeta`>, `Data`> | Listens for specified data. |
 
 #### Returns
 
@@ -531,11 +556,13 @@ BaseVariableField.version
 
 **toJSON**(): `BaseVariableFieldJSON`<`VariableMeta`> & { `kind`: `string`  }
 
-转换为 JSON
+Serialize the variable field to JSON
 
 #### Returns
 
 `BaseVariableFieldJSON`<`VariableMeta`> & { `kind`: `string`  }
+
+ASTNodeJSON representation of `BaseVariableField`
 
 #### Inherited from
 
@@ -547,11 +574,13 @@ BaseVariableField.version
 
 **updateInitializer**(`nextInitializer?`): `void`
 
+Update the initializer of the variable field
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `nextInitializer?` | [`ASTNodeJSON`](/en/auto-docs/variable-core/interfaces/ASTNodeJSON.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `nextInitializer?` | [`ASTNodeJSON`](/en/auto-docs/variable-core/interfaces/ASTNodeJSON.md) | initializer ASTJSON representation of Expression |
 
 #### Returns
 
@@ -567,11 +596,13 @@ BaseVariableField.version
 
 **updateMeta**(`nextMeta`): `void`
 
+Update the meta data of the variable field
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `nextMeta` | `VariableMeta` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `nextMeta` | `VariableMeta` | meta data of the variable field |
 
 #### Returns
 
@@ -587,11 +618,13 @@ BaseVariableField.version
 
 **updateOrder**(`order?`): `void`
 
+Update the sorting order of the variable declaration.
+
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `order` | `number` | `0` |
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `order` | `number` | `0` | Variable sorting order. Default is 0. |
 
 #### Returns
 
@@ -603,11 +636,13 @@ BaseVariableField.version
 
 **updateType**(`type`): `void`
 
+Update the type of the variable field
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `type` | `undefined` | `ASTNodeJSONOrKind` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `type` | `undefined` | `ASTNodeJSONOrKind` | type ASTJSON representation of Type |
 
 #### Returns
 

@@ -4,8 +4,6 @@
 
 ### Properties
 
-* [clientX](/en/auto-docs/free-layout-editor/interfaces/PlaygroundConfigEntityData.md#clientx)
-* [clientY](/en/auto-docs/free-layout-editor/interfaces/PlaygroundConfigEntityData.md#clienty)
 * [disabled](/en/auto-docs/free-layout-editor/interfaces/PlaygroundConfigEntityData.md#disabled)
 * [grabDisable](/en/auto-docs/free-layout-editor/interfaces/PlaygroundConfigEntityData.md#grabdisable)
 * [height](/en/auto-docs/free-layout-editor/interfaces/PlaygroundConfigEntityData.md#height)
@@ -29,18 +27,6 @@
 * [zoomDisable](/en/auto-docs/free-layout-editor/interfaces/PlaygroundConfigEntityData.md#zoomdisable)
 
 ## Properties
-
-### clientX
-
-**clientX**: `number`
-
-***
-
-### clientY
-
-**clientY**: `number`
-
-***
 
 ### disabled
 

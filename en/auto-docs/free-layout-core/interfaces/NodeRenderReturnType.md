@@ -269,7 +269,7 @@
 
 ### updateExtInfo
 
-**updateExtInfo**<`T`>(`extInfo`): `void`
+**updateExtInfo**<`T`>(`extInfo`, `fullUpdate?`): `void`
 
 更新节点的扩展数据
 
@@ -284,6 +284,7 @@
 | Name | Type |
 | :------ | :------ |
 | `extInfo` | `T` |
+| `fullUpdate?` | `boolean` |
 
 #### Returns
 

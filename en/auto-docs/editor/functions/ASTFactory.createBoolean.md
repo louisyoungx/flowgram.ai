@@ -4,6 +4,8 @@
 
 **createBoolean**(): `Object`
 
+Creates a `Boolean` type node.
+
 #### Returns
 
 `Object`

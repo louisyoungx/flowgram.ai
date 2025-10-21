@@ -24,6 +24,7 @@
 * [deleteNodes](/en/auto-docs/free-layout-editor/interfaces/WorkflowOperationBaseService.md#deletenodes)
 * [dispose](/en/auto-docs/free-layout-editor/interfaces/WorkflowOperationBaseService.md#dispose)
 * [dragNodes](/en/auto-docs/free-layout-editor/interfaces/WorkflowOperationBaseService.md#dragnodes)
+* [fromJSON](/en/auto-docs/free-layout-editor/interfaces/WorkflowOperationBaseService.md#fromjson)
 * [moveNode](/en/auto-docs/free-layout-editor/interfaces/WorkflowOperationBaseService.md#movenode)
 * [updateNodePosition](/en/auto-docs/free-layout-editor/interfaces/WorkflowOperationBaseService.md#updatenodeposition)
 
@@ -236,6 +237,24 @@ FlowOperationBaseService.dispose
 #### Inherited from
 
 FlowOperationBaseService.dragNodes
+
+***
+
+### fromJSON
+
+**fromJSON**(`json`): `void`
+
+更新节点与线条
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `json` | [`WorkflowJSON`](/en/auto-docs/free-layout-editor/interfaces/WorkflowJSON.md) |
+
+#### Returns
+
+`void`
 
 ***
 

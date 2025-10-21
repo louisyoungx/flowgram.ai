@@ -24,8 +24,6 @@
 
   ↳ [`DeleteWorkflowNodeOperation`](/en/auto-docs/free-history-plugin/interfaces/DeleteWorkflowNodeOperation.md)
 
-  ↳ [`ChangeNodeDataOperation`](/en/auto-docs/free-history-plugin/interfaces/ChangeNodeDataOperation.md)
-
   ↳ [`HistoryOperation`](/en/auto-docs/free-history-plugin/interfaces/HistoryOperation.md)
 
 ## Table of contents

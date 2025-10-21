@@ -59,7 +59,7 @@
 
 ### serviceIdentifier
 
-**serviceIdentifier**: [`ServiceIdentifier`](/en/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`unknown`>
+**serviceIdentifier**: `ServiceIdentifier`
 
 ***
 
@@ -77,7 +77,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/en/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`unknown`> |
+| `serviceIdentifier` | `ServiceIdentifier` |
 | `bindings` | [`Binding`](/en/auto-docs/fixed-layout-editor/interfaces/interfaces.Binding.md)<`unknown`> | [`Binding`](/en/auto-docs/fixed-layout-editor/interfaces/interfaces.Binding.md)<`unknown`>\[] |
 | `target` | `LegacyTarget` |
 

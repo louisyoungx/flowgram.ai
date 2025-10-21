@@ -49,7 +49,6 @@
 * [onViewportChange](/auto-docs/core/classes/PlaygroundLayer.md#onviewportchange)
 * [onZoom](/auto-docs/core/classes/PlaygroundLayer.md#onzoom)
 * [render](/auto-docs/core/classes/PlaygroundLayer.md#render)
-* [updateSizeWithRulerConfig](/auto-docs/core/classes/PlaygroundLayer.md#updatesizewithrulerconfig)
 
 ## Constructors
 
@@ -479,9 +478,9 @@ readonly 或 disable 状态变化
 
 ### onResize
 
-**onResize**(`size`): `void`
+`Optional` **onResize**(`size`): `void`
 
-监听 resize
+playground 大小变化时候会触发
 
 #### Parameters
 
@@ -493,7 +492,7 @@ readonly 或 disable 状态变化
 
 `void`
 
-#### Overrides
+#### Inherited from
 
 [Layer](/auto-docs/core/classes/Layer.md).[onResize](/auto-docs/core/classes/Layer.md#onresize)
 
@@ -590,13 +589,3 @@ viewport 更新触发
 #### Inherited from
 
 [Layer](/auto-docs/core/classes/Layer.md).[render](/auto-docs/core/classes/Layer.md#render)
-
-***
-
-### updateSizeWithRulerConfig
-
-**updateSizeWithRulerConfig**(): `void`
-
-#### Returns
-
-`void`

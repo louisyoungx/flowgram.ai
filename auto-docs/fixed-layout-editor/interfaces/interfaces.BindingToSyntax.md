@@ -34,7 +34,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `constructor` | [`Newable`](/auto-docs/fixed-layout-editor/types/interfaces.Newable.md)<`T`> |
+| `constructor` | `Newable`<`T`> |
 
 #### Returns
 
@@ -56,7 +56,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T2`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T2`> |
 
 #### Returns
 
@@ -78,7 +78,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T2`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T2`> |
 
 #### Returns
 
@@ -116,7 +116,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `constructor` | [`Newable`](/auto-docs/fixed-layout-editor/types/interfaces.Newable.md)<`T2`> |
+| `constructor` | `Newable`<`T2`> |
 
 #### Returns
 
@@ -220,7 +220,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `service` | [`ServiceIdentifier`](/auto-docs/fixed-layout-editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `service` | `ServiceIdentifier`<`T`> |
 
 #### Returns
 

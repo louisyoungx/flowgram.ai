@@ -20,6 +20,7 @@
 
 ### Properties
 
+* [linesManager](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#linesmanager)
 * [onNodeAdd](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#onnodeadd)
 * [onNodeMove](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#onnodemove)
 * [onNodePostionUpdate](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#onnodepostionupdate)
@@ -34,6 +35,7 @@
 * [deleteNodes](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#deletenodes)
 * [dispose](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#dispose)
 * [dragNodes](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#dragnodes)
+* [fromJSON](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#fromjson)
 * [moveNode](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#movenode)
 * [transact](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#transact)
 * [updateNodePosition](/en/auto-docs/free-layout-editor/classes/WorkflowOperationBaseServiceImpl.md#updatenodeposition)
@@ -49,6 +51,12 @@
 [FlowOperationBaseServiceImpl](/en/auto-docs/free-layout-editor/classes/FlowOperationBaseServiceImpl.md).[constructor](/en/auto-docs/free-layout-editor/classes/FlowOperationBaseServiceImpl.md#constructor)
 
 ## Properties
+
+### linesManager
+
+**linesManager**: [`WorkflowLinesManager`](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md)
+
+***
 
 ### onNodeAdd
 
@@ -283,6 +291,26 @@ WorkflowOperationBaseService.dragNodes
 #### Inherited from
 
 [FlowOperationBaseServiceImpl](/en/auto-docs/free-layout-editor/classes/FlowOperationBaseServiceImpl.md).[dragNodes](/en/auto-docs/free-layout-editor/classes/FlowOperationBaseServiceImpl.md#dragnodes)
+
+***
+
+### fromJSON
+
+**fromJSON**(`json`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `json` | [`WorkflowJSON`](/en/auto-docs/free-layout-editor/interfaces/WorkflowJSON.md) |
+
+#### Returns
+
+`void`
+
+#### Implementation of
+
+WorkflowOperationBaseService.fromJSON
 
 ***
 

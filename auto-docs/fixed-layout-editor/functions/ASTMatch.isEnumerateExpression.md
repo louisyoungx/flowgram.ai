@@ -4,7 +4,7 @@
 
 **isEnumerateExpression**(`node?`): node is EnumerateExpression
 
-表达式相关
+Check if the node is a `EnumerateExpression`.
 
 #### Parameters
 

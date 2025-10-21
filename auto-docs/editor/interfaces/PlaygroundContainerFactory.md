@@ -26,7 +26,7 @@
 
 ### get
 
-**get**: \<T>(`serviceIdentifier`: [`ServiceIdentifier`](/auto-docs/editor/types/interfaces.ServiceIdentifier.md)<`T`>) => `T`
+**get**: \<T>(`serviceIdentifier`: `ServiceIdentifier`<`T`>) => `T`
 
 #### Type declaration
 
@@ -42,7 +42,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 
 ##### Returns
 
@@ -52,7 +52,7 @@
 
 ### getAll
 
-**getAll**: \<T>(`serviceIdentifier`: [`ServiceIdentifier`](/auto-docs/editor/types/interfaces.ServiceIdentifier.md)<`T`>, `options?`: [`GetAllOptions`](/auto-docs/editor/interfaces/interfaces.GetAllOptions.md)) => `T`\[]
+**getAll**: \<T>(`serviceIdentifier`: `ServiceIdentifier`<`T`>, `options?`: [`GetAllOptions`](/auto-docs/editor/interfaces/interfaces.GetAllOptions.md)) => `T`\[]
 
 #### Type declaration
 
@@ -68,7 +68,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `serviceIdentifier` | [`ServiceIdentifier`](/auto-docs/editor/types/interfaces.ServiceIdentifier.md)<`T`> |
+| `serviceIdentifier` | `ServiceIdentifier`<`T`> |
 | `options?` | [`GetAllOptions`](/auto-docs/editor/interfaces/interfaces.GetAllOptions.md) |
 
 ##### Returns

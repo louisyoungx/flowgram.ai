@@ -4,6 +4,8 @@
 
 **createArray**(`json`): `Object`
 
+Creates an `Array` type node.
+
 #### Parameters
 
 | Name | Type |

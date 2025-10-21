@@ -33,8 +33,10 @@
 * [isReverseLine](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#isreverseline)
 * [lineColor](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#linecolor)
 * [onDragLineEnd](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#ondraglineend)
+* [preNodeCreate](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#prenodecreate)
 * [setLineClassName](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#setlineclassname)
 * [setLineRenderType](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#setlinerendertype)
+* [twoWayConnection](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#twowayconnection)
 
 ### Methods
 
@@ -156,19 +158,18 @@ Whether to allow dragging into the sub-canvas (loop or group)
 
 ### canResetLine
 
-`Optional` **canResetLine**: (`fromPort`: [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md), `oldToPort`: [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md), `newToPort`: [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md), `lines`: [`WorkflowLinesManager`](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md)) => `boolean`
+`Optional` **canResetLine**: (`oldLine`: [`WorkflowLineEntity`](/auto-docs/free-layout-core/classes/WorkflowLineEntity.md), `newLineInfo`: `Required`<[`WorkflowLinePortInfo`](/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md)>, `lines`: [`WorkflowLinesManager`](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md)) => `boolean`
 
 #### Type declaration
 
-(`fromPort`, `oldToPort`, `newToPort`, `lines`): `boolean`
+(`oldLine`, `newLineInfo`, `lines`): `boolean`
 
 ##### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fromPort` | [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md) | 开始点 |
-| `oldToPort` | [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md) | 旧的连接点 |
-| `newToPort` | [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md) | 新的连接点 |
+| `oldLine` | [`WorkflowLineEntity`](/auto-docs/free-layout-core/classes/WorkflowLineEntity.md) | - |
+| `newLineInfo` | `Required`<[`WorkflowLinePortInfo`](/auto-docs/free-layout-core/interfaces/WorkflowLinePortInfo.md)> | - |
 | `lines` | [`WorkflowLinesManager`](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md) | 线条管理器 |
 
 ##### Returns
@@ -334,7 +335,7 @@ FlowDocumentOptions.getNodeDefaultRegistry
 
 ### isErrorLine
 
-`Optional` **isErrorLine**: (`fromPort`: [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md), `toPort`: `undefined` | [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md), `lines`: [`WorkflowLinesManager`](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md)) => `boolean`
+`Optional` **isErrorLine**: (`fromPort`: `undefined` | [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md), `toPort`: `undefined` | [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md), `lines`: [`WorkflowLinesManager`](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md)) => `boolean`
 
 #### Type declaration
 
@@ -346,7 +347,7 @@ FlowDocumentOptions.getNodeDefaultRegistry
 
 | Name | Type |
 | :------ | :------ |
-| `fromPort` | [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md) |
+| `fromPort` | `undefined` | [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md) |
 | `toPort` | `undefined` | [`WorkflowPortEntity`](/auto-docs/free-layout-core/classes/WorkflowPortEntity.md) |
 | `lines` | [`WorkflowLinesManager`](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md) |
 
@@ -474,6 +475,30 @@ FlowDocumentOptions.getNodeDefaultRegistry
 
 ***
 
+### preNodeCreate
+
+`Optional` **preNodeCreate**: (`node`: `FlowNodeEntity`) => `void`
+
+#### Type declaration
+
+(`node`): `void`
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `node` | `FlowNodeEntity` |
+
+##### Returns
+
+`void`
+
+#### Inherited from
+
+FlowDocumentOptions.preNodeCreate
+
+***
+
 ### setLineClassName
 
 `Optional` **setLineClassName**: (`line`: [`WorkflowLineEntity`](/auto-docs/free-layout-core/classes/WorkflowLineEntity.md)) => `undefined` | `string`
@@ -515,6 +540,14 @@ FlowDocumentOptions.getNodeDefaultRegistry
 ##### Returns
 
 `undefined` | [`LineRenderType`](/auto-docs/free-layout-core/types/LineRenderType.md)
+
+***
+
+### twoWayConnection
+
+`Optional` **twoWayConnection**: `boolean`
+
+双向连接
 
 ## Methods
 

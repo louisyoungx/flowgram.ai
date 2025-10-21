@@ -1,13 +1,13 @@
 # Function: createFreeStackPlugin
 
-**createFreeStackPlugin**(`opts`): `Plugin`<`unknown`>
+**createFreeStackPlugin**(`opts`): `Plugin`<`Partial`<[`StackContextManagerOptions`](/auto-docs/free-stack-plugin/interfaces/StackContextManagerOptions.md)>>
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `opts` | `unknown` |
+| `opts` | `Partial`<[`StackContextManagerOptions`](/auto-docs/free-stack-plugin/interfaces/StackContextManagerOptions.md)> |
 
 #### Returns
 
-`Plugin`<`unknown`>
+`Plugin`<`Partial`<[`StackContextManagerOptions`](/auto-docs/free-stack-plugin/interfaces/StackContextManagerOptions.md)>>

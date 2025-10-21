@@ -1,13 +1,15 @@
 # Function: ScopeProvider
 
-**ScopeProvider**(`props`): `null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>
+**ScopeProvider**(`props`): `Element`
+
+ScopeProvider provides the scope to its children via context.
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `props` | `ProviderProps`<`ScopeContextProps`> |
+| `props` | `PropsWithChildren`<{ `scope?`: [`Scope`](/auto-docs/variable-plugin/classes/Scope.md)<`Record`<`string`, `any`>> ; `value?`: `ScopeContextProps`  }> |
 
 #### Returns
 
-`null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>
+`Element`

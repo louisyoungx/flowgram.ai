@@ -1,6 +1,6 @@
 # Function: parseTypeSelectValue
 
-**parseTypeSelectValue**(`value?`): `undefined` | `Partial`<[`IJsonSchema`](/en/auto-docs/form-antd-materials/interfaces/IJsonSchema.md)<`string`>>
+**parseTypeSelectValue**(`value?`): `Partial`<[`IJsonSchema`](/en/auto-docs/form-antd-materials/interfaces/IJsonSchema.md)<`string`>>
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`undefined` | `Partial`<[`IJsonSchema`](/en/auto-docs/form-antd-materials/interfaces/IJsonSchema.md)<`string`>>
+`Partial`<[`IJsonSchema`](/en/auto-docs/form-antd-materials/interfaces/IJsonSchema.md)<`string`>>

@@ -20,8 +20,10 @@
 * [containerRef](/en/auto-docs/renderer/classes/FlowDragLayer.md#containerref)
 * [context](/en/auto-docs/renderer/classes/FlowDragLayer.md#context)
 * [document](/en/auto-docs/renderer/classes/FlowDragLayer.md#document)
+* [dragOffset](/en/auto-docs/renderer/classes/FlowDragLayer.md#dragoffset)
 * [draggingNodeMask](/en/auto-docs/renderer/classes/FlowDragLayer.md#draggingnodemask)
 * [entityManager](/en/auto-docs/renderer/classes/FlowDragLayer.md#entitymanager)
+* [flowDragService](/en/auto-docs/renderer/classes/FlowDragLayer.md#flowdragservice)
 * [getOtherLayer](/en/auto-docs/renderer/classes/FlowDragLayer.md#getotherlayer)
 * [isFocused](/en/auto-docs/renderer/classes/FlowDragLayer.md#isfocused)
 * [listenGlobalEvent](/en/auto-docs/renderer/classes/FlowDragLayer.md#listenglobalevent)
@@ -34,7 +36,6 @@
 * [reloadEntities](/en/auto-docs/renderer/classes/FlowDragLayer.md#reloadentities)
 * [renderWithReactMemo](/en/auto-docs/renderer/classes/FlowDragLayer.md#renderwithreactmemo)
 * [rendererRegistry](/en/auto-docs/renderer/classes/FlowDragLayer.md#rendererregistry)
-* [service](/en/auto-docs/renderer/classes/FlowDragLayer.md#service)
 * [transforms](/en/auto-docs/renderer/classes/FlowDragLayer.md#transforms)
 
 ### Accessors
@@ -110,6 +111,19 @@ Layer.context
 
 ***
 
+### dragOffset
+
+**dragOffset**: `Object`
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `x` | `number` |
+| `y` | `number` |
+
+***
+
 ### draggingNodeMask
 
 **draggingNodeMask**: `HTMLDivElement`
@@ -125,6 +139,12 @@ Layer.context
 #### Inherited from
 
 Layer.entityManager
+
+***
+
+### flowDragService
+
+`Readonly` **flowDragService**: `FlowDragService`
 
 ***
 
@@ -340,12 +360,6 @@ Layer.renderWithReactMemo
 
 ***
 
-### service
-
-`Readonly` **service**: `FlowDragService`
-
-***
-
 ### transforms
 
 **transforms**: `FlowNodeTransformData`\[]
@@ -455,13 +469,11 @@ Layer.createDOMCache
 
 **dispose**(): `void`
 
-销毁
-
 #### Returns
 
 `void`
 
-#### Inherited from
+#### Overrides
 
 Layer.dispose
 
@@ -526,11 +538,11 @@ Layer.getPosFromMouseEvent
 
 ### handleMouseUp
 
-**handleMouseUp**(): `void`
+**handleMouseUp**(): `Promise`<`void`>
 
 #### Returns
 
-`void`
+`Promise`<`void`>
 
 ***
 
@@ -690,11 +702,11 @@ Layer.onZoom
 
 ### render
 
-**render**(): `Element`
+**render**(): `ReactPortal`
 
 #### Returns
 
-`Element`
+`ReactPortal`
 
 #### Overrides
 
@@ -731,10 +743,9 @@ Layer.render
 | `e` | `Object` |
 | `e.clientX` | `number` |
 | `e.clientY` | `number` |
-| `«destructured»` | `Object` |
-| › `dragEntities?` | `FlowNodeEntity`\[] |
-| › `dragStartEntity` | `FlowNodeEntity` |
+| `«destructured»` | `StartDragProps` |
 | `options?` | `Object` |
+| `options.disableDragScroll?` | `boolean` |
 | `options.dragOffsetX?` | `number` |
 | `options.dragOffsetY?` | `number` |
 

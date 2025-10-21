@@ -4,6 +4,8 @@
 
 **createMap**(`json`): `Object`
 
+Creates a `Map` type node.
+
 #### Parameters
 
 | Name | Type |
@@ -14,8 +16,8 @@
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
-| `keyType?` | `ASTNodeJSONOrKind` |
-| `kind` | [`ASTKind`](/auto-docs/variable-core/enums/ASTKind.md) |
-| `valueType?` | `ASTNodeJSONOrKind` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `keyType?` | `ASTNodeJSONOrKind` | The type of the keys in the map. |
+| `kind` | [`ASTKind`](/auto-docs/variable-core/enums/ASTKind.md) | - |
+| `valueType?` | `ASTNodeJSONOrKind` | The type of the values in the map. |

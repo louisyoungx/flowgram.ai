@@ -4,7 +4,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `TypeSchema` | extends `Partial`<[`IJsonSchema`](/auto-docs/type-editor/interfaces/IJsonSchema.md)> |
+| `TypeSchema` | extends `Partial`<`IJsonSchema`> |
 
 ## Table of contents
 
@@ -70,7 +70,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `TypeSchema` | extends `Partial`<[`IJsonSchema`](/auto-docs/type-editor/interfaces/IJsonSchema.md)<`string`>> |
+| `TypeSchema` | extends `IJsonSchema` |
 
 ## Properties
 
@@ -118,7 +118,7 @@
 
 ### onActivePosChange
 
-**onActivePosChange**: `Emitter`<[`TypeEditorPos`](/auto-docs/type-editor/interfaces/TypeEditorPos.md)>
+**onActivePosChange**: `any`
 
 ***
 
@@ -146,13 +146,27 @@
 
 ### onDropInfoChange
 
-**onDropInfoChange**: `Emitter`<[`TypeEditorDropInfo`](/auto-docs/type-editor/interfaces/TypeEditorDropInfo.md)>
+**onDropInfoChange**: `any`
 
 ***
 
 ### onGlobalAdd
 
-**onGlobalAdd**: `undefined` | (`id`: `string`) => `void`
+**onGlobalAdd**: (`id`: `string`) => `void`
+
+#### Type declaration
+
+(`id`): `void`
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `id` | `string` |
+
+##### Returns
+
+`void`
 
 ***
 
@@ -263,7 +277,7 @@
 
 ### getConfigByType
 
-**getConfigByType**(`type`): `undefined` | [`TypeEditorColumnConfig`](/auto-docs/type-editor/interfaces/TypeEditorColumnConfig.md)<`TypeSchema`>
+**getConfigByType**(`type`): [`TypeEditorColumnConfig`](/auto-docs/type-editor/interfaces/TypeEditorColumnConfig.md)<`TypeSchema`>
 
 #### Parameters
 
@@ -273,7 +287,7 @@
 
 #### Returns
 
-`undefined` | [`TypeEditorColumnConfig`](/auto-docs/type-editor/interfaces/TypeEditorColumnConfig.md)<`TypeSchema`>
+[`TypeEditorColumnConfig`](/auto-docs/type-editor/interfaces/TypeEditorColumnConfig.md)<`TypeSchema`>
 
 ***
 

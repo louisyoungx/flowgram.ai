@@ -4,6 +4,8 @@
 
 **isVariableDeclarationList**(`node?`): node is VariableDeclarationList
 
+Check if the node is a `VariableDeclarationList`.
+
 #### Parameters
 
 | Name | Type |

@@ -17,6 +17,7 @@
 ### Properties
 
 * [enable](/auto-docs/fixed-layout-editor/interfaces/HistoryPluginOptions.md#enable)
+* [enableChangeNode](/auto-docs/fixed-layout-editor/interfaces/HistoryPluginOptions.md#enablechangenode)
 * [onApply](/auto-docs/fixed-layout-editor/interfaces/HistoryPluginOptions.md#onapply)
 
 ## Properties
@@ -24,6 +25,12 @@
 ### enable
 
 `Optional` **enable**: `boolean`
+
+***
+
+### enableChangeNode
+
+`Optional` **enableChangeNode**: `boolean`
 
 ***
 

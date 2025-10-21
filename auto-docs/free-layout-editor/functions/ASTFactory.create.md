@@ -4,7 +4,7 @@
 
 **create**<`JSON`>(`targetType`, `json`): { `kind`: `string`  } & `JSON`
 
-通过 AST Class 创建
+Creates Type-Safe ASTNodeJSON object based on the provided AST class.
 
 #### Type parameters
 
@@ -14,12 +14,14 @@
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `targetType` | (...`args`: `any`\[]) => [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`JSON`, `any`> |
-| `targetType.kind` | `string` |
-| `json` | `JSON` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `targetType` | (...`args`: `any`\[]) => [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`JSON`, `any`> | Target ASTNode class. |
+| `targetType.kind` | `string` | - |
+| `json` | `JSON` | The JSON data for the node. |
 
 #### Returns
 
 { `kind`: `string`  } & `JSON`
+
+The ASTNode JSON object.

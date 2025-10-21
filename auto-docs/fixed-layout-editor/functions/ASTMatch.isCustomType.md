@@ -4,6 +4,8 @@
 
 **isCustomType**(`node?`): node is CustomType
 
+Check if the node is a `CustomType`.
+
 #### Parameters
 
 | Name | Type |

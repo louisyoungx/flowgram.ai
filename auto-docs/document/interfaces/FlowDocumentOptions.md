@@ -12,6 +12,7 @@
 * [formatNodeLabels](/auto-docs/document/interfaces/FlowDocumentOptions.md#formatnodelabels)
 * [formatNodeLines](/auto-docs/document/interfaces/FlowDocumentOptions.md#formatnodelines)
 * [getNodeDefaultRegistry](/auto-docs/document/interfaces/FlowDocumentOptions.md#getnodedefaultregistry)
+* [preNodeCreate](/auto-docs/document/interfaces/FlowDocumentOptions.md#prenodecreate)
 
 ### Methods
 
@@ -103,6 +104,26 @@
 ##### Returns
 
 [`FlowNodeRegistry`](/auto-docs/document/interfaces/FlowNodeRegistry-1.md)<[`FlowNodeMeta`](/auto-docs/document/interfaces/FlowNodeMeta.md)>
+
+***
+
+### preNodeCreate
+
+`Optional` **preNodeCreate**: (`node`: [`FlowNodeEntity`](/auto-docs/document/classes/FlowNodeEntity-1.md)) => `void`
+
+#### Type declaration
+
+(`node`): `void`
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `node` | [`FlowNodeEntity`](/auto-docs/document/classes/FlowNodeEntity-1.md) |
+
+##### Returns
+
+`void`
 
 ## Methods
 

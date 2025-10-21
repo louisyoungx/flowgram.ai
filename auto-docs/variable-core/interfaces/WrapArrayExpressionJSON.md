@@ -1,5 +1,7 @@
 # Interface: WrapArrayExpressionJSON
 
+ASTNodeJSON representation of `WrapArrayExpression`
+
 ## Table of contents
 
 ### Properties
@@ -11,3 +13,5 @@
 ### wrapFor
 
 **wrapFor**: [`ASTNodeJSON`](/auto-docs/variable-core/interfaces/ASTNodeJSON.md)
+
+The expression to be wrapped.

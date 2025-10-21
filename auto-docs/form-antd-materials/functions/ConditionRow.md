@@ -1,6 +1,6 @@
 # Function: ConditionRow
 
-**ConditionRow**(`«destructured»`): `Element`
+**ConditionRow**(`«destructured»`): `any`
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`Element`
+`any`

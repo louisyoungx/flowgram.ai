@@ -32,6 +32,7 @@
 * [createLine](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#createline)
 * [dispose](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#dispose)
 * [forceUpdate](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#forceupdate)
+* [getAllAvailableLines](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getallavailablelines)
 * [getAllLines](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getalllines)
 * [getCloseInLineFromMousePos](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getcloseinlinefrommousepos)
 * [getLine](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getline)
@@ -178,15 +179,14 @@
 
 ### canReset
 
-**canReset**(`fromPort`, `oldToPort`, `newToPort`): `boolean`
+**canReset**(`oldLine`, `newLineInfo`): `boolean`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `fromPort` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) |
-| `oldToPort` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) |
-| `newToPort` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) |
+| `oldLine` | [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md) |
+| `newLineInfo` | `Required`<[`WorkflowLinePortInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md)> |
 
 #### Returns
 
@@ -202,7 +202,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `options` | { `drawingTo?`: [`LinePoint`](/en/auto-docs/free-layout-editor/interfaces/LinePoint.md) ; `key?`: `string`  } & [`WorkflowLinePortInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md) |
+| `options` | { `drawingFrom?`: [`LinePoint`](/en/auto-docs/free-layout-editor/interfaces/LinePoint.md) ; `drawingTo?`: [`LinePoint`](/en/auto-docs/free-layout-editor/interfaces/LinePoint.md) ; `key?`: `string`  } & [`WorkflowLinePortInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md) |
 
 #### Returns
 
@@ -227,6 +227,16 @@
 #### Returns
 
 `void`
+
+***
+
+### getAllAvailableLines
+
+**getAllAvailableLines**(): [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)\[]
+
+#### Returns
+
+[`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)\[]
 
 ***
 
@@ -345,7 +355,7 @@
 
 ### getPortFromMousePos
 
-**getPortFromMousePos**(`pos`): `undefined` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md)
+**getPortFromMousePos**(`pos`, `portType?`): `undefined` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md)
 
 根据鼠标位置找到 port
 
@@ -354,6 +364,7 @@
 | Name | Type |
 | :------ | :------ |
 | `pos` | [`IPoint`](/en/auto-docs/free-layout-editor/interfaces/IPoint.md) |
+| `portType?` | [`WorkflowPortType`](/en/auto-docs/free-layout-editor/types/WorkflowPortType.md) |
 
 #### Returns
 
@@ -412,13 +423,13 @@
 
 ### isErrorLine
 
-**isErrorLine**(`fromPort`, `toPort?`, `defaultValue?`): `boolean`
+**isErrorLine**(`fromPort?`, `toPort?`, `defaultValue?`): `boolean`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `fromPort` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) |
+| `fromPort?` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) |
 | `toPort?` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowPortEntity.md) |
 | `defaultValue?` | `boolean` |
 

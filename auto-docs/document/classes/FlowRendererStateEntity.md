@@ -29,7 +29,9 @@
 * [config](/auto-docs/document/classes/FlowRendererStateEntity.md#config)
 * [context](/auto-docs/document/classes/FlowRendererStateEntity.md#context)
 * [disposed](/auto-docs/document/classes/FlowRendererStateEntity.md#disposed)
+* [dragging](/auto-docs/document/classes/FlowRendererStateEntity.md#dragging)
 * [id](/auto-docs/document/classes/FlowRendererStateEntity.md#id)
+* [isBranch](/auto-docs/document/classes/FlowRendererStateEntity.md#isbranch)
 * [onDispose](/auto-docs/document/classes/FlowRendererStateEntity.md#ondispose)
 * [savedInManager](/auto-docs/document/classes/FlowRendererStateEntity.md#savedinmanager)
 * [type](/auto-docs/document/classes/FlowRendererStateEntity.md#type-1)
@@ -59,6 +61,8 @@
 * [setDragEntities](/auto-docs/document/classes/FlowRendererStateEntity.md#setdragentities)
 * [setDragLabelSide](/auto-docs/document/classes/FlowRendererStateEntity.md#setdraglabelside)
 * [setDragStartEntity](/auto-docs/document/classes/FlowRendererStateEntity.md#setdragstartentity)
+* [setDragging](/auto-docs/document/classes/FlowRendererStateEntity.md#setdragging)
+* [setIsBranch](/auto-docs/document/classes/FlowRendererStateEntity.md#setisbranch)
 * [setNodeDroppingId](/auto-docs/document/classes/FlowRendererStateEntity.md#setnodedroppingid)
 * [setNodeHovered](/auto-docs/document/classes/FlowRendererStateEntity.md#setnodehovered)
 * [toJSON](/auto-docs/document/classes/FlowRendererStateEntity.md#tojson)
@@ -208,6 +212,16 @@ ConfigEntity.disposed
 
 ***
 
+### dragging
+
+`get` **dragging**(): `undefined` | `boolean`
+
+#### Returns
+
+`undefined` | `boolean`
+
+***
+
 ### id
 
 `get` **id**(): `string`
@@ -221,6 +235,16 @@ ConfigEntity.disposed
 #### Inherited from
 
 ConfigEntity.id
+
+***
+
+### isBranch
+
+`get` **isBranch**(): `undefined` | `boolean`
+
+#### Returns
+
+`undefined` | `boolean`
 
 ***
 
@@ -679,6 +703,38 @@ ConfigEntity.reset
 | Name | Type |
 | :------ | :------ |
 | `node?` | [`FlowNodeEntity`](/auto-docs/document/classes/FlowNodeEntity-1.md) |
+
+#### Returns
+
+`void`
+
+***
+
+### setDragging
+
+**setDragging**(`dragging`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `dragging` | `boolean` |
+
+#### Returns
+
+`void`
+
+***
+
+### setIsBranch
+
+**setIsBranch**(`isBranch`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `isBranch` | `boolean` |
 
 #### Returns
 

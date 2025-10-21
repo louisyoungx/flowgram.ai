@@ -4,7 +4,7 @@
 
 **is**<`TargetASTNode`>(`node?`, `targetType?`): node is TargetASTNode
 
-Check AST Match by ASTClass
+Check ASTNode Match by ASTClass
 
 #### Type parameters
 
@@ -14,12 +14,14 @@ Check AST Match by ASTClass
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `node?` | [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> |
-| `targetType?` | (...`args`: `any`\[]) => `TargetASTNode` |
-| `targetType.kind` | `string` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `node?` | [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> | ASTNode to be checked. |
+| `targetType?` | (...`args`: `any`\[]) => `TargetASTNode` | Target ASTNode class. |
+| `targetType.kind` | `string` | - |
 
 #### Returns
 
 node is TargetASTNode
+
+Whether the node is of the target type.

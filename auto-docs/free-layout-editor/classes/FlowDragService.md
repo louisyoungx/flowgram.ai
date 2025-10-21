@@ -27,6 +27,7 @@
 ### Methods
 
 * [dropBranch](/auto-docs/free-layout-editor/classes/FlowDragService.md#dropbranch)
+* [dropCreateNode](/auto-docs/free-layout-editor/classes/FlowDragService.md#dropcreatenode)
 * [dropNode](/auto-docs/free-layout-editor/classes/FlowDragService.md#dropnode)
 * [isDroppableBranch](/auto-docs/free-layout-editor/classes/FlowDragService.md#isdroppablebranch)
 * [isDroppableNode](/auto-docs/free-layout-editor/classes/FlowDragService.md#isdroppablenode)
@@ -41,7 +42,7 @@
 
 ### onDrop
 
-`Readonly` **onDrop**: [`Event`](/auto-docs/free-layout-editor/interfaces/Event-1.md)<{ `dragNodes`: [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)\[] ; `dropNode`: [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)  }>
+`Readonly` **onDrop**: [`Event`](/auto-docs/free-layout-editor/interfaces/Event-1.md)<{ `dragJSON?`: [`FlowNodeJSON`](/auto-docs/free-layout-editor/interfaces/FlowNodeJSON.md) ; `dragNodes`: [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)\[] ; `dropNode`: [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)  }>
 
 ## Accessors
 
@@ -134,6 +135,26 @@
 #### Returns
 
 `void`
+
+***
+
+### dropCreateNode
+
+**dropCreateNode**(`json`, `onCreateNode?`): `Promise`<`void`>
+
+移动并且创建节点
+Move and create node
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `json` | [`FlowNodeJSON`](/auto-docs/free-layout-editor/interfaces/FlowNodeJSON.md) |
+| `onCreateNode?` | (`json`: [`FlowNodeJSON`](/auto-docs/free-layout-editor/interfaces/FlowNodeJSON.md), `dropEntity`: [`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)) => `Promise`<[`FlowNodeEntity`](/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)> |
+
+#### Returns
+
+`Promise`<`void`>
 
 ***
 

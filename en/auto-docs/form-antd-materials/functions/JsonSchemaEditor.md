@@ -1,6 +1,6 @@
 # Function: JsonSchemaEditor
 
-**JsonSchemaEditor**(`props`): `Element`
+**JsonSchemaEditor**(`props`): `any`
 
 #### Parameters
 
@@ -13,4 +13,4 @@
 
 #### Returns
 
-`Element`
+`any`

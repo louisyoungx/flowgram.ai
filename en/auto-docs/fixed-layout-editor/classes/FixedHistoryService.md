@@ -29,7 +29,6 @@ SPDX-License-Identifier: MIT
 * [addFromNodes](/en/auto-docs/fixed-layout-editor/classes/FixedHistoryService.md#addfromnodes)
 * [canRedo](/en/auto-docs/fixed-layout-editor/classes/FixedHistoryService.md#canredo)
 * [canUndo](/en/auto-docs/fixed-layout-editor/classes/FixedHistoryService.md#canundo)
-* [changeFormData](/en/auto-docs/fixed-layout-editor/classes/FixedHistoryService.md#changeformdata)
 * [deleteNode](/en/auto-docs/fixed-layout-editor/classes/FixedHistoryService.md#deletenode)
 * [deleteNodes](/en/auto-docs/fixed-layout-editor/classes/FixedHistoryService.md#deletenodes)
 * [getHistoryOperations](/en/auto-docs/fixed-layout-editor/classes/FixedHistoryService.md#gethistoryoperations)
@@ -200,25 +199,6 @@ SPDX-License-Identifier: MIT
 #### Returns
 
 `boolean`
-
-***
-
-### changeFormData
-
-**changeFormData**(`node`, `data`): `void`
-
-修改节点
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `node` | [`FlowNodeEntity`](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md) | 节点 |
-| `data` | `Omit`<[`ChangeNodeOperationValue`](/en/auto-docs/fixed-layout-editor/interfaces/ChangeNodeOperationValue.md), `"id"`> | - |
-
-#### Returns
-
-`void`
 
 ***
 

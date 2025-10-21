@@ -1,5 +1,7 @@
 # Class: ASTRegisters
 
+Register the AST node to the engine.
+
 ## Table of contents
 
 ### Constructors
@@ -18,7 +20,7 @@
 
 **new ASTRegisters**()
 
-核心 AST 节点注册
+Core AST node registration.
 
 ## Methods
 
@@ -26,7 +28,7 @@
 
 **createAST**<`ReturnNode`>(`json`, `«destructured»`): `ReturnNode`
 
-创建 AST 节点
+Creates an AST node.
 
 #### Type parameters
 
@@ -51,7 +53,7 @@
 
 **getASTRegistryByKind**(`kind`): `undefined` | [`ASTNodeRegistry`](/en/auto-docs/fixed-layout-editor/interfaces/ASTNodeRegistry.md)<`any`, `any`>
 
-根据 AST 节点类型获取节点 Registry
+Gets the node Registry by AST node type.
 
 #### Parameters
 
@@ -69,7 +71,7 @@
 
 **registerAST**(`ASTNode`, `injector?`): `void`
 
-注册 AST 节点
+Registers an AST node.
 
 #### Parameters
 

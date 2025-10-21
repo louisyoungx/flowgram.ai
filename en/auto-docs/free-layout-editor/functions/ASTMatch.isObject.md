@@ -4,6 +4,8 @@
 
 **isObject**(`node?`): node is ObjectType
 
+Check if the node is a `ObjectType`.
+
 #### Parameters
 
 | Name | Type |

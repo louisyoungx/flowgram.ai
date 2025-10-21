@@ -1,7 +1,6 @@
 # Interface: ObjectJSON\<VariableMeta>
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+ASTNodeJSON representation of `ObjectType`
 
 ## Type parameters
 
@@ -21,4 +20,6 @@ SPDX-License-Identifier: MIT
 
 `Optional` **properties**: [`PropertyJSON`](/en/auto-docs/free-layout-editor/types/PropertyJSON.md)<`VariableMeta`>\[]
 
-Object 的 properties 一定是 Property 类型，因此业务可以不用填 kind
+The properties of the object.
+
+The `properties` of an Object must be of type `Property`, so the business can omit the `kind` field.

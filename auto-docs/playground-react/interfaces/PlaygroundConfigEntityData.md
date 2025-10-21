@@ -4,8 +4,6 @@
 
 ### Properties
 
-* [clientX](/auto-docs/playground-react/interfaces/PlaygroundConfigEntityData.md#clientx)
-* [clientY](/auto-docs/playground-react/interfaces/PlaygroundConfigEntityData.md#clienty)
 * [disabled](/auto-docs/playground-react/interfaces/PlaygroundConfigEntityData.md#disabled)
 * [grabDisable](/auto-docs/playground-react/interfaces/PlaygroundConfigEntityData.md#grabdisable)
 * [height](/auto-docs/playground-react/interfaces/PlaygroundConfigEntityData.md#height)
@@ -29,18 +27,6 @@
 * [zoomDisable](/auto-docs/playground-react/interfaces/PlaygroundConfigEntityData.md#zoomdisable)
 
 ## Properties
-
-### clientX
-
-**clientX**: `number`
-
-***
-
-### clientY
-
-**clientY**: `number`
-
-***
 
 ### disabled
 

@@ -4,6 +4,8 @@
 
 **createInteger**(): `Object`
 
+Creates an `Integer` type node.
+
 #### Returns
 
 `Object`

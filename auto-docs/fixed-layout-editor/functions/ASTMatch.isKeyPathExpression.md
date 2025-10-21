@@ -4,6 +4,8 @@
 
 **isKeyPathExpression**(`node?`): node is KeyPathExpression\<KeyPathExpressionJSON>
 
+Check if the node is a `KeyPathExpression`.
+
 #### Parameters
 
 | Name | Type |

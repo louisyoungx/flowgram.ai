@@ -11,7 +11,7 @@
 
 ### autoLayout
 
-**autoLayout**: (`options?`: [`AutoLayoutToolOptions`](/en/auto-docs/free-layout-editor/types/AutoLayoutToolOptions.md)) => `Promise`<[`AutoLayoutResetFn`](/en/auto-docs/free-layout-editor/types/AutoLayoutResetFn.md)>
+**autoLayout**: (`options?`: `LayoutOptions`) => `Promise`<[`AutoLayoutResetFn`](/en/auto-docs/free-layout-editor/types/AutoLayoutResetFn.md)>
 
 #### Type declaration
 
@@ -21,7 +21,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `options?` | [`AutoLayoutToolOptions`](/en/auto-docs/free-layout-editor/types/AutoLayoutToolOptions.md) |
+| `options?` | `LayoutOptions` |
 
 ##### Returns
 

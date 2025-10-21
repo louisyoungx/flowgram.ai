@@ -1154,7 +1154,7 @@ Entity.updateData
 
 ### updateExtInfo
 
-**updateExtInfo**<`T`>(`extInfo`): `void`
+**updateExtInfo**<`T`>(`extInfo`, `fullUpdate?`): `void`
 
 修改节点扩展信息
 
@@ -1169,6 +1169,7 @@ Entity.updateData
 | Name | Type |
 | :------ | :------ |
 | `extInfo` | `T` |
+| `fullUpdate?` | `boolean` |
 
 #### Returns
 

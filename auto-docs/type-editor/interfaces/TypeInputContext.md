@@ -4,7 +4,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `TypeSchema` | extends `Partial`<[`IJsonSchema`](/auto-docs/type-editor/interfaces/IJsonSchema.md)> |
+| `TypeSchema` | extends `Partial`<`IJsonSchema`> |
 
 ## Table of contents
 

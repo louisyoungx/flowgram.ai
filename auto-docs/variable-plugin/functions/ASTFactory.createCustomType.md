@@ -4,6 +4,8 @@
 
 **createCustomType**(`json`): `Object`
 
+Creates a `CustomType` node.
+
 #### Parameters
 
 | Name | Type |

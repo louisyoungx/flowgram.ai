@@ -1,5 +1,7 @@
 # Class: ScopeChainTransformService
 
+A service for transforming scope chains.
+
 ## Table of contents
 
 ### Constructors
@@ -73,7 +75,7 @@ register new transform function
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `transformerId` | `string` | used to identify transformer, prevent duplicated transformer |
-| `transformer` | `Object` |  |
+| `transformer` | `Object` | The transformer to register. |
 | `transformer.transformCovers` | `IScopeTransformer` | - |
 | `transformer.transformDeps` | `IScopeTransformer` | - |
 
@@ -85,34 +87,42 @@ register new transform function
 
 ### transformCovers
 
-**transformCovers**(`scopes`, `«destructured»`): [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+**transformCovers**(`scopes`, `param1`): [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+Transforms the cover scopes.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scopes` | [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[] |
-| `«destructured»` | `Object` |
-| › `scope` | [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scopes` | [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[] | The array of scopes to transform. |
+| `param1` | `Object` | The context for the transformation. |
+| `param1.scope` | [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>> | - |
 
 #### Returns
 
 [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+The transformed array of scopes.
 
 ***
 
 ### transformDeps
 
-**transformDeps**(`scopes`, `«destructured»`): [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+**transformDeps**(`scopes`, `param1`): [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+Transforms the dependency scopes.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scopes` | [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[] |
-| `«destructured»` | `Object` |
-| › `scope` | [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scopes` | [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[] | The array of scopes to transform. |
+| `param1` | `Object` | The context for the transformation. |
+| `param1.scope` | [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>> | - |
 
 #### Returns
 
 [`Scope`](/en/auto-docs/fixed-layout-editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+The transformed array of scopes.

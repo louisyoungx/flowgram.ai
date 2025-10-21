@@ -4,6 +4,8 @@
 
 **createMap**(`json`): `Object`
 
+Creates a `Map` type node.
+
 #### Parameters
 
 | Name | Type |

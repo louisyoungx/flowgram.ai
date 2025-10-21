@@ -1,6 +1,6 @@
 # Function: createInjectMaterial
 
-**createInjectMaterial**<`Props`>(`Component`, `params?`): `React.FC`<`Props`>
+**createInjectMaterial**<`Props`>(`Component`, `params?`): `WithRenderKey`<`React.FC`<`Props`>>
 
 Creates a material component wrapper with dependency injection support
 
@@ -19,13 +19,13 @@ falling back to the default component.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `Component` | `FC`<`Props`> & { `renderKey?`: `string`  } | Default React component |
+| `Component` | `WithRenderKey`<`FC`<`Props`> | `ExoticComponent`<`Props`>> | Default React component |
 | `params?` | `Object` | Optional parameters |
 | `params.renderKey?` | `string` | Custom render key name, highest priority |
 
 #### Returns
 
-`React.FC`<`Props`>
+`WithRenderKey`<`React.FC`<`Props`>>
 
 Wrapper component with dependency injection support
 

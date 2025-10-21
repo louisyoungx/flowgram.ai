@@ -4,6 +4,8 @@
 
 **createObject**(`json`): `Object`
 
+Creates an `Object` type node.
+
 #### Parameters
 
 | Name | Type |

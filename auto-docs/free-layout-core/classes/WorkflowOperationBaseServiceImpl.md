@@ -18,6 +18,7 @@
 
 ### Properties
 
+* [linesManager](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#linesmanager)
 * [onNodeAdd](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#onnodeadd)
 * [onNodeMove](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#onnodemove)
 * [onNodePostionUpdate](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#onnodepostionupdate)
@@ -32,6 +33,7 @@
 * [deleteNodes](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#deletenodes)
 * [dispose](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#dispose)
 * [dragNodes](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#dragnodes)
+* [fromJSON](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#fromjson)
 * [moveNode](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#movenode)
 * [transact](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#transact)
 * [updateNodePosition](/auto-docs/free-layout-core/classes/WorkflowOperationBaseServiceImpl.md#updatenodeposition)
@@ -47,6 +49,12 @@
 FlowOperationBaseServiceImpl.constructor
 
 ## Properties
+
+### linesManager
+
+**linesManager**: [`WorkflowLinesManager`](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md)
+
+***
 
 ### onNodeAdd
 
@@ -281,6 +289,26 @@ WorkflowOperationBaseService.dragNodes
 #### Inherited from
 
 FlowOperationBaseServiceImpl.dragNodes
+
+***
+
+### fromJSON
+
+**fromJSON**(`json`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `json` | [`WorkflowJSON`](/auto-docs/free-layout-core/interfaces/WorkflowJSON.md) |
+
+#### Returns
+
+`void`
+
+#### Implementation of
+
+WorkflowOperationBaseService.fromJSON
 
 ***
 

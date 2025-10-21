@@ -1,8 +1,5 @@
 # Interface: EditorPluginContext
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
-
 ## Hierarchy
 
 * [`PluginContext`](/en/auto-docs/fixed-layout-editor/variables/PluginContext-1.md)

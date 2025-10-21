@@ -4,8 +4,8 @@
 
 | Name | Type |
 | :------ | :------ |
-| `TValue` | `FieldValue$1` |
-| `TFormValues` | `FieldValue$1` |
+| `TValue` | `FieldValue` |
+| `TFormValues` | `FieldValue` |
 
 ## Table of contents
 

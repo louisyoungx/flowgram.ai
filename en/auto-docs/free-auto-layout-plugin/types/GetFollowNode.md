@@ -1,6 +1,6 @@
 # Type alias: GetFollowNode
 
-**GetFollowNode**: (`node`: [`LayoutNode`](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutNode.md), `context`: { `[key: string]`: `any`; `store`: [`LayoutStore`](/en/auto-docs/free-auto-layout-plugin/classes/LayoutStore.md)  }) => { `followTo?`: `string`  } | `undefined`
+**GetFollowNode**: (`node`: [`LayoutNode`](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutNode.md), `context`: { `[key: string]`: `any`; `store`: `ILayoutStore`  }) => { `followTo?`: `string`  } | `undefined`
 
 #### Type declaration
 
@@ -12,7 +12,7 @@
 | :------ | :------ |
 | `node` | [`LayoutNode`](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutNode.md) |
 | `context` | `Object` |
-| `context.store` | [`LayoutStore`](/en/auto-docs/free-auto-layout-plugin/classes/LayoutStore.md) |
+| `context.store` | `ILayoutStore` |
 
 ##### Returns
 

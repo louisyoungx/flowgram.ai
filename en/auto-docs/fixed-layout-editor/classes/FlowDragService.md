@@ -27,6 +27,7 @@
 ### Methods
 
 * [dropBranch](/en/auto-docs/fixed-layout-editor/classes/FlowDragService.md#dropbranch)
+* [dropCreateNode](/en/auto-docs/fixed-layout-editor/classes/FlowDragService.md#dropcreatenode)
 * [dropNode](/en/auto-docs/fixed-layout-editor/classes/FlowDragService.md#dropnode)
 * [isDroppableBranch](/en/auto-docs/fixed-layout-editor/classes/FlowDragService.md#isdroppablebranch)
 * [isDroppableNode](/en/auto-docs/fixed-layout-editor/classes/FlowDragService.md#isdroppablenode)
@@ -41,7 +42,7 @@
 
 ### onDrop
 
-`Readonly` **onDrop**: [`Event`](/en/auto-docs/fixed-layout-editor/interfaces/Event-1.md)<{ `dragNodes`: [`FlowNodeEntity`](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)\[] ; `dropNode`: [`FlowNodeEntity`](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)  }>
+`Readonly` **onDrop**: [`Event`](/en/auto-docs/fixed-layout-editor/interfaces/Event-1.md)<{ `dragJSON?`: [`FlowNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/FlowNodeJSON.md) ; `dragNodes`: [`FlowNodeEntity`](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)\[] ; `dropNode`: [`FlowNodeEntity`](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)  }>
 
 ## Accessors
 
@@ -134,6 +135,26 @@
 #### Returns
 
 `void`
+
+***
+
+### dropCreateNode
+
+**dropCreateNode**(`json`, `onCreateNode?`): `Promise`<`void`>
+
+移动并且创建节点
+Move and create node
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `json` | [`FlowNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/FlowNodeJSON.md) |
+| `onCreateNode?` | (`json`: [`FlowNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/FlowNodeJSON.md), `dropEntity`: [`FlowNodeEntity`](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)) => `Promise`<[`FlowNodeEntity`](/en/auto-docs/fixed-layout-editor/classes/FlowNodeEntity-1.md)> |
+
+#### Returns
+
+`Promise`<`void`>
 
 ***
 

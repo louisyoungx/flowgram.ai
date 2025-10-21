@@ -5,7 +5,7 @@
 | Name | Type |
 | :------ | :------ |
 | `Mode` | extends [`TypeEditorMode`](/auto-docs/type-editor/types/TypeEditorMode.md) |
-| `TypeSchema` | extends `Partial`<[`IJsonSchema`](/auto-docs/type-editor/interfaces/IJsonSchema.md)> |
+| `TypeSchema` | extends `Partial`<`IJsonSchema`> |
 
 ## Table of contents
 
@@ -21,7 +21,7 @@
 
 ### commonValueToSubmitValue
 
-**commonValueToSubmitValue**: (`val`: `undefined` | `Record`<`string`, `unknown`>) => [`TypeEditorValue`](/auto-docs/type-editor/types/TypeEditorValue.md)<`Mode`, `TypeSchema`>
+**commonValueToSubmitValue**: (`val`: `Record`<`string`, `unknown`>) => [`TypeEditorValue`](/auto-docs/type-editor/types/TypeEditorValue.md)<`Mode`, `TypeSchema`>
 
 #### Type declaration
 
@@ -33,7 +33,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `val` | `undefined` | `Record`<`string`, `unknown`> |
+| `val` | `Record`<`string`, `unknown`> |
 
 ##### Returns
 

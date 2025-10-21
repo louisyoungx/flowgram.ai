@@ -1,7 +1,6 @@
 # Interface: CustomTypeJSON
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+ASTNodeJSON representation of `CustomType`
 
 ## Table of contents
 
@@ -14,3 +13,5 @@ SPDX-License-Identifier: MIT
 ### typeName
 
 **typeName**: `string`
+
+The name of the custom type.

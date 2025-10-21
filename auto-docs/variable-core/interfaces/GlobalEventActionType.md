@@ -1,5 +1,9 @@
 # Interface: GlobalEventActionType\<Type, Payload, AST>
 
+Global event action type.
+
+* Global event might be dispatched from `ASTNode` or `Scope`.
+
 ## Type parameters
 
 | Name | Type |

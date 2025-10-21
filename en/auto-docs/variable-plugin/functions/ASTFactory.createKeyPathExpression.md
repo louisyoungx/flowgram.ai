@@ -4,6 +4,8 @@
 
 **createKeyPathExpression**(`json`): `Object`
 
+Creates a `KeyPathExpression` node.
+
 #### Parameters
 
 | Name | Type |

@@ -1,0 +1,5 @@
+import { SourceCode } from '@theme';
+
+# syncVariableTitle (WIP)
+
+<SourceCode href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/effects/sync-variable-title" />

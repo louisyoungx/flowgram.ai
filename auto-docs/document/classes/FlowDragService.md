@@ -27,6 +27,7 @@
 ### Methods
 
 * [dropBranch](/auto-docs/document/classes/FlowDragService.md#dropbranch)
+* [dropCreateNode](/auto-docs/document/classes/FlowDragService.md#dropcreatenode)
 * [dropNode](/auto-docs/document/classes/FlowDragService.md#dropnode)
 * [isDroppableBranch](/auto-docs/document/classes/FlowDragService.md#isdroppablebranch)
 * [isDroppableNode](/auto-docs/document/classes/FlowDragService.md#isdroppablenode)
@@ -41,7 +42,7 @@
 
 ### onDrop
 
-`Readonly` **onDrop**: `Event`<{ `dragNodes`: [`FlowNodeEntity`](/auto-docs/document/classes/FlowNodeEntity-1.md)\[] ; `dropNode`: [`FlowNodeEntity`](/auto-docs/document/classes/FlowNodeEntity-1.md)  }>
+`Readonly` **onDrop**: `Event`<{ `dragJSON?`: [`FlowNodeJSON`](/auto-docs/document/interfaces/FlowNodeJSON.md) ; `dragNodes`: [`FlowNodeEntity`](/auto-docs/document/classes/FlowNodeEntity-1.md)\[] ; `dropNode`: [`FlowNodeEntity`](/auto-docs/document/classes/FlowNodeEntity-1.md)  }>
 
 ## Accessors
 
@@ -134,6 +135,26 @@
 #### Returns
 
 `void`
+
+***
+
+### dropCreateNode
+
+**dropCreateNode**(`json`, `onCreateNode?`): `Promise`<`void`>
+
+移动并且创建节点
+Move and create node
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `json` | [`FlowNodeJSON`](/auto-docs/document/interfaces/FlowNodeJSON.md) |
+| `onCreateNode?` | (`json`: [`FlowNodeJSON`](/auto-docs/document/interfaces/FlowNodeJSON.md), `dropEntity`: [`FlowNodeEntity`](/auto-docs/document/classes/FlowNodeEntity-1.md)) => `Promise`<[`FlowNodeEntity`](/auto-docs/document/classes/FlowNodeEntity-1.md)> |
+
+#### Returns
+
+`Promise`<`void`>
 
 ***
 

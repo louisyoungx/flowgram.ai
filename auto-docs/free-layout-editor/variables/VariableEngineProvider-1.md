@@ -2,5 +2,5 @@
 
 `Const` **VariableEngineProvider**: unique `symbol`
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-SPDX-License-Identifier: MIT
+A provider for dynamically obtaining the `VariableEngine` instance.
+This is used to prevent circular dependencies when injecting `VariableEngine`.

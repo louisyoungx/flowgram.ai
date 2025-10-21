@@ -1,8 +1,7 @@
 # Class: ScopeChain
 
-作用域依赖关系管理数据结构
-
-* ScopeOrder 可能存在多种实现方式，因此采取抽象类的方式，具体的实现由子类实现
+Manages the dependency relationships between scopes.
+This is an abstract class, and specific implementations determine how the scope order is managed.
 
 ## Table of contents
 
@@ -93,15 +92,19 @@
 
 `Abstract` **getCovers**(`scope`): [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
 
+Gets the covering scopes for a given scope.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scope` | [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scope` | [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>> | The scope to get covers for. |
 
 #### Returns
 
 [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+An array of covering scopes.
 
 ***
 
@@ -109,15 +112,19 @@
 
 `Abstract` **getDeps**(`scope`): [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
 
+Gets the dependency scopes for a given scope.
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `scope` | [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `scope` | [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>> | The scope to get dependencies for. |
 
 #### Returns
 
 [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+An array of dependency scopes.
 
 ***
 
@@ -125,7 +132,7 @@
 
 **refreshAllChange**(): `void`
 
-所有作用域依赖关系刷新
+Refreshes the dependency and coverage relationships for all scopes.
 
 #### Returns
 
@@ -137,6 +144,10 @@
 
 `Abstract` **sortAll**(): [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
 
+Sorts all scopes based on their dependency relationships.
+
 #### Returns
 
 [`Scope`](/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>\[]
+
+A sorted array of all scopes.

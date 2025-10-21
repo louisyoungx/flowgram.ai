@@ -45,7 +45,13 @@ SPDX-License-Identifier: MIT
 
 ### init
 
-**init**(): `void`
+**init**(`options?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `options?` | `Partial`<[`StackContextManagerOptions`](/auto-docs/free-layout-editor/interfaces/StackContextManagerOptions.md)> |
 
 #### Returns
 

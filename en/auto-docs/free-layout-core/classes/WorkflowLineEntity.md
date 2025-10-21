@@ -39,6 +39,7 @@
 * [context](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#context)
 * [disabled](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#disabled)
 * [disposed](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#disposed)
+* [drawingFrom](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#drawingfrom)
 * [drawingTo](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#drawingto)
 * [flowing](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#flowing)
 * [from](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#from)
@@ -81,6 +82,7 @@
 * [is](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#is)
 * [removeData](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#removedata)
 * [reset](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#reset)
+* [setFromPort](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#setfromport)
 * [setToPort](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#settoport)
 * [toJSON](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#tojson)
 * [updateData](/en/auto-docs/free-layout-core/classes/WorkflowLineEntity.md#updatedata)
@@ -308,6 +310,28 @@ Entity.disposed
 
 ***
 
+### drawingFrom
+
+`get` **drawingFrom**(): `undefined` | [`LinePoint`](/en/auto-docs/free-layout-core/interfaces/LinePoint.md)
+
+#### Returns
+
+`undefined` | [`LinePoint`](/en/auto-docs/free-layout-core/interfaces/LinePoint.md)
+
+`set` **drawingFrom**(`pos`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `pos` | `undefined` | [`LinePoint`](/en/auto-docs/free-layout-core/interfaces/LinePoint.md) |
+
+#### Returns
+
+`void`
+
+***
+
 ### drawingTo
 
 `get` **drawingTo**(): `undefined` | [`LinePoint`](/en/auto-docs/free-layout-core/interfaces/LinePoint.md)
@@ -360,23 +384,23 @@ Entity.disposed
 
 ### from
 
-`get` **from**(): `FlowNodeEntity`
+`get` **from**(): `undefined` | `FlowNodeEntity`
 
 获取线条的前置节点
 
 #### Returns
 
-`FlowNodeEntity`
+`undefined` | `FlowNodeEntity`
 
 ***
 
 ### fromPort
 
-`get` **fromPort**(): [`WorkflowPortEntity`](/en/auto-docs/free-layout-core/classes/WorkflowPortEntity.md)
+`get` **fromPort**(): `undefined` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-core/classes/WorkflowPortEntity.md)
 
 #### Returns
 
-[`WorkflowPortEntity`](/en/auto-docs/free-layout-core/classes/WorkflowPortEntity.md)
+`undefined` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-core/classes/WorkflowPortEntity.md)
 
 ***
 
@@ -702,11 +726,11 @@ Entity.version
 
 `get` **vertical**(): `boolean`
 
-是否竖向
-
 #### Returns
 
 `boolean`
+
+**`Deprecated`**
 
 ## Methods
 
@@ -995,6 +1019,22 @@ Entity.removeData
 #### Inherited from
 
 Entity.reset
+
+***
+
+### setFromPort
+
+**setFromPort**(`fromPort?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `fromPort?` | [`WorkflowPortEntity`](/en/auto-docs/free-layout-core/classes/WorkflowPortEntity.md) |
+
+#### Returns
+
+`void`
 
 ***
 

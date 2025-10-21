@@ -1,6 +1,6 @@
 # Function: TypeSelector
 
-**TypeSelector**(`props`): `Element`
+**TypeSelector**(`props`): `any`
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`Element`
+`any`

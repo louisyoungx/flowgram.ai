@@ -27,7 +27,7 @@
 | Name | Type |
 | :------ | :------ |
 | `params` | `Object` |
-| `params.context` | [`StackingContext`](/en/auto-docs/free-stack-plugin/types/StackingContext.md) |
+| `params.context` | [`StackingContext`](/en/auto-docs/free-stack-plugin/interfaces/StackingContext.md) |
 | `params.nodes` | `FlowNodeEntity`\[] |
 | `params.root` | `FlowNodeEntity` |
 

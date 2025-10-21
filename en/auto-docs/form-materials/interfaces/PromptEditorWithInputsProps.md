@@ -66,7 +66,7 @@
 
 ### inputsValues
 
-**inputsValues**: `any`
+**inputsValues**: [`IInputsValues`](/en/auto-docs/form-materials/interfaces/IInputsValues.md)
 
 ***
 
@@ -96,7 +96,7 @@
 
 ### options
 
-`Optional` **options**: `Partial`<{ `fontSize`: `number`  } & { `placeholder`: `string` | `HTMLElement`  } & { `readOnly`: `boolean`  } & { `editable`: `boolean`  } & { `inputRules`: `InputRule`\[]  } & { `contentAttributes`: `Attrs` | (`view`: `EditorView`) => `null` | `Attrs`  } & { `minHeight`: `string` | `number`  } & { `maxHeight`: `string` | `number`  } & { `height`: `string` | `number`  }>
+`Optional` **options**: `Partial`<{ `fontSize`: `number`  } & { `placeholder`: `string` | `HTMLElement`  } & { `readOnly`: `boolean`  } & { `editable`: `boolean`  } & { `height`: `string` | `number`  } & { `minHeight`: `string` | `number`  } & { `maxHeight`: `string` | `number`  } & { `inputRules`: `InputRule`\[]  } & { `contentAttributes`: `Attrs` | (`view`: `EditorView`) => `null` | `Attrs`  }>
 
 #### Inherited from
 

@@ -16,7 +16,6 @@
 
 ### Properties
 
-* [key](/auto-docs/editor/interfaces/VariableProviderAbilityOptions.md#key)
 * [namespace](/auto-docs/editor/interfaces/VariableProviderAbilityOptions.md#namespace)
 * [onInit](/auto-docs/editor/interfaces/VariableProviderAbilityOptions.md#oninit)
 * [parse](/auto-docs/editor/interfaces/VariableProviderAbilityOptions.md#parse)
@@ -24,16 +23,6 @@
 * [scope](/auto-docs/editor/interfaces/VariableProviderAbilityOptions.md#scope)
 
 ## Properties
-
-### key
-
-`Optional` **key**: `string`
-
-#### Inherited from
-
-VariableAbilityOptions.key
-
-***
 
 ### namespace
 
@@ -71,11 +60,11 @@ VariableAbilityOptions.onInit
 
 ### parse
 
-**parse**: (`v`: `V`, `ctx`: [`VariableAbilityParseContext`](/auto-docs/editor/interfaces/VariableAbilityParseContext.md)) => [`VariableDeclarationJSON`](/auto-docs/editor/types/VariableDeclarationJSON.md)\[]
+**parse**: (`v`: `V`, `ctx`: [`VariableAbilityParseContext`](/auto-docs/editor/interfaces/VariableAbilityParseContext.md)) => [`VariableDeclarationJSON`](/auto-docs/editor/types/VariableDeclarationJSON.md) | [`VariableDeclarationJSON`](/auto-docs/editor/types/VariableDeclarationJSON.md)\[]
 
 #### Type declaration
 
-(`v`, `ctx`): [`VariableDeclarationJSON`](/auto-docs/editor/types/VariableDeclarationJSON.md)\[]
+(`v`, `ctx`): [`VariableDeclarationJSON`](/auto-docs/editor/types/VariableDeclarationJSON.md) | [`VariableDeclarationJSON`](/auto-docs/editor/types/VariableDeclarationJSON.md)\[]
 
 ##### Parameters
 
@@ -86,7 +75,7 @@ VariableAbilityOptions.onInit
 
 ##### Returns
 
-[`VariableDeclarationJSON`](/auto-docs/editor/types/VariableDeclarationJSON.md)\[]
+[`VariableDeclarationJSON`](/auto-docs/editor/types/VariableDeclarationJSON.md) | [`VariableDeclarationJSON`](/auto-docs/editor/types/VariableDeclarationJSON.md)\[]
 
 ***
 
