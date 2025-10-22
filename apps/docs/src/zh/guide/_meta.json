@@ -2,13 +2,8 @@
   "introduction",
   {
     "type": "dir",
-    "name": "quick-start-2",
-    "label": "快速上手"
-  },
-  {
-    "type": "dir",
     "name": "quick-start",
-    "label": "（旧版）快速上手"
+    "label": "快速上手"
   },
   {
     "type": "dir",
@@ -50,5 +45,6 @@
     "name": "runtime",
     "label": "运行时接入 (WIP)"
   },
+  "contribute",
   "contact-us"
 ]

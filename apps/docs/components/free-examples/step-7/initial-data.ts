@@ -1,12 +1,20 @@
+/**
+ * Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
+ * SPDX-License-Identifier: MIT
+ */
+
 import { WorkflowJSON } from '@flowgram.ai/free-layout-editor';
 
 export const initialData: WorkflowJSON = {
   nodes: [
     {
       id: '1',
-      type: 'custom',
+      type: 'start',
       meta: {
         position: { x: 0, y: 0 },
+      },
+      data: {
+        title: 'Start Node',
       },
     },
     {
@@ -15,12 +23,18 @@ export const initialData: WorkflowJSON = {
       meta: {
         position: { x: 400, y: -200 },
       },
+      data: {
+        title: 'Custom Node A',
+      },
     },
     {
       id: '3',
       type: 'custom',
       meta: {
         position: { x: 400, y: 0 },
+      },
+      data: {
+        title: 'Custom Node B',
       },
     },
     {
@@ -29,12 +43,18 @@ export const initialData: WorkflowJSON = {
       meta: {
         position: { x: 400, y: 200 },
       },
+      data: {
+        title: 'Custom Node C',
+      },
     },
     {
       id: '5',
-      type: 'custom',
+      type: 'end',
       meta: {
         position: { x: 800, y: 0 },
+      },
+      data: {
+        title: 'End Node',
       },
     },
   ],

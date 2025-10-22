@@ -1,7 +1,10 @@
+/**
+ * Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
+ * SPDX-License-Identifier: MIT
+ */
+
 import '@flowgram.ai/free-layout-editor/index.css';
 
-import { createMinimapPlugin } from '@flowgram.ai/minimap-plugin';
-import { createFreeSnapPlugin } from '@flowgram.ai/free-snap-plugin';
 import {
   FreeLayoutEditorProvider,
   EditorRenderer,
@@ -38,7 +41,6 @@ const NodeRender = (props: WorkflowNodeProps) => {
 
 const FlowGramApp = () => (
   <FreeLayoutEditorProvider
-    plugins={() => [createMinimapPlugin({}), createFreeSnapPlugin({})]}
     onAllLayersRendered={(ctx) => {
       ctx.tools.fitView(false);
     }}
@@ -65,28 +67,7 @@ const FlowGramApp = () => (
           id: '2',
           type: 'custom',
           meta: {
-            position: { x: 400, y: -200 },
-          },
-        },
-        {
-          id: '3',
-          type: 'custom',
-          meta: {
             position: { x: 400, y: 0 },
-          },
-        },
-        {
-          id: '4',
-          type: 'custom',
-          meta: {
-            position: { x: 400, y: 200 },
-          },
-        },
-        {
-          id: '5',
-          type: 'custom',
-          meta: {
-            position: { x: 800, y: 0 },
           },
         },
       ],
@@ -94,26 +75,6 @@ const FlowGramApp = () => (
         {
           sourceNodeID: '1',
           targetNodeID: '2',
-        },
-        {
-          sourceNodeID: '1',
-          targetNodeID: '3',
-        },
-        {
-          sourceNodeID: '1',
-          targetNodeID: '4',
-        },
-        {
-          sourceNodeID: '2',
-          targetNodeID: '5',
-        },
-        {
-          sourceNodeID: '3',
-          targetNodeID: '5',
-        },
-        {
-          sourceNodeID: '4',
-          targetNodeID: '5',
         },
       ],
     }}
