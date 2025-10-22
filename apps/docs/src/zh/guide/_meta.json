@@ -2,8 +2,13 @@
   "introduction",
   {
     "type": "dir",
-    "name": "quick-start",
+    "name": "quick-start-2",
     "label": "快速上手"
+  },
+  {
+    "type": "dir",
+    "name": "quick-start",
+    "label": "（旧版）快速上手"
   },
   {
     "type": "dir",

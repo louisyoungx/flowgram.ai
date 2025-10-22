@@ -13,7 +13,7 @@ export const initialData: FlowDocumentJSON = {
       meta: {
         position: {
           x: 180,
-          y: 601.2,
+          y: 381.61875,
         },
       },
       data: {
@@ -21,59 +21,18 @@ export const initialData: FlowDocumentJSON = {
         outputs: {
           type: 'object',
           properties: {
-            query: {
-              type: 'string',
-              default: 'Hello Flow.',
-            },
-            enable: {
-              type: 'boolean',
-              default: true,
-            },
-            array_obj: {
+            questions: {
               type: 'array',
+              extra: {
+                index: 0,
+              },
               items: {
-                type: 'object',
-                properties: {
-                  int: {
-                    type: 'number',
-                  },
-                  str: {
-                    type: 'string',
-                  },
-                },
+                type: 'string',
               },
             },
           },
+          required: ['questions'],
         },
-      },
-    },
-    {
-      id: 'condition_0',
-      type: 'condition',
-      meta: {
-        position: {
-          x: 1100,
-          y: 546.2,
-        },
-      },
-      data: {
-        title: 'Condition',
-        conditions: [
-          {
-            key: 'if_0',
-            value: {
-              left: {
-                type: 'ref',
-                content: ['start_0', 'query'],
-              },
-              operator: 'contains',
-              right: {
-                type: 'constant',
-                content: 'Hello Flow.',
-              },
-            },
-          },
-        ],
       },
     },
     {
@@ -81,34 +40,27 @@ export const initialData: FlowDocumentJSON = {
       type: 'end',
       meta: {
         position: {
-          x: 2968,
-          y: 601.2,
+          x: 2002.1458333333335,
+          y: 381.61875,
         },
       },
       data: {
         title: 'End',
-        inputsValues: {
-          success: {
-            type: 'constant',
-            content: true,
-            schema: {
-              type: 'boolean',
-            },
-          },
-          query: {
-            type: 'ref',
-            content: ['start_0', 'query'],
-          },
-        },
         inputs: {
           type: 'object',
           properties: {
-            success: {
-              type: 'boolean',
+            outputs: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
             },
-            query: {
-              type: 'string',
-            },
+          },
+        },
+        inputsValues: {
+          outputs: {
+            type: 'ref',
+            content: ['loop_TMfff', 'results'],
           },
         },
       },
@@ -119,493 +71,258 @@ export const initialData: FlowDocumentJSON = {
       meta: {
         position: {
           x: 180,
-          y: 775.2,
+          y: 609,
         },
       },
       data: {
         size: {
-          width: 240,
-          height: 150,
+          width: 252.25284362023254,
+          height: 329.1978379459009,
         },
-        note: 'hi ~\n\nthis is a comment node\n\n- flowgram.ai',
+        note: '[\n    "1+1",\n    "2+2",\n    "3+3",\n    "4+4",\n    "5+5",\n    "6+6",\n    "7+7",\n    "8+8",\n    "9+9",\n    "10+10"\n  ]',
       },
     },
     {
-      id: 'http_rDGIH',
-      type: 'http',
-      meta: {
-        position: {
-          x: 640,
-          y: 421.35,
-        },
-      },
-      data: {
-        title: 'HTTP_1',
-        outputs: {
-          type: 'object',
-          properties: {
-            body: {
-              type: 'string',
-            },
-            headers: {
-              type: 'object',
-            },
-            statusCode: {
-              type: 'integer',
-            },
-          },
-        },
-        api: {
-          method: 'GET',
-          url: {
-            type: 'template',
-            content: '',
-          },
-        },
-        body: {
-          bodyType: 'JSON',
-        },
-        timeout: {
-          timeout: 10000,
-          retryTimes: 1,
-        },
-      },
-    },
-    {
-      id: 'loop_Ycnsk',
+      id: 'loop_TMfff',
       type: 'loop',
       meta: {
         position: {
-          x: 1460,
-          y: 0,
+          x: 520.0000000000001,
+          y: 90,
         },
       },
       data: {
         title: 'Loop_1',
         loopFor: {
           type: 'ref',
-          content: ['start_0', 'array_obj'],
+          content: ['start_0', 'questions'],
         },
         loopOutputs: {
-          acm: {
+          results: {
             type: 'ref',
-            content: ['llm_6aSyo', 'result'],
-          },
-        },
-        outputs: {
-          type: 'object',
-          required: [],
-          properties: {
-            acm: {
-              type: 'array',
-              items: {
-                type: 'string',
-              },
-            },
+            content: ['llm_4tfMh', 'result'],
           },
         },
       },
       blocks: [
         {
-          id: 'llm_6aSyo',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 344,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_3',
-            inputsValues: {
-              modelName: {
-                type: 'constant',
-                content: 'gpt-3.5-turbo',
-              },
-              apiKey: {
-                type: 'constant',
-                content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-              },
-              apiHost: {
-                type: 'constant',
-                content: 'https://mock-ai-url/api/v3',
-              },
-              temperature: {
-                type: 'constant',
-                content: 0.5,
-              },
-              systemPrompt: {
-                type: 'template',
-                content: '# Role\nYou are an AI assistant.\n',
-              },
-              prompt: {
-                type: 'template',
-                content: '',
-              },
-            },
-            inputs: {
-              type: 'object',
-              required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
-              properties: {
-                modelName: {
-                  type: 'string',
-                },
-                apiKey: {
-                  type: 'string',
-                },
-                apiHost: {
-                  type: 'string',
-                },
-                temperature: {
-                  type: 'number',
-                },
-                systemPrompt: {
-                  type: 'string',
-                  extra: {
-                    formComponent: 'prompt-editor',
-                  },
-                },
-                prompt: {
-                  type: 'string',
-                  extra: {
-                    formComponent: 'prompt-editor',
-                  },
-                },
-              },
-            },
-            outputs: {
-              type: 'object',
-              properties: {
-                result: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-        {
-          id: 'llm_ZqKlP',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 804,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_4',
-            inputsValues: {
-              modelName: {
-                type: 'constant',
-                content: 'gpt-3.5-turbo',
-              },
-              apiKey: {
-                type: 'constant',
-                content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-              },
-              apiHost: {
-                type: 'constant',
-                content: 'https://mock-ai-url/api/v3',
-              },
-              temperature: {
-                type: 'constant',
-                content: 0.5,
-              },
-              systemPrompt: {
-                type: 'template',
-                content: '# Role\nYou are an AI assistant.\n',
-              },
-              prompt: {
-                type: 'template',
-                content: '',
-              },
-            },
-            inputs: {
-              type: 'object',
-              required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
-              properties: {
-                modelName: {
-                  type: 'string',
-                },
-                apiKey: {
-                  type: 'string',
-                },
-                apiHost: {
-                  type: 'string',
-                },
-                temperature: {
-                  type: 'number',
-                },
-                systemPrompt: {
-                  type: 'string',
-                  extra: {
-                    formComponent: 'prompt-editor',
-                  },
-                },
-                prompt: {
-                  type: 'string',
-                  extra: {
-                    formComponent: 'prompt-editor',
-                  },
-                },
-              },
-            },
-            outputs: {
-              type: 'object',
-              properties: {
-                result: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-        {
-          id: 'block_start_PUDtS',
+          id: 'block_start_O1vrq',
           type: 'block-start',
           meta: {
             position: {
               x: 32,
-              y: 167.1,
+              y: 149,
             },
           },
           data: {},
         },
         {
-          id: 'block_end_leBbs',
+          id: 'block_end_iOtJW',
           type: 'block-end',
           meta: {
             position: {
-              x: 1116,
-              y: 167.1,
+              x: 1110.1458333333333,
+              y: 425.73749999999995,
             },
           },
           data: {},
+        },
+        {
+          id: 'llm_4tfMh',
+          type: 'llm',
+          meta: {
+            position: {
+              x: 804,
+              y: 234.23749999999998,
+            },
+          },
+          data: {
+            title: 'LLM_1',
+            inputsValues: {
+              modelName: {
+                type: 'constant',
+                content: 'ep-20250206192339-nnr9m',
+              },
+              apiKey: {
+                type: 'constant',
+                content: 'b0515e86-d99f-4b6c-87f6-f00dad61fc0a',
+              },
+              apiHost: {
+                type: 'constant',
+                content: 'https://ark.cn-beijing.volces.com/api/v3',
+              },
+              temperature: {
+                type: 'constant',
+                content: 0.5,
+              },
+              systemPrompt: {
+                type: 'template',
+                content:
+                  '# Role\nYou are a "math formula {{loop_TMfff_locals.index}}" calculator.\n',
+              },
+              prompt: {
+                type: 'template',
+                content:
+                  'Just give me the answer of "{{loop_TMfff_locals.item}}=?", just one number, no other words',
+              },
+            },
+            inputs: {
+              type: 'object',
+              required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
+              properties: {
+                modelName: {
+                  type: 'string',
+                },
+                apiKey: {
+                  type: 'string',
+                },
+                apiHost: {
+                  type: 'string',
+                },
+                temperature: {
+                  type: 'number',
+                },
+                systemPrompt: {
+                  type: 'string',
+                  extra: {
+                    formComponent: 'prompt-editor',
+                  },
+                },
+                prompt: {
+                  type: 'string',
+                  extra: {
+                    formComponent: 'prompt-editor',
+                  },
+                },
+              },
+            },
+            outputs: {
+              type: 'object',
+              properties: {
+                result: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+        {
+          id: 'condition_L6_6g',
+          type: 'condition',
+          meta: {
+            position: {
+              x: 344,
+              y: 45,
+            },
+          },
+          data: {
+            title: 'Condition',
+            conditions: [
+              {
+                value: {
+                  left: {
+                    type: 'ref',
+                    content: ['loop_TMfff_locals', 'index'],
+                  },
+                  operator: 'lte',
+                  right: {
+                    type: 'constant',
+                    content: 2,
+                  },
+                },
+                key: 'if_w28hW',
+              },
+              {
+                value: {
+                  left: {
+                    type: 'ref',
+                    content: ['loop_TMfff_locals', 'index'],
+                  },
+                  operator: 'gt',
+                  right: {
+                    type: 'constant',
+                    content: 6,
+                  },
+                },
+                key: 'if_i8b7U',
+              },
+              {
+                value: {
+                  type: 'expression',
+                  content: '',
+                  left: {
+                    type: 'ref',
+                    content: ['loop_TMfff_locals', 'index'],
+                  },
+                  operator: 'is_not_empty',
+                },
+                key: 'if_NaLP_A',
+              },
+            ],
+          },
+        },
+        {
+          id: 'continue_XEM73',
+          type: 'continue',
+          meta: {
+            position: {
+              x: 804,
+              y: 73.7625,
+            },
+          },
+          data: {
+            title: 'Continue_1',
+          },
+        },
+        {
+          id: 'break_iq-x4',
+          type: 'break',
+          meta: {
+            position: {
+              x: 804,
+              y: 154,
+            },
+          },
+          data: {
+            title: 'Break_1',
+          },
         },
       ],
       edges: [
         {
-          sourceNodeID: 'block_start_PUDtS',
-          targetNodeID: 'llm_6aSyo',
+          sourceNodeID: 'block_start_O1vrq',
+          targetNodeID: 'condition_L6_6g',
         },
         {
-          sourceNodeID: 'llm_6aSyo',
-          targetNodeID: 'llm_ZqKlP',
+          sourceNodeID: 'llm_4tfMh',
+          targetNodeID: 'block_end_iOtJW',
         },
         {
-          sourceNodeID: 'llm_ZqKlP',
-          targetNodeID: 'block_end_leBbs',
+          sourceNodeID: 'condition_L6_6g',
+          targetNodeID: 'llm_4tfMh',
+          sourcePortID: 'if_NaLP_A',
+        },
+        {
+          sourceNodeID: 'condition_L6_6g',
+          targetNodeID: 'continue_XEM73',
+          sourcePortID: 'if_w28hW',
+        },
+        {
+          sourceNodeID: 'condition_L6_6g',
+          targetNodeID: 'break_iq-x4',
+          sourcePortID: 'if_i8b7U',
         },
       ],
-    },
-    {
-      id: 'group_nYl6D',
-      type: 'group',
-      meta: {
-        position: {
-          x: 1624,
-          y: 698.2,
-        },
-      },
-      data: {
-        parentID: 'root',
-        blockIDs: ['llm_8--A3', 'llm_vTyMa'],
-      },
-    },
-    {
-      id: 'llm_8--A3',
-      type: 'llm',
-      meta: {
-        position: {
-          x: 180,
-          y: 0,
-        },
-      },
-      data: {
-        title: 'LLM_1',
-        inputsValues: {
-          modelName: {
-            type: 'constant',
-            content: 'gpt-3.5-turbo',
-          },
-          apiKey: {
-            type: 'constant',
-            content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-          },
-          apiHost: {
-            type: 'constant',
-            content: 'https://mock-ai-url/api/v3',
-          },
-          temperature: {
-            type: 'constant',
-            content: 0.5,
-          },
-          systemPrompt: {
-            type: 'template',
-            content: '# Role\nYou are an AI assistant.\n',
-          },
-          prompt: {
-            type: 'template',
-            content: '# User Input\nquery:{{start_0.query}}\nenable:{{start_0.enable}}',
-          },
-        },
-        inputs: {
-          type: 'object',
-          required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
-          properties: {
-            modelName: {
-              type: 'string',
-            },
-            apiKey: {
-              type: 'string',
-            },
-            apiHost: {
-              type: 'string',
-            },
-            temperature: {
-              type: 'number',
-            },
-            systemPrompt: {
-              type: 'string',
-              extra: {
-                formComponent: 'prompt-editor',
-              },
-            },
-            prompt: {
-              type: 'string',
-              extra: {
-                formComponent: 'prompt-editor',
-              },
-            },
-          },
-        },
-        outputs: {
-          type: 'object',
-          properties: {
-            result: {
-              type: 'string',
-            },
-          },
-        },
-      },
-    },
-    {
-      id: 'llm_vTyMa',
-      type: 'llm',
-      meta: {
-        position: {
-          x: 640,
-          y: 10,
-        },
-      },
-      data: {
-        title: 'LLM_2',
-        inputsValues: {
-          modelName: {
-            type: 'constant',
-            content: 'gpt-3.5-turbo',
-          },
-          apiKey: {
-            type: 'constant',
-            content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-          },
-          apiHost: {
-            type: 'constant',
-            content: 'https://mock-ai-url/api/v3',
-          },
-          temperature: {
-            type: 'constant',
-            content: 0.5,
-          },
-          systemPrompt: {
-            type: 'template',
-            content: '# Role\nYou are an AI assistant.\n',
-          },
-          prompt: {
-            type: 'template',
-            content: '# LLM Input\nresult:{{llm_8--A3.result}}',
-          },
-        },
-        inputs: {
-          type: 'object',
-          required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
-          properties: {
-            modelName: {
-              type: 'string',
-            },
-            apiKey: {
-              type: 'string',
-            },
-            apiHost: {
-              type: 'string',
-            },
-            temperature: {
-              type: 'number',
-            },
-            systemPrompt: {
-              type: 'string',
-              extra: {
-                formComponent: 'prompt-editor',
-              },
-            },
-            prompt: {
-              type: 'string',
-              extra: {
-                formComponent: 'prompt-editor',
-              },
-            },
-          },
-        },
-        outputs: {
-          type: 'object',
-          properties: {
-            result: {
-              type: 'string',
-            },
-          },
-        },
-      },
     },
   ],
   edges: [
     {
       sourceNodeID: 'start_0',
-      targetNodeID: 'http_rDGIH',
+      targetNodeID: 'loop_TMfff',
     },
     {
-      sourceNodeID: 'http_rDGIH',
-      targetNodeID: 'condition_0',
-    },
-    {
-      sourceNodeID: 'condition_0',
-      targetNodeID: 'loop_Ycnsk',
-      sourcePortID: 'if_0',
-    },
-    {
-      sourceNodeID: 'condition_0',
-      targetNodeID: 'llm_8--A3',
-      sourcePortID: 'else',
-    },
-    {
-      sourceNodeID: 'llm_vTyMa',
+      sourceNodeID: 'loop_TMfff',
       targetNodeID: 'end_0',
-    },
-    {
-      sourceNodeID: 'loop_Ycnsk',
-      targetNodeID: 'end_0',
-    },
-    {
-      sourceNodeID: 'llm_8--A3',
-      targetNodeID: 'llm_vTyMa',
     },
   ],
-  globalVariable: {
-    type: 'object',
-    required: [],
-    properties: {
-      userId: {
-        type: 'string',
-      },
-    },
-  },
 };
