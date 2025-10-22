@@ -7,7 +7,6 @@
 * [left](/auto-docs/form-materials/interfaces/DBConditionRowValueType.md#left)
 * [operator](/auto-docs/form-materials/interfaces/DBConditionRowValueType.md#operator)
 * [right](/auto-docs/form-materials/interfaces/DBConditionRowValueType.md#right)
-* [schema](/auto-docs/form-materials/interfaces/DBConditionRowValueType.md#schema)
 
 ## Properties
 
@@ -26,9 +25,3 @@
 ### right
 
 `Optional` **right**: [`IFlowConstantRefValue`](/auto-docs/form-materials/types/IFlowConstantRefValue.md)
-
-***
-
-### schema
-
-`Optional` **schema**: [`IJsonSchema`](/auto-docs/form-materials/interfaces/IJsonSchema.md)<`string`>

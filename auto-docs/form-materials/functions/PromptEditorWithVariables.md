@@ -1,6 +1,6 @@
 # Function: PromptEditorWithVariables
 
-**PromptEditorWithVariables**(`props`): `null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>
+**PromptEditorWithVariables**(`props`): `Element`
 
 #### Parameters
 
@@ -10,4 +10,4 @@
 
 #### Returns
 
-`null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>
+`Element`

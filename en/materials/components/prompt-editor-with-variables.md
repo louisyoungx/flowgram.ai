@@ -25,7 +25,14 @@ import { PromptEditorWithVariables } from '@flowgram.ai/form-materials';
 const formMeta = {
   render: () => (
     <>
-      <Field<any> name="prompt_template" defaultValue="Hello {{user.name}}, your balance is {{user.balance}}">
+      <Field<any> name="prompt_template" defaultValue={{
+              type: 'template',
+              content: `# Role
+You are a helpful assistant
+
+# Query
+{{start_0.str}}`,
+            }}>
         {({ field }) => (
           <PromptEditorWithVariables
             value={field.value}
@@ -137,6 +144,8 @@ The `EditorVariableTagInject` component is responsible for variable tag renderin
 * `EditorAPI`: Editor API interface
 
 #### coze-editor-extensions materials
+
+See [CozeEditorExtensions](/en/materials/components/coze-editor-extensions.md)
 
 * `EditorVariableTree`: Variable tree selection trigger
 * `EditorVariableTagInject`: Variable tag display

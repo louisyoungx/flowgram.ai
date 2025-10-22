@@ -1,13 +1,13 @@
 # Function: PromptEditorWithInputs
 
-**PromptEditorWithInputs**(`props`): `null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>
+**PromptEditorWithInputs**(`«destructured»`): `Element`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `props` | [`PromptEditorWithInputsProps`](/en/auto-docs/form-materials/interfaces/PromptEditorWithInputsProps.md) |
+| `«destructured»` | [`PromptEditorWithInputsProps`](/en/auto-docs/form-materials/interfaces/PromptEditorWithInputsProps.md) |
 
 #### Returns
 
-`null` | `ReactElement`<`any`, `string` | `JSXElementConstructor`<`any`>>
+`Element`
