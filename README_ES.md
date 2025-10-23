@@ -54,8 +54,8 @@ npm start
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
 | [Lienzo de diseño libre](https://flowgram.ai/examples/free-layout/free-feature-overview.html)  | Lienzo de diseño libre donde los nodos se pueden colocar en cualquier lugar y conectar mediante líneas de forma libre.                                                                                 | ![Demostración de diseño libre](./apps/docs/src/public/free-layout/free-layout-demo.gif)       |
 | [Lienzo de diseño fijo](https://flowgram.ai/examples/fixed-layout/fixed-feature-overview.html) | Lienzo de diseño fijo donde los nodos se pueden arrastrar a posiciones específicas, con soporte para nodos compuestos como ramas y bucles.                                                             | ![Demostración de diseño fijo](./apps/docs/src/public/fixed-layout/fixed-layout-demo.gif)      |
-| [Formulario](https://flowgram.ai/examples/node-form/basic.html)                                | Formularios integrados y Formulario mantiene las operaciones CRUD de datos de nodos y proporciona capacidades para renderizado, validación, efectos secundarios, vinculación de lienzo/variables, etc. | ![Formulario](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78) |
-| [Variable](https://flowgram.ai/guide/variable/basic.html)                                      | Las variables declarativas desempeñan un papel similar al de los "conectores". Son los "mensajeros" que se utilizan para pasar información entre diferentes nodos.                                     | ![Variable](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5)   |
+| [Formulario](https://flowgram.ai/examples/node-form/basic.html)                                | El motor de formularios gestiona las operaciones CRUD de datos de nodos y proporciona capacidades de renderizado, validación, efectos secundarios, vinculación y captura de errores, simplificando el desarrollo de configuraciones de nodos. | ![Formulario](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78) |
+| [Variable](https://flowgram.ai/guide/variable/basic.html)                                      | El motor de variables admite restricciones de ámbito, inspección de estructura de variables e inferencia de tipos, facilitando la gestión del flujo de datos dentro del flujo de trabajo.                                     | ![Variable](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5)   |
 
 
 ## 📖 Documentación
@@ -64,7 +64,7 @@ Puede encontrar la documentación de FlowGram [en el sitio web](https://flowgram
 
 La documentación se divide en varias secciones:
 
-- [Inicio rápido](https://flowgram.ai/guide/getting-started/install.html)
+- [Inicio rápido](https://flowgram.ai/guide/getting-started/introduction.html)
 - [Lienzo](https://flowgram.ai/guide/free-layout/load.html)
 - [Formulario](https://flowgram.ai/guide/form/form.html)
 - [Variable](https://flowgram.ai/guide/variable/basic.html)
@@ -73,6 +73,7 @@ La documentación se divide en varias secciones:
 - [Guías avanzadas](https://flowgram.ai/guide/advanced/zoom-scroll.html)
 - [Referencia de la API](https://flowgram.ai/api/index.html)
 - [Dónde obtener soporte](https://flowgram.ai/guide/contact-us.html)
+- [Guía de contribución](https://flowgram.ai/guide/contributing.html)
 
 ## 🙌 Colaboradores
 

@@ -54,8 +54,8 @@ Viel Spaß! [http://localhost:3000](http://localhost:3000)
 | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | [Free Layout Canvas](https://flowgram.ai/examples/free-layout/free-feature-overview.html)    | Freie Layout-Canvas, auf der Knoten beliebig platziert und mit Freiformlinien verbunden werden können.                                                                        | ![Free Layout Demo](./apps/docs/src/public/free-layout/free-layout-demo.gif)                 |
 | [Fixed Layout Canvas](https://flowgram.ai/examples/fixed-layout/fixed-feature-overview.html) | Feste Layout-Canvas, auf der Knoten an bestimmte Positionen gezogen werden können, mit Unterstützung für zusammengesetzte Knoten wie Verzweigungen und Schleifen.             | ![Fixed Layout Demo](./apps/docs/src/public/fixed-layout/fixed-layout-demo.gif)              |
-| [Formular](https://flowgram.ai/examples/node-form/basic.html)                                | Integrierte Formulare und Formular verwaltet Knoten-Daten-CRUD-Operationen und bietet Funktionen zum Rendern, Validieren, für Nebeneffekte, Canvas-/Variablenverknüpfung usw. | ![Formular](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78) |
-| [Variable](https://flowgram.ai/guide/variable/basic.html)                                    | Deklarative Variablen spielen eine ähnliche Rolle wie "Konnektoren". Sie sind die "Boten", die verwendet werden, um Informationen zwischen verschiedenen Knoten zu übergeben. | ![Variable](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5) |
+| [Formular](https://flowgram.ai/examples/node-form/basic.html)                                | Die Formular-Engine verwaltet CRUD-Operationen von Knotendaten und bietet Rendering-, Validierungs-, Nebeneffekt-, Verknüpfungs- und Fehlererfassungsfunktionen, wodurch die Entwicklung von Knotenkonfigurationen vereinfacht wird. | ![Formular](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78) |
+| [Variable](https://flowgram.ai/guide/variable/basic.html)                                    | Die Variablen-Engine unterstützt Bereichsbeschränkungen, Variablenstrukturinspektion und Typinferenz, wodurch der Datenfluss im Workflow einfach verwaltet werden kann. | ![Variable](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5) |
 
 
 ## 📖 Dokumentation
@@ -64,7 +64,7 @@ Sie finden die FlowGram-Dokumentation [auf der Website](https://flowgram.ai).
 
 Die Dokumentation ist in mehrere Abschnitte unterteilt:
 
-- [Schnellstart](https://flowgram.ai/guide/getting-started/install.html)
+- [Schnellstart](https://flowgram.ai/guide/getting-started/introduction.html)
 - [Canvas](https://flowgram.ai/guide/free-layout/load.html)
 - [Formular](https://flowgram.ai/guide/form/form.html)
 - [Variable](https://flowgram.ai/guide/variable/basic.html)
@@ -73,6 +73,7 @@ Die Dokumentation ist in mehrere Abschnitte unterteilt:
 - [Erweiterte Anleitungen](https://flowgram.ai/guide/advanced/zoom-scroll.html)
 - [API-Referenz](https://flowgram.ai/api/index.html)
 - [Wo Sie Unterstützung erhalten](https://flowgram.ai/guide/contact-us.html)
+- [Leitfaden für Beiträge](https://flowgram.ai/guide/contributing.html)
 
 ## 🙌 Mitwirkende
 

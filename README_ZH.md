@@ -14,7 +14,7 @@
 
 FlowGram 是一个可组合、可视化、易于集成且可扩展的工作流开发框架与工具集。
 我们的目标是帮助开发者以更快、更简单的方式搭建 AI 工作流平台。
-FlowGram 内置开箱开箱即用的工作流开发能力：可视化流程画布、节点配置表单、变量作用域链，以及可直接使用的物料（LLM、条件、代码编辑器等）。这并非一个现成的工作流平台，而是帮助你构建平台的框架与工具。
+FlowGram 内置开箱开箱即用的工作流开发能力：可视化流程画布、节点配置表单、变量作用域链，以及开箱即用的物料（LLM、条件、代码编辑器等）。这并非一个现成的工作流平台，而是帮助你构建平台的框架与工具。
 
 了解更多 🌐 [FlowGram.AI](https://flowgram.ai)
 
@@ -50,13 +50,12 @@ npm start
 
 ## ✨ 特性
 
-| 特性                                                                                         | 说明                                                                                | 演示                                                                                         |
-| -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| [Free Layout Canvas](https://flowgram.ai/examples/free-layout/free-feature-overview.html)    | 自由布局画布，节点可任意摆放，并以自由曲线进行连接。                                | ![Free Layout Demo](./apps/docs/src/public/free-layout/free-layout-demo.gif)                 |
-| [Fixed Layout Canvas](https://flowgram.ai/examples/fixed-layout/fixed-feature-overview.html) | 固定布局画布，节点可拖拽至指定位置，支持复合节点（如分支与循环）。                  | ![Fixed Layout Demo](./apps/docs/src/public/fixed-layout/fixed-layout-demo.gif)              |
-| [Form](https://flowgram.ai/examples/node-form/basic.html)                                    | 内置表单，维护节点数据的增删改查，并提供渲染、校验、副作用、与画布/变量联动等能力。 | ![Form](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78)     |
-| [Variable](https://flowgram.ai/guide/variable/basic.html)                                    | 声明式变量扮演类似“连接器”的角色，是在不同节点之间传递信息的“信使”。                | ![Variable](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5) |
-
+| 特性                                                                                         | 说明                                                                              | 演示                                                                                         |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [Free Layout Canvas](https://flowgram.ai/examples/free-layout/free-feature-overview.html)    | 自由布局画布，节点可任意摆放，可在节点间创建边进行链接。                          | ![Free Layout Demo](./apps/docs/src/public/free-layout/free-layout-demo.gif)                 |
+| [Fixed Layout Canvas](https://flowgram.ai/examples/fixed-layout/fixed-feature-overview.html) | 固定布局画布，节点可拖拽至指定位置，支持复合节点（如分支与循环）。                | ![Fixed Layout Demo](./apps/docs/src/public/fixed-layout/fixed-layout-demo.gif)              |
+| [Form](https://flowgram.ai/examples/node-form/basic.html)                                    | 表单引擎管理节点数据的增删改查操作，并提供渲染、验证、副作用、联动和错误捕获等功能，简化节点配置的开发。 | ![Form](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78)     |
+| [Variable](https://flowgram.ai/guide/variable/basic.html)                                    | 变量引擎支持作用域约束、变量结构检查和类型推断等功能，便于管理工作流中的数据流。  | ![Variable](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5) |
 
 ## 📖 文档
 
@@ -64,7 +63,7 @@ npm start
 
 文档分为以下章节：
 
-- [快速入门](https://flowgram.ai/guide/getting-started/install.html)
+- [快速入门](https://flowgram.ai/guide/getting-started/introduction.html)
 - [自由画布](https://flowgram.ai/guide/free-layout/load.html)
 - [固定画布](https://flowgram.ai/guide/fixed-layout/load.html)
 - [表单](https://flowgram.ai/guide/form/form.html)
@@ -74,6 +73,7 @@ npm start
 - [进阶指南](https://flowgram.ai/guide/advanced/zoom-scroll.html)
 - [API 参考](https://flowgram.ai/api/index.html)
 - [获取支持](https://flowgram.ai/guide/contact-us.html)
+- [贡献指南](https://flowgram.ai/guide/contributing.html)
 
 ## 🙌 贡献者
 

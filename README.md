@@ -50,12 +50,12 @@ Enjoy it! [http://localhost:3000](http://localhost:3000)
 
 ## ✨ Features
 
-| Feature                                                                                      | Description                                                                                                                                                  | Demo                                                                                         |
-| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| [Free Layout Canvas](https://flowgram.ai/examples/free-layout/free-feature-overview.html)    | Free layout canvas where nodes can be placed anywhere and connected using free-form lines.                                                                   | ![Free Layout Demo](./apps/docs/src/public/free-layout/free-layout-demo.gif)                 |
-| [Fixed Layout Canvas](https://flowgram.ai/examples/fixed-layout/fixed-feature-overview.html) | Fixed layout canvas where nodes can be dragged to specified positions, with support for compound nodes like branches and loops.                              | ![Fixed Layout Demo](./apps/docs/src/public/fixed-layout/fixed-layout-demo.gif)              |
-| [Form](https://flowgram.ai/examples/node-form/basic.html)                                    | Built-in forms and Form maintains node data CRUD operations and provides capabilities for rendering, validation, side effects, canvas/variable linkage, etc. | ![Form](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78)     |
-| [Variable](https://flowgram.ai/guide/variable/basic.html)                                    | Declarative Variable play a similar role as "connectors." They are the "messengers" used to pass information between different nodes.                        | ![Variable](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5) |
+| Feature                                                                                      | Description                                                                                                                                                                                               | Demo                                                                                         |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [Free Layout Canvas](https://flowgram.ai/examples/free-layout/free-feature-overview.html)    | Free layout canvas where nodes can be placed anywhere and connected using free-form lines.                                                                                                                | ![Free Layout Demo](./apps/docs/src/public/free-layout/free-layout-demo.gif)                 |
+| [Fixed Layout Canvas](https://flowgram.ai/examples/fixed-layout/fixed-feature-overview.html) | Fixed layout canvas where nodes can be dragged to specified positions, with support for compound nodes like branches and loops.                                                                           | ![Fixed Layout Demo](./apps/docs/src/public/fixed-layout/fixed-layout-demo.gif)              |
+| [Form](https://flowgram.ai/examples/node-form/basic.html)                                    | The form engine manages the CRUD operations of node data and provides rendering, validation, side effects, linkage, and error-capturing capabilities, simplifying the development of node configurations. | ![Form](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78)     |
+| [Variable](https://flowgram.ai/guide/variable/basic.html)                                    | The variable engine supports scope constraints, variable structure inspection, and type inference, making it easy to manage data flow within the workflow.                                                | ![Variable](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5) |
 
 
 ## 📖 Documentation
@@ -64,7 +64,7 @@ You can find the FlowGram documentation [on the website](https://flowgram.ai).
 
 The documentation is divided into several sections:
 
-- [Quick Start](https://flowgram.ai/guide/getting-started/install.html)
+- [Quick Start](https://flowgram.ai/guide/getting-started/introduction.html)
 - [Canvas](https://flowgram.ai/guide/free-layout/load.html)
 - [Form](https://flowgram.ai/guide/form/form.html)
 - [Variable](https://flowgram.ai/guide/variable/basic.html)
@@ -73,6 +73,7 @@ The documentation is divided into several sections:
 - [Advanced Guides](https://flowgram.ai/guide/advanced/zoom-scroll.html)
 - [API Reference](https://flowgram.ai/api/index.html)
 - [Where to get Support](https://flowgram.ai/guide/contact-us.html)
+- [Contributing Guide](https://flowgram.ai/guide/contributing.html)
 
 ## 🙌 Contributors
 

@@ -54,8 +54,8 @@ npm start
 | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | [Холст со свободной компоновкой](https://flowgram.ai/examples/free-layout/free-feature-overview.html)      | Холст со свободной компоновкой, где узлы можно размещать где угодно и соединять линиями произвольной формы.                                                                       | ![Демо со свободной компоновкой](./apps/docs/src/public/free-layout/free-layout-demo.gif)      |
 | [Холст с фиксированной компоновкой](https://flowgram.ai/examples/fixed-layout/fixed-feature-overview.html) | Холст с фиксированной компоновкой, где узлы можно перетаскивать в указанные позиции, с поддержкой составных узлов, таких как ветви и циклы.                                       | ![Демо с фиксированной компоновкой](./apps/docs/src/public/fixed-layout/fixed-layout-demo.gif) |
-| [Форма](https://flowgram.ai/examples/node-form/basic.html)                                                 | Встроенные формы и Форма поддерживают операции CRUD с данными узлов и предоставляют возможности для рендеринга, проверки, побочных эффектов, связывания холста/переменных и т. д. | ![Форма](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78)      |
-| [Переменная](https://flowgram.ai/guide/variable/basic.html)                                                | Декларативные переменные играют роль, аналогичную «коннекторам». Это «посланники», используемые для передачи информации между различными узлами.                                  | ![Переменная](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5) |
+| [Форма](https://flowgram.ai/examples/node-form/basic.html)                                                 | Движок форм управляет операциями CRUD данных узлов и предоставляет возможности рендеринга, валидации, побочных эффектов, связывания и обработки ошибок, упрощая разработку конфигураций узлов. | ![Форма](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78)      |
+| [Переменная](https://flowgram.ai/guide/variable/basic.html)                                                | Движок переменных поддерживает ограничения области видимости, инспекцию структуры переменных и вывод типов, облегчая управление потоком данных в рабочем процессе.                                  | ![Переменная](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5) |
 
 
 ## 📖 Документация
@@ -64,7 +64,7 @@ npm start
 
 Документация разделена на несколько разделов:
 
-- [Быстрый старт](https://flowgram.ai/guide/getting-started/install.html)
+- [Быстрый старт](https://flowgram.ai/guide/getting-started/introduction.html)
 - [Холст](https://flowgram.ai/guide/free-layout/load.html)
 - [Форма](https://flowgram.ai/guide/form/form.html)
 - [Переменная](https://flowgram.ai/guide/variable/basic.html)
@@ -73,6 +73,7 @@ npm start
 - [Расширенные руководства](https://flowgram.ai/guide/advanced/zoom-scroll.html)
 - [Справочник по API](https://flowgram.ai/api/index.html)
 - [Где получить поддержку](https://flowgram.ai/guide/contact-us.html)
+- [Руководство по вкладу](https://flowgram.ai/guide/contributing.html)
 
 ## 🙌 Участники
 

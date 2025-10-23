@@ -54,8 +54,8 @@ Aproveite! [http://localhost:3000](http://localhost:3000)
 | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
 | [Tela de Layout Livre](https://flowgram.ai/examples/free-layout/free-feature-overview.html)  | Tela de layout livre onde os nós podem ser colocados em qualquer lugar e conectados usando linhas de forma livre.                                                                    | ![Demonstração de Layout Livre](./apps/docs/src/public/free-layout/free-layout-demo.gif)       |
 | [Tela de Layout Fixo](https://flowgram.ai/examples/fixed-layout/fixed-feature-overview.html) | Tela de layout fixo onde os nós podem ser arrastados para posições especificadas, com suporte para nós compostos como ramificações e loops.                                          | ![Demonstração de Layout Fixo](./apps/docs/src/public/fixed-layout/fixed-layout-demo.gif)      |
-| [Formulário](https://flowgram.ai/examples/node-form/basic.html)                              | Formulários integrados e o Formulário mantém as operações CRUD de dados do nó e fornece recursos para renderização, validação, efeitos colaterais, vinculação de tela/variável, etc. | ![Formulário](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78) |
-| [Variável](https://flowgram.ai/guide/variable/basic.html)                                    | As variáveis declarativas desempenham um papel semelhante aos "conectores". Elas são os "mensageiros" usados para passar informações entre diferentes nós.                           | ![Variável](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5)   |
+| [Formulário](https://flowgram.ai/examples/node-form/basic.html)                              | O mecanismo de formulário gerencia as operações CRUD de dados do nó e fornece recursos de renderização, validação, efeitos colaterais, vinculação e captura de erros, simplificando o desenvolvimento de configurações de nó. | ![Formulário](https://github.com/user-attachments/assets/13e9b4cd-e993-4d21-901c-fb6cf106de78) |
+| [Variável](https://flowgram.ai/guide/variable/basic.html)                                    | O mecanismo de variáveis suporta restrições de escopo, inspeção de estrutura de variáveis e inferência de tipos, facilitando o gerenciamento do fluxo de dados dentro do fluxo de trabalho.                           | ![Variável](https://github.com/user-attachments/assets/442006db-25e3-4fb5-972c-7a0545638ff5)   |
 
 
 ## 📖 Documentação
@@ -64,7 +64,7 @@ Você pode encontrar a documentação do FlowGram [no site](https://flowgram.ai)
 
 A documentação está dividida em várias seções:
 
-- [Início Rápido](https://flowgram.ai/guide/getting-started/install.html)
+- [Início Rápido](https://flowgram.ai/guide/getting-started/introduction.html)
 - [Tela](https://flowgram.ai/guide/free-layout/load.html)
 - [Formulário](https://flowgram.ai/guide/form/form.html)
 - [Variável](https://flowgram.ai/guide/variable/basic.html)
@@ -73,6 +73,7 @@ A documentação está dividida em várias seções:
 - [Guias Avançados](https://flowgram.ai/guide/advanced/zoom-scroll.html)
 - [Referência da API](https://flowgram.ai/api/index.html)
 - [Onde obter suporte](https://flowgram.ai/guide/contact-us.html)
+- [Guia de contribuição](https://flowgram.ai/guide/contributing.html)
 
 ## 🙌 Colaboradores
 
