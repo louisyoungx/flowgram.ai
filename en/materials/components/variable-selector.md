@@ -111,6 +111,8 @@ const formMeta = {
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `skipVariable` | `(variable?: BaseVariableField) => boolean` | - | Custom variable filter function |
+| `includeSchema` | `IJsonSchema \| IJsonSchema[]` | - | Variable type inclusion filter conditions |
+| `excludeSchema` | `IJsonSchema \| IJsonSchema[]` | - | Variable type exclusion filter conditions |
 | `children` | `React.ReactNode` | - | Child components |
 
 ## Source Code Guide

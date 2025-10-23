@@ -1,5 +1,5 @@
 import { SourceCode } from '@theme';
-import { BasicStory } from 'components/form-materials/components/prompt-editor-with-variables';
+import { BasicStory, StringOnlyStory } from 'components/form-materials/components/prompt-editor-with-variables';
 
 # PromptEditorWithVariables
 
@@ -16,6 +16,14 @@ PromptEditorWithVariables is an enhanced prompt editor that integrates variable 
 ## Demo
 
 ### Basic Usage
+
+:::tip{title="Variable Insertion"}
+
+Enter the `@`, `{` characters in the editor to trigger the variable selector.
+
+After entering `@`, `{`, a list of available variables will be displayed. Selecting a variable will automatically insert it in the `{{variable.path}}` format.
+
+:::
 
 <BasicStory />
 
@@ -45,18 +53,37 @@ You are a helpful assistant
 }
 ```
 
-### Variable Insertion
+### String Only Variables
 
-Enter the `@`, `{` characters in the editor to trigger the variable selector.
+<StringOnlyStory />
 
-After entering `@`, `{`, a list of available variables will be displayed. Selecting a variable will automatically insert it in the `{{variable.path}}` format.
+```tsx pure title="form-meta.tsx"
+import { PromptEditorWithVariables, VariableSelectorProvider } from '@flowgram.ai/form-materials';
+
+const STRING_ONLY_SCHEMA = { type: 'string' };
+
+const formMeta = {
+  render: () => (
+    <VariableSelectorProvider includeSchema={STRING_ONLY_SCHEMA}>
+      <Field<any> name="prompt_template">
+        {({ field }) => (
+          <PromptEditorWithVariables
+            value={field.value}
+            onChange={(value) => field.onChange(value)}
+          />
+        )}
+      </Field>
+    </VariableSelectorProvider>
+  ),
+}
+```
 
 ## API Reference
 
 ### PromptEditorWithVariables Props
 
 | Property | Type | Default | Description |
-|----------|------|---------|-------------|
+|--------|------|--------|------|
 | `value` | `{ type: 'template', content: string }` | - | Prompt template content |
 | `onChange` | `(value: { type: 'template', content: string }) => void` | - | Callback function when content changes |
 | `readonly` | `boolean` | `false` | Whether it's read-only mode |
@@ -68,7 +95,7 @@ After entering `@`, `{`, a list of available variables will be displayed. Select
 
 ## Source Code Guide
 
-<SourceCode href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/components/prompt-editor-with-variables" />
+<SourceCode href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/components/prompt-editor-with-variables/index.tsx" />
 
 Use CLI command to copy source code locally:
 
@@ -80,101 +107,20 @@ npx @flowgram.ai/cli@latest materials components/prompt-editor-with-variables
 
 ```
 prompt-editor-with-variables/
-├── index.tsx           # Lazy loading export file
-├── editor.tsx          # Main component implementation
-└── README.md          # Component documentation
-
-prompt-editor/
-├── index.tsx           # Basic prompt editor export
-├── editor.tsx          # Basic prompt editor implementation
-├── types.ts            # Type definitions
-├── styles.ts           # Style components
-└── extensions/         # Editor extensions
-    ├── markdown.tsx    # Markdown highlighting
-    ├── language-support.tsx # Language support
-    └── jinja.tsx       # Jinja template highlighting
+└── index.tsx           # Main component implementation
 ```
 
 ### Core Implementation Explanation
 
-#### Variable Selector Integration
+#### Variable Capability Integration
 
-PromptEditorWithVariables extends the basic PromptEditor, adding variable management functionality:
+PromptEditorWithVariables extends the basic [PromptEditor](/en/materials/components/prompt-editor.md) and adds variable reference and tag display functionality based on [CozeEditorExtensions](/en/materials/components/coze-editor-extensions.md).
 
-```typescript
-export function PromptEditorWithVariables(props: PromptEditorWithVariablesProps) {
-  return (
-    <PromptEditor {...props}>
-      <EditorVariableTree />
-      <EditorVariableTagInject />
-    </PromptEditor>
-  );
-}
-```
+### Dependent Materials
 
-#### Variable Tree Selector
+[**PromptEditor**](/en/materials/components/prompt-editor.md)
 
-The `EditorVariableTree` component provides a tree-structured variable selector:
-
-* Supports triggering variable selection with `@`
-* Supports tree display of nested variables
-* Supports searching and filtering variables
-* Supports variable type icon display
-
-#### Variable Tag Injection
-
-The `EditorVariableTagInject` component is responsible for variable tag rendering and management:
-
-* Variable tag style rendering
-* Variable tag interaction handling
-* Variable tag validation and error prompts
-
-### Flowgram APIs Used
-
-#### @flowgram.ai/coze-editor/react
-
-* `Renderer`: Editor renderer
-* `EditorProvider`: Editor provider
-* `ActiveLinePlaceholder`: Active line placeholder
-* `InferValues`: Type inference tool
-
-#### @flowgram.ai/coze-editor/preset-prompt
-
-* `preset`: Prompt editor preset configuration
-* `EditorAPI`: Editor API interface
-
-#### coze-editor-extensions materials
-
-See [CozeEditorExtensions](/en/materials/components/coze-editor-extensions.md)
+[**CozeEditorExtensions**](/en/materials/components/coze-editor-extensions.md)
 
 * `EditorVariableTree`: Variable tree selection trigger
-* `EditorVariableTagInject`: Variable tag display
-
-### Overall Process
-
-```mermaid
-graph TD
-    A[PromptEditorWithVariables] --> B[Render PromptEditor]
-    B --> C[Load preset configuration]
-    C --> D[Integrate extension plugins]
-
-    D --> E[MarkdownHighlight]
-    D --> F[LanguageSupport]
-    D --> G[JinjaHighlight]
-
-    E --> H[Syntax highlighting]
-    F --> I[Language support]
-    G --> J[Template syntax]
-
-    A --> K[Integrate variable extensions]
-    K --> L[EditorVariableTree]
-    K --> M[EditorVariableTagInject]
-
-    L --> N[Variable selector]
-    M --> O[Variable tag rendering]
-
-    N --> P[Variable selection]
-    P --> Q[Insert variable]
-
-    Q --> R[Update template content]
-```
+* `EditorVariableTagInject`: Variable Tag display
