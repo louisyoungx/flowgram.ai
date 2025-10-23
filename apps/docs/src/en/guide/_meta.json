@@ -1,9 +1,8 @@
 [
-  "introduction",
   {
     "type": "dir",
-    "name": "quick-start",
-    "label": "Quick Start"
+    "name": "getting-started",
+    "label": "Getting Started"
   },
   {
     "type": "dir",

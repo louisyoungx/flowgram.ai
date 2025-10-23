@@ -1,9 +1,8 @@
 [
-  "introduction",
   {
     "type": "dir",
-    "name": "quick-start",
-    "label": "快速上手"
+    "name": "getting-started",
+    "label": "开始"
   },
   {
     "type": "dir",

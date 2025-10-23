@@ -29,6 +29,7 @@ export const NodeRender = (props: WorkflowNodeProps) => {
         justifyContent: 'center',
         position: 'relative',
         padding: 12,
+        cursor: 'move',
       }}
       node={props.node}
     >
