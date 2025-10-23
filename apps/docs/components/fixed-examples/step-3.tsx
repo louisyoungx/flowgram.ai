@@ -191,6 +191,11 @@ const FlowGramApp = () => (
         },
       ],
     }}
+    onAllLayersRendered={(ctx) => {
+      setTimeout(() => {
+        ctx.playground.config.fitView(ctx.document.root.bounds.pad(30));
+      }, 10);
+    }}
     materials={{
       renderDefaultNode: NodeRender,
       components: {

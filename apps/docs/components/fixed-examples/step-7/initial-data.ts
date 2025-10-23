@@ -7,6 +7,7 @@ import type { FlowDocumentJSON } from '@flowgram.ai/fixed-layout-editor';
 
 export const initialData: FlowDocumentJSON = {
   nodes: [
+    // 开始节点
     {
       id: 'start_0',
       type: 'start',
@@ -16,16 +17,65 @@ export const initialData: FlowDocumentJSON = {
       },
       blocks: [],
     },
+    // 分支节点
     {
-      id: 'custom_1',
-      type: 'custom',
+      id: 'condition_0',
+      type: 'condition',
       data: {
-        title: 'Custom',
-        content: 'custom content',
+        title: 'Condition',
+        content: 'condition content',
       },
+      blocks: [
+        {
+          id: 'branch_0',
+          type: 'block',
+          data: {
+            title: 'Branch 0',
+            content: 'branch 1 content',
+          },
+          blocks: [
+            {
+              id: 'custom_0',
+              type: 'custom',
+              data: {
+                title: 'Custom',
+                content: 'custom content',
+              },
+            },
+          ],
+        },
+        {
+          id: 'branch_1',
+          type: 'block',
+          data: {
+            title: 'Branch 1',
+            content: 'branch 1 content',
+          },
+          blocks: [
+            {
+              id: 'break_0',
+              type: 'break',
+              data: {
+                title: 'Break',
+                content: 'Break content',
+              },
+            },
+          ],
+        },
+        {
+          id: 'branch_2',
+          type: 'block',
+          data: {
+            title: 'Branch 2',
+            content: 'branch 2 content',
+          },
+          blocks: [],
+        },
+      ],
     },
+    // 结束节点
     {
-      id: 'end_2',
+      id: 'end_0',
       type: 'end',
       data: {
         title: 'End',

@@ -171,7 +171,11 @@ const Adder: FC<{
 
 const FlowGramApp = () => (
   <FixedLayoutEditorProvider
-    plugins={() => [createMinimapPlugin({})]}
+    plugins={() => [
+      createMinimapPlugin({
+        enableDisplayAllNodes: true,
+      }),
+    ]}
     nodeRegistries={[
       {
         type: 'custom',
@@ -192,6 +196,11 @@ const FlowGramApp = () => (
           type: 'end',
         },
       ],
+    }}
+    onAllLayersRendered={(ctx) => {
+      setTimeout(() => {
+        ctx.playground.config.fitView(ctx.document.root.bounds.pad(30));
+      }, 10);
     }}
     materials={{
       renderDefaultNode: NodeRender,

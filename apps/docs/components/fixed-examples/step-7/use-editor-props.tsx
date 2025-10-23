@@ -22,6 +22,7 @@ export function useEditorProps(): FixedLayoutProps {
       plugins: () => [
         createMinimapPlugin({
           disableLayer: true,
+          enableDisplayAllNodes: true,
           canvasStyle: {
             canvasWidth: 100,
             canvasHeight: 50,
@@ -37,6 +38,11 @@ export function useEditorProps(): FixedLayoutProps {
           ...defaultFixedSemiMaterials,
           [FlowRendererKey.ADDER]: Adder,
         },
+      },
+      onAllLayersRendered: (ctx) => {
+        setTimeout(() => {
+          ctx.playground.config.fitView(ctx.document.root.bounds.pad(30));
+        }, 10);
       },
       /**
        * Get the default node registry, which will be merged with the 'nodeRegistries'

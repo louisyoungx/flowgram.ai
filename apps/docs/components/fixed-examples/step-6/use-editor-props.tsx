@@ -19,7 +19,11 @@ import { Adder } from './adder';
 export function useEditorProps(): FixedLayoutProps {
   return useMemo<FixedLayoutProps>(
     () => ({
-      plugins: () => [createMinimapPlugin({})],
+      plugins: () => [
+        createMinimapPlugin({
+          enableDisplayAllNodes: true,
+        }),
+      ],
       nodeRegistries,
       initialData,
       materials: {
@@ -28,6 +32,11 @@ export function useEditorProps(): FixedLayoutProps {
           ...defaultFixedSemiMaterials,
           [FlowRendererKey.ADDER]: Adder,
         },
+      },
+      onAllLayersRendered: (ctx) => {
+        setTimeout(() => {
+          ctx.playground.config.fitView(ctx.document.root.bounds.pad(30));
+        }, 10);
       },
       /**
        * Get the default node registry, which will be merged with the 'nodeRegistries'

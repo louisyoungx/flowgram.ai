@@ -19,9 +19,18 @@ import { Adder } from './adder';
 export function useEditorProps(): FixedLayoutProps {
   return useMemo<FixedLayoutProps>(
     () => ({
-      plugins: () => [createMinimapPlugin({})],
+      plugins: () => [
+        createMinimapPlugin({
+          enableDisplayAllNodes: true,
+        }),
+      ],
       nodeRegistries,
       initialData,
+      onAllLayersRendered: (ctx) => {
+        setTimeout(() => {
+          ctx.playground.config.fitView(ctx.document.root.bounds.pad(30));
+        }, 10);
+      },
       materials: {
         renderDefaultNode: NodeRender,
         components: {
