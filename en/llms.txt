@@ -60,7 +60,7 @@
 - [DynamicValueInput](/en/materials/components/dynamic-value-input.md)
 - [ConditionRow](/en/materials/components/condition-row.md)
 - [DBConditionRow](/en/materials/components/db-condition-row.md)
-- [ConditionContext (WIP)](/en/materials/components/condition-context.md)
+- [ConditionContext](/en/materials/components/condition-context.md)
 - [InputsValues](/en/materials/components/inputs-values.md)
 - [InputsValuesTree](/en/materials/components/inputs-values-tree.md)
 - [PromptEditor](/en/materials/components/prompt-editor.md)
