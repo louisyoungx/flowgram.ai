@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: Quick Start
-      link: /guide/introduction
+      link: /guide/getting-started/introduction
     - theme: alt
       text: GitHub
       link: https://github.com/bytedance/flowgram.ai
