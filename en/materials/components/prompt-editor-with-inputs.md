@@ -1,5 +1,5 @@
 import { SourceCode } from '@theme';
-import { BasicStory } from 'components/form-materials/components/prompt-editor-with-inputs';
+import { BasicStory, WithoutCanvas } from 'components/form-materials/components/prompt-editor-with-inputs';
 
 # PromptEditorWithInputs
 
@@ -59,6 +59,43 @@ Enter the `@`, `{` characters in the editor to trigger the Inputs selector.
 
 After entering `@`, `{`, a list of available variables will be displayed. Selecting a variable will automatically insert it in the `{{inputs.path}}` format.
 
+### Usage Without Canvas
+
+:::warning
+
+When used without canvas, due to inability to access variables, inputsValues does not support value definitions of type: 'ref'.
+
+:::
+
+<WithoutCanvas />
+
+```tsx pure title="with-canvas.tsx"
+export const WithoutCanvas = () => {
+  const [value, setValue] = useState<IFlowTemplateValue | undefined>({
+    type: 'template',
+    content: '# Role \n You are a helpful assistant. \n\n # Query \n {{b.obj2.num}} \n\n',
+  });
+
+  return (
+    <div>
+      <PromptEditorWithInputs
+        value={value}
+        onChange={(value) => setValue(value)}
+        inputsValues={{
+          a: { type: 'constant', content: '123' },
+          b: {
+            c: {
+              d: { type: 'constant', content: 456 },
+            },
+            e: { type: 'constant', content: 789 },
+          },
+        }}
+      />
+    </div>
+  );
+};
+```
+
 ## API Reference
 
 ### PromptEditorWithInputs Props
@@ -89,108 +126,23 @@ npx @flowgram.ai/cli@latest materials components/prompt-editor-with-inputs
 
 ```
 prompt-editor-with-inputs/
-├── index.tsx           # Lazy loading export file
-├── editor.tsx          # Main component implementation
-└── README.md          # Component documentation
-
-prompt-editor/
-├── index.tsx           # Basic prompt editor export
-├── editor.tsx          # Basic prompt editor implementation
-├── types.ts            # Type definitions
-├── styles.ts           # Style components
-└── extensions/         # Editor extensions
-    ├── markdown.tsx    # Markdown highlighting
-    ├── language-support.tsx # Language support
-    └── jinja.tsx       # Jinja template highlighting
+└──  index.tsx          # Main component implementation
 ```
 
 ### Core Implementation Explanation
 
 #### Input Variable Integration
 
-PromptEditorWithInputs extends the basic PromptEditor, adding an input variable selector:
+PromptEditorWithInputs extends the basic [PromptEditor](/en/materials/components/prompt-editor.md) and adds node inputs reference functionality based on [coze-editor-extensions](/en/materials/components/coze-editor-extensions.md).
 
-```typescript
-export function PromptEditorWithInputs({
-  inputsValues,
-  ...restProps
-}: PromptEditorWithInputsProps) {
-  return (
-    <PromptEditor {...restProps}>
-      <EditorInputsTree inputsValues={inputsValues} />
-    </PromptEditor>
-  );
-}
-```
+### Dependencies
 
-#### Basic Prompt Editor
+[**PromptEditor**](/en/materials/components/prompt-editor.md)
 
-The basic PromptEditor provides complete template editing functionality:
+[**CozeEditorExtensions**](/en/materials/components/coze-editor-extensions.md)
 
-```typescript
-<PromptEditor
-  value={field.value}
-  onChange={(value) => field.onChange(value)}
-  placeholder="Enter prompt template..."
-  activeLinePlaceholder="Press @ to insert variable"
-/>
-```
+* `EditorInputsTree`: Input tree selection trigger
 
-#### Editor Extensions
-
-The basic editor integrates multiple extensions:
-
-* **MarkdownHighlight**: Provides Markdown syntax highlighting
-* **LanguageSupport**: Supports multiple programming languages
-* **JinjaHighlight**: Jinja2 template syntax highlighting
-
-#### Variable Selector
-
-The `EditorInputsTree` component provides a tree-structured variable selector:
-
-```typescript
-<EditorInputsTree inputsValues={inputsValues} />
-```
-
-### Flowgram APIs Used
-
-#### @flowgram.ai/coze-editor/react
-
-* `Renderer`: Editor renderer
-* `EditorProvider`: Editor provider
-* `ActiveLinePlaceholder`: Active line placeholder
-* `InferValues`: Type inference tool
-
-#### @flowgram.ai/coze-editor/preset-prompt
-
-* `preset`: Prompt editor preset configuration
-* `EditorAPI`: Editor API interface
-
-#### @flowgram.ai/shared
+[**FlowValue**](/en/materials/common/flow-value.md)
 
 * `IInputsValues`: Input variable type definition
-
-### Overall Process
-
-```mermaid
-graph TD
-    A[PromptEditorWithInputs] --> B[Pass inputsValues]
-    A --> C[Render PromptEditor]
-    C --> D[Load preset configuration]
-    D --> E[Integrate extension plugins]
-
-    E --> F[MarkdownHighlight]
-    E --> G[LanguageSupport]
-    E --> H[JinjaHighlight]
-
-    F --> I[Syntax highlighting]
-    G --> J[Language support]
-    H --> K[Template syntax]
-
-    B --> L[EditorInputsTree]
-    L --> M[Input tree parsing + display]
-    M --> N[Variable selection]
-    N --> O[Insert variable]
-
-    O --> P[Update template content]
-```

@@ -1,16 +1,22 @@
 # Function: useCurrentScope
 
-**useCurrentScope**(`params?`): [`Scope`](/en/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>
+**useCurrentScope**<`Strict`>(`params?`): `Strict` extends `true` ? [`Scope`](/en/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>> : `undefined` | [`Scope`](/en/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>
 
 useCurrentScope returns the scope provided by ScopeProvider.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Strict` | extends `boolean` = `false` |
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `params?` | `Object` | - |
-| `params.strict?` | `boolean` | whether to throw error when no scope in ScopeProvider is found |
+| `params.strict` | `Strict` | whether to throw error when no scope in ScopeProvider is found |
 
 #### Returns
 
-[`Scope`](/en/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>
+`Strict` extends `true` ? [`Scope`](/en/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>> : `undefined` | [`Scope`](/en/auto-docs/editor/classes/Scope.md)<`Record`<`string`, `any`>>
