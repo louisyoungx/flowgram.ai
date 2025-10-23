@@ -1,0 +1,35 @@
+/**
+ * Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
+ * SPDX-License-Identifier: MIT
+ */
+
+import '@flowgram.ai/fixed-layout-editor/index.css';
+
+import { useMemo } from 'react';
+
+import { createMinimapPlugin } from '@flowgram.ai/minimap-plugin';
+import { defaultFixedSemiMaterials } from '@flowgram.ai/fixed-semi-materials';
+import { FlowRendererKey, FixedLayoutProps } from '@flowgram.ai/fixed-layout-editor';
+
+import { NodeRender } from './node-render';
+import { nodeRegistries } from './node-registries';
+import { initialData } from './initial-data';
+import { Adder } from './adder';
+
+export function useEditorProps(): FixedLayoutProps {
+  return useMemo<FixedLayoutProps>(
+    () => ({
+      plugins: () => [createMinimapPlugin({})],
+      nodeRegistries,
+      initialData,
+      materials: {
+        renderDefaultNode: NodeRender,
+        components: {
+          ...defaultFixedSemiMaterials,
+          [FlowRendererKey.ADDER]: Adder,
+        },
+      },
+    }),
+    []
+  );
+}

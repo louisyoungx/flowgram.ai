@@ -1,1 +1,133 @@
-# 固定布局 TODO
+# 固定布局
+
+import {
+  PackageManagerTabs
+  // @ts-ignore
+} from '@theme';
+import { FixedLayoutCodePreview } from '@components/code-preview';
+import step1 from '@components/fixed-examples/step-1.tsx?raw';
+import step2 from '@components/fixed-examples/step-2.tsx?raw';
+import step3 from '@components/fixed-examples/step-3.tsx?raw';
+import step4 from '@components/fixed-examples/step-4.tsx?raw';
+import step5App from '@components/fixed-examples/step-5/App.tsx?raw';
+import step5UseEditorProps from '@components/fixed-examples/step-5/use-editor-props.tsx?raw';
+import step5InitialData from '@components/fixed-examples/step-5/initial-data.ts?raw';
+import step5NodeRegistries from '@components/fixed-examples/step-5/node-registries.tsx?raw';
+import step5NodeRender from '@components/fixed-examples/step-5/node-render.tsx?raw';
+import step5Adder from '@components/fixed-examples/step-5/adder.tsx?raw';
+import step6App from '@components/fixed-examples/step-6/App.tsx?raw';
+import step6UseEditorProps from '@components/fixed-examples/step-6/use-editor-props.tsx?raw';
+import step6InitialData from '@components/fixed-examples/step-6/initial-data.ts?raw';
+import step6NodeRegistries from '@components/fixed-examples/step-6/node-registries.tsx?raw';
+import step6NodeRender from '@components/fixed-examples/step-6/node-render.tsx?raw';
+import step6Adder from '@components/fixed-examples/step-6/adder.tsx?raw';
+import step7App from '@components/fixed-examples/step-7/App.tsx?raw';
+import step7UseEditorProps from '@components/fixed-examples/step-7/use-editor-props.tsx?raw';
+import step7InitialData from '@components/fixed-examples/step-7/initial-data.ts?raw';
+import step7NodeRegistries from '@components/fixed-examples/step-7/node-registries.tsx?raw';
+import step7NodeRender from '@components/fixed-examples/step-7/node-render.tsx?raw';
+import step7Adder from '@components/fixed-examples/step-7/adder.tsx?raw';
+import step7Tools from '@components/fixed-examples/step-7/tools.tsx?raw';
+import step7Minimap from '@components/fixed-examples/step-7/minimap.tsx?raw';
+
+
+
+## Step.0 - 安装依赖
+
+1. 安装编辑器包
+
+<PackageManagerTabs command={{
+  "npm": "npm install @flowgram.ai/fixed-layout-editor @flowgram.ai/fixed-semi-materials",
+  "pnpm": "pnpm add @flowgram.ai/fixed-layout-editor @flowgram.ai/fixed-semi-materials",
+  "yarn": "yarn add @flowgram.ai/fixed-layout-editor @flowgram.ai/fixed-semi-materials",
+  "bun": "bun add @flowgram.ai/fixed-layout-editor @flowgram.ai/fixed-semi-materials",
+}} />
+
+2. 安装 styled-components（若尚未安装）
+
+<PackageManagerTabs command={{
+  "npm": "npm install styled-components",
+  "pnpm": "pnpm add styled-components",
+  "yarn": "yarn add styled-components",
+  "bun": "bun add styled-components",
+}} />
+
+## Step.1 - 引入画布组件
+
+TODO
+
+<FixedLayoutCodePreview files={{
+    '/App.tsx': step1
+}} />
+
+
+## Step.2 - 实现节点组件
+
+TODO
+
+<FixedLayoutCodePreview files={{
+    '/App.tsx': step2
+}} />
+
+
+## Step.3 - 自定义添加节点组件与删除节点按钮
+
+TODO
+
+<FixedLayoutCodePreview files={{
+    '/App.tsx': step3
+}} />
+
+## Step.4 - 引入插件
+
+TODO
+
+<FixedLayoutCodePreview files={{
+    '/App.tsx': step4
+}} />
+
+
+## Step.5 - 拆分文件
+
+TODO
+
+<FixedLayoutCodePreview files={{
+    '/App.tsx': step5App,
+    '/use-editor-props.tsx': step5UseEditorProps,
+    '/initial-data.ts': step5InitialData,
+    '/node-registries.tsx': step5NodeRegistries,
+    '/node-render.tsx': step5NodeRender,
+    '/adder.tsx': step5Adder,
+}} />
+
+## Step.6 - 接入表单与历史记录
+
+TODO
+
+<FixedLayoutCodePreview files={{
+    '/App.tsx': step6App,
+    '/use-editor-props.tsx': step6UseEditorProps,
+    '/initial-data.ts': step6InitialData,
+    '/node-registries.tsx': step6NodeRegistries,
+    '/node-render.tsx': step6NodeRender,
+    '/adder.tsx': step6Adder,
+}} />
+
+## Step.7 - 创建工具栏
+
+TODO
+
+<FixedLayoutCodePreview files={{
+    '/App.tsx': step7App,
+    '/use-editor-props.tsx': step7UseEditorProps,
+    '/initial-data.ts': step7InitialData,
+    '/node-registries.tsx': step7NodeRegistries,
+    '/node-render.tsx': step7NodeRender,
+    '/adder.tsx': step7Adder,
+    '/tools.tsx': step7Tools,
+    '/minimap.tsx': step7Minimap,
+}} />
+
+## Step.8 - 了解更多
+
+TODO
