@@ -15,6 +15,7 @@ import { removeBase, useLocation, usePageData } from '@rspress/core/runtime';
 import { Background } from './components/background';
 
 import './theme.css';
+import { FlowGramLogo } from './components/logo';
 
 function getCustomMDXComponent() {
   const { h1: H1, ...components } = basicGetCustomMDXComponent();
@@ -42,7 +43,8 @@ function HomeLayout(props: Parameters<typeof BaseHomeLayout>[0]) {
   return (
     <>
       <div className="home-layout-container">
-        <Background />
+        {/* <Background /> */}
+        <FlowGramLogo />
         <BaseHomeLayout {...props} afterHero={null} afterHeroActions={null} />
       </div>
     </>

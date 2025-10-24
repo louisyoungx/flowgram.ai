@@ -13,7 +13,7 @@ hero:
       text: GitHub
       link: https://github.com/bytedance/flowgram.ai
   image:
-    src: /flowgram-logo.svg
+    # src: /flowgram-logo.svg
     alt: Logo
 features:
   - title: Coze
