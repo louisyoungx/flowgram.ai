@@ -3,129 +3,37 @@
  * SPDX-License-Identifier: MIT
  */
 
-@import url('https://fonts.googleapis.com/css?family=Montserrat:200,300,400,600')
+.background2-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
 
-.more-pens
-  position: fixed
-  left: 20px
-  bottom: 20px
-  z-index: 10
-  font-family: "Montserrat"
-  font-size: 12px
+/* Ensure smooth rendering */
+.background2-canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
 
-a.white-mode, a.white-mode:link, a.white-mode:visited, a.white-mode:active
-  font-family: "Montserrat"
-  font-size: 12px
-  text-decoration: none
-  background: #212121
-  padding: 4px 8px
-  color: #f7f7f7
-  &:hover
-    background: #edf3f8
-    color: #212121
+/* Dark mode specific adjustments */
+[data-theme='dark'] .background2-canvas {
+  opacity: 0.9;
+}
 
-body
-  margin: 0
-  padding: 0
-  overflow: hidden
+/* Light mode specific adjustments */
+[data-theme='light'] .background2-canvas {
+  opacity: 0.8;
+}
 
-.background
-  position: absolute
-  left: 0
-  top: 0
-  width: 100%
-  height: 100%
-  background: #edf3f8
-  background: -moz-radial-gradient(center, ellipse cover, #edf3f8 1%, #dee3e8 100%)
-  background: -webkit-radial-gradient(center, ellipse cover, #edf3f8 1%,#dee3e8 100%)
-  background: radial-gradient(ellipse at center, #edf3f8 1%,#dee3e8 100%)
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#edf3f8', endColorstr='#dee3e8',GradientType=1 )
-
-.title
-  z-index: 10
-  position: absolute
-  left: 50%
-  top: 40%
-  transform: translateX(-50%) translateY(-50%)
-  font-family: "Montserrat"
-  text-align: center
-  width: 60%
-  h1
-    position: relative
-    color: #000000
-    font-weight: 300
-    font-size: 46px
-    padding: 0
-    margin: 0
-    line-height: 1
-  h2
-    font-weight: 600
-    font-size: 60px
-    padding: 0
-    margin: 0
-    line-height: 1
-  h3
-    font-weight: 200
-    font-size: 20px
-    padding: 0
-    margin: 0
-    line-height: 2
-    color: #5e7283
-    letter-spacing: 2px
-
-  p
-    font-weight: 200
-    font-size: 16px
-    color: #5e7283
-
-.pentahedron
-  position: absolute
-  width: 100%
-  height: 100%
-  fill: #3E82F7
-.point
-  fill: #8491A3
-.rhombus
-  fill: #2DA94F
-  stroke: #2DA94F
-
-.x
-  fill: #FDBD00
-
-.circle
-  fill: #ED412D
-
-svg
-  display: block
-  width: 30px
-  height: 30px
-  position: absolute
-  transform: translateZ(0px)
-
-// Canvas 反重力流动背景样式
-.background-canvas
-  position: fixed
-  top: 0
-  left: 0
-  width: 100%
-  height: 100%
-  pointer-events: none
-  z-index: -1
-  background: transparent
-
-// 暗黑模式适配 - 系统偏好设置
-@media (prefers-color-scheme: dark)
-  .background
-    background: #0d1117
-    background: -moz-radial-gradient(center, ellipse cover, #0d1117 1%, #161b22 100%)
-    background: -webkit-radial-gradient(center, ellipse cover, #0d1117 1%, #161b22 100%)
-    background: radial-gradient(ellipse at center, #0d1117 1%, #161b22 100%)
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0d1117', endColorstr='#161b22',GradientType=1 )
-
-// 暗黑模式适配 - 显式暗黑类
-.dark .background
-  background: #0d1117
-  background: -moz-radial-gradient(center, ellipse cover, #0d1117 1%, #161b22 100%)
-  background: -webkit-radial-gradient(center, ellipse cover, #0d1117 1%, #161b22 100%)
-  background: radial-gradient(ellipse at center, #0d1117 1%, #161b22 100%)
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0d1117', endColorstr='#161b22',GradientType=1 )
+/* Animation performance optimization */
+.background2-canvas {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}

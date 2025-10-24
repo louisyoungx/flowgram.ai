@@ -14,15 +14,7 @@ import { useEditorProps } from './use-editor-props';
 export const FlowGramLogo = () => {
   const editorProps = useEditorProps();
   return (
-    <div
-      style={{
-        position: 'absolute',
-        right: 0,
-        top: 50,
-        width: 'calc(50vw - 64px)',
-        height: 550,
-      }}
-    >
+    <div className="flowgram-logo-container">
       <FreeLayoutEditorProvider {...editorProps}>
         <EditorRenderer />
       </FreeLayoutEditorProvider>

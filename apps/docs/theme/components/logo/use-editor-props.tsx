@@ -5,7 +5,6 @@
 
 import { useMemo } from 'react';
 
-import { createFreeSnapPlugin } from '@flowgram.ai/free-snap-plugin';
 import { Field, FreeLayoutProps, WorkflowLinesManager } from '@flowgram.ai/free-layout-editor';
 
 import { NodeRender } from './node-render';
@@ -16,12 +15,6 @@ import { initialData } from './initial-data';
 export const useEditorProps = () =>
   useMemo<FreeLayoutProps>(
     () => ({
-      plugins: () => [
-        createFreeSnapPlugin({
-          edgeColor: '#ff9500',
-          alignColor: '#ff9500',
-        }),
-      ],
       background: false,
       materials: {
         renderDefaultNode: NodeRender,
@@ -37,12 +30,12 @@ export const useEditorProps = () =>
       onInit: (ctx) => {
         const linesManager = ctx.get(WorkflowLinesManager);
         linesManager.getLineColor = (line) => {
-          const lineColor = NodeColorMap[line.from?.id ?? ''] ?? '#000';
+          const lineColor = NodeColorMap[line.from?.id ?? line.to?.id ?? ''] ?? '#000';
           return lineColor;
         };
       },
       onAllLayersRendered: (ctx) => {
-        // ctx.tools.fitView(false);
+        ctx.tools.fitView(false);
       },
       getNodeDefaultRegistry(type) {
         return {

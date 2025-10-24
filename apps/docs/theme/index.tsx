@@ -43,7 +43,7 @@ function HomeLayout(props: Parameters<typeof BaseHomeLayout>[0]) {
   return (
     <>
       <div className="home-layout-container">
-        {/* <Background /> */}
+        <Background />
         <FlowGramLogo />
         <BaseHomeLayout {...props} afterHero={null} afterHeroActions={null} />
       </div>
