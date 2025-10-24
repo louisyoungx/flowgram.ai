@@ -42,7 +42,7 @@
   {
     "type": "dir",
     "name": "runtime",
-    "label": "运行时接入 (WIP)"
+    "label": "运行时接入"
   },
   "contributing",
   "contact-us"
