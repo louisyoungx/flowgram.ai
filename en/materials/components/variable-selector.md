@@ -1,9 +1,20 @@
 import { SourceCode } from '@theme';
-import { BasicStory, FilterSchemaStory, CustomFilterStory } from 'components/form-materials/components/variable-selector';
+import { BasicStory, FilterSchemaStory, CustomFilterStory, CustomVariableTreeStory } from 'components/form-materials/components/variable-selector';
 
 # VariableSelector
 
 VariableSelector is a component for selecting variables in the current scope, with filtering capabilities based on variable types.
+
+:::warning
+
+In the variable tree of VariableSelector, **every leaf node and non-leaf node is a variable**.
+
+In the official material library design, each node outputs **an ObjectType variable declaration** where:
+
+* The **metadata of the variable includes the node's title and node's Icon**, which is parsed and displayed by VariableSelector
+* The drill-down fields of the variable are **recursively displayed within the node variable** by VariableSelector
+
+:::
 
 <br />
 
@@ -83,6 +94,33 @@ const formMeta = {
 }
 ```
 
+### Get Variable Tree via useVariableTree
+
+<CustomVariableTreeStory />
+
+```tsx pure title="form-meta.tsx"
+import { useVariableTree } from '@flowgram.ai/form-materials';
+
+const formMeta = {
+  render: () => {
+    const treeData = useVariableTree({});
+
+    return (
+      <VariableSelectorProvider skipVariable={(variable) => variable?.key === 'str'}>
+        <FormHeader />
+        <Tree treeData={treeData} defaultExpandAll />
+      </VariableSelectorProvider>
+    );
+  },
+}
+```
+
+:::tip
+
+`useVariableTree` is also used in components like [`PromptEditorWithVariables`](/en/materials/components/prompt-editor-with-variables.md), [`SQLEditorWithVariables`](/en/materials/components/sql-editor-with-variables.md), [`JsonEditorWithVariables`](/en/materials/components/json-editor-with-variables.md) to get the variable tree of the current scope.
+
+:::
+
 ## API Reference
 
 ### VariableSelector Props
@@ -115,6 +153,14 @@ const formMeta = {
 | `excludeSchema` | `IJsonSchema \| IJsonSchema[]` | - | Variable type exclusion filter conditions |
 | `children` | `React.ReactNode` | - | Child components |
 
+### useVariableTree
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `includeSchema` | `IJsonSchema \| IJsonSchema[]` | - | Variable type inclusion filter conditions |
+| `excludeSchema` | `IJsonSchema \| IJsonSchema[]` | - | Variable type exclusion filter conditions |
+| `skipVariable` | `(variable?: BaseVariableField) => boolean` | - | Custom variable filter function |
+
 ## Source Code Guide
 
 <SourceCode href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/components/variable-selector" />
@@ -132,8 +178,7 @@ variable-selector/
 ├── index.tsx           # Main component implementation, contains VariableSelector core logic
 ├── context.tsx         # Provides `VariableSelectorContext` for global variable filtering configuration
 ├── use-variable-tree.tsx # Custom Hook for processing variable tree data transformation and filtering
-├── styles.tsx          # Style definitions using styled-components
-└── README.md          # Component documentation
+└── styles.css          # Style file
 ```
 
 ### Overall Process

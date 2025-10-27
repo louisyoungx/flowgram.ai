@@ -1,0 +1,23 @@
+/*!
+	Copyright (c) 2018 Jed Watson.
+	Licensed under the MIT License (MIT), see
+	http://jedwatson.github.io/classnames
+*/
+
+/*!
+   Transformation Matrix v2.0
+   (c) Epistemex 2014-2015
+   www.epistemex.com
+   By Ken Fyrstenberg
+   Contributions by leeoniya.
+   License: MIT, header required.
+   */
+
+/**
+ * Prism: Lightweight, robust, elegant syntax highlighting
+ *
+ * @license MIT <https://opensource.org/licenses/MIT>
+ * @author Lea Verou <https://lea.verou.me>
+ * @namespace
+ * @public
+ */

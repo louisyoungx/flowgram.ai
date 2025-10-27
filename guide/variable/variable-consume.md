@@ -2,7 +2,7 @@
 
 在 FlowGram 中，当一个节点想要使用到前序节点的变量，就需要消费变量。
 
-## 官方物料：`VariableSelector`
+## `VariableSelector`
 
 为了让你能更轻松地在应用中集成变量选择的功能，官方物料提供了 `VariableSelector` 组件。
 

@@ -2,7 +2,7 @@
 
 In FlowGram, when a node wants to use variables from preceding nodes, it needs to consume those variables.
 
-## Official Material: `VariableSelector`
+## `VariableSelector`
 
 To make it easier for you to integrate variable selection functionality into your applications, the official materials provide the `VariableSelector` component.
 
