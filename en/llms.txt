@@ -5,13 +5,12 @@
 ## Guide
 
 - [Free Layout Lines](/en/guide/advanced/lines.md)
-- [Introduction](/en/guide/introduction.md)
-- [Contact US](/en/guide/contact-us.md)
-- [Installation](/en/guide/getting-started/install.md)
-- [Creating a Fixed Layout Canvas](/en/guide/getting-started/create-fixed-layout-simple.md)
-- [Creating a Free Layout Canvas](/en/guide/getting-started/create-free-layout-simple.md)
+- [Introduction](/en/guide/getting-started/introduction.md)
+- [Quick Start](/en/guide/getting-started/quick-start.md)
+- [Free Layout](/en/guide/getting-started/free-layout.md)
+- [Fixed Layout](/en/guide/getting-started/fixed-layout.md)
 - [Loading and Saving](/en/guide/free-layout/load.md)
-- [Node](/en/guide/free-layout/node.md)
+- [Nodes](/en/guide/free-layout/node.md)
 - [Lines](/en/guide/free-layout/line.md)
 - [Ports](/en/guide/free-layout/port.md)
 - [Sub-canvas](/en/guide/free-layout/sub-canvas.md)
@@ -49,6 +48,8 @@
 - [Nodes](/en/guide/runtime/node.md)
 - [API](/en/guide/runtime/api.md): FlowGram Runtime API
 - [Source Code Guide](/en/guide/runtime/source-code-guide.md): Analysis of FlowGram Runtime source code structure and implementation details
+- [Contribution Guide](/en/guide/contributing.md)
+- [Contact US](/en/guide/contact-us.md)
 
 ## Materials
 

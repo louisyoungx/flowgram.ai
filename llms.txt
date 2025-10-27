@@ -8,11 +8,10 @@
 - [批处理变量实现思路 (WIP)](/guide/variable/cases/case-batch-variable.md): 介绍如何实现批处理节点中的变量逻辑
 - [底层 API (WIP)](/guide/variable/core-api.md): 介绍变量引擎的底层 API 的设计与使用
 - [内置 AST(WIP)](/guide/variable/core-ast.md): 介绍变量引擎的内置 AST 节点
-- [介绍](/guide/introduction.md)
-- [联系我们](/guide/contact-us.md)
-- [安装](/guide/getting-started/install.md)
-- [创建自由布局画布](/guide/getting-started/create-free-layout-simple.md)
-- [创建固定布局画布](/guide/getting-started/create-fixed-layout-simple.md)
+- [简介](/guide/getting-started/introduction.md)
+- [快速上手](/guide/getting-started/quick-start.md)
+- [自由布局](/guide/getting-started/free-layout.md)
+- [固定布局](/guide/getting-started/fixed-layout.md)
 - [加载与保存](/guide/free-layout/load.md)
 - [节点](/guide/free-layout/node.md)
 - [线条](/guide/free-layout/line.md)
@@ -52,6 +51,8 @@
 - [内置节点](/guide/runtime/node.md)
 - [运行时 API](/guide/runtime/api.md): FlowGram Runtime API
 - [源码导读](/guide/runtime/source-code-guide.md): FlowGram Runtime 源码结构和实现细节解析
+- [贡献指南](/guide/contributing.md)
+- [联系我们](/guide/contact-us.md)
 
 ## 物料
 
