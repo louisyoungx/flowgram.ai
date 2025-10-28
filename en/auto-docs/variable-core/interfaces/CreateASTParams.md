@@ -18,7 +18,7 @@
 
 ### parent
 
-`Optional` **parent**: [`ASTNode`](/en/auto-docs/variable-core/classes/ASTNode.md)<`any`, `any`>
+`Optional` **parent**: [`ASTNode`](/en/auto-docs/variable-core/classes/ASTNode.md)<`any`>
 
 ***
 

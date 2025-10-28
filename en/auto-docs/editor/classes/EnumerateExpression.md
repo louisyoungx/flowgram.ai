@@ -144,7 +144,7 @@ Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve 
 
 ### parent
 
-`Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+`Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 The parent ASTNode.
 
@@ -192,7 +192,7 @@ List of disposal handlers for the ASTNode.
 
 ### value$
 
-`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>>
+`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>>
 
 AST node change Observable events, implemented based on RxJS.
 
@@ -219,13 +219,13 @@ The kind of the ASTNode.
 
 ### children
 
-`get` **children**(): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>\[]
+`get` **children**(): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>\[]
 
 Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>\[]
+[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>\[]
 
 #### Inherited from
 
@@ -249,13 +249,13 @@ BaseExpression.disposed
 
 ### enumerateFor
 
-`get` **enumerateFor**(): `undefined` | [`BaseExpression`](/en/auto-docs/editor/classes/BaseExpression.md)<`any`, `any`>
+`get` **enumerateFor**(): `undefined` | [`BaseExpression`](/en/auto-docs/editor/classes/BaseExpression.md)<`any`>
 
 The expression to be enumerated.
 
 #### Returns
 
-`undefined` | [`BaseExpression`](/en/auto-docs/editor/classes/BaseExpression.md)<`any`, `any`>
+`undefined` | [`BaseExpression`](/en/auto-docs/editor/classes/BaseExpression.md)<`any`>
 
 ***
 
@@ -344,13 +344,13 @@ BaseExpression.refs
 
 ### returnType
 
-`get` **returnType**(): `undefined` | [`BaseType`](/en/auto-docs/editor/classes/BaseType.md)<`any`, `any`>
+`get` **returnType**(): `undefined` | [`BaseType`](/en/auto-docs/editor/classes/BaseType.md)<`any`>
 
 The return type of the expression.
 
 #### Returns
 
-`undefined` | [`BaseType`](/en/auto-docs/editor/classes/BaseType.md)<`any`, `any`>
+`undefined` | [`BaseType`](/en/auto-docs/editor/classes/BaseType.md)<`any`>
 
 #### Overrides
 
@@ -386,7 +386,7 @@ Dispatches a global event for the current ASTNode.
 
 | Name | Type |
 | :------ | :------ |
-| `ActionType` | extends [`GlobalEventActionType`](/en/auto-docs/editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>, `ActionType`> = [`GlobalEventActionType`](/en/auto-docs/editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>> |
+| `ActionType` | extends [`GlobalEventActionType`](/en/auto-docs/editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>, `ActionType`> = [`GlobalEventActionType`](/en/auto-docs/editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>> |
 
 #### Parameters
 
@@ -523,15 +523,20 @@ Listens for changes to the ASTNode.
 
 ### toJSON
 
-**toJSON**(): [`ASTNodeJSON`](/en/auto-docs/editor/interfaces/ASTNodeJSON.md)
+**toJSON**(): `Object`
 
 Serialize the `EnumerateExpression` to `EnumerateExpressionJSON`.
 
 #### Returns
 
-[`ASTNodeJSON`](/en/auto-docs/editor/interfaces/ASTNodeJSON.md)
+`Object`
 
 The JSON representation of `EnumerateExpression`.
+
+| Name | Type |
+| :------ | :------ |
+| `enumerateFor` | `any` |
+| `kind` | [`ASTKind`](/en/auto-docs/editor/enums/ASTKind.md) |
 
 #### Overrides
 

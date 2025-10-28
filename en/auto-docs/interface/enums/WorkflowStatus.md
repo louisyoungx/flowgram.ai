@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 
 ### Enumeration Members
 
-* [Canceled](/en/auto-docs/interface/enums/WorkflowStatus.md#canceled)
+* [Cancelled](/en/auto-docs/interface/enums/WorkflowStatus.md#cancelled)
 * [Failed](/en/auto-docs/interface/enums/WorkflowStatus.md#failed)
 * [Pending](/en/auto-docs/interface/enums/WorkflowStatus.md#pending)
 * [Processing](/en/auto-docs/interface/enums/WorkflowStatus.md#processing)
@@ -15,9 +15,9 @@ SPDX-License-Identifier: MIT
 
 ## Enumeration Members
 
-### Canceled
+### Cancelled
 
-**Canceled** = `"canceled"`
+**Cancelled** = `"canceled"`
 
 ***
 

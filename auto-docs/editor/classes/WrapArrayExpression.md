@@ -145,7 +145,7 @@ Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve 
 
 ### parent
 
-`Readonly` **parent**: `undefined` | [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+`Readonly` **parent**: `undefined` | [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 The parent ASTNode.
 
@@ -193,7 +193,7 @@ List of disposal handlers for the ASTNode.
 
 ### value$
 
-`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>>
+`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`>>
 
 AST node change Observable events, implemented based on RxJS.
 
@@ -220,13 +220,13 @@ The kind of the ASTNode.
 
 ### children
 
-`get` **children**(): [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>\[]
+`get` **children**(): [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`>\[]
 
 Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
-[`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>\[]
+[`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`>\[]
 
 #### Inherited from
 
@@ -333,13 +333,13 @@ BaseExpression.refs
 
 ### returnType
 
-`get` **returnType**(): `undefined` | [`BaseType`](/auto-docs/editor/classes/BaseType.md)<`any`, `any`>
+`get` **returnType**(): `undefined` | [`BaseType`](/auto-docs/editor/classes/BaseType.md)<`any`>
 
 The return type of the expression.
 
 #### Returns
 
-`undefined` | [`BaseType`](/auto-docs/editor/classes/BaseType.md)<`any`, `any`>
+`undefined` | [`BaseType`](/auto-docs/editor/classes/BaseType.md)<`any`>
 
 #### Overrides
 
@@ -367,13 +367,13 @@ BaseExpression.version
 
 ### wrapFor
 
-`get` **wrapFor**(): `undefined` | [`BaseExpression`](/auto-docs/editor/classes/BaseExpression.md)<`any`, `any`>
+`get` **wrapFor**(): `undefined` | [`BaseExpression`](/auto-docs/editor/classes/BaseExpression.md)<`any`>
 
 The expression to be wrapped.
 
 #### Returns
 
-`undefined` | [`BaseExpression`](/auto-docs/editor/classes/BaseExpression.md)<`any`, `any`>
+`undefined` | [`BaseExpression`](/auto-docs/editor/classes/BaseExpression.md)<`any`>
 
 ## Methods
 
@@ -387,7 +387,7 @@ Dispatches a global event for the current ASTNode.
 
 | Name | Type |
 | :------ | :------ |
-| `ActionType` | extends [`GlobalEventActionType`](/auto-docs/editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>, `ActionType`> = [`GlobalEventActionType`](/auto-docs/editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>> |
+| `ActionType` | extends [`GlobalEventActionType`](/auto-docs/editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`>, `ActionType`> = [`GlobalEventActionType`](/auto-docs/editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`>> |
 
 #### Parameters
 
@@ -536,15 +536,20 @@ Listens for changes to the ASTNode.
 
 ### toJSON
 
-**toJSON**(): [`ASTNodeJSON`](/auto-docs/editor/interfaces/ASTNodeJSON.md)
+**toJSON**(): `Object`
 
 Serialize the `WrapArrayExpression` to `WrapArrayExpressionJSON`.
 
 #### Returns
 
-[`ASTNodeJSON`](/auto-docs/editor/interfaces/ASTNodeJSON.md)
+`Object`
 
 The JSON representation of `WrapArrayExpression`.
+
+| Name | Type |
+| :------ | :------ |
+| `kind` | [`ASTKind`](/auto-docs/editor/enums/ASTKind.md) |
+| `wrapFor` | `any` |
 
 #### Overrides
 

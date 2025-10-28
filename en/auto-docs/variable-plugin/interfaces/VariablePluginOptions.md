@@ -28,7 +28,7 @@ Configuration for scope chain
 
 ### extendASTNodes
 
-`Optional` **extendASTNodes**: ([`ASTNodeRegistry`](/en/auto-docs/variable-plugin/interfaces/ASTNodeRegistry.md)<`any`, `any`> | \[[`ASTNodeRegistry`](/en/auto-docs/variable-plugin/interfaces/ASTNodeRegistry.md)<`any`, `any`>] | \[[`ASTNodeRegistry`](/en/auto-docs/variable-plugin/interfaces/ASTNodeRegistry.md)<`any`, `any`>, `Injector`])\[]
+`Optional` **extendASTNodes**: ([`ASTNodeRegistry`](/en/auto-docs/variable-plugin/interfaces/ASTNodeRegistry.md)<`any`> | \[[`ASTNodeRegistry`](/en/auto-docs/variable-plugin/interfaces/ASTNodeRegistry.md)<`any`>] | \[[`ASTNodeRegistry`](/en/auto-docs/variable-plugin/interfaces/ASTNodeRegistry.md)<`any`>, `Injector`])\[]
 
 Custom Extends ASTNode
 

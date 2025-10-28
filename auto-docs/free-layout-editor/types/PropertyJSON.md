@@ -1,6 +1,6 @@
 # Type alias: PropertyJSON\<VariableMeta>
 
-**PropertyJSON**<`VariableMeta`>: `BaseVariableFieldJSON`<`VariableMeta`> & { `key`: `string`  }
+**PropertyJSON**<`VariableMeta`>: `BaseVariableFieldJSON`<`VariableMeta`>
 
 ASTNodeJSON representation of the `Property`.
 

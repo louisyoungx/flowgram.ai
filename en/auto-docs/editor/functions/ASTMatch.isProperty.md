@@ -16,7 +16,7 @@ Check if the node is a `Property`.
 
 | Name | Type |
 | :------ | :------ |
-| `node?` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`> |
+| `node?` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`> |
 
 #### Returns
 

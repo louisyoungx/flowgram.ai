@@ -16,7 +16,7 @@ Creates Type-Safe ASTNodeJSON object based on the provided AST class.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `targetType` | (...`args`: `any`\[]) => [`ASTNode`](/en/auto-docs/variable-core/classes/ASTNode.md)<`JSON`, `any`> | Target ASTNode class. |
+| `targetType` | (...`args`: `any`\[]) => [`ASTNode`](/en/auto-docs/variable-core/classes/ASTNode.md)<`JSON`> | Target ASTNode class. |
 | `targetType.kind` | `string` | - |
 | `json` | `JSON` | The JSON data for the node. |
 

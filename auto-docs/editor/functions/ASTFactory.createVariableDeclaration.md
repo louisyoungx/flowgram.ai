@@ -25,8 +25,8 @@ Creates a `VariableDeclaration` node.
 | Name | Type |
 | :------ | :------ |
 | `initializer?` | [`ASTNodeJSON`](/auto-docs/editor/interfaces/ASTNodeJSON.md) |
-| `key?` | `string` |
-| `kind` | [`ASTKind`](/auto-docs/editor/enums/ASTKind.md) |
+| `key` | `string` |
+| `kind` | `string` |
 | `meta?` | `VariableMeta` |
 | `order?` | `number` |
 | `type?` | `ASTNodeJSONOrKind` |

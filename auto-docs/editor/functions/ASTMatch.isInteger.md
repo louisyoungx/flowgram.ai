@@ -10,7 +10,7 @@ Check if the node is a `IntegerType`.
 
 | Name | Type |
 | :------ | :------ |
-| `node?` | [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`, `any`> |
+| `node?` | [`ASTNode`](/auto-docs/editor/classes/ASTNode.md)<`any`> |
 
 #### Returns
 

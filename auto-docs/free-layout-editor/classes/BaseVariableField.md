@@ -167,7 +167,7 @@ Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve 
 
 ### parent
 
-`Readonly` **parent**: `undefined` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>
+`Readonly` **parent**: `undefined` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>
 
 The parent ASTNode.
 
@@ -203,7 +203,7 @@ List of disposal handlers for the ASTNode.
 
 ### value$
 
-`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>>
+`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>>
 
 AST node change Observable events, implemented based on RxJS.
 
@@ -230,13 +230,13 @@ The kind of the ASTNode.
 
 ### children
 
-`get` **children**(): [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+`get` **children**(): [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
-[`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+[`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 #### Inherited from
 
@@ -276,7 +276,7 @@ ASTNode.hash
 
 ### initializer
 
-`get` **initializer**(): `undefined` | [`BaseExpression`](/auto-docs/free-layout-editor/classes/BaseExpression.md)<`any`, `any`>
+`get` **initializer**(): `undefined` | [`BaseExpression`](/auto-docs/free-layout-editor/classes/BaseExpression.md)<`any`>
 
 Initializer of the variable field, similar to js code:
 `const v = 'hello'`
@@ -285,7 +285,7 @@ with initializer, the type of field will be inferred from the initializer.
 
 #### Returns
 
-`undefined` | [`BaseExpression`](/auto-docs/free-layout-editor/classes/BaseExpression.md)<`any`, `any`>
+`undefined` | [`BaseExpression`](/auto-docs/free-layout-editor/classes/BaseExpression.md)<`any`>
 
 ***
 
@@ -343,14 +343,14 @@ Parent variable fields, sorted from closest to farthest
 
 ### type
 
-`get` **type**(): [`BaseType`](/auto-docs/free-layout-editor/classes/BaseType.md)<`any`, `any`>
+`get` **type**(): [`BaseType`](/auto-docs/free-layout-editor/classes/BaseType.md)<`any`>
 
 Type of the variable field, similar to js code:
 `const v: string`
 
 #### Returns
 
-[`BaseType`](/auto-docs/free-layout-editor/classes/BaseType.md)<`any`, `any`>
+[`BaseType`](/auto-docs/free-layout-editor/classes/BaseType.md)<`any`>
 
 ***
 
@@ -382,7 +382,7 @@ Dispatches a global event for the current ASTNode.
 
 | Name | Type |
 | :------ | :------ |
-| `ActionType` | extends [`GlobalEventActionType`](/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>, `ActionType`> = [`GlobalEventActionType`](/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>> |
+| `ActionType` | extends [`GlobalEventActionType`](/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>, `ActionType`> = [`GlobalEventActionType`](/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>> |
 
 #### Parameters
 
@@ -442,7 +442,7 @@ Deserialize the `BaseVariableFieldJSON` to the `BaseVariableField`.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `json` | `BaseVariableFieldJSON`<`VariableMeta`> | ASTJSON representation of `BaseVariableField` |
+| `json` | `Omit`<`BaseVariableFieldJSON`<`VariableMeta`>, `"key"`> | ASTJSON representation of `BaseVariableField` |
 
 #### Returns
 
@@ -483,7 +483,7 @@ Subscribe to type change of the variable field
 
 | Name | Type |
 | :------ | :------ |
-| `observer` | (`type`: `undefined` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>) => `void` |
+| `observer` | (`type`: `undefined` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>) => `void` |
 
 #### Returns
 
@@ -522,13 +522,13 @@ Listens for changes to the ASTNode.
 
 ### toJSON
 
-**toJSON**(): `BaseVariableFieldJSON`<`VariableMeta`> & { `kind`: `string`  }
+**toJSON**(): `BaseVariableFieldJSON`<`VariableMeta`>
 
 Serialize the variable field to JSON
 
 #### Returns
 
-`BaseVariableFieldJSON`<`VariableMeta`> & { `kind`: `string`  }
+`BaseVariableFieldJSON`<`VariableMeta`>
 
 ASTNodeJSON representation of `BaseVariableField`
 

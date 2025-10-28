@@ -10,7 +10,7 @@ Check if the AST type is match the JSON Schema
 
 | Name | Type |
 | :------ | :------ |
-| `typeAST` | `BaseType`<`any`, `any`> |
+| `typeAST` | `BaseType`<`any`> |
 | `schema` | [`IJsonSchema`](/auto-docs/form-materials/interfaces/IJsonSchema.md)<`string`> | [`IJsonSchema`](/auto-docs/form-materials/interfaces/IJsonSchema.md)<`string`>\[] |
 
 #### Returns

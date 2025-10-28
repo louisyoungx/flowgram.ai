@@ -10,7 +10,7 @@ Check if the node is a `VariableDeclarationList`.
 
 | Name | Type |
 | :------ | :------ |
-| `node?` | [`ASTNode`](/auto-docs/variable-core/classes/ASTNode.md)<`any`, `any`> |
+| `node?` | [`ASTNode`](/auto-docs/variable-core/classes/ASTNode.md)<`any`> |
 
 #### Returns
 

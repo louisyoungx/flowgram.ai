@@ -34,7 +34,7 @@ Creates an AST node.
 
 | Name | Type |
 | :------ | :------ |
-| `ReturnNode` | extends [`ASTNode`](/auto-docs/variable-core/classes/ASTNode.md)<`any`, `any`, `ReturnNode`> = [`ASTNode`](/auto-docs/variable-core/classes/ASTNode.md)<`any`, `any`> |
+| `ReturnNode` | extends [`ASTNode`](/auto-docs/variable-core/classes/ASTNode.md)<`any`, `ReturnNode`> = [`ASTNode`](/auto-docs/variable-core/classes/ASTNode.md)<`any`> |
 
 #### Parameters
 
@@ -51,7 +51,7 @@ Creates an AST node.
 
 ### getASTRegistryByKind
 
-**getASTRegistryByKind**(`kind`): `undefined` | [`ASTNodeRegistry`](/auto-docs/variable-core/interfaces/ASTNodeRegistry.md)<`any`, `any`>
+**getASTRegistryByKind**(`kind`): `undefined` | [`ASTNodeRegistry`](/auto-docs/variable-core/interfaces/ASTNodeRegistry.md)<`any`>
 
 Gets the node Registry by AST node type.
 
@@ -63,7 +63,7 @@ Gets the node Registry by AST node type.
 
 #### Returns
 
-`undefined` | [`ASTNodeRegistry`](/auto-docs/variable-core/interfaces/ASTNodeRegistry.md)<`any`, `any`>
+`undefined` | [`ASTNodeRegistry`](/auto-docs/variable-core/interfaces/ASTNodeRegistry.md)<`any`>
 
 ***
 
@@ -75,10 +75,10 @@ Registers an AST node.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `ASTNode` | [`ASTNodeRegistry`](/auto-docs/variable-core/interfaces/ASTNodeRegistry.md)<`any`, `any`> |
-| `injector?` | `DataInjector` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `ASTNode` | [`ASTNodeRegistry`](/auto-docs/variable-core/interfaces/ASTNodeRegistry.md)<`any`> |  |
+| `injector?` | `DataInjector` | **`Deprecated`** Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve external dependency injection. |
 
 #### Returns
 

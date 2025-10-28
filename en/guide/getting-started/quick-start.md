@@ -75,7 +75,18 @@ bun: "bunx @flowgram.ai/create-app@latest",
 cd [project-name]
 ```
 
-5. Start the development server.
+5. Install dependencies.
+
+<PackageManagerTabs
+  command={{
+npm: "npm install",
+pnpm: "pnpm install",
+yarn: "yarn install",
+bun: "bun install",
+}}
+/>
+
+6. Start the development server.
 
 <PackageManagerTabs
   command={{

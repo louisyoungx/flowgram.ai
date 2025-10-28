@@ -139,7 +139,7 @@ Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve 
 
 ### parent
 
-`Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>
+`Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>
 
 The parent ASTNode.
 
@@ -175,7 +175,7 @@ List of disposal handlers for the ASTNode.
 
 ### value$
 
-`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>>
+`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>>
 
 AST node change Observable events, implemented based on RxJS.
 
@@ -202,13 +202,13 @@ The kind of the ASTNode.
 
 ### children
 
-`get` **children**(): [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+`get` **children**(): [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+[`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 #### Inherited from
 
@@ -267,13 +267,13 @@ ASTNode.kind
 
 ### list
 
-`get` **list**(): [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+`get` **list**(): [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 The list of nodes.
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+[`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 ***
 
@@ -305,7 +305,7 @@ Dispatches a global event for the current ASTNode.
 
 | Name | Type |
 | :------ | :------ |
-| `ActionType` | extends [`GlobalEventActionType`](/en/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>, `ActionType`> = [`GlobalEventActionType`](/en/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>> |
+| `ActionType` | extends [`GlobalEventActionType`](/en/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>, `ActionType`> = [`GlobalEventActionType`](/en/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>> |
 
 #### Parameters
 
@@ -408,15 +408,20 @@ Listens for changes to the ASTNode.
 
 ### toJSON
 
-**toJSON**(): [`ASTNodeJSON`](/en/auto-docs/free-layout-editor/interfaces/ASTNodeJSON.md)
+**toJSON**(): `Object`
 
 Serialize the `ListNode` to `ListNodeJSON`.
 
 #### Returns
 
-[`ASTNodeJSON`](/en/auto-docs/free-layout-editor/interfaces/ASTNodeJSON.md)
+`Object`
 
 The JSON representation of `ListNode`.
+
+| Name | Type |
+| :------ | :------ |
+| `kind` | [`ASTKind`](/en/auto-docs/free-layout-editor/enums/ASTKind.md) |
+| `list` | `any`\[] |
 
 #### Overrides
 

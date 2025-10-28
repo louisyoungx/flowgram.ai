@@ -10,7 +10,7 @@ Check if the node is a `EnumerateExpression`.
 
 | Name | Type |
 | :------ | :------ |
-| `node?` | [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`> |
+| `node?` | [`ASTNode`](/en/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`> |
 
 #### Returns
 

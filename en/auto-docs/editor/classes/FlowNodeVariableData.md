@@ -494,7 +494,7 @@ The variable field, or undefined if not found.
 
 ### getPrivateVar
 
-**getPrivateVar**(`key?`): `undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+**getPrivateVar**(`key?`): `undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 Retrieves a variable from the private AST (Abstract Syntax Tree) by key.
 
@@ -506,7 +506,7 @@ Retrieves a variable from the private AST (Abstract Syntax Tree) by key.
 
 #### Returns
 
-`undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+`undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 The value of the variable, or undefined if not found.
 
@@ -514,7 +514,7 @@ The value of the variable, or undefined if not found.
 
 ### getVar
 
-**getVar**(`key?`): `undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+**getVar**(`key?`): `undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 Retrieves a variable from the public AST (Abstract Syntax Tree) by key.
 
@@ -526,7 +526,7 @@ Retrieves a variable from the public AST (Abstract Syntax Tree) by key.
 
 #### Returns
 
-`undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+`undefined` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 The value of the variable, or undefined if not found.
 
@@ -549,7 +549,7 @@ The private scope of the node.
 
 ### setPrivateVar
 
-**setPrivateVar**(`key`, `json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+**setPrivateVar**(`key`, `json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 Sets a variable in the private AST (Abstract Syntax Tree) with the given key and JSON value.
 
@@ -562,11 +562,11 @@ Sets a variable in the private AST (Abstract Syntax Tree) with the given key and
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 The updated AST node.
 
-**setPrivateVar**(`json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+**setPrivateVar**(`json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 Sets a variable in the private AST (Abstract Syntax Tree) with the default key 'outputs'.
 
@@ -578,7 +578,7 @@ Sets a variable in the private AST (Abstract Syntax Tree) with the default key '
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 The updated AST node.
 
@@ -586,7 +586,7 @@ The updated AST node.
 
 ### setVar
 
-**setVar**(`key`, `json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+**setVar**(`key`, `json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 Sets a variable in the public AST (Abstract Syntax Tree) with the given key and JSON value.
 
@@ -599,11 +599,11 @@ Sets a variable in the public AST (Abstract Syntax Tree) with the given key and 
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 The updated AST node.
 
-**setVar**(`json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+**setVar**(`json`): [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 Sets a variable in the public AST (Abstract Syntax Tree) with the default key 'outputs'.
 
@@ -615,7 +615,7 @@ Sets a variable in the public AST (Abstract Syntax Tree) with the default key 'o
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`>
+[`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`>
 
 The updated AST node.
 

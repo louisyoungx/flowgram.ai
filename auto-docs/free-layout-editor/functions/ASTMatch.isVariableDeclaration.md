@@ -16,7 +16,7 @@ Check if the node is a `VariableDeclaration`.
 
 | Name | Type |
 | :------ | :------ |
-| `node?` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`> |
+| `node?` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`> |
 
 #### Returns
 

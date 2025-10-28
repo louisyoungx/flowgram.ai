@@ -6,7 +6,7 @@ All other types should extend this class.
 
 ## Hierarchy
 
-* [`BaseType`](/auto-docs/free-layout-editor/classes/BaseType.md)
+* [`BaseType`](/auto-docs/free-layout-editor/classes/BaseType.md)<`StringJSON`>
 
   ↳ **`StringType`**
 
@@ -143,7 +143,7 @@ Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve 
 
 ### parent
 
-`Readonly` **parent**: `undefined` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>
+`Readonly` **parent**: `undefined` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>
 
 The parent ASTNode.
 
@@ -179,7 +179,7 @@ List of disposal handlers for the ASTNode.
 
 ### value$
 
-`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>>
+`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>>
 
 AST node change Observable events, implemented based on RxJS.
 
@@ -206,13 +206,13 @@ The kind of the ASTNode.
 
 ### children
 
-`get` **children**(): [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+`get` **children**(): [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
-[`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+[`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 #### Inherited from
 
@@ -309,7 +309,7 @@ Dispatches a global event for the current ASTNode.
 
 | Name | Type |
 | :------ | :------ |
-| `ActionType` | extends [`GlobalEventActionType`](/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>, `ActionType`> = [`GlobalEventActionType`](/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`>> |
+| `ActionType` | extends [`GlobalEventActionType`](/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>, `ActionType`> = [`GlobalEventActionType`](/auto-docs/free-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`>> |
 
 #### Parameters
 
@@ -462,16 +462,20 @@ Listens for changes to the ASTNode.
 
 ### toJSON
 
-**toJSON**(): [`ASTNodeJSON`](/auto-docs/free-layout-editor/interfaces/ASTNodeJSON.md)
+**toJSON**(): `Object`
 
-Serialize the node to a JSON object.
+Serialize the `StringType` to `StringJSON`.
 
 #### Returns
 
-[`ASTNodeJSON`](/auto-docs/free-layout-editor/interfaces/ASTNodeJSON.md)
+`Object`
 
-The JSON representation of the node.
+The JSON representation of `StringType`.
 
-#### Inherited from
+| Name | Type |
+| :------ | :------ |
+| `format` | `undefined` | `string` |
+
+#### Overrides
 
 [BaseType](/auto-docs/free-layout-editor/classes/BaseType.md).[toJSON](/auto-docs/free-layout-editor/classes/BaseType.md#tojson)

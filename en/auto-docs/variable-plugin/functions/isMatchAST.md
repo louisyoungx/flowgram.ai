@@ -8,13 +8,13 @@ isMatchAST is same as ASTMatch.is
 
 | Name | Type |
 | :------ | :------ |
-| `TargetASTNode` | extends [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`, `TargetASTNode`> |
+| `TargetASTNode` | extends [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `TargetASTNode`> |
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `node?` | [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> |
+| `node?` | [`ASTNode`](/en/auto-docs/variable-plugin/classes/ASTNode.md)<`any`> |
 | `targetType?` | (...`args`: `any`\[]) => `TargetASTNode` |
 | `targetType.kind` | `string` |
 

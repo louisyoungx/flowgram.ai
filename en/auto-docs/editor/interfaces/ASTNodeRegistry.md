@@ -1,11 +1,10 @@
-# Interface: ASTNodeRegistry\<JSON, InjectOpts>
+# Interface: ASTNodeRegistry\<JSON>
 
 ## Type parameters
 
 | Name | Type |
 | :------ | :------ |
 | `JSON` | extends [`ASTNodeJSON`](/en/auto-docs/editor/interfaces/ASTNodeJSON.md) = `any` |
-| `InjectOpts` | `any` |
 
 ## Table of contents
 
@@ -28,7 +27,7 @@
 | Name | Type |
 | :------ | :------ |
 | `params` | [`CreateASTParams`](/en/auto-docs/editor/interfaces/CreateASTParams.md) |
-| `injectOpts` | `InjectOpts` |
+| `injectOpts` | `any` |
 
 ## Properties
 

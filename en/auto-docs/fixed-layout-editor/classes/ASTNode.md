@@ -1,4 +1,4 @@
-# Class: ASTNode\<JSON, InjectOpts>
+# Class: ASTNode\<JSON>
 
 An `ASTNode` represents a fundamental unit of variable information within the system's Abstract Syntax Tree.
 It can model various constructs, for example:
@@ -19,7 +19,6 @@ Here is some characteristic of ASTNode:
 | Name | Type |
 | :------ | :------ |
 | `JSON` | extends [`ASTNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/ASTNodeJSON.md) = `any` |
-| `InjectOpts` | `any` |
 
 ## Hierarchy
 
@@ -87,7 +86,7 @@ Here is some characteristic of ASTNode:
 
 ### constructor
 
-**new ASTNode**<`JSON`, `InjectOpts`>(`createParams`, `opts?`)
+**new ASTNode**<`JSON`>(`createParams`, `opts?`)
 
 Constructor.
 
@@ -96,14 +95,13 @@ Constructor.
 | Name | Type |
 | :------ | :------ |
 | `JSON` | extends [`ASTNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/ASTNodeJSON.md) = `any` |
-| `InjectOpts` | `any` |
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `createParams` | [`CreateASTParams`](/en/auto-docs/fixed-layout-editor/interfaces/CreateASTParams.md) | Necessary parameters for creating an ASTNode. |
-| `opts?` | `InjectOpts` | - |
+| `opts?` | `any` | - |
 
 ## Properties
 
@@ -148,7 +146,7 @@ Callback triggered upon disposal.
 
 ### opts
 
-`Optional` `Readonly` **opts**: `InjectOpts`
+`Optional` `Readonly` **opts**: `any`
 
 **`Deprecated`**
 
@@ -160,7 +158,7 @@ Please use `@injectToAst(XXXService) declare xxxService: XXXService` to achieve 
 
 ### parent
 
-`Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>
+`Readonly` **parent**: `undefined` | [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`>
 
 The parent ASTNode.
 
@@ -184,7 +182,7 @@ List of disposal handlers for the ASTNode.
 
 ### value$
 
-`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>>
+`Readonly` **value$**: `BehaviorSubject`<[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`>>
 
 AST node change Observable events, implemented based on RxJS.
 
@@ -203,13 +201,13 @@ The kind of the ASTNode.
 
 ### children
 
-`get` **children**(): [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+`get` **children**(): [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 Gets all child ASTNodes of the current ASTNode.
 
 #### Returns
 
-[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>\[]
+[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`>\[]
 
 ***
 
@@ -274,7 +272,7 @@ Dispatches a global event for the current ASTNode.
 
 | Name | Type |
 | :------ | :------ |
-| `ActionType` | extends [`GlobalEventActionType`](/en/auto-docs/fixed-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>, `ActionType`> = [`GlobalEventActionType`](/en/auto-docs/fixed-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`, `any`>> |
+| `ActionType` | extends [`GlobalEventActionType`](/en/auto-docs/fixed-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`>, `ActionType`> = [`GlobalEventActionType`](/en/auto-docs/fixed-layout-editor/interfaces/GlobalEventActionType.md)<`string`, `any`, [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`any`>> |
 
 #### Parameters
 
@@ -344,14 +342,14 @@ Listens for changes to the ASTNode.
 
 | Name | Type |
 | :------ | :------ |
-| `Data` | [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`JSON`, `InjectOpts`> |
+| `Data` | [`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`JSON`> |
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `observer` | `ObserverOrNext`<`Data`> | The listener callback. |
-| `selector?` | `SubscribeConfig`<[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`JSON`, `InjectOpts`>, `Data`> | Listens for specified data. |
+| `selector?` | `SubscribeConfig`<[`ASTNode`](/en/auto-docs/fixed-layout-editor/classes/ASTNode.md)<`JSON`>, `Data`> | Listens for specified data. |
 
 #### Returns
 
@@ -361,10 +359,10 @@ Listens for changes to the ASTNode.
 
 ### toJSON
 
-**toJSON**(): [`ASTNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/ASTNodeJSON.md)
+`Abstract` **toJSON**(): `JSON`
 
 Serializes the current ASTNode to ASTNodeJSON.
 
 #### Returns
 
-[`ASTNodeJSON`](/en/auto-docs/fixed-layout-editor/interfaces/ASTNodeJSON.md)
+`JSON`

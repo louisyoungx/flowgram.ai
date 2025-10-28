@@ -26,6 +26,6 @@ Creates a `Property` node.
 | :------ | :------ |
 | `initializer?` | [`ASTNodeJSON`](/auto-docs/free-layout-editor/interfaces/ASTNodeJSON.md) |
 | `key` | `string` |
-| `kind` | [`ASTKind`](/auto-docs/free-layout-editor/enums/ASTKind.md) |
+| `kind` | `string` |
 | `meta?` | `VariableMeta` |
 | `type?` | `ASTNodeJSONOrKind` |

@@ -10,13 +10,13 @@ Check ASTNode Match by ASTClass
 
 | Name | Type |
 | :------ | :------ |
-| `TargetASTNode` | extends [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`, `TargetASTNode`> |
+| `TargetASTNode` | extends [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `TargetASTNode`> |
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `node?` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`, `any`> | ASTNode to be checked. |
+| `node?` | [`ASTNode`](/en/auto-docs/editor/classes/ASTNode.md)<`any`> | ASTNode to be checked. |
 | `targetType?` | (...`args`: `any`\[]) => `TargetASTNode` | Target ASTNode class. |
 | `targetType.kind` | `string` | - |
 

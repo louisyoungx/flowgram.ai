@@ -97,7 +97,7 @@ Handles changes in a list of fields to detect rename operations.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `ast?` | [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> | The AST node where the change occurred. |
+| `ast?` | [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`> | The AST node where the change occurred. |
 | `prev?` | [`BaseVariableField`](/auto-docs/variable-plugin/classes/BaseVariableField.md)<`any`>\[] | The list of fields before the change. |
 | `next?` | [`BaseVariableField`](/auto-docs/variable-plugin/classes/BaseVariableField.md)<`any`>\[] | The list of fields after the change. |
 

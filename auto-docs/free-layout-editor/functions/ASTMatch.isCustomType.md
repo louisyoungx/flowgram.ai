@@ -10,7 +10,7 @@ Check if the node is a `CustomType`.
 
 | Name | Type |
 | :------ | :------ |
-| `node?` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`, `any`> |
+| `node?` | [`ASTNode`](/auto-docs/free-layout-editor/classes/ASTNode.md)<`any`> |
 
 #### Returns
 

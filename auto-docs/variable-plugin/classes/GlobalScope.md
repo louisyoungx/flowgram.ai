@@ -273,7 +273,7 @@ Retrieves a variable from the scope by its key.
 
 | Name | Type |
 | :------ | :------ |
-| `Node` | extends [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`, `Node`> = [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> |
+| `Node` | extends [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `Node`> = [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`> |
 
 #### Parameters
 
@@ -335,7 +335,7 @@ Sets a variable in the scope with the default key 'outputs'.
 
 | Name | Type |
 | :------ | :------ |
-| `Node` | extends [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`, `Node`> = [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> |
+| `Node` | extends [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `Node`> = [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`> |
 
 #### Parameters
 
@@ -361,7 +361,7 @@ Sets a variable in the scope with a specified key.
 
 | Name | Type |
 | :------ | :------ |
-| `Node` | extends [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`, `Node`> = [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `any`> |
+| `Node` | extends [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`, `Node`> = [`ASTNode`](/auto-docs/variable-plugin/classes/ASTNode.md)<`any`> |
 
 #### Parameters
 
