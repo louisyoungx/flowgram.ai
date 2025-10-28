@@ -96,10 +96,10 @@
 - [inferInputsPlugin (WIP)](/materials/form-plugins/infer-inputs-plugin.md)
 - [inferAssignPlugin (WIP)](/materials/form-plugins/infer-assign-plugin.md)
 - [validateFlowValue](/materials/validate/validate-flow-value.md)
-- [Flow Value](/materials/common/flow-value.md)
-- [JsonSchemaPreset (WIP)](/materials/common/json-schema-preset.md)
-- [InjectMaterial (WIP)](/materials/common/inject-material.md)
-- [DisableDeclarationPlugin (WIP)](/materials/common/disable-declaration-plugin.md)
+- [FlowValue](/materials/common/flow-value.md)
+- [类型管理](/materials/common/json-schema-preset.md)
+- [物料组件依赖注入](/materials/common/inject-material.md)
+- [DisableDeclarationPlugin](/materials/common/disable-declaration-plugin.md)
 
 ## 例子
 

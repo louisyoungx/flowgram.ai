@@ -1,12 +1,12 @@
 import { SourceCode } from '@theme';
 
-# Flow Value
+# FlowValue
 
-Flow Value is a special type used in Flowgram Official Materials to represent data. It can be a constant, reference, expression, or template, providing a flexible way for data transfer and processing in workflows.
+FlowValue is a special type used in Flowgram Official Materials to represent data. It can be a constant, reference, expression, or template, providing a flexible way for data transfer and processing in workflows.
 
-## Flow Value Types
+## FlowValue Types
 
-Flow Value supports the following four types:
+FlowValue supports the following four types:
 
 ### 1. Constant
 
@@ -63,7 +63,7 @@ The expression type is currently in WIP status and does not support type derivat
 
 ## FlowValueUtils Utility Class
 
-FlowValueUtils provides rich utility functions for handling Flow Values:
+FlowValueUtils provides rich utility functions for handling FlowValues:
 
 ### Type Checking Functions
 
@@ -72,17 +72,17 @@ FlowValueUtils provides rich utility functions for handling Flow Values:
 * `isExpression(value)` - Check if it's an expression type
 * `isTemplate(value)` - Check if it's a template type
 * `isConstantOrRef(value)` - Check if it's a constant or reference type
-* `isFlowValue(value)` - Check if it's a valid Flow Value type
+* `isFlowValue(value)` - Check if it's a valid FlowValue type
 
 ### Traversal and Extraction Functions
 
-* `traverse(value, options)` - Traverse all Flow Values in an object, with type filtering support
+* `traverse(value, options)` - Traverse all FlowValues in an object, with type filtering support
 * `getTemplateKeyPaths(templateValue)` - Extract all variable paths from templates
 
 ### Schema Inference Functions
 
 * `inferConstantJsonSchema(constantValue)` - Infer JSON Schema based on constant value
-* `inferJsonSchema(values, scope)` - Infer corresponding JSON Schema based on Flow Value
+* `inferJsonSchema(values, scope)` - Infer corresponding JSON Schema based on FlowValue
 
 ## Usage Examples
 
@@ -94,7 +94,7 @@ if (FlowValueUtils.isConstant(value)) {
   console.log('This is a constant value:', value.content);
 }
 
-// Traverse Flow Values
+// Traverse FlowValues
 for (const { value, path } of FlowValueUtils.traverse(data, {
   includeTypes: ['ref', 'template']
 })) {
@@ -110,9 +110,9 @@ console.log('Template variables:', templatePaths); // [['user', 'name'], ['count
 
 <SourceCode href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/shared/flow-value/types.ts" />
 
-The core type definitions of Flow Value include:
+The core type definitions of FlowValue include:
 
-* `IFlowValue` - Union type of Flow Value
+* `IFlowValue` - Union type of FlowValue
 * `IFlowConstantValue` - Constant type interface
 * `IFlowRefValue` - Reference type interface
 * `IFlowExpressionValue` - Expression type interface
@@ -135,7 +135,7 @@ npx @flowgram.ai/cli@latest materials shared/flow-value
 ```
 flow-value/
 ├── index.ts           # Main entry file, exports all types and utility functions
-├── types.ts           # Type definitions file, contains all Flow Value interface definitions
+├── types.ts           # Type definitions file, contains all FlowValue interface definitions
 ├── schema.ts          # Zod schema definitions for runtime type validation
 ├── utils.ts           # Complete implementation of FlowValueUtils utility class
 └── README.md          # Module documentation
@@ -143,4 +143,4 @@ flow-value/
 
 ### Third-party APIs Used
 
-* [Zod](https://v3.zod.dev/): Used for type validation and data parsing to determine if Flow Value schemas meet expectations.
+* [Zod](https://v3.zod.dev/): Used for type validation and data parsing to determine if FlowValue schemas meet expectations.

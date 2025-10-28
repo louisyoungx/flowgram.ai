@@ -11,6 +11,10 @@ TypeSelector 是一个类型选择器组件，用于在表单中选择 JSON Sche
   <img loading="lazy" src="/materials/type-selector.png" alt="TypeSelector 组件" style={{ width: '50%' }} />
 </div>
 
+:::tip
+If you want to add new variable types, please read [Type Management](/materials/common/json-schema-preset.md)
+:::
+
 ## 案例演示
 
 ### 基本使用
@@ -33,6 +37,10 @@ const formMeta = {
   ),
 }
 ```
+
+### 新增新类型
+
+详见：
 
 ## API 参考
 
