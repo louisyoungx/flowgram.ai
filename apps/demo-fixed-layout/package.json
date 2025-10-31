@@ -4,7 +4,7 @@
   "description": "",
   "keywords": [],
   "license": "MIT",
-  "main": "./src/index.ts",
+  "main": "./src-tmp/app.ts",
   "files": [
     "src/",
     ".eslintrc.js",

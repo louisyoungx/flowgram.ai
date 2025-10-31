@@ -11,7 +11,7 @@ export default defineConfig({
   plugins: [pluginReact(), pluginLess()],
   source: {
     entry: {
-      index: './src/app.tsx',
+      index: './src-tmp/app.tsx',
     },
     /**
      * support inversify @injectable() and @inject decorators
