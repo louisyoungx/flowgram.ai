@@ -8,6 +8,7 @@
 * [containerNode](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md#containernode)
 * [disableFitView](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md#disablefitview)
 * [enableAnimation](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md#enableanimation)
+* [filterLine](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md#filterline)
 * [filterNode](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md#filternode)
 * [getFollowNode](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md#getfollownode)
 * [layoutConfig](/en/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md#layoutconfig)
@@ -35,6 +36,27 @@
 ### enableAnimation
 
 `Optional` **enableAnimation**: `boolean`
+
+***
+
+### filterLine
+
+`Optional` **filterLine**: (`params`: { `line`: `WorkflowLineEntity`  }) => `boolean`
+
+#### Type declaration
+
+(`params`): `boolean`
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `params` | `Object` |
+| `params.line` | `WorkflowLineEntity` |
+
+##### Returns
+
+`boolean`
 
 ***
 
