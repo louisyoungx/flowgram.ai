@@ -5,21 +5,24 @@
 
 import { useState } from 'react';
 
-import { FlowDocument, useService } from '@flowgram.ai/fixed-layout-editor';
+import { FlowDocumentJSON, useService } from '@flowgram.ai/fixed-layout-editor';
 
 import './index.less';
+import { WorkflowLoadSchemaService } from '../../services';
 import { exampleSchemas } from './example-schemas';
 
 export const UpdateSchema = () => {
-  const document = useService(FlowDocument);
+  const loadSchemaService = useService(WorkflowLoadSchemaService);
   const [currentSchemaIndex, setCurrentSchemaIndex] = useState<number>(0);
 
   // Schema version names for display
   const schemaVersions = ['0.加载初始状态', '1.基础结构', '2.核心功能', '3.完整工作流'];
 
   const handleUpdateSchema = (): void => {
+    const currentSchema: FlowDocumentJSON = exampleSchemas[currentSchemaIndex];
+
     // Update the document with current schema
-    document.fromJSON(exampleSchemas[currentSchemaIndex]);
+    loadSchemaService.load(currentSchema);
 
     // Move to next schema index, cycle back to 0 when reaching the end
     setCurrentSchemaIndex((currentSchemaIndex + 1) % exampleSchemas.length);

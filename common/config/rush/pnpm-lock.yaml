@@ -125,6 +125,9 @@ importers:
       '@flowgram.ai/panel-manager-plugin':
         specifier: workspace:*
         version: link:../../packages/plugins/panel-manager-plugin
+      classnames:
+        specifier: ^2.3.2
+        version: 2.5.1
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21

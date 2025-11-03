@@ -3,15 +3,20 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { FlowDocumentJSON } from '@flowgram.ai/fixed-layout-editor';
+
 const initSchema = {
   nodes: [
     {
       id: 'start_0',
       type: 'start',
       data: {
+        status: {
+          loading: true,
+          thinking: '正在生成天气穿衣建议',
+        },
         title: '开始',
       },
-      blocks: [],
     },
   ],
 };
@@ -25,7 +30,6 @@ const processStartSchema = {
         title: '开始',
         content: '天气穿衣建议工作流开始',
       },
-      blocks: [],
     },
     {
       id: 'end_0',
@@ -34,7 +38,6 @@ const processStartSchema = {
         title: '结束',
         content: '返回格式化的穿衣建议',
       },
-      blocks: [],
     },
   ],
 };
@@ -48,7 +51,6 @@ const addCoreNodesSchema = {
         title: '开始',
         content: '天气穿衣建议工作流开始',
       },
-      blocks: [],
     },
     {
       id: 'validate_input_0',
@@ -57,7 +59,6 @@ const addCoreNodesSchema = {
         title: '输入处理节点',
         content: '验证并清理城市名称输入 - validate_city_input()',
       },
-      blocks: [],
     },
     {
       id: 'fetch_weather_0',
@@ -66,7 +67,6 @@ const addCoreNodesSchema = {
         title: '天气数据获取',
         content: '调用wttr.in API获取天气信息 - fetch_weather_data()',
       },
-      blocks: [],
     },
     {
       id: 'generate_suggestion_0',
@@ -75,7 +75,6 @@ const addCoreNodesSchema = {
         title: '穿衣建议生成',
         content: '基于天气数据生成穿衣建议 - generate_clothing_suggestion()',
       },
-      blocks: [],
     },
     {
       id: 'format_response_0',
@@ -84,7 +83,6 @@ const addCoreNodesSchema = {
         title: '输出整理节点',
         content: '格式化最终回答 - format_final_response()',
       },
-      blocks: [],
     },
     {
       id: 'end_0',
@@ -93,7 +91,6 @@ const addCoreNodesSchema = {
         title: '结束',
         content: '返回格式化的穿衣建议',
       },
-      blocks: [],
     },
   ],
 };
@@ -107,7 +104,6 @@ const completeWorkflowSchema = {
         title: '开始',
         content: '天气穿衣建议工作流开始',
       },
-      blocks: [],
     },
     {
       id: 'validate_input_0',
@@ -116,7 +112,6 @@ const completeWorkflowSchema = {
         title: '输入处理节点',
         content: '验证并清理城市名称输入 - validate_city_input()',
       },
-      blocks: [],
     },
     {
       id: 'condition_0',
@@ -133,7 +128,6 @@ const completeWorkflowSchema = {
             title: '天气数据获取',
             content: '调用wttr.in API获取天气信息 - fetch_weather_data()',
           },
-          blocks: [],
         },
         {
           id: 'format_error_0',
@@ -142,7 +136,6 @@ const completeWorkflowSchema = {
             title: '格式化错误',
             content: '直接跳转到输出格式化',
           },
-          blocks: [],
         },
       ],
     },
@@ -161,7 +154,6 @@ const completeWorkflowSchema = {
             title: '穿衣建议生成',
             content: '基于天气数据生成穿衣建议 - generate_clothing_suggestion()',
           },
-          blocks: [],
         },
         {
           id: 'format_error_1',
@@ -170,7 +162,6 @@ const completeWorkflowSchema = {
             title: '格式化错误',
             content: '跳转到输出格式化',
           },
-          blocks: [],
         },
       ],
     },
@@ -181,7 +172,6 @@ const completeWorkflowSchema = {
         title: '输出整理节点',
         content: '格式化最终回答 - format_final_response()',
       },
-      blocks: [],
     },
     {
       id: 'end_0',
@@ -190,12 +180,11 @@ const completeWorkflowSchema = {
         title: '结束',
         content: '返回格式化的穿衣建议',
       },
-      blocks: [],
     },
   ],
 };
 
-export const exampleSchemas = [
+export const exampleSchemas: FlowDocumentJSON[] = [
   initSchema,
   processStartSchema,
   addCoreNodesSchema,

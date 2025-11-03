@@ -1,0 +1,49 @@
+/**
+ * Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
+ * SPDX-License-Identifier: MIT
+ */
+
+.node-render {
+  background: #fff;
+  border: 1px solid rgba(6, 7, 9, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  cursor: move;
+  padding: 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  min-width: 200px;
+  transition: all 0.2s ease-in-out;
+
+  // Activated state - when node is selected/focused
+  &--activated {
+    border-color: #82a7fc;
+  }
+
+  // Dragging state - when node is being dragged
+  &--dragging {
+    opacity: 0.3;
+  }
+
+  // Block icon states - when showing order or regular block icons
+  &--block-icon,
+  &--block-order-icon {
+    width: 260px;
+  }
+
+  // Hover effects for better UX
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+  }
+
+  // Focus state for accessibility
+  &:focus-within {
+    outline: 2px solid #82a7fc;
+    outline-offset: 2px;
+  }
+}

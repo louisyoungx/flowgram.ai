@@ -11,7 +11,6 @@ import { FixedLayoutEditorProvider, EditorRenderer } from '@flowgram.ai/fixed-la
 import { useEditorProps } from './use-editor-props';
 import { UpdateSchema } from './components/update-schema';
 import { Tools } from './components/tools';
-import { Minimap } from './components/minimap';
 
 const FlowGramApp = () => {
   const editorProps = useEditorProps();
@@ -19,7 +18,6 @@ const FlowGramApp = () => {
     <FixedLayoutEditorProvider {...editorProps}>
       <EditorRenderer />
       <Tools />
-      <Minimap />
       <UpdateSchema />
     </FixedLayoutEditorProvider>
   );
