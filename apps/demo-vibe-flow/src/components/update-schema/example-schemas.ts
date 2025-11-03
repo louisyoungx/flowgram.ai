@@ -11,9 +11,21 @@ const initSchema = {
       id: 'start_0',
       type: 'start',
       data: {
+        title: '开始',
+      },
+    },
+  ],
+};
+
+const initLoadingSchema = {
+  nodes: [
+    {
+      id: 'start_0',
+      type: 'start',
+      data: {
         status: {
           loading: true,
-          thinking: '正在生成天气穿衣建议',
+          thinking: '正在生成天气穿衣建议...',
         },
         title: '开始',
       },
@@ -27,8 +39,24 @@ const processStartSchema = {
       id: 'start_0',
       type: 'start',
       data: {
+        status: {
+          loading: false,
+          thinking: '正在生成天气穿衣建议...',
+        },
         title: '开始',
         content: '天气穿衣建议工作流开始',
+      },
+    },
+    {
+      id: 'loading_0',
+      type: 'custom',
+      data: {
+        title: '核心流程节点',
+        status: {
+          loading: true,
+          thinking:
+            '业务流程：1.进行输入处理 2.获取天气数据 3.生成穿衣建议 4.整理输出。我需要根据这些步骤来生成天气穿衣建议工作流核心节点...',
+        },
       },
     },
     {
@@ -186,6 +214,7 @@ const completeWorkflowSchema = {
 
 export const exampleSchemas: FlowDocumentJSON[] = [
   initSchema,
+  initLoadingSchema,
   processStartSchema,
   addCoreNodesSchema,
   completeWorkflowSchema,

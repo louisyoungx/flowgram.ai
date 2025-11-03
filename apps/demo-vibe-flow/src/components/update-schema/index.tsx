@@ -16,7 +16,14 @@ export const UpdateSchema = () => {
   const [currentSchemaIndex, setCurrentSchemaIndex] = useState<number>(0);
 
   // Schema version names for display
-  const schemaVersions = ['0.加载初始状态', '1.基础结构', '2.核心功能', '3.完整工作流'];
+  const schemaVersions = [
+    '加载初始状态',
+    '加载中状态',
+    '基础节点加载中',
+    '基础结构',
+    '核心功能',
+    '完整工作流',
+  ];
 
   const handleUpdateSchema = (): void => {
     const currentSchema: FlowDocumentJSON = exampleSchemas[currentSchemaIndex];
@@ -29,7 +36,8 @@ export const UpdateSchema = () => {
   };
 
   // Determine button text based on current state
-  const getButtonText = (): string => `更新 ${schemaVersions[currentSchemaIndex]}`;
+  const getButtonText = (): string =>
+    `更新 ${currentSchemaIndex}.${schemaVersions[currentSchemaIndex]}`;
 
   return (
     <>

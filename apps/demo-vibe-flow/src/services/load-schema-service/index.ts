@@ -22,6 +22,10 @@ export class WorkflowLoadSchemaService {
       this.document.fromJSON(schema);
       return;
     }
+
+    this.currentSchema = schema;
+    this.document.fromJSON(schema);
+    return;
     // TODO
   }
 }
