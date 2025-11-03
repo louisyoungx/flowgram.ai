@@ -10,9 +10,9 @@ export const Minimap = () => (
     style={{
       position: 'absolute',
       left: 16,
-      bottom: 72,
+      bottom: 58,
       zIndex: 100,
-      width: 118,
+      width: 218,
     }}
   >
     <MinimapRender

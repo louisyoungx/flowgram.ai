@@ -9,8 +9,9 @@ import { createRoot } from 'react-dom/client';
 import { FixedLayoutEditorProvider, EditorRenderer } from '@flowgram.ai/fixed-layout-editor';
 
 import { useEditorProps } from './use-editor-props';
-import { Tools } from './tools';
-import { Minimap } from './minimap';
+import { UpdateSchema } from './components/update-schemas';
+import { Tools } from './components/tools';
+import { Minimap } from './components/minimap';
 
 const FlowGramApp = () => {
   const editorProps = useEditorProps();
@@ -19,6 +20,7 @@ const FlowGramApp = () => {
       <EditorRenderer />
       <Tools />
       <Minimap />
+      <UpdateSchema />
     </FixedLayoutEditorProvider>
   );
 };

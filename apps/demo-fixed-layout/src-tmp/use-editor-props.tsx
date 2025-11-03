@@ -9,12 +9,12 @@ import { useMemo } from 'react';
 
 import { createMinimapPlugin } from '@flowgram.ai/minimap-plugin';
 import { defaultFixedSemiMaterials } from '@flowgram.ai/fixed-semi-materials';
-import { FlowRendererKey, FixedLayoutProps, Field } from '@flowgram.ai/fixed-layout-editor';
+import { FixedLayoutProps, Field, FlowRendererKey } from '@flowgram.ai/fixed-layout-editor';
 
-import { NodeRender } from './node-render';
 import { nodeRegistries } from './node-registries';
 import { initialData } from './initial-data';
-import { Adder } from './adder';
+import { NodeRender } from './components/node-render';
+import { FormRender } from './components/form-render';
 
 export function useEditorProps(): FixedLayoutProps {
   return useMemo<FixedLayoutProps>(
@@ -24,8 +24,8 @@ export function useEditorProps(): FixedLayoutProps {
           disableLayer: true,
           enableDisplayAllNodes: true,
           canvasStyle: {
-            canvasWidth: 100,
-            canvasHeight: 50,
+            canvasWidth: 200,
+            canvasHeight: 100,
             canvasPadding: 50,
           },
         }),
@@ -36,7 +36,9 @@ export function useEditorProps(): FixedLayoutProps {
         renderDefaultNode: NodeRender,
         components: {
           ...defaultFixedSemiMaterials,
-          [FlowRendererKey.ADDER]: Adder,
+          [FlowRendererKey.DRAG_NODE]: () => <></>,
+          [FlowRendererKey.BRANCH_ADDER]: () => <></>,
+          [FlowRendererKey.ADDER]: () => <></>,
         },
       },
       onAllLayersRendered: (ctx) => {
@@ -58,14 +60,7 @@ export function useEditorProps(): FixedLayoutProps {
             /**
              * Render form
              */
-            render: () => (
-              <>
-                <Field<string> name="title">{({ field }) => <div>{field.value}</div>}</Field>
-                <Field<string> name="content">
-                  <input />
-                </Field>
-              </>
-            ),
+            render: FormRender,
           },
         };
       },

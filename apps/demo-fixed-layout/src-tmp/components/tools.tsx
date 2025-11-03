@@ -32,7 +32,7 @@ export const Tools = () => {
 
   return (
     <div
-      style={{ position: 'absolute', zIndex: 10, bottom: 34, left: 16, display: 'flex', gap: 8 }}
+      style={{ position: 'absolute', zIndex: 10, bottom: 16, left: 16, display: 'flex', gap: 8 }}
     >
       <button style={buttonStyle} onClick={() => tools.zoomin()}>
         ZoomIn
