@@ -13,15 +13,17 @@ export const NodeRender = ({ node }: { node: FlowNodeEntity }) => {
   const { onMouseEnter, onMouseLeave, form, dragging, isBlockOrderIcon, isBlockIcon, activated } =
     useNodeRender();
 
-  const className = classNames('node-render', {
-    'node-render--activated': activated,
-    'node-render--dragging': dragging,
-    'node-render--block-order-icon': isBlockOrderIcon,
-    'node-render--block-icon': isBlockIcon,
-  });
-
   return (
-    <div className={className} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+    <div
+      className={classNames('node-render', {
+        'node-render-activated': activated,
+        'node-render-dragging': dragging,
+        'node-render-block-order-icon': isBlockOrderIcon,
+        'node-render-block-icon': isBlockIcon,
+      })}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       {form?.render()}
     </div>
   );

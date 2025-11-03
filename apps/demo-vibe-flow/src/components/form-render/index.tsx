@@ -4,7 +4,9 @@
  */
 
 import { Field } from '@flowgram.ai/fixed-layout-editor';
+
 import './index.less';
+import { StatusDisplayField } from '../../fields/status-display';
 
 export const FormRender = () => (
   <>
@@ -14,5 +16,6 @@ export const FormRender = () => (
     <Field<string> name="content">
       {({ field }) => <div className="form-render-content">{field.value}</div>}
     </Field>
+    <StatusDisplayField />
   </>
 );

@@ -20,25 +20,24 @@
   transition: all 0.2s ease-in-out;
 
   // Activated state - when node is selected/focused
-  &--activated {
+  &-activated {
     border-color: #82a7fc;
   }
 
   // Dragging state - when node is being dragged
-  &--dragging {
+  &-dragging {
     opacity: 0.3;
   }
 
   // Block icon states - when showing order or regular block icons
-  &--block-icon,
-  &--block-order-icon {
+  &-block-icon,
+  &-block-order-icon {
     width: 260px;
   }
 
   // Hover effects for better UX
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-1px);
   }
 
   // Focus state for accessibility
