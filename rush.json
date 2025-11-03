@@ -473,6 +473,16 @@
             "versionPolicyName": "appPolicy"
         },
         {
+            "packageName": "@flowgram.ai/demo-vibe-flow",
+            "projectFolder": "apps/demo-vibe-flow",
+            "tags": [
+                "level-1",
+                "team-flow",
+                "demo"
+            ],
+            "versionPolicyName": "appPolicy"
+        },
+        {
             "packageName": "@flowgram.ai/utils",
             "projectFolder": "packages/common/utils",
             "versionPolicyName": "publishPolicy",

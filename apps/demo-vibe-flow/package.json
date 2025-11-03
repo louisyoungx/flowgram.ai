@@ -1,10 +1,10 @@
 {
-  "name": "@flowgram.ai/demo-fixed-layout",
+  "name": "@flowgram.ai/demo-vibe-flow",
   "version": "0.1.0",
   "description": "",
   "keywords": [],
   "license": "MIT",
-  "main": "./src/index.ts",
+  "main": "./src/app.ts",
   "files": [
     "src/",
     ".eslintrc.js",
@@ -12,9 +12,7 @@
     "index.html",
     "package.json",
     "rsbuild.config.ts",
-    "tsconfig.json",
-    "README.md",
-    "README.zh_CN.md"
+    "tsconfig.json"
   ],
   "scripts": {
     "build": "exit 0",
@@ -32,18 +30,14 @@
     "watch": "exit 0"
   },
   "dependencies": {
-    "@douyinfe/semi-icons": "^2.80.0",
-    "@douyinfe/semi-ui": "^2.80.0",
     "@flowgram.ai/fixed-layout-editor": "workspace:*",
     "@flowgram.ai/fixed-semi-materials": "workspace:*",
-    "@flowgram.ai/form-materials": "workspace:*",
-    "@flowgram.ai/group-plugin": "workspace:*",
     "@flowgram.ai/minimap-plugin": "workspace:*",
-    "@flowgram.ai/panel-manager-plugin": "workspace:*",
     "lodash-es": "^4.17.21",
     "nanoid": "^5.0.9",
     "react": "^18",
     "react-dom": "^18",
+    "classnames": "^2.5.1",
     "styled-components": "^5"
   },
   "devDependencies": {

@@ -21,7 +21,7 @@ export default defineConfig({
     },
   },
   html: {
-    title: 'demo-fixed-layout',
+    title: 'demo-vibe-flow',
   },
   tools: {
     rspack: {
