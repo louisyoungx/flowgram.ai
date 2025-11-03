@@ -9,10 +9,9 @@ import { useMemo } from 'react';
 
 import { createMinimapPlugin } from '@flowgram.ai/minimap-plugin';
 import { defaultFixedSemiMaterials } from '@flowgram.ai/fixed-semi-materials';
-import { FixedLayoutProps, Field, FlowRendererKey } from '@flowgram.ai/fixed-layout-editor';
+import { FixedLayoutProps, FlowRendererKey } from '@flowgram.ai/fixed-layout-editor';
 
 import { nodeRegistries } from './node-registries';
-import { initialData } from './initial-data';
 import { NodeRender } from './components/node-render';
 import { FormRender } from './components/form-render';
 
@@ -31,7 +30,9 @@ export function useEditorProps(): FixedLayoutProps {
         }),
       ],
       nodeRegistries,
-      initialData,
+      initialData: {
+        nodes: [],
+      },
       materials: {
         renderDefaultNode: NodeRender,
         components: {

@@ -9,7 +9,7 @@ import { createRoot } from 'react-dom/client';
 import { FixedLayoutEditorProvider, EditorRenderer } from '@flowgram.ai/fixed-layout-editor';
 
 import { useEditorProps } from './use-editor-props';
-import { UpdateSchema } from './components/update-schemas';
+import { UpdateSchema } from './components/update-schema';
 import { Tools } from './components/tools';
 import { Minimap } from './components/minimap';
 
