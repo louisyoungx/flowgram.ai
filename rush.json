@@ -473,8 +473,8 @@
             "versionPolicyName": "appPolicy"
         },
         {
-            "packageName": "@flowgram.ai/demo-vibe-flow",
-            "projectFolder": "apps/demo-vibe-flow",
+            "packageName": "@flowgram.ai/demo-fixed-layout-animation",
+            "projectFolder": "apps/demo-fixed-layout-animation",
             "tags": [
                 "level-1",
                 "team-flow",
