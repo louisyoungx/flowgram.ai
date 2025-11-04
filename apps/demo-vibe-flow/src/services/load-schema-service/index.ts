@@ -66,17 +66,22 @@ export class WorkflowLoadSchemaService {
       if (isExist) {
         continue;
       }
+      // 隐藏节点
       this.setNodeStatus(node, { loading: true, className: 'node-render-before-render' });
       this.document.fireRender();
       await delay(20);
+      // 展示节点动画
       this.setNodeStatus(node, { loading: true, className: 'node-render-rendered' });
       await delay(180);
+      // 滚动到节点位置
       this.playground.scrollToView({
         bounds: node.bounds,
         scrollToCenter: true,
       });
+      // 高亮节点边框
       this.setNodeStatus(node, { loading: true, className: 'node-render-border-transition' });
       await delay(800);
+      // 移除节点边框高亮
       this.setNodeStatus(node, { loading: false, className: '' });
     }
   }

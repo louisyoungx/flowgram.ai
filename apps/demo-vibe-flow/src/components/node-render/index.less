@@ -61,10 +61,21 @@
 }
 
 .node-render-rendered {
-  max-height: 300px;
+  max-height: 1px;
+  animation: node-height-transition 1s ease-out forwards;
 
   .node-form {
     opacity: 1;
+  }
+}
+
+@keyframes node-height-transition {
+  0% {
+    max-height: 1px;
+  }
+
+  100% {
+    max-height: 300px;
   }
 }
 
