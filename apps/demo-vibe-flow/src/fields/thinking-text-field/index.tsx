@@ -5,12 +5,15 @@
 
 import React, { useState, useEffect } from 'react';
 
+import { Field } from '@flowgram.ai/fixed-layout-editor';
+import './index.less';
+
 interface ThinkingTextProps {
   thinking?: string;
 }
 
 // ThinkingText component with typewriter effect
-export const ThinkingText: React.FC<ThinkingTextProps> = ({ thinking }) => {
+const ThinkingText: React.FC<ThinkingTextProps> = ({ thinking }) => {
   const [displayedText, setDisplayedText] = useState<string>('');
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
@@ -50,3 +53,7 @@ export const ThinkingText: React.FC<ThinkingTextProps> = ({ thinking }) => {
     </div>
   );
 };
+
+export const ThinkingTextField = () => (
+  <Field<string> name="text">{({ field }) => <ThinkingText thinking={field.value} />}</Field>
+);

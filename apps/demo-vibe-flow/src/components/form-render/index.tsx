@@ -3,33 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { Field } from '@flowgram.ai/fixed-layout-editor';
+import { TitleField } from '../../fields/title-field';
+import { ContentField } from '../../fields/content-field';
 
-import './index.less';
-import { LoadingDots } from '../loading-dots';
-import { useNodeStatus } from '../../hooks/use-node-loading';
-import { StatusDisplayField } from '../../fields/status-display';
-
-export const FormRender = () => {
-  const { loading } = useNodeStatus();
-  return (
-    <>
-      <Field<string> name="title">
-        {({ field }) => (
-          <div className="form-render-title">
-            <span>{field.value}</span>
-            {loading && (
-              <span>
-                <LoadingDots />
-              </span>
-            )}
-          </div>
-        )}
-      </Field>
-      <Field<string> name="content">
-        {({ field }) => <div className="form-render-content">{field.value}</div>}
-      </Field>
-      <StatusDisplayField />
-    </>
-  );
-};
+export const FormRender = () => (
+  <>
+    <TitleField />
+    <ContentField />
+  </>
+);

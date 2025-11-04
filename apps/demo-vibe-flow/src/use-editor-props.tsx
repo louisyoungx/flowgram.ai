@@ -12,7 +12,8 @@ import { defaultFixedSemiMaterials } from '@flowgram.ai/fixed-semi-materials';
 import { FixedLayoutProps, FlowRendererKey } from '@flowgram.ai/fixed-layout-editor';
 
 import { WorkflowLoadSchemaService } from './services';
-import { nodeRegistries } from './node-registries';
+import { nodeRegistries } from './nodes';
+import { ThinkingNode } from './components/thinking-node';
 import { NodeRender } from './components/node-render';
 import { FormRender } from './components/form-render';
 
@@ -41,6 +42,9 @@ export function useEditorProps(): FixedLayoutProps {
           [FlowRendererKey.DRAG_NODE]: () => <></>,
           [FlowRendererKey.BRANCH_ADDER]: () => <></>,
           [FlowRendererKey.ADDER]: () => <></>,
+        },
+        renderNodes: {
+          ThinkingNode,
         },
       },
       onAllLayersRendered: (ctx) => {

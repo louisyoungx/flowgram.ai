@@ -9,7 +9,7 @@ import { FlowNodeFormData, FormModelV2, useNodeRender } from '@flowgram.ai/fixed
 
 interface NodeStatus {
   loading: boolean;
-  thinking: string;
+  className: string;
 }
 
 const NodeStatusKey = 'status';
@@ -20,7 +20,7 @@ export const useNodeStatus = () => {
   const formStatus = formModel.getValueIn<NodeStatus>(NodeStatusKey);
 
   const [loading, setLoading] = useState(formStatus?.loading ?? false);
-  const [thinking, setThinking] = useState(formStatus?.thinking ?? '');
+  const [className, setClassName] = useState(formStatus?.className ?? '');
 
   // 初始化表单值
   useEffect(() => {
@@ -43,13 +43,13 @@ export const useNodeStatus = () => {
         return;
       }
       setLoading(newStatus.loading);
-      setThinking(newStatus.thinking ?? '');
+      setClassName(newStatus.className);
     });
     return () => disposer.dispose();
   }, [formModel]);
 
   return {
     loading,
-    thinking,
+    className,
   };
 };

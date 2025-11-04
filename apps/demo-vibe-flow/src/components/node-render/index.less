@@ -10,14 +10,13 @@
   flex-direction: column;
   justify-content: center;
   position: relative;
-  cursor: move;
+  cursor: pointer;
   padding: 16px;
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  width: auto;
   min-width: 200px;
-  transition: all 0.2s ease-in-out;
 
   // Activated state - when node is selected/focused
   &-activated {
@@ -44,5 +43,47 @@
   &:focus-within {
     outline: 2px solid #82a7fc;
     outline-offset: 2px;
+  }
+
+  transition: max-height 1s ease-in-out;
+
+  .node-form {
+    transition: opacity 1s ease-in-out;
+  }
+}
+
+.node-render-before-render {
+  max-height: 1px;
+
+  .node-form {
+    opacity: 0;
+  }
+}
+
+.node-render-rendered {
+  max-height: 300px;
+
+  .node-form {
+    opacity: 1;
+  }
+}
+
+.node-render-border-transition {
+  // Border appear-then-hide animation
+  outline: 2px solid transparent;
+  animation: node-border-appear-hide 0.8s ease-in-out forwards;
+}
+
+@keyframes node-border-appear-hide {
+  0% {
+    outline: 2px solid transparent;
+  }
+
+  50% {
+    outline: 2px solid #82a7fc;
+  }
+
+  100% {
+    outline: 2px solid transparent;
   }
 }
