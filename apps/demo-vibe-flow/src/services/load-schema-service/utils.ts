@@ -16,9 +16,13 @@ export namespace WorkflowLoadSchemaUtils {
     const { nodeSchemas, parentID, schemaPatchDataMap = new Map() } = params;
     nodeSchemas.forEach((nodeSchema: FlowNodeJSON, index: number) => {
       const prevNodeSchema = nodeSchemas[index - 1];
+      const processedSchema: FlowNodeJSON = {
+        ...nodeSchema,
+        blocks: [],
+      };
       const schemaPatchData: SchemaPatchData = {
         nodeID: nodeSchema.id,
-        schema: nodeSchema,
+        schema: processedSchema,
         parentID,
         index,
         fromNodeID: prevNodeSchema?.id,
@@ -48,8 +52,29 @@ export namespace WorkflowLoadSchemaUtils {
     const prevNodeIDs: string[] = Array.from(prevSchemaPatchDataMap.keys());
     const currentNodeIDs: string[] = Array.from(currentSchemaPatchDataMap.keys());
 
-    const createNodeIDs: string[] = currentNodeIDs.filter((id) => !prevSchemaPatchDataMap.has(id));
-    const removeNodeIDs: string[] = prevNodeIDs.filter((id) => !currentSchemaPatchDataMap.has(id));
+    const createNodeIDs: string[] = currentNodeIDs.filter((id) => {
+      if (!prevSchemaPatchDataMap.has(id)) {
+        return true;
+      }
+      const prevSchemaPatchData = prevSchemaPatchDataMap.get(id)!;
+      const currentSchemaPatchData = currentSchemaPatchDataMap.get(id)!;
+      return (
+        prevSchemaPatchData.parentID !== currentSchemaPatchData.parentID ||
+        prevSchemaPatchData.fromNodeID !== currentSchemaPatchData.fromNodeID
+      );
+    });
+
+    const removeNodeIDs: string[] = prevNodeIDs.filter((id) => {
+      if (!currentSchemaPatchDataMap.has(id)) {
+        return true;
+      }
+      const prevSchemaPatchData = prevSchemaPatchDataMap.get(id)!;
+      const currentSchemaPatchData = currentSchemaPatchDataMap.get(id)!;
+      return (
+        prevSchemaPatchData.parentID !== currentSchemaPatchData.parentID ||
+        prevSchemaPatchData.fromNodeID !== currentSchemaPatchData.fromNodeID
+      );
+    });
 
     const createSchemaPatches: SchemaPatchData[] = createNodeIDs
       .map((id) => currentSchemaPatchDataMap.get(id)!)

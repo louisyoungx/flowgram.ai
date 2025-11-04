@@ -50,19 +50,9 @@ export class WorkflowLoadSchemaService {
   }
 
   private async applyCreatePatch(createSchemaPatchData: SchemaPatchData[]): Promise<void> {
-    for (const nodeSchema of createSchemaPatchData) {
-      const isExist = Boolean(this.document.getNode(nodeSchema.nodeID));
-      let node: FlowNodeEntity;
-      if (nodeSchema.fromNodeID) {
-        node = this.operationService.addFromNode(nodeSchema.fromNodeID, nodeSchema.schema);
-      } else {
-        node = this.document.addNode({
-          ...nodeSchema.schema,
-          parent: nodeSchema.parentID
-            ? this.document.getNode(nodeSchema.parentID)
-            : this.document.root,
-        });
-      }
+    for (const nodePatchData of createSchemaPatchData) {
+      const isExist = Boolean(this.document.getNode(nodePatchData.nodeID));
+      const node = this.createNode(nodePatchData);
       if (isExist) {
         continue;
       }
@@ -83,6 +73,23 @@ export class WorkflowLoadSchemaService {
       await delay(800);
       // 移除节点边框高亮
       this.setNodeStatus(node, { loading: false, className: '' });
+    }
+  }
+
+  private createNode(patchData: SchemaPatchData): FlowNodeEntity {
+    const parent = patchData.parentID
+      ? this.document.getNode(patchData.parentID)
+      : this.document.root;
+    if (parent?.flowNodeType === 'condition' && patchData.schema.type === 'block') {
+      const blocks = this.document.addInlineBlocks(parent, [patchData.schema]);
+      return blocks.find((block) => block.flowNodeType === 'block') ?? blocks[0];
+    } else if (patchData.fromNodeID) {
+      return this.operationService.addFromNode(patchData.fromNodeID, patchData.schema);
+    } else {
+      return this.document.addNode({
+        ...patchData.schema,
+        parent,
+      });
     }
   }
 
