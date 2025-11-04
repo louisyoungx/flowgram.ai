@@ -1,8 +1,15 @@
 # Scope Chain
 
+:::info{title="Before You Read"}
+
+* We recommend completing [Output Variables](/en/guide/variable/variable-output.md) and [Consume Variables](/en/guide/variable/variable-consume.md) first.
+* If the idea of scopes still feels fuzzy, review [Core Concepts – Scope Chain](/en/guide/variable/concept.md#scope-chain) before diving in.
+
+:::
+
 ## Default Scope Chain Logic
 
-For details, see: [Scope in Canvas](/en/guide/variable/concept.md#variables-in-canvas)
+For details, see: [Scope in Canvas](/en/guide/variable/concept.md#variables-in-the-canvas)
 
 ## Customize in `editor-props`
 

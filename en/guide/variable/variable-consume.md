@@ -2,6 +2,14 @@
 
 In FlowGram, when a node wants to use variables from preceding nodes, it needs to consume those variables.
 
+:::info{title="Reading Tips"}
+
+* We recommend finishing [Output Variables](/en/guide/variable/variable-output.md) first so you know how variables are produced; this guide is the second stop focused on “how to access them.”
+* To quickly preview the variable selector experience, try [VariableSelector](#variableselector) first; continue with the API sections when you need code-level access to variable lists.
+* All examples assume the **node scope**. When private or global scopes show up, refer to [Core Concepts – Variables in the Canvas](/en/guide/variable/concept.md#variables-in-the-canvas) for additional context.
+
+:::
+
 ## `VariableSelector`
 
 To make it easier for you to integrate variable selection functionality into your applications, the official materials provide the `VariableSelector` component.
@@ -11,6 +19,14 @@ See documentation: [VariableSelector](/en/materials/components/variable-selector
 ## Getting Accessible Variable Tree
 
 In canvas nodes, we often need to get **variables available in the current scope** and display them in a tree structure for users to select and operate.
+
+:::info{title="Common Needs at a Glance"}
+
+* **Just list variables** → `useAvailableVariables`
+* **Need drill-down for objects/arrays** → `ASTMatch` + recursive rendering
+* **Need precise subscriptions** → go straight to `scope.available`
+
+:::
 
 ### `useAvailableVariables`
 
@@ -38,6 +54,12 @@ return availableVariables.map(renderVariable);
 ### Getting Object Type Variable Drill-down
 
 When a variable's type is `Object`, we often need to be able to "drill down" into its interior to access its properties. The `ASTMatch.isObject` method can help us determine if a variable type is an object. If it is, we can recursively render its `properties`.
+
+:::tip
+
+Each layer of the variable tree is essentially a declaration (`BaseVariableField`). For objects, `properties` gives you the next-level declaration array.
+
+:::
 
 ```tsx pure title="use-variable-tree.tsx" {12}
 import {
@@ -95,9 +117,17 @@ const renderVariable = (variable: BaseVariableField) => ({
 
 `scope.available` is one of the cores of the variable system, which can perform more advanced variable retrieval and monitoring actions on **variables available within the scope**.
 
+:::info{title="When to reach for scope.available"}
+
+* You need to read or validate a variable by `keyPath`.
+* You want to manipulate visibility outside of React hooks (e.g., in plugins or services).
+* You need fine-grained subscriptions without refreshing the entire list.
+
+:::
+
 ### `useScopeAvailable`
 
-`useScopeAvailable` can directly return `scope.available` in React
+`useScopeAvailable` can directly return `scope.available` in React.
 
 ```tsx
 import { useScopeAvailable } from '@flowgram.ai/free-layout-editor';
@@ -111,7 +141,7 @@ console.log(available.variables);
 console.log(available.getByKeyPath(['start_0', 'xxx']));
 
 // Monitor changes in a single variable
-available.trackByKeyPath(['start_0', xxx], () => {
+available.trackByKeyPath(['start_0', 'xxx'], () => {
   // ...
 })
 ```
@@ -161,6 +191,12 @@ const validateVariableInNode = (keyPath: string, node: FlowNodeEntity) => {
 ### `trackByKeyPath`
 
 When you only care about changes to a specific variable field (including variables nested in Object or Array), `trackByKeyPath` allows you to precisely "subscribe" to updates of that variable without causing component re-renders due to changes in other unrelated variables, thus achieving more refined performance optimization.
+
+:::tip
+
+Combine it with `autoRefresh: false` to avoid wide re-renders—only update local state when the tracked variable changes.
+
+:::
 
 ```tsx {6,13-17}
 import { useScopeAvailable } from '@flowgram.ai/fixed-layout-editor';
@@ -252,7 +288,7 @@ These APIs all return a `Disposable` object. To avoid memory leaks and unnecessa
 
 ### `useOutputVariables`
 
-useOutputVariables can get **output variables of the current scope** and **automatically trigger a refresh** when the output variable list or drill-down changes.
+`useOutputVariables` can get **output variables of the current scope** and **automatically trigger a refresh** when the output variable list or drill-down changes.
 
 ```tsx
 const variables = useOutputVariables();
@@ -260,7 +296,7 @@ const variables = useOutputVariables();
 
 :::tip
 
-useOutputVariables is available in flowgram@0.5.6 and later versions. If using an earlier version, you can implement it with the following code:
+`useOutputVariables` is available in flowgram@0.5.6 and later versions. If you are on an earlier version, you can implement it with the following code:
 
 ```tsx
 const scope = useCurrentScope();
@@ -296,7 +332,7 @@ scope.available
 
 ### Setting Current Scope
 
-You can set the current scope through [`ScopeProvider`](https://flowgram.ai/auto-docs/editor/functions/ScopeProvider)
+You can set the current scope through [`ScopeProvider`](https://flowgram.ai/auto-docs/editor/functions/ScopeProvider).
 
 ```tsx
 // set the scope of current node

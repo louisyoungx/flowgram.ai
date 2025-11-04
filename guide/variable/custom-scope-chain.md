@@ -1,5 +1,12 @@
 # 作用域链
 
+:::info{title="阅读前提"}
+
+* 建议先完成[输出变量](/guide/variable/variable-output.md)、[消费变量](/guide/variable/variable-consume.md)的实践。
+* 如果对作用域概念还不够熟悉，可先回顾[核心概念 - 作用域链](/guide/variable/concept.md#作用域链)。
+
+:::
+
 ## 默认作用域链逻辑
 
 详见：[画布中的作用域](/guide/variable/concept.md#画布中的变量)

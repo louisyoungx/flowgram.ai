@@ -24,9 +24,9 @@
 - [不使用表单](/guide/form/without-form.md)
 - [官方表单物料](/guide/form/form-materials.md)
 - [介绍](/guide/variable/basic.md): 介绍什么是变量，以及变量引擎的作用
-- [概念](/guide/variable/concept.md): 介绍变量引擎的核心概念
 - [输出变量](/guide/variable/variable-output.md): 介绍如何在 FlowGram 中使用变量引擎输出变量
 - [消费变量](/guide/variable/variable-consume.md): 介绍如何在 FlowGram 中消费变量引擎输出的变量
+- [概念](/guide/variable/concept.md): 介绍变量引擎的核心概念
 - [作用域链](/guide/variable/custom-scope-chain.md): 介绍如何定制作用域链
 - [@flowgram.ai/background-plugin](/guide/plugin/background-plugin.md)
 - [@flowgram.ai/minimap-plugin](/guide/plugin/minimap-plugin.md)
