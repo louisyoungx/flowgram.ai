@@ -24,7 +24,7 @@ const processStartSchema = {
       type: 'start',
       data: {
         title: '开始',
-        content: '天气穿衣建议工作流开始',
+        content: '天气穿衣建议工作流',
       },
     },
     {
@@ -32,14 +32,6 @@ const processStartSchema = {
       type: 'thinking',
       data: {
         text: '正在生成天气穿衣建议工作流...业务流程：1.进行输入处理 2.获取天气数据 3.生成穿衣建议 4.整理输出。我需要根据这些步骤来生成天气穿衣建议工作流核心节点...',
-      },
-    },
-    {
-      id: 'end_0',
-      type: 'end',
-      data: {
-        title: '结束',
-        content: '返回格式化的穿衣建议',
       },
     },
   ],
@@ -52,7 +44,7 @@ const addCoreNodesSchema = {
       type: 'start',
       data: {
         title: '开始',
-        content: '天气穿衣建议工作流开始',
+        content: '天气穿衣建议工作流',
       },
     },
     {
@@ -112,7 +104,7 @@ const completeWorkflowSchema = {
       type: 'start',
       data: {
         title: '开始',
-        content: '天气穿衣建议工作流开始',
+        content: '天气穿衣建议工作流',
       },
     },
     {

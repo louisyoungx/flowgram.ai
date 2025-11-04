@@ -82,7 +82,7 @@ export function useEditorProps(): FixedLayoutProps {
         onApply: (ctx) => {
           if (ctx.document.disposed) return;
           // Listen change to trigger auto save
-          console.log('auto save: ', ctx.document.toJSON());
+          // console.log('auto save: ', ctx.document.toJSON());
         },
       },
       /**
