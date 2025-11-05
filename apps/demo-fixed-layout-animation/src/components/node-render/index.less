@@ -45,8 +45,6 @@
     outline-offset: 2px;
   }
 
-  transition: max-height 1s ease-in-out;
-
   .node-form {
     transition: opacity 1s ease-in-out;
   }
@@ -62,25 +60,45 @@
 
 .node-render-rendered {
   max-height: 1px;
-  animation: node-height-transition 1s ease-out forwards;
+  animation: node-rendered-transition 1s ease-out forwards;
 
   .node-form {
     opacity: 1;
   }
 }
 
-@keyframes node-height-transition {
+@keyframes node-rendered-transition {
   0% {
     max-height: 1px;
   }
 
   100% {
-    max-height: 300px;
+    max-height: 500px;
+  }
+}
+
+.node-render-removed {
+  max-height: 500px;
+  animation: node-removed-transition 0.3s ease-out forwards;
+  overflow: hidden;
+  padding: 0 16px;
+  transition: opacity 0.3s ease-out;
+  opacity: 0;
+}
+
+@keyframes node-removed-transition {
+  0% {
+    max-height: 500px;
+    padding: 16px;
+  }
+
+  100% {
+    max-height: 1px;
+    padding: 0 16px;
   }
 }
 
 .node-render-border-transition {
-  // Border appear-then-hide animation
   outline: 2px solid transparent;
   animation: node-border-appear-hide 0.8s ease-in-out forwards;
 }

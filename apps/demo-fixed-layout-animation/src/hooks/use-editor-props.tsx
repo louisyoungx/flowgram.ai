@@ -11,12 +11,11 @@ import { createMinimapPlugin } from '@flowgram.ai/minimap-plugin';
 import { defaultFixedSemiMaterials } from '@flowgram.ai/fixed-semi-materials';
 import { FixedLayoutProps, FlowRendererKey } from '@flowgram.ai/fixed-layout-editor';
 
+import { WorkflowLoadSchemaService } from '@/services';
 import { nodeRegistries } from '@/nodes';
 import { ThinkingNode } from '@/components/thinking-node';
 import { NodeRender } from '@/components/node-render';
 import { FormRender } from '@/components/form-render';
-
-import { WorkflowLoadSchemaService } from './services';
 
 export function useEditorProps(): FixedLayoutProps {
   return useMemo<FixedLayoutProps>(

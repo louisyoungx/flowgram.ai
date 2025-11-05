@@ -56,7 +56,8 @@ export class WorkflowLoadSchemaService {
   }
 
   private async applySchemaPatch(schemaPatch: SchemaPatch): Promise<void> {
-    this.applyRemovePatch(schemaPatch.remove);
+    await this.applyRemovePatch(schemaPatch.remove);
+    await delay(300);
     await this.applyCreatePatch(schemaPatch.create);
   }
 
@@ -133,17 +134,27 @@ export class WorkflowLoadSchemaService {
     this.setNodeStatus(node, { loading: false, className: '' });
   }
 
-  private applyRemovePatch(removeNodeIDs: string[]): void {
-    removeNodeIDs.forEach((nodeID) => {
-      const node = this.entityManager.getEntityById<FlowNodeEntity>(nodeID);
-      const parent = node?.parent;
-      if (node) {
-        node.dispose();
-      }
-      if (parent?.flowNodeType === FlowNodeBaseType.BLOCK && !parent.blocks.length) {
-        parent.dispose();
-      }
-    });
+  private async removeNodeMotion(node: FlowNodeEntity): Promise<void> {
+    // 隐藏节点
+    this.setNodeStatus(node, { loading: false, className: 'node-render-removed' });
+    this.document.fireRender();
+    await delay(300);
+  }
+
+  private async applyRemovePatch(removeNodeIDs: string[]): Promise<void> {
+    await Promise.all(
+      removeNodeIDs.map(async (nodeID) => {
+        const node = this.entityManager.getEntityById<FlowNodeEntity>(nodeID);
+        const parent = node?.parent;
+        if (node) {
+          await this.removeNodeMotion(node);
+          node.dispose();
+        }
+        if (parent?.flowNodeType === FlowNodeBaseType.BLOCK && !parent.blocks.length) {
+          parent.dispose();
+        }
+      })
+    );
   }
 
   private setNodeStatus(
