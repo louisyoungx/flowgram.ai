@@ -35,9 +35,9 @@ export class WorkflowLoadSchemaService {
     nodes: [],
   };
 
-  constructor() {
-    // (window as any).WorkflowLoadSchemaService = this;
-  }
+  // constructor() {
+  //   (window as any).WorkflowLoadSchemaService = this;
+  // }
 
   public async load(schema: FlowDocumentJSON): Promise<void> {
     const schemaPatch: SchemaPatch = WorkflowLoadSchemaUtils.createSchemaPatch(
@@ -50,7 +50,6 @@ export class WorkflowLoadSchemaService {
   }
 
   public forceLoad(schema: FlowDocumentJSON): void {
-    (window as any).loadService = this;
     this.currentSchema = schema;
     this.document.fromJSON(schema);
   }
@@ -59,6 +58,7 @@ export class WorkflowLoadSchemaService {
     await this.applyRemovePatch(schemaPatch.remove);
     await delay(300);
     await this.applyCreatePatch(schemaPatch.create);
+    await this.playground.config.fitView(this.document.root.bounds.pad(30));
   }
 
   private async applyCreatePatch(createSchemaPatchData: SchemaPatchData[]): Promise<void> {
