@@ -8,6 +8,7 @@ import {
   EntityManager,
   FlowDocument,
   FlowDocumentJSON,
+  FlowNodeBaseType,
   FlowNodeEntity,
   FlowNodeFormData,
   FlowOperationBaseService,
@@ -34,6 +35,10 @@ export class WorkflowLoadSchemaService {
     nodes: [],
   };
 
+  constructor() {
+    // (window as any).WorkflowLoadSchemaService = this;
+  }
+
   public async load(schema: FlowDocumentJSON): Promise<void> {
     const schemaPatch: SchemaPatch = WorkflowLoadSchemaUtils.createSchemaPatch(
       this.currentSchema,
@@ -44,45 +49,53 @@ export class WorkflowLoadSchemaService {
     this.document.fromJSON(schema);
   }
 
+  public forceLoad(schema: FlowDocumentJSON): void {
+    (window as any).loadService = this;
+    this.currentSchema = schema;
+    this.document.fromJSON(schema);
+  }
+
   private async applySchemaPatch(schemaPatch: SchemaPatch): Promise<void> {
     this.applyRemovePatch(schemaPatch.remove);
     await this.applyCreatePatch(schemaPatch.create);
   }
 
   private async applyCreatePatch(createSchemaPatchData: SchemaPatchData[]): Promise<void> {
+    const skipNodeIDs: Set<string> = new Set();
     for (const nodePatchData of createSchemaPatchData) {
-      const isExist = Boolean(this.document.getNode(nodePatchData.nodeID));
-      const node = this.createNode(nodePatchData);
-      if (isExist) {
+      // 跳过 block 节点
+      if (skipNodeIDs.has(nodePatchData.nodeID)) {
         continue;
       }
-      // 隐藏节点
-      this.setNodeStatus(node, { loading: true, className: 'node-render-before-render' });
-      this.document.fireRender();
-      await delay(20);
-      // 展示节点动画
-      this.setNodeStatus(node, { loading: true, className: 'node-render-rendered' });
-      await delay(180);
-      // 滚动到节点位置
-      this.playground.scrollToView({
-        bounds: node.bounds,
-        scrollToCenter: true,
-      });
-      // 高亮节点边框
-      this.setNodeStatus(node, { loading: true, className: 'node-render-border-transition' });
-      await delay(800);
-      // 移除节点边框高亮
-      this.setNodeStatus(node, { loading: false, className: '' });
+      const parentNode = this.getNode(nodePatchData.parentID);
+      // 特殊处理 condition 节点
+      if (parentNode?.flowNodeType === 'condition') {
+        const blocksSchema = createSchemaPatchData
+          .filter((item) => item.parentID === parentNode.id)
+          .map((item) => {
+            skipNodeIDs.add(item.nodeID);
+            return item.schema;
+          });
+        const blocks = this.document.addInlineBlocks(parentNode, blocksSchema);
+        await Promise.all(blocks.map((block) => this.createNodeMotion(block)));
+        continue;
+      }
+      // 更新节点数据
+      const isExist = Boolean(this.getNode(nodePatchData.nodeID));
+      const node = this.createNode(nodePatchData);
+      if (!isExist) {
+        // 新增节点动画
+        await this.createNodeMotion(node);
+      }
     }
   }
 
   private createNode(patchData: SchemaPatchData): FlowNodeEntity {
-    const parent = patchData.parentID
-      ? this.document.getNode(patchData.parentID)
-      : this.document.root;
-    if (parent?.flowNodeType === 'condition' && patchData.schema.type === 'block') {
+    const parent = this.getNode(patchData.parentID) ?? this.document.root;
+    if (parent?.flowNodeType === 'condition') {
+      // 特殊处理 condition 节点
       const blocks = this.document.addInlineBlocks(parent, [patchData.schema]);
-      return blocks.find((block) => block.flowNodeType === 'block') ?? blocks[0];
+      return blocks.find((block) => block.flowNodeType === patchData.schema.type) ?? blocks[0];
     } else if (patchData.fromNodeID) {
       return this.operationService.addFromNode(patchData.fromNodeID, patchData.schema);
     } else {
@@ -93,11 +106,42 @@ export class WorkflowLoadSchemaService {
     }
   }
 
+  private getNode(id?: string): FlowNodeEntity | undefined {
+    if (!id) {
+      return undefined;
+    }
+    return this.document.getNode(id);
+  }
+
+  private async createNodeMotion(node: FlowNodeEntity): Promise<void> {
+    // 隐藏节点
+    this.setNodeStatus(node, { loading: true, className: 'node-render-before-render' });
+    this.document.fireRender();
+    await delay(20);
+    // 展示节点动画
+    this.setNodeStatus(node, { loading: true, className: 'node-render-rendered' });
+    await delay(180);
+    // 滚动到节点位置
+    this.playground.scrollToView({
+      bounds: node.bounds,
+      scrollToCenter: true,
+    });
+    // 高亮节点边框
+    this.setNodeStatus(node, { loading: true, className: 'node-render-border-transition' });
+    await delay(800);
+    // 移除节点边框高亮
+    this.setNodeStatus(node, { loading: false, className: '' });
+  }
+
   private applyRemovePatch(removeNodeIDs: string[]): void {
     removeNodeIDs.forEach((nodeID) => {
       const node = this.entityManager.getEntityById<FlowNodeEntity>(nodeID);
+      const parent = node?.parent;
       if (node) {
         node.dispose();
+      }
+      if (parent?.flowNodeType === FlowNodeBaseType.BLOCK && !parent.blocks.length) {
+        parent.dispose();
       }
     });
   }
