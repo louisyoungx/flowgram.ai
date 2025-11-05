@@ -5,8 +5,8 @@
 
 import { Field } from '@flowgram.ai/fixed-layout-editor';
 
-import { useNodeStatus } from '../../hooks/use-node-loading';
-import { LoadingDots } from '../../components/loading-dots';
+import { useNodeStatus } from '@/hooks/use-node-loading';
+import { LoadingDots } from '@/components/loading-dots';
 import './index.less';
 
 export const TitleField = () => {

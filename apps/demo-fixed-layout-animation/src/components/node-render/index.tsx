@@ -9,7 +9,7 @@ import './index.less';
 import classNames from 'classnames';
 import { FlowNodeEntity, useNodeRender } from '@flowgram.ai/fixed-layout-editor';
 
-import { useNodeStatus } from '../../hooks/use-node-loading';
+import { useNodeStatus } from '@/hooks/use-node-loading';
 
 export const NodeRender = ({ node }: { node: FlowNodeEntity }) => {
   const { onMouseEnter, onMouseLeave, form, dragging, isBlockOrderIcon, isBlockIcon, activated } =

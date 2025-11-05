@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { useNodeRender } from '@flowgram.ai/fixed-layout-editor';
 import './index.less';
 
-import { useNodeStatus } from '../../hooks/use-node-loading';
+import { useNodeStatus } from '@/hooks/use-node-loading';
 
 export const ThinkingNode = () => {
   const { form } = useNodeRender();

@@ -8,7 +8,8 @@ import { useState } from 'react';
 import { FlowDocumentJSON, useService } from '@flowgram.ai/fixed-layout-editor';
 
 import './index.less';
-import { WorkflowLoadSchemaService } from '../../services';
+import { WorkflowLoadSchemaService } from '@/services';
+
 import { exampleSchemas } from './example-schemas';
 
 export const UpdateSchema = () => {

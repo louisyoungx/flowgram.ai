@@ -5,8 +5,8 @@
 
 import { FlowNodeMeta, FlowNodeRegistry } from '@flowgram.ai/fixed-layout-editor';
 
-import { ThinkingTextField } from '../../fields/thinking-text-field';
-import { LoadingDots } from '../../components/loading-dots';
+import { ThinkingTextField } from '@/fields/thinking-text-field';
+import { LoadingDots } from '@/components/loading-dots';
 
 export const ThinkingNodeRegistry: FlowNodeRegistry<FlowNodeMeta> = {
   type: 'thinking',

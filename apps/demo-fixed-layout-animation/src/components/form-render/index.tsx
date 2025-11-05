@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { TitleField } from '../../fields/title-field';
-import { ContentField } from '../../fields/content-field';
+import { TitleField } from '@/fields/title-field';
+import { ContentField } from '@/fields/content-field';
 
 export const FormRender = () => (
   <>
