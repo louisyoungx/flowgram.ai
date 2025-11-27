@@ -19,5 +19,6 @@
 | `INLINE_BLOCKS_PADDING_TOP` | `string` | Branch bottom margin 分支下边距 |
 | `INLINE_SPACING_BOTTOM` | `string` | loop 底部留白 |
 | `NODE_SPACING` | `string` | 普通节点间距。垂直 / 水平 |
+| `ROUNDED_LINE_RADIUS` | `string` | 圆弧线条拐角 radius |
 | `ROUNDED_LINE_X_RADIUS` | `string` | 圆弧线条 x radius |
 | `ROUNDED_LINE_Y_RADIUS` | `string` | 圆弧线条 y radius |
