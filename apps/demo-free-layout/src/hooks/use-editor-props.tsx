@@ -20,6 +20,7 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 import { createFreeGroupPlugin } from '@flowgram.ai/free-group-plugin';
 import { createContainerNodePlugin } from '@flowgram.ai/free-container-plugin';
+import { createDownloadPlugin } from '@flowgram.ai/download-plugin';
 
 import { ExportImageService } from '@/services/export-image/type';
 import { WorkflowExportImageService } from '@/services/export-image/service';
@@ -330,7 +331,11 @@ export function useEditorProps(
             overlayColor: 'rgba(255, 255, 255, 0.55)',
           },
         }),
-
+        /**
+         * Download plugin
+         * 下载插件
+         */
+        createDownloadPlugin({}),
         /**
          * Snap plugin
          * 自动对齐及辅助线插件
