@@ -6,61 +6,67 @@
 import { useEffect, useState, type FC } from 'react';
 
 import { usePlayground, useService } from '@flowgram.ai/free-layout-editor';
+import { FlowDownloadFormat, FlowDownloadService } from '@flowgram.ai/download-plugin';
 import { IconButton, Toast, Dropdown, Tooltip } from '@douyinfe/semi-ui';
-import { IconArrowDown } from '@douyinfe/semi-icons';
-
-import { ExportImageFormat, ExportImageService } from '@/services/export-image/type';
+import { IconFilledArrowDown } from '@douyinfe/semi-icons';
 
 const formatOptions = [
   {
     label: 'PNG',
-    value: ExportImageFormat.Png,
+    value: FlowDownloadFormat.PNG,
   },
   {
     label: 'JPEG',
-    value: ExportImageFormat.Jpeg,
+    value: FlowDownloadFormat.JPEG,
   },
   {
     label: 'SVG',
-    value: ExportImageFormat.Svg,
+    value: FlowDownloadFormat.SVG,
+  },
+  {
+    label: 'JSON',
+    value: FlowDownloadFormat.JSON,
+  },
+  {
+    label: 'YAML',
+    value: FlowDownloadFormat.YAML,
   },
 ];
 
-export const ExportImage: FC = () => {
-  const [exporting, setExporting] = useState<boolean>(false);
+export const DownloadTool: FC = () => {
+  const [downloading, setDownloading] = useState<boolean>(false);
   const [visible, setVisible] = useState(false);
   const playground = usePlayground();
   const { readonly } = playground.config;
-  const exportImageService = useService<ExportImageService>(ExportImageService);
+  const downloadService = useService(FlowDownloadService);
 
   useEffect(() => {
-    const subscription = exportImageService.onExportingChange((v) => {
-      setExporting(v);
+    const subscription = downloadService.onDownloadingChange((v) => {
+      setDownloading(v);
     });
 
     return () => {
       subscription.dispose();
     };
-  }, [exportImageService]);
+  }, [downloadService]);
 
-  const handleExportImage = (type: ExportImageFormat) => {
+  const handleDownload = async (format: FlowDownloadFormat) => {
     setVisible(false);
-    exportImageService.export({
-      format: type,
-      onSuccess: () => {
-        const formatOption = formatOptions.find((option) => option.value === type);
-        Toast.success(`Export ${formatOption?.label} image successfully`);
-      },
+    await downloadService.download({
+      format,
     });
+    const formatOption = formatOptions.find((option) => option.value === format);
+    Toast.success(`Export ${formatOption?.label} image successfully`);
   };
 
   const button = (
     <IconButton
-      color="secondary"
+      type="tertiary"
+      theme="borderless"
       className={visible ? '!coz-mg-secondary-pressed' : undefined}
+      icon={<IconFilledArrowDown />}
+      loading={downloading}
       onClick={() => setVisible(true)}
-      loading={exporting}
-      icon={<IconArrowDown data-testid="workflow.detail.toolbar.export-image" />}
     />
   );
 
@@ -74,10 +80,9 @@ export const ExportImage: FC = () => {
         <Dropdown.Menu className="min-w-[120px]">
           {formatOptions.map((item) => (
             <Dropdown.Item
-              disabled={exporting || readonly}
+              disabled={downloading || readonly}
               key={item.value}
-              onClick={() => handleExportImage(item.value)}
-              data-testid={`workflow.detail.toolbar.export-image.options.${item.value}`}
+              onClick={() => handleDownload(item.value)}
             >
               {item.label}
             </Dropdown.Item>
@@ -89,7 +94,7 @@ export const ExportImage: FC = () => {
         button
       ) : (
         <div>
-          <Tooltip content="Export image">{button}</Tooltip>
+          <Tooltip content="Download">{button}</Tooltip>
         </div>
       )}
     </Dropdown>
