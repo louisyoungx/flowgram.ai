@@ -23,6 +23,7 @@ import { FitView } from './fit-view';
 import { Comment } from './comment';
 import { AutoLayout } from './auto-layout';
 import { ProblemButton } from '../problem-panel';
+import { ExportImage } from './export-image';
 
 export const DemoTools = () => {
   const { history, playground } = useClientContext();
@@ -78,6 +79,7 @@ export const DemoTools = () => {
         <AddNode disabled={playground.config.readonly} />
         <Divider layout="vertical" style={{ height: '16px' }} margin={3} />
         <TestRunButton disabled={playground.config.readonly} />
+        <ExportImage />
       </ToolSection>
     </ToolContainer>
   );

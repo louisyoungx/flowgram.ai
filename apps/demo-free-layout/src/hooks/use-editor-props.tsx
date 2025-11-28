@@ -21,6 +21,9 @@ import {
 import { createFreeGroupPlugin } from '@flowgram.ai/free-group-plugin';
 import { createContainerNodePlugin } from '@flowgram.ai/free-container-plugin';
 
+import { ExportImageService } from '@/services/export-image/type';
+import { WorkflowExportImageService } from '@/services/export-image/service';
+
 import { canContainNode, onDragLineEnd } from '../utils';
 import { FlowNodeRegistry, FlowDocumentJSON } from '../typings';
 import { shortcuts } from '../shortcuts';
@@ -245,6 +248,7 @@ export function useEditorProps(
       onBind: ({ bind }) => {
         bind(CustomService).toSelf().inSingletonScope();
         bind(ValidateService).toSelf().inSingletonScope();
+        bind(ExportImageService).to(WorkflowExportImageService).inSingletonScope();
       },
       /**
        * Playground init
