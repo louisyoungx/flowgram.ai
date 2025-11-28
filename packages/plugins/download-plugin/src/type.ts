@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-export interface DownloadServiceOptions {}
+import { DownloadServiceOptions } from './download-service';
 
 export interface CreateDownloadPluginOptions extends Partial<DownloadServiceOptions> {}

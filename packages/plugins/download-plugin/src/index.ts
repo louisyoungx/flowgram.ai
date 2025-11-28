@@ -4,5 +4,6 @@
  */
 
 export { createDownloadPlugin } from './create-plugin';
-export { FlowDownloadService } from './service';
-export { DownloadServiceOptions, CreateDownloadPluginOptions } from './type';
+export { FlowDownloadService, type DownloadServiceOptions } from './download-service';
+export { type CreateDownloadPluginOptions } from './type';
+export { FlowDownloadFormat } from './constant';
