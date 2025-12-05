@@ -11,4 +11,5 @@ export interface WorkflowDownloadParams {
 
 export interface DownloadServiceOptions {
   getFilename?: (format: FlowDownloadFormat) => string;
+  watermarkSVG?: string;
 }

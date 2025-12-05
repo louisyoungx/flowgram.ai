@@ -12,6 +12,18 @@ import { IconFilledArrowDown } from '@douyinfe/semi-icons';
 
 const formatOptions = [
   {
+    label: 'PNG',
+    value: FlowDownloadFormat.PNG,
+  },
+  {
+    label: 'JPEG',
+    value: FlowDownloadFormat.JPEG,
+  },
+  {
+    label: 'SVG',
+    value: FlowDownloadFormat.SVG,
+  },
+  {
     label: 'JSON',
     value: FlowDownloadFormat.JSON,
   },
@@ -44,7 +56,7 @@ export const DownloadTool: FC = () => {
       format,
     });
     const formatOption = formatOptions.find((option) => option.value === format);
-    Toast.success(`Export ${formatOption?.label} image successfully`);
+    Toast.success(`Download ${formatOption?.label} successfully`);
   };
 
   const button = (

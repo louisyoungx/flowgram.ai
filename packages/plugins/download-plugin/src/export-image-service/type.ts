@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { type Event } from '@flowgram.ai/utils';
-
 import { FlowDownloadFormat } from '../constant';
 
 /**
@@ -25,4 +23,5 @@ export interface ExportImageOptions {
    * 导出的格式
    */
   format: FlowDownloadFormat;
+  watermarkSVG?: string;
 }

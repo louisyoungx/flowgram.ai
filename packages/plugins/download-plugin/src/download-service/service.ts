@@ -24,9 +24,12 @@ export class FlowDownloadService {
 
   private onDownloadingChangeEmitter = new Emitter<boolean>();
 
+  private options: DownloadServiceOptions = {};
+
   public onDownloadingChange = this.onDownloadingChangeEmitter.event;
 
   public init(options?: Partial<DownloadServiceOptions>) {
+    this.options = options ?? {};
     this.toDispose.push(this.onDownloadingChangeEmitter);
   }
 
@@ -106,7 +109,10 @@ export class FlowDownloadService {
   }
 
   private async downloadImage(format: FlowDownloadFormat): Promise<void> {
-    const imageUrl = await this.exportImageService.export({ format });
+    const imageUrl = await this.exportImageService.export({
+      format,
+      watermarkSVG: this.options.watermarkSVG,
+    });
     if (!imageUrl) {
       return;
     }
@@ -116,6 +122,9 @@ export class FlowDownloadService {
   }
 
   private getFileName(format: FlowDownloadFormat): string {
+    if (this.options.getFilename) {
+      return this.options.getFilename(format);
+    }
     return `flowgram-${nanoid(5)}.${format}`;
   }
 

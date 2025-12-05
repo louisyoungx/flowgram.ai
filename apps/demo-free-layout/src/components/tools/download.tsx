@@ -56,7 +56,7 @@ export const DownloadTool: FC = () => {
       format,
     });
     const formatOption = formatOptions.find((option) => option.value === format);
-    Toast.success(`Export ${formatOption?.label} image successfully`);
+    Toast.success(`Download ${formatOption?.label} successfully`);
   };
 
   const button = (
