@@ -17,7 +17,7 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 import { createContainerNodePlugin } from '@flowgram.ai/free-container-plugin';
 
-import { nodeRegistries } from '../node-registries';
+import { nodeRegistries } from '../nodes';
 import { initialData } from '../initial-data';
 
 export const useEditorProps = () =>
