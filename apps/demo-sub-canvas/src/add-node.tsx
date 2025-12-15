@@ -4,6 +4,8 @@
  */
 
 import {
+  getAntiOverlapPosition,
+  IPoint,
   useService,
   WorkflowDocument,
   WorkflowNodeEntity,
@@ -11,6 +13,21 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 
 import { LoopNodeRegistry } from './nodes/loop';
+import { createBatchFunction } from './nodes/batch-function';
+
+const getNodeDefaultPosition = (document: WorkflowDocument, nodeType: string): IPoint => {
+  const { size } = document.getNodeRegistry(nodeType).meta || {};
+  // 当前可视区域的中心位置
+  let position = document.playgroundConfig.getViewport(true).center;
+  if (size) {
+    position = {
+      x: position.x,
+      y: position.y - size.height / 2,
+    };
+  }
+  // 去掉叠加的
+  return getAntiOverlapPosition(document, position);
+};
 
 export const AddNode = () => {
   const workflowDocument = useService(WorkflowDocument);
@@ -82,15 +99,18 @@ export const AddNode = () => {
           fontSize: 14,
         }}
         onClick={() => {
+          const position = getNodeDefaultPosition(workflowDocument, 'batch');
+
           const node: WorkflowNodeEntity = workflowDocument.createWorkflowNodeByType(
             'batch',
-            undefined, // position undefined means create node in center of canvas - position undefined 可以在画布中间创建节点
+            position, // position undefined means create node in center of canvas - position undefined 可以在画布中间创建节点
             {
               data: {
                 title: 'New batch node',
               },
             }
           );
+          createBatchFunction(node, position);
           selectService.selectNode(node);
         }}
       >

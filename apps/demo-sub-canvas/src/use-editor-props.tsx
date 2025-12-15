@@ -48,7 +48,18 @@ export const useEditorProps = () =>
       },
       nodeRegistries,
       canDeleteNode: () => true,
-      canDeleteLine: () => true,
+      canDeleteLine: (ctx, line) => {
+        if (line.from?.flowNodeType === 'batch' && line.to?.flowNodeType === 'batch_function') {
+          return false;
+        }
+        return true;
+      },
+      isHideArrowLine(ctx, line) {
+        if (line.from?.flowNodeType === 'batch' && line.to?.flowNodeType === 'batch_function') {
+          return true;
+        }
+        return false;
+      },
       initialData,
       /**
        * Node engine enable, you can configure formMeta in the FlowNodeRegistry

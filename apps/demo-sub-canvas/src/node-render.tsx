@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-import '@flowgram.ai/free-layout-editor/index.css';
-
 import {
   FlowNodeMeta,
   useNodeRender,
