@@ -11,12 +11,23 @@ import {
   WorkflowPorts,
 } from '@flowgram.ai/free-layout-editor';
 
+import { LoopNodeRegistry } from './nodes/loop';
+import { BlockStartNodeRegistry } from './nodes/block-start';
+import { BlockEndNodeRegistry } from './nodes/block-end';
+import { BatchFunctionNodeRegistry } from './nodes/batch-function';
+import { BatchNodeRegistry } from './nodes/batch';
+
 const CONDITION_ITEM_HEIGHT = 30;
 /**
  * You can customize your own node registry
  * 你可以自定义节点的注册器
  */
 export const nodeRegistries: WorkflowNodeRegistry[] = [
+  LoopNodeRegistry,
+  BlockStartNodeRegistry,
+  BlockEndNodeRegistry,
+  BatchNodeRegistry,
+  BatchFunctionNodeRegistry,
   {
     type: 'start',
     meta: {
