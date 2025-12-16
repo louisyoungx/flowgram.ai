@@ -11,7 +11,7 @@ import {
   FormMeta,
 } from '@flowgram.ai/free-layout-editor';
 
-const CONDITION_ITEM_HEIGHT = 30;
+const CONDITION_ITEM_HEIGHT = 35;
 
 export const formMeta: FormMeta = {
   formatOnInit: (value) => ({
