@@ -12,8 +12,8 @@ export const initialData: FlowDocumentJSON = {
       type: 'start',
       meta: {
         position: {
-          x: 180,
-          y: 601.2,
+          x: 181.33535069974707,
+          y: 127.39459271636287,
         },
       },
       data: {
@@ -21,59 +21,38 @@ export const initialData: FlowDocumentJSON = {
         outputs: {
           type: 'object',
           properties: {
-            query: {
-              type: 'string',
-              default: 'Hello Flow.',
-            },
-            enable: {
-              type: 'boolean',
-              default: true,
-            },
-            array_obj: {
+            cities: {
               type: 'array',
+              extra: {
+                index: 0,
+              },
               items: {
-                type: 'object',
-                properties: {
-                  int: {
-                    type: 'number',
-                  },
-                  str: {
-                    type: 'string',
-                  },
-                },
+                type: 'string',
+              },
+              default:
+                '[\n  "Beijing",\n  "Shanghai",\n  "Hangzhou",\n  "New York",\n  "London",\n  "Paris"\n]',
+            },
+            model_name: {
+              type: 'string',
+              extra: {
+                index: 2,
+              },
+            },
+            api_key: {
+              type: 'string',
+              extra: {
+                index: 3,
+              },
+            },
+            api_host: {
+              type: 'string',
+              extra: {
+                index: 4,
               },
             },
           },
+          required: ['cities', 'model_name', 'api_key', 'api_host'],
         },
-      },
-    },
-    {
-      id: 'condition_0',
-      type: 'condition',
-      meta: {
-        position: {
-          x: 1100,
-          y: 546.2,
-        },
-      },
-      data: {
-        title: 'Condition',
-        conditions: [
-          {
-            key: 'if_0',
-            value: {
-              left: {
-                type: 'ref',
-                content: ['start_0', 'query'],
-              },
-              operator: 'contains',
-              right: {
-                type: 'constant',
-                content: 'Hello Flow.',
-              },
-            },
-          },
-        ],
       },
     },
     {
@@ -81,360 +60,417 @@ export const initialData: FlowDocumentJSON = {
       type: 'end',
       meta: {
         position: {
-          x: 2968,
-          y: 601.2,
+          x: 3712,
+          y: 127.39459271636287,
         },
       },
       data: {
         title: 'End',
-        inputsValues: {
-          success: {
-            type: 'constant',
-            content: true,
-            schema: {
-              type: 'boolean',
-            },
-          },
-          query: {
-            type: 'ref',
-            content: ['start_0', 'query'],
-          },
-        },
         inputs: {
           type: 'object',
           properties: {
-            success: {
-              type: 'boolean',
-            },
-            query: {
+            result: {
               type: 'string',
             },
           },
         },
-      },
-    },
-    {
-      id: '159623',
-      type: 'comment',
-      meta: {
-        position: {
-          x: 180,
-          y: 775.2,
-        },
-      },
-      data: {
-        size: {
-          width: 240,
-          height: 150,
-        },
-        note: 'hi ~\n\nthis is a comment node\n\n- flowgram.ai',
-      },
-    },
-    {
-      id: 'http_rDGIH',
-      type: 'http',
-      meta: {
-        position: {
-          x: 640,
-          y: 421.35,
-        },
-      },
-      data: {
-        title: 'HTTP_1',
-        outputs: {
-          type: 'object',
-          properties: {
-            body: {
-              type: 'string',
-            },
-            headers: {
-              type: 'object',
-            },
-            statusCode: {
-              type: 'integer',
-            },
+        inputsValues: {
+          result: {
+            type: 'ref',
+            content: ['440190', 'result'],
           },
         },
-        api: {
-          method: 'GET',
-          url: {
-            type: 'template',
-            content: '',
-          },
-        },
-        body: {
-          bodyType: 'JSON',
-        },
-        timeout: {
-          timeout: 10000,
-          retryTimes: 1,
-        },
       },
     },
     {
-      id: 'loop_Ycnsk',
+      id: 'loop_CR9P_',
       type: 'loop',
       meta: {
         position: {
-          x: 1460,
-          y: 0,
+          x: -168.33232465012654,
+          y: -138.40540728363717,
         },
       },
       data: {
-        title: 'Loop_1',
+        title: 'Loop_Cities',
         loopFor: {
           type: 'ref',
-          content: ['start_0', 'array_obj'],
+          content: ['start_0', 'cities'],
         },
         loopOutputs: {
-          acm: {
+          temperatures: {
             type: 'ref',
-            content: ['llm_6aSyo', 'result'],
+            content: ['code_TYMaY', 'temperature'],
+          },
+          outfits: {
+            type: 'ref',
+            content: ['llm_4tfMh', 'result'],
           },
         },
         outputs: {
           type: 'object',
           required: [],
           properties: {
-            acm: {
+            temperatures: {
               type: 'array',
-              items: {
-                type: 'string',
-              },
+            },
+            outfits: {
+              type: 'array',
             },
           },
         },
       },
       blocks: [
         {
-          id: 'llm_6aSyo',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 344,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_3',
-            inputsValues: {
-              modelName: {
-                type: 'constant',
-                content: 'gpt-3.5-turbo',
-              },
-              apiKey: {
-                type: 'constant',
-                content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-              },
-              apiHost: {
-                type: 'constant',
-                content: 'https://mock-ai-url/api/v3',
-              },
-              temperature: {
-                type: 'constant',
-                content: 0.5,
-              },
-              systemPrompt: {
-                type: 'template',
-                content: '# Role\nYou are an AI assistant.\n',
-              },
-              prompt: {
-                type: 'template',
-                content: '',
-              },
-            },
-            inputs: {
-              type: 'object',
-              required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
-              properties: {
-                modelName: {
-                  type: 'string',
-                },
-                apiKey: {
-                  type: 'string',
-                },
-                apiHost: {
-                  type: 'string',
-                },
-                temperature: {
-                  type: 'number',
-                },
-                systemPrompt: {
-                  type: 'string',
-                  extra: {
-                    formComponent: 'prompt-editor',
-                  },
-                },
-                prompt: {
-                  type: 'string',
-                  extra: {
-                    formComponent: 'prompt-editor',
-                  },
-                },
-              },
-            },
-            outputs: {
-              type: 'object',
-              properties: {
-                result: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-        {
-          id: 'llm_ZqKlP',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 804,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_4',
-            inputsValues: {
-              modelName: {
-                type: 'constant',
-                content: 'gpt-3.5-turbo',
-              },
-              apiKey: {
-                type: 'constant',
-                content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-              },
-              apiHost: {
-                type: 'constant',
-                content: 'https://mock-ai-url/api/v3',
-              },
-              temperature: {
-                type: 'constant',
-                content: 0.5,
-              },
-              systemPrompt: {
-                type: 'template',
-                content: '# Role\nYou are an AI assistant.\n',
-              },
-              prompt: {
-                type: 'template',
-                content: '',
-              },
-            },
-            inputs: {
-              type: 'object',
-              required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
-              properties: {
-                modelName: {
-                  type: 'string',
-                },
-                apiKey: {
-                  type: 'string',
-                },
-                apiHost: {
-                  type: 'string',
-                },
-                temperature: {
-                  type: 'number',
-                },
-                systemPrompt: {
-                  type: 'string',
-                  extra: {
-                    formComponent: 'prompt-editor',
-                  },
-                },
-                prompt: {
-                  type: 'string',
-                  extra: {
-                    formComponent: 'prompt-editor',
-                  },
-                },
-              },
-            },
-            outputs: {
-              type: 'object',
-              properties: {
-                result: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-        {
-          id: 'block_start_PUDtS',
+          id: 'block_start_Qy2kJ',
           type: 'block-start',
           meta: {
             position: {
-              x: 32,
-              y: 167.1,
+              x: 737,
+              y: 350.25868010985994,
             },
           },
           data: {},
         },
         {
-          id: 'block_end_leBbs',
+          id: 'block_end_ascT4',
           type: 'block-end',
           meta: {
             position: {
-              x: 1116,
-              y: 167.1,
+              x: 2889,
+              y: 270.75868010985994,
             },
           },
           data: {},
+        },
+        {
+          id: 'condition_hsMZW',
+          type: 'condition',
+          meta: {
+            position: {
+              x: 2429,
+              y: 290.25868010985994,
+            },
+          },
+          data: {
+            title: 'Condition',
+            conditions: [
+              {
+                value: {
+                  left: {
+                    type: 'ref',
+                    content: ['code_TYMaY', 'temperature'],
+                  },
+                  operator: 'gt',
+                  right: {
+                    type: 'constant',
+                    content: 20,
+                    schema: {
+                      type: 'number',
+                    },
+                  },
+                },
+                key: 'if_J58vJ',
+              },
+            ],
+          },
+        },
+        {
+          id: 'continue_YmaO7',
+          type: 'continue',
+          meta: {
+            position: {
+              x: 2889,
+              y: 434.75868010985994,
+            },
+          },
+          data: {
+            title: 'Continue_1',
+          },
+        },
+        {
+          id: '167372',
+          type: 'comment',
+          meta: {
+            position: {
+              x: 1049.0000000000005,
+              y: 10.899533660537003,
+            },
+          },
+          data: {
+            size: {
+              width: 214.43992303301346,
+              height: 80,
+            },
+            note: 'Get the weather of city',
+          },
+        },
+        {
+          id: '909285',
+          type: 'comment',
+          meta: {
+            position: {
+              x: 1509,
+              y: 2.842170943040401e-14,
+            },
+          },
+          data: {
+            size: {
+              width: 214.43992303301346,
+              height: 80,
+            },
+            note: 'Parse string to JSON',
+          },
+        },
+        {
+          id: '399663',
+          type: 'comment',
+          meta: {
+            position: {
+              x: 1968.9999999999998,
+              y: 0,
+            },
+          },
+          data: {
+            size: {
+              width: 214.43992303301346,
+              height: 80,
+            },
+            note: 'Give direct, concise clothing suggestions based on weather',
+          },
+        },
+        {
+          id: 'group_fRJTc',
+          type: 'group',
+          meta: {
+            position: {
+              x: 705,
+              y: 52.28918543272561,
+            },
+          },
+          data: {
+            color: 'Indigo',
+            title: 'Group_handle_data',
+            parentID: 'loop_CR9P_',
+            blockIDs: ['http_cFiha', 'code_TYMaY', 'llm_4tfMh'],
+          },
+        },
+        {
+          id: 'http_cFiha',
+          type: 'http',
+          meta: {
+            position: {
+              x: 344,
+              y: 107.71081456727438,
+            },
+          },
+          data: {
+            title: 'HTTP_Weather',
+            api: {
+              method: 'GET',
+              url: {
+                type: 'template',
+                content: 'https://wttr.in/{{loop_CR9P__locals.item}}?format=j1',
+              },
+            },
+            body: {
+              bodyType: 'none',
+            },
+            outputs: {
+              type: 'object',
+              properties: {
+                body: {
+                  type: 'string',
+                },
+                headers: {
+                  type: 'object',
+                },
+                statusCode: {
+                  type: 'integer',
+                },
+              },
+            },
+            timeout: {
+              timeout: 10000,
+              retryTimes: 1,
+            },
+          },
+        },
+        {
+          id: 'code_TYMaY',
+          type: 'code',
+          meta: {
+            position: {
+              x: 804,
+              y: 276.0108145672744,
+            },
+          },
+          data: {
+            title: 'Code_ParseTemp',
+            inputsValues: {
+              weather: {
+                type: 'ref',
+                content: ['http_cFiha', 'body'],
+                extra: {
+                  index: 0,
+                },
+              },
+            },
+            script: {
+              language: 'javascript',
+              content:
+                "// Here, you can retrieve input variables from the node using 'params' and output results using 'ret'.\n// 'params' has been correctly injected into the environment.\n// Here's an example of getting the value of the parameter named 'input' from the node input:\n// const input = params.input;\n// Here's an example of outputting a 'ret' object containing multiple data types:\n// const ret = { \"name\": 'Xiaoming', \"hobbies\": [\"Reading\", \"Traveling\"] };\n\nasync function main({ params }) {\n  // Build the output object\n  const data = JSON.parse(params.weather)\n  const temperature = Number(data.current_condition[0].temp_C)\n  const ret = {\n    temperature,\n  };\n\n  return ret;\n}",
+            },
+            outputs: {
+              type: 'object',
+              properties: {
+                temperature: {
+                  type: 'number',
+                },
+              },
+              required: [],
+            },
+            inputs: {
+              type: 'object',
+              properties: {
+                weather: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+        {
+          id: 'llm_4tfMh',
+          type: 'llm',
+          meta: {
+            position: {
+              x: 1264,
+              y: 111.4108145672744,
+            },
+          },
+          data: {
+            title: 'LLM_outfit',
+            inputsValues: {
+              modelName: {
+                type: 'ref',
+                content: ['start_0', 'model_name'],
+              },
+              apiKey: {
+                type: 'ref',
+                content: ['start_0', 'api_key'],
+              },
+              apiHost: {
+                type: 'ref',
+                content: ['start_0', 'api_host'],
+              },
+              temperature: {
+                type: 'constant',
+                content: 0.5,
+              },
+              systemPrompt: {
+                type: 'template',
+                content:
+                  'You are a fashion advisor. Give direct, concise clothing suggestions based on weather. No\n  explanations.',
+              },
+              prompt: {
+                type: 'template',
+                content: '{{loop_CR9P__locals.item}} {{code_TYMaY.temperature}}°C',
+              },
+            },
+            inputs: {
+              type: 'object',
+              required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
+              properties: {
+                modelName: {
+                  type: 'string',
+                },
+                apiKey: {
+                  type: 'string',
+                },
+                apiHost: {
+                  type: 'string',
+                },
+                temperature: {
+                  type: 'number',
+                },
+                systemPrompt: {
+                  type: 'string',
+                  extra: {
+                    formComponent: 'prompt-editor',
+                  },
+                },
+                prompt: {
+                  type: 'string',
+                  extra: {
+                    formComponent: 'prompt-editor',
+                  },
+                },
+              },
+            },
+            outputs: {
+              type: 'object',
+              properties: {
+                result: {
+                  type: 'string',
+                },
+              },
+            },
+          },
         },
       ],
       edges: [
         {
-          sourceNodeID: 'block_start_PUDtS',
-          targetNodeID: 'llm_6aSyo',
+          sourceNodeID: 'block_start_Qy2kJ',
+          targetNodeID: 'http_cFiha',
         },
         {
-          sourceNodeID: 'llm_6aSyo',
-          targetNodeID: 'llm_ZqKlP',
+          sourceNodeID: 'condition_hsMZW',
+          targetNodeID: 'block_end_ascT4',
+          sourcePortID: 'if_J58vJ',
         },
         {
-          sourceNodeID: 'llm_ZqKlP',
-          targetNodeID: 'block_end_leBbs',
+          sourceNodeID: 'llm_4tfMh',
+          targetNodeID: 'condition_hsMZW',
+        },
+        {
+          sourceNodeID: 'condition_hsMZW',
+          targetNodeID: 'continue_YmaO7',
+          sourcePortID: 'else',
+        },
+        {
+          sourceNodeID: 'http_cFiha',
+          targetNodeID: 'code_TYMaY',
+        },
+        {
+          sourceNodeID: 'code_TYMaY',
+          targetNodeID: 'llm_4tfMh',
         },
       ],
     },
     {
-      id: 'group_nYl6D',
-      type: 'group',
-      meta: {
-        position: {
-          x: 1624,
-          y: 698.2,
-        },
-      },
-      data: {
-        parentID: 'root',
-        blockIDs: ['llm_8--A3', 'llm_vTyMa'],
-      },
-    },
-    {
-      id: 'llm_8--A3',
+      id: '440190',
       type: 'llm',
       meta: {
         position: {
-          x: 180,
-          y: 0,
+          x: 3256,
+          y: -173.85540728363713,
         },
       },
       data: {
-        title: 'LLM_1',
+        title: 'LLM_Advisor',
         inputsValues: {
           modelName: {
-            type: 'constant',
-            content: 'gpt-3.5-turbo',
+            type: 'ref',
+            content: ['start_0', 'model_name'],
           },
           apiKey: {
-            type: 'constant',
-            content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            type: 'ref',
+            content: ['start_0', 'api_key'],
           },
           apiHost: {
-            type: 'constant',
-            content: 'https://mock-ai-url/api/v3',
+            type: 'ref',
+            content: ['start_0', 'api_host'],
           },
           temperature: {
             type: 'constant',
@@ -442,11 +478,13 @@ export const initialData: FlowDocumentJSON = {
           },
           systemPrompt: {
             type: 'template',
-            content: '# Role\nYou are an AI assistant.\n',
+            content:
+              'You are a travel advisor. Based on weather and clothing comfort, recommend the best city to\n  visit with one sentence.',
           },
           prompt: {
             type: 'template',
-            content: '# User Input\nquery:{{start_0.query}}\nenable:{{start_0.enable}}',
+            content:
+              'Given these cities with temperatures and clothing suggestions:\n<Cities>\n  {{start_0.cities}}\n</Cities>\n\n<Temperatures>\n  {{loop_CR9P_.temperatures}}\n</Temperatures>\n\n<outfits>\n  {{loop_CR9P_.outfits}}\n</outfits>\n\nWhich city is most comfortable for travel? Return only city name and reason.',
           },
         },
         inputs: {
@@ -490,113 +528,35 @@ export const initialData: FlowDocumentJSON = {
       },
     },
     {
-      id: 'llm_vTyMa',
-      type: 'llm',
+      id: '316938',
+      type: 'comment',
       meta: {
         position: {
-          x: 640,
-          y: 10,
+          x: 3256,
+          y: -325.6608145672743,
         },
       },
       data: {
-        title: 'LLM_2',
-        inputsValues: {
-          modelName: {
-            type: 'constant',
-            content: 'gpt-3.5-turbo',
-          },
-          apiKey: {
-            type: 'constant',
-            content: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-          },
-          apiHost: {
-            type: 'constant',
-            content: 'https://mock-ai-url/api/v3',
-          },
-          temperature: {
-            type: 'constant',
-            content: 0.5,
-          },
-          systemPrompt: {
-            type: 'template',
-            content: '# Role\nYou are an AI assistant.\n',
-          },
-          prompt: {
-            type: 'template',
-            content: '# LLM Input\nresult:{{llm_8--A3.result}}',
-          },
+        size: {
+          width: 261.60708060422826,
+          height: 113.41006994627716,
         },
-        inputs: {
-          type: 'object',
-          required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
-          properties: {
-            modelName: {
-              type: 'string',
-            },
-            apiKey: {
-              type: 'string',
-            },
-            apiHost: {
-              type: 'string',
-            },
-            temperature: {
-              type: 'number',
-            },
-            systemPrompt: {
-              type: 'string',
-              extra: {
-                formComponent: 'prompt-editor',
-              },
-            },
-            prompt: {
-              type: 'string',
-              extra: {
-                formComponent: 'prompt-editor',
-              },
-            },
-          },
-        },
-        outputs: {
-          type: 'object',
-          properties: {
-            result: {
-              type: 'string',
-            },
-          },
-        },
+        note: 'Based on weather and clothing comfort, recommend the best city to visit.',
       },
     },
   ],
   edges: [
     {
       sourceNodeID: 'start_0',
-      targetNodeID: 'http_rDGIH',
+      targetNodeID: 'loop_CR9P_',
     },
     {
-      sourceNodeID: 'http_rDGIH',
-      targetNodeID: 'condition_0',
-    },
-    {
-      sourceNodeID: 'condition_0',
-      targetNodeID: 'loop_Ycnsk',
-      sourcePortID: 'if_0',
-    },
-    {
-      sourceNodeID: 'condition_0',
-      targetNodeID: 'llm_8--A3',
-      sourcePortID: 'else',
-    },
-    {
-      sourceNodeID: 'llm_vTyMa',
+      sourceNodeID: '440190',
       targetNodeID: 'end_0',
     },
     {
-      sourceNodeID: 'loop_Ycnsk',
-      targetNodeID: 'end_0',
-    },
-    {
-      sourceNodeID: 'llm_8--A3',
-      targetNodeID: 'llm_vTyMa',
+      sourceNodeID: 'loop_CR9P_',
+      targetNodeID: '440190',
     },
   ],
   globalVariable: {
