@@ -9,7 +9,7 @@ import { IconComment } from '@douyinfe/semi-icons';
 import { useChatPanel } from '../../plugins/panel-manager-plugin/hooks';
 
 export const ChatButton = () => {
-  const { open, close, toggle } = useChatPanel();
+  const { toggle } = useChatPanel();
   return (
     <Tooltip content="Chat">
       <IconButton
