@@ -31,6 +31,58 @@
 
 .chat-panel-content {
     flex: 1;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 16px 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.chat-suggestions {
+    padding: 8px 16px 0;
+    flex-shrink: 0;
+}
+
+.chat-sender {
     padding: 16px;
+    border-top: 1px solid #e5e7eb;
+    flex-shrink: 0;
+    background: #fff;
+}
+
+/* 自定义 Ant Design X 组件样式 */
+.chat-messages :global(.ant-bubble) {
+    max-width: 80%;
+}
+
+.chat-messages :global(.ant-bubble-content) {
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+/* 优化滚动条样式 */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
