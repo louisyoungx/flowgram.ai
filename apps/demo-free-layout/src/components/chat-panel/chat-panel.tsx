@@ -8,7 +8,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { IconButton } from '@douyinfe/semi-ui';
 import { IconClose } from '@douyinfe/semi-icons';
 import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
-import { Bubble, Sender, Suggestion, Mermaid } from '@ant-design/x';
+import { Bubble, Sender, Suggestion, Mermaid, CodeHighlighter } from '@ant-design/x';
 
 import { useChatPanel } from '../../plugins/panel-manager-plugin/hooks';
 import type { ChatMessage as AgentChatMessage } from '../../plugins/agent-plugin/types';
@@ -16,16 +16,20 @@ import { useAgentService } from '../../plugins/agent-plugin/hooks';
 import { initialMessages, suggestionQuestions, type ChatMessage } from './init-data';
 import './styles.css';
 
-// 自定义 Code 组件，用于渲染 Mermaid 图表
+// 自定义 Code 组件，用于渲染代码高亮和 Mermaid 图表
 const Code: React.FC<ComponentProps> = (props) => {
   const { className, children } = props;
   const lang = className?.match(/language-(\w+)/)?.[1] || '';
 
   if (typeof children !== 'string') return null;
+
+  // Mermaid 图表特殊处理
   if (lang === 'mermaid') {
     return <Mermaid>{children}</Mermaid>;
   }
-  return <code className={className}>{children}</code>;
+
+  // 使用 CodeHighlighter 渲染代码块
+  return <CodeHighlighter lang={lang || 'plaintext'}>{children}</CodeHighlighter>;
 };
 
 export const ChatPanel: React.FC = () => {
