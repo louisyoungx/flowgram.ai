@@ -9,7 +9,7 @@ import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import { Mermaid, CodeHighlighter } from '@ant-design/x';
 
 import { ToolCallCard } from '../tool-call-card';
-import { parseMessageContent } from '../../utils/message-parser';
+import { parseMessageContent } from './message-parser';
 
 import styles from './index.module.css';
 

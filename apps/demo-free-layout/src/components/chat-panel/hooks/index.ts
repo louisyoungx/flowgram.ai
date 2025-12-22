@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: MIT
  */
 
-export * from './use-chat-messages';
-export * from './use-chat-input';
+export { useChatMessages } from './use-chat-messages';
+export { useChatInput } from './use-chat-input';
