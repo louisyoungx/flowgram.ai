@@ -12,7 +12,7 @@ import { Bubble, Sender, Suggestion } from '@ant-design/x';
 import { useChatPanel } from '../../plugins/panel-manager-plugin/hooks';
 import type { UIChatMessage } from '../../plugins/agent-plugin/types';
 import { useAgentService } from '../../plugins/agent-plugin/hooks';
-import { defaultToolRegistry } from '../../plugins/agent-plugin';
+import { defaultToolRegistry, WorkflowAgentUtils } from '../../plugins/agent-plugin';
 import { MessageContent } from './message-content';
 import { initialMessages, suggestionQuestions } from './init-data';
 // @ts-ignore
@@ -40,69 +40,38 @@ export const ChatPanel: React.FC = () => {
   const handleSend = async (value: string) => {
     if (!value.trim() || isLoading) return;
 
-    const newUserMessage: UIChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: value,
-      timestamp: Date.now(),
-      status: 'sent',
-    };
-
-    // 添加用户消息
+    // 使用 service 创建用户消息
+    const newUserMessage = WorkflowAgentUtils.createUserMessage(value);
     setMessages((prev) => [...prev, newUserMessage]);
     setInputValue('');
     setIsLoading(true);
 
-    // 创建一个空的 assistant 消息用于显示工具调用过程
-    const assistantMessageId = (Date.now() + 1).toString();
-    const assistantMessage: UIChatMessage = {
-      id: assistantMessageId,
-      role: 'assistant',
-      content: '',
-      timestamp: Date.now(),
-      status: 'sending',
-    };
+    // 使用 service 创建 assistant 消息
+    const assistantMessage = WorkflowAgentUtils.createAssistantMessage();
+    const assistantMessageId = assistantMessage.id;
     setMessages((prev) => [...prev, assistantMessage]);
     setStreamingMessageId(assistantMessageId);
 
     try {
-      // 使用 service 层的方法构建对话历史
+      // 构建对话历史
       const conversationHistory = agentService.buildConversationHistory(messages, value);
-
-      // 获取所有可用工具
       const tools = defaultToolRegistry.getAllTools();
 
-      // 使用 ReAct Loop 流式执行，带步骤回调
+      // 使用 ReAct Loop 流式执行
       const finalResponse = await agentService.executeReActLoopStream(conversationHistory, tools, {
         maxIterations: 10,
         onChunk: (chunk) => {
           // 流式更新思考内容
           setMessages((prev) =>
-            prev.map((msg) => {
-              if (msg.id === assistantMessageId) {
-                return { ...msg, content: msg.content + chunk };
-              }
-              return msg;
-            })
+            prev.map((msg) =>
+              msg.id === assistantMessageId ? { ...msg, content: msg.content + chunk } : msg
+            )
           );
         },
         onStep: (step) => {
-          // 根据步骤类型更新 UI
-          if (step.type === 'thought' && step.content) {
-            // 思考已通过 onChunk 流式显示，这里不需要额外操作
-            // 只是标记思考阶段完成
-          } else if (step.type === 'tool_call') {
-            // 使用 XML 格式添加工具调用标记（立即显示）
-            const toolCallsXML = step.toolCalls
-              .map((tc) => {
-                const toolId = tc.id;
-                const toolName = tc.function.name;
-                const args = tc.function.arguments;
-                return `\n\n<tool_call id="${toolId}" name="${toolName}">\n<arguments>\n${args}\n</arguments>\n</tool_call>`;
-              })
-              .join('');
-
-            // 使用 setState 的函数形式确保立即更新
+          if (step.type === 'tool_call') {
+            // 使用 service 格式化工具调用为 XML
+            const toolCallsXML = WorkflowAgentUtils.formatToolCallsToXML(step.toolCalls);
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === assistantMessageId
@@ -111,40 +80,27 @@ export const ChatPanel: React.FC = () => {
               )
             );
           } else if (step.type === 'tool_result') {
-            // 更新对应工具调用的结果
+            // 使用 service 更新工具调用结果
             setMessages((prev) =>
               prev.map((msg) => {
                 if (msg.id === assistantMessageId) {
-                  let updatedContent = msg.content;
-                  // 为每个结果更新对应的 tool_call XML
-                  for (const result of step.results) {
-                    const toolId = result.toolCallId;
-                    const resultData = result.result;
-                    // 查找并更新对应的 tool_call，在 </arguments> 后添加 <result>
-                    updatedContent = updatedContent.replace(
-                      new RegExp(
-                        `(<tool_call id="${toolId}"[^>]*>\\s*<arguments>[\\s\\S]*?<\\/arguments>)(\\s*<\\/tool_call>)`,
-                        'g'
-                      ),
-                      `$1\n<result>\n${resultData}\n</result>$2`
-                    );
-                  }
+                  const updatedContent = WorkflowAgentUtils.updateToolCallResults(
+                    msg.content,
+                    step.results
+                  );
                   return { ...msg, content: updatedContent };
                 }
                 return msg;
               })
             );
-          } else if (step.type === 'response') {
-            // 这是最终响应，将在 ReAct Loop 返回后处理
           }
         },
       });
 
-      // ReAct Loop 完成，如果有最终响应且与当前内容不同，追加
+      // ReAct Loop 完成，更新最终状态
       setMessages((prev) =>
         prev.map((msg) => {
           if (msg.id === assistantMessageId) {
-            // 检查 finalResponse 是否已经在 content 中
             const needsAppend = finalResponse && !msg.content.includes(finalResponse);
             const newContent = needsAppend ? `${msg.content}\n\n${finalResponse}` : msg.content;
             return { ...msg, content: newContent, status: 'sent' as const };
@@ -154,12 +110,8 @@ export const ChatPanel: React.FC = () => {
       );
       setStreamingMessageId(null);
     } catch (error) {
-      // 错误处理：更新 assistant 消息为错误状态
-      const errorContent =
-        error instanceof Error
-          ? `抱歉，发生了错误：${error.message}\n\n请检查 API 配置是否正确，或稍后重试。`
-          : '抱歉，发生了未知错误，请稍后重试。';
-
+      // 使用 service 格式化错误消息
+      const errorContent = WorkflowAgentUtils.formatErrorMessage(error);
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === assistantMessageId

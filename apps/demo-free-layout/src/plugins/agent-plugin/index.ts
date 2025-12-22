@@ -20,3 +20,4 @@ export {
 } from './types';
 export { defaultToolRegistry, ToolRegistry } from './tools';
 export { todoWriteTool, executeTodoWrite } from './tools/todo-write';
+export { WorkflowAgentUtils } from './agent-utils';

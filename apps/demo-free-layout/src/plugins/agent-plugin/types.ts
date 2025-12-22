@@ -122,7 +122,12 @@ export interface ReActConfig {
 }
 
 export interface IWorkflowAgentService {
+  init(config?: Partial<AgentConfig>): void;
+  /**
+   * 构建对话历史
+   */
   buildConversationHistory: (uiMessages: UIChatMessage[], userMessage: string) => ChatMessage[];
+
   /**
    * 执行 ReAct Loop（流式版本）
    * @param messages 对话历史

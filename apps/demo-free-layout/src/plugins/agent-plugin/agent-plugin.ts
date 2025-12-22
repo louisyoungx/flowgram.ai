@@ -10,9 +10,11 @@ import { WorkflowAgentService } from './agent-service';
 
 export const createAgentPlugin = definePluginCreator<{ config?: Partial<AgentConfig> }>({
   onBind({ bind }, opts) {
-    bind(IWorkflowAgentService).toDynamicValue(() => new WorkflowAgentService(opts.config));
+    bind(WorkflowAgentService).toSelf().inSingletonScope();
+    bind(IWorkflowAgentService).to(WorkflowAgentService).inSingletonScope();
   },
-  onInit() {
-    // Plugin initialization logic can be added here if needed
+  onInit(ctx, opts) {
+    const agentService = ctx.get<IWorkflowAgentService>(IWorkflowAgentService);
+    agentService.init(opts?.config);
   },
 });

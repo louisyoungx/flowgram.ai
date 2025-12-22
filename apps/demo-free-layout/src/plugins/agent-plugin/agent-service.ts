@@ -15,12 +15,13 @@ import type {
 } from './types';
 import { defaultToolRegistry } from './tools';
 import { SYSTEM_PROMPT } from './prompt';
+import { DEFAULT_AGENT_CONFIG } from './constant';
 
 export class WorkflowAgentService implements IWorkflowAgentService {
   private config: AgentConfig;
 
-  constructor(config?: Partial<AgentConfig>) {
-    this.config = { ...config };
+  public init(config?: Partial<AgentConfig>): void {
+    this.config = { ...DEFAULT_AGENT_CONFIG, ...config };
   }
 
   public buildConversationHistory(uiMessages: UIChatMessage[], userMessage: string): ChatMessage[] {
