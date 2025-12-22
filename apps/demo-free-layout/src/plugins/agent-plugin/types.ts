@@ -55,10 +55,10 @@ export interface ChatCompletionResponse {
   };
 }
 
-export interface AgentService {
+export interface IWorkflowAgentService {
   sendMessage: (messages: ChatMessage[]) => Promise<string>;
   streamMessage: (messages: ChatMessage[], onChunk: (chunk: string) => void) => Promise<void>;
-  updateConfig: (config: Partial<AgentConfig>) => void;
   buildConversationHistory: (uiMessages: UIChatMessage[], userMessage: string) => ChatMessage[];
-  getSystemPrompt: () => string;
 }
+
+export const IWorkflowAgentService = Symbol('WorkflowAgentService');

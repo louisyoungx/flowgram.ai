@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-export { createAgentPlugin, AgentServiceToken } from './agent-plugin';
+export { createAgentPlugin } from './agent-plugin';
 export { useAgentService } from './hooks';
-export type { AgentConfig, AgentService, ChatMessage } from './types';
+export { AgentConfig, IWorkflowAgentService, ChatMessage } from './types';

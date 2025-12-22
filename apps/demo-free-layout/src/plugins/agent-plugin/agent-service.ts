@@ -5,7 +5,7 @@
 
 import type {
   AgentConfig,
-  AgentService,
+  IWorkflowAgentService,
   ChatMessage,
   UIChatMessage,
   ChatCompletionRequest,
@@ -13,33 +13,18 @@ import type {
 } from './types';
 import { SYSTEM_PROMPT } from './prompt';
 
-const DEFAULT_CONFIG: AgentConfig = {
-  baseURL: 'https://api.openai.com/v1',
-  model: 'gpt-4o-mini',
-  temperature: 0.7,
-  maxTokens: 2000,
-};
-
-export class AgentServiceImpl implements AgentService {
+export class WorkflowAgentService implements IWorkflowAgentService {
   private config: AgentConfig;
 
   constructor(config?: Partial<AgentConfig>) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = { ...config };
   }
 
-  updateConfig(config: Partial<AgentConfig>): void {
-    this.config = { ...this.config, ...config };
-  }
-
-  getSystemPrompt(): string {
-    return SYSTEM_PROMPT;
-  }
-
-  buildConversationHistory(uiMessages: UIChatMessage[], userMessage: string): ChatMessage[] {
+  public buildConversationHistory(uiMessages: UIChatMessage[], userMessage: string): ChatMessage[] {
     const history: ChatMessage[] = [
       {
         role: 'system',
-        content: SYSTEM_PROMPT,
+        content: this.systemPrompt,
       },
       ...uiMessages.map((msg) => ({
         role: msg.role,
@@ -54,7 +39,7 @@ export class AgentServiceImpl implements AgentService {
     return history;
   }
 
-  async sendMessage(messages: ChatMessage[]): Promise<string> {
+  public async sendMessage(messages: ChatMessage[]): Promise<string> {
     if (!this.config.apiKey) {
       throw new Error('API Key is not configured. Please set the API key in settings.');
     }
@@ -99,7 +84,10 @@ export class AgentServiceImpl implements AgentService {
     }
   }
 
-  async streamMessage(messages: ChatMessage[], onChunk: (chunk: string) => void): Promise<void> {
+  public async streamMessage(
+    messages: ChatMessage[],
+    onChunk: (chunk: string) => void
+  ): Promise<void> {
     if (!this.config.apiKey) {
       throw new Error('API Key is not configured. Please set the API key in settings.');
     }
@@ -170,5 +158,9 @@ export class AgentServiceImpl implements AgentService {
       }
       throw new Error('Failed to stream message: Unknown error');
     }
+  }
+
+  private get systemPrompt(): string {
+    return SYSTEM_PROMPT;
   }
 }

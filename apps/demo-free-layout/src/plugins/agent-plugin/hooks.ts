@@ -5,14 +5,13 @@
 
 import { useClientContext } from '@flowgram.ai/free-layout-editor';
 
-import type { AgentService } from './types';
-import { AgentServiceToken } from './agent-plugin';
+import { IWorkflowAgentService } from './types';
 
-export const useAgentService = (): AgentService => {
+export const useAgentService = (): IWorkflowAgentService => {
   const ctx = useClientContext();
-  const agentService = ctx.get(AgentServiceToken);
+  const agentService = ctx.get(IWorkflowAgentService);
   if (!agentService) {
     throw new Error('AgentService not found. Make sure AgentPlugin is registered.');
   }
-  return agentService as AgentService;
+  return agentService as IWorkflowAgentService;
 };

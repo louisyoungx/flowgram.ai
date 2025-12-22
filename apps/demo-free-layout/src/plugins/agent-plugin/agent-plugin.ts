@@ -5,14 +5,12 @@
 
 import { definePluginCreator } from '@flowgram.ai/free-layout-editor';
 
-import type { AgentConfig } from './types';
-import { AgentServiceImpl } from './agent-service';
-
-export const AgentServiceToken = Symbol('AgentService');
+import { IWorkflowAgentService, type AgentConfig } from './types';
+import { WorkflowAgentService } from './agent-service';
 
 export const createAgentPlugin = definePluginCreator<{ config?: Partial<AgentConfig> }>({
   onBind({ bind }, opts) {
-    bind(AgentServiceToken).toDynamicValue(() => new AgentServiceImpl(opts.config));
+    bind(IWorkflowAgentService).toDynamicValue(() => new WorkflowAgentService(opts.config));
   },
   onInit() {
     // Plugin initialization logic can be added here if needed
