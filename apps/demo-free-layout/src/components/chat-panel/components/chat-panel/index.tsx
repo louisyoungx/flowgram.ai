@@ -17,7 +17,7 @@ import styles from './index.module.css';
 export const ChatPanel: React.FC = () => {
   const { close } = useChatPanel();
   const messages = useChatMessages();
-  const { inputValue, setInputValue, isLoading, handleSend } = useChatInput();
+  const { inputValue, setInputValue, isLoading, handleSend, handleCancel } = useChatInput();
 
   return (
     <div className={styles.panel}>
@@ -32,7 +32,7 @@ export const ChatPanel: React.FC = () => {
           value={inputValue}
           onChange={setInputValue}
           onSubmit={handleSend}
-          disabled={isLoading}
+          onCancel={handleCancel}
           loading={isLoading}
         />
       </div>

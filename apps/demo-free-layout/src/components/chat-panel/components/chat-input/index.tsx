@@ -13,7 +13,7 @@ interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
-  disabled: boolean;
+  onCancel?: () => void;
   loading: boolean;
 }
 
@@ -21,16 +21,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   value,
   onChange,
   onSubmit,
-  disabled,
   loading,
+  onCancel,
 }) => (
   <div className={styles.sender}>
     <Sender
       placeholder="输入消息..."
       value={value}
       onChange={onChange}
+      onCancel={onCancel}
       onSubmit={onSubmit}
-      disabled={disabled}
       loading={loading}
     />
   </div>

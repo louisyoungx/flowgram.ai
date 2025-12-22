@@ -145,6 +145,11 @@ export interface IWorkflowAgentService {
    * 清空消息历史
    */
   clearMessages(): void;
+
+  /**
+   * 取消当前正在进行的请求
+   */
+  cancelCurrentRequest(): void;
 }
 
 export const IWorkflowAgentService = Symbol('WorkflowAgentService');

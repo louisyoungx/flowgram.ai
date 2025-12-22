@@ -29,6 +29,8 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
   public onMessagesChange = this.messagesEmitter.event;
 
+  private abortController: AbortController | null = null;
+
   public init(config?: Partial<AgentConfig>): void {
     this.config = { ...DEFAULT_AGENT_CONFIG, ...config };
 
@@ -56,6 +58,13 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     this.notifyListeners();
   }
 
+  public cancelCurrentRequest(): void {
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
+    }
+  }
+
   private notifyListeners(): void {
     this.messagesEmitter.fire([...this.messages]);
   }
@@ -78,6 +87,9 @@ export class WorkflowAgentService implements IWorkflowAgentService {
    */
   public async sendMessage(content: string): Promise<void> {
     if (!content.trim()) return;
+
+    // 创建新的 AbortController
+    this.abortController = new AbortController();
 
     // 添加用户消息
     const userMessage = WorkflowAgentUtils.createUserMessage(content);
@@ -133,12 +145,34 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         status: 'sent',
       });
     } catch (error) {
-      // 处理错误
-      const errorContent = WorkflowAgentUtils.formatErrorMessage(error);
-      this.updateMessage(assistantMessageId, {
-        content: errorContent,
-        status: 'error',
-      });
+      // 检查是否为取消错误
+      if (
+        error instanceof Error &&
+        (error.name === 'AbortError' || error.message.includes('aborted'))
+      ) {
+        // 取消请求时，处理未完成的工具调用
+        const msg = this.messages.find((m) => m.id === assistantMessageId);
+        if (msg) {
+          const updatedContent = WorkflowAgentUtils.markIncompleteToolCallsAsCancelled(msg.content);
+          this.updateMessage(assistantMessageId, {
+            content: updatedContent,
+            status: 'sent',
+          });
+        } else {
+          this.updateMessage(assistantMessageId, {
+            status: 'sent',
+          });
+        }
+      } else {
+        // 处理其他错误
+        const errorContent = WorkflowAgentUtils.formatErrorMessage(error);
+        this.updateMessage(assistantMessageId, {
+          content: errorContent,
+          status: 'error',
+        });
+      }
+    } finally {
+      this.abortController = null;
     }
   }
 
@@ -313,6 +347,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
           Authorization: `Bearer ${this.config.apiKey}`,
         },
         body: JSON.stringify(request),
+        signal: this.abortController?.signal,
       });
 
       if (!response.ok) {

@@ -5,6 +5,56 @@
 
 import { ToolCall, ToolResult, UIChatMessage } from './types';
 
+export interface ParsedContent {
+  type: 'text' | 'tool_call';
+  content?: string;
+  toolName?: string;
+  toolArgs?: string;
+  toolResult?: string;
+  id?: string;
+}
+
+export function parseMessageContent(content: string): ParsedContent[] {
+  const parts: ParsedContent[] = [];
+  const toolCallRegex =
+    /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>([\s\S]*?)<\/arguments>(?:\s*<result>([\s\S]*?)<\/result>)?\s*<\/tool_call>/g;
+
+  let lastIndex = 0;
+  let match;
+
+  while ((match = toolCallRegex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      const textContent = content.slice(lastIndex, match.index).trim();
+      if (textContent) {
+        parts.push({ type: 'text', content: textContent });
+      }
+    }
+
+    parts.push({
+      type: 'tool_call',
+      id: match[1],
+      toolName: match[2],
+      toolArgs: match[3].trim(),
+      toolResult: match[4]?.trim(),
+    });
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < content.length) {
+    const textContent = content.slice(lastIndex).trim();
+    if (textContent) {
+      parts.push({ type: 'text', content: textContent });
+    }
+  }
+
+  if (parts.length === 0 && content.trim()) {
+    parts.push({ type: 'text', content: content.trim() });
+  }
+
+  return parts;
+}
+
 export namespace WorkflowAgentUtils {
   /**
    * 创建新的用户消息
@@ -69,5 +119,20 @@ export namespace WorkflowAgentUtils {
       return `抱歉，发生了错误：${error.message}\n\n请检查 API 配置是否正确，或稍后重试。`;
     }
     return '抱歉，发生了未知错误，请稍后重试。';
+  };
+
+  /**
+   * 标记未完成的工具调用为已取消
+   * 检测消息中没有 result 的 tool_call，并添加取消标记
+   */
+  export const markIncompleteToolCallsAsCancelled = (content: string): string => {
+    // 匹配没有 result 的 tool_call
+    const incompleteToolCallRegex =
+      /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>([\s\S]*?)<\/arguments>\s*<\/tool_call>/g;
+
+    return content.replace(
+      incompleteToolCallRegex,
+      '<tool_call id="$1" name="$2">\n<arguments>$3</arguments>\n<result>\n请求已取消\n</result>\n</tool_call>'
+    );
   };
 }

@@ -25,10 +25,18 @@ export const useChatInput = () => {
     }
   };
 
+  const handleCancel = () => {
+    if (isLoading) {
+      agentService.cancelCurrentRequest();
+      setIsLoading(false);
+    }
+  };
+
   return {
     inputValue,
     setInputValue,
     isLoading,
     handleSend,
+    handleCancel,
   };
 };
