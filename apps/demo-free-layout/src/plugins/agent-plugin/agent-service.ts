@@ -7,9 +7,11 @@ import type {
   AgentConfig,
   AgentService,
   ChatMessage,
+  UIChatMessage,
   ChatCompletionRequest,
   ChatCompletionResponse,
 } from './types';
+import { SYSTEM_PROMPT } from './prompt';
 
 const DEFAULT_CONFIG: AgentConfig = {
   baseURL: 'https://api.openai.com/v1',
@@ -27,6 +29,29 @@ export class AgentServiceImpl implements AgentService {
 
   updateConfig(config: Partial<AgentConfig>): void {
     this.config = { ...this.config, ...config };
+  }
+
+  getSystemPrompt(): string {
+    return SYSTEM_PROMPT;
+  }
+
+  buildConversationHistory(uiMessages: UIChatMessage[], userMessage: string): ChatMessage[] {
+    const history: ChatMessage[] = [
+      {
+        role: 'system',
+        content: SYSTEM_PROMPT,
+      },
+      ...uiMessages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+      {
+        role: 'user',
+        content: userMessage,
+      },
+    ];
+
+    return history;
   }
 
   async sendMessage(messages: ChatMessage[]): Promise<string> {

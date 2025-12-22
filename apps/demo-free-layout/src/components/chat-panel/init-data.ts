@@ -3,16 +3,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: number;
-  status?: 'sending' | 'sent' | 'error';
-}
+import type { UIChatMessage } from '../../plugins/agent-plugin/types';
 
 // 初始欢迎消息
-export const initialMessages: ChatMessage[] = [
+export const initialMessages: UIChatMessage[] = [
   {
     id: '1',
     role: 'assistant',

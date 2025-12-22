@@ -11,9 +11,9 @@ import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import { Bubble, Sender, Suggestion, Mermaid, CodeHighlighter } from '@ant-design/x';
 
 import { useChatPanel } from '../../plugins/panel-manager-plugin/hooks';
-import type { ChatMessage as AgentChatMessage } from '../../plugins/agent-plugin/types';
+import type { UIChatMessage } from '../../plugins/agent-plugin/types';
 import { useAgentService } from '../../plugins/agent-plugin/hooks';
-import { initialMessages, suggestionQuestions, type ChatMessage } from './init-data';
+import { initialMessages, suggestionQuestions } from './init-data';
 import './styles.css';
 
 // 自定义 Code 组件，用于渲染代码高亮和 Mermaid 图表
@@ -35,7 +35,7 @@ const Code: React.FC<ComponentProps> = (props) => {
 export const ChatPanel: React.FC = () => {
   const { close } = useChatPanel();
   const agentService = useAgentService();
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<UIChatMessage[]>(initialMessages);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
@@ -54,7 +54,7 @@ export const ChatPanel: React.FC = () => {
   const handleSend = async (value: string) => {
     if (!value.trim() || isLoading) return;
 
-    const newUserMessage: ChatMessage = {
+    const newUserMessage: UIChatMessage = {
       id: Date.now().toString(),
       role: 'user',
       content: value,
@@ -69,7 +69,7 @@ export const ChatPanel: React.FC = () => {
 
     // 立即创建一个空的 assistant 消息用于流式显示
     const assistantMessageId = (Date.now() + 1).toString();
-    const assistantMessage: ChatMessage = {
+    const assistantMessage: UIChatMessage = {
       id: assistantMessageId,
       role: 'assistant',
       content: '',
@@ -80,22 +80,8 @@ export const ChatPanel: React.FC = () => {
     setStreamingMessageId(assistantMessageId);
 
     try {
-      // 构建对话历史（转换为 AgentChatMessage 格式）
-      const conversationHistory: AgentChatMessage[] = [
-        {
-          role: 'system',
-          content:
-            '你是 FlowGram AI 助手，专门帮助用户创建和编辑流程图。\n\n## 核心职责\n- 理解用户需求，提供清晰的流程图设计指导\n- 帮助用户优化流程图结构和布局\n- 解答 FlowGram 使用相关问题\n\n## 回复要求\n**必须使用 Markdown 格式回复**，确保内容结构清晰、易读：\n- 使用标题（#、##、###）组织内容层次\n- 使用列表（-、1.）列举要点\n- 使用代码块（```）展示代码或配置\n- 使用 **粗体** 强调重点\n- 使用表格整理对比信息\n\n## Mermaid 流程图绘制\n**系统已集成 Mermaid 渲染引擎**，你可以直接绘制流程图来可视化说明：\n\n当需要展示流程、关系或结构时，使用 Mermaid 代码块：\n```mermaid\ngraph TD\n    A[开始] --> B{条件判断}\n    B -->|是| C[执行操作]\n    B -->|否| D[结束]\n    C --> D\n```\n\n支持的图表类型包括：flowchart/graph（流程图）、sequenceDiagram（时序图）、classDiagram（类图）、stateDiagram（状态图）等。\n\n**优先使用 Mermaid 图表**来直观展示流程逻辑，让用户更容易理解。\n\n保持回复简洁、专业、友好。',
-        },
-        ...messages.map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-        })),
-        {
-          role: 'user',
-          content: value,
-        },
-      ];
+      // 使用 service 层的方法构建对话历史
+      const conversationHistory = agentService.buildConversationHistory(messages, value);
 
       // 使用流式响应，实时更新消息内容
       let fullContent = '';

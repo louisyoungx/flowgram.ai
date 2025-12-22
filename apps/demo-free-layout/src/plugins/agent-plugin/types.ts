@@ -3,9 +3,23 @@
  * SPDX-License-Identifier: MIT
  */
 
+/**
+ * Agent 层消息接口（用于 API 调用）
+ */
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
+}
+
+/**
+ * UI 层消息接口（包含额外的 UI 状态）
+ */
+export interface UIChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+  status?: 'sending' | 'sent' | 'error';
 }
 
 export interface AgentConfig {
@@ -45,4 +59,6 @@ export interface AgentService {
   sendMessage: (messages: ChatMessage[]) => Promise<string>;
   streamMessage: (messages: ChatMessage[], onChunk: (chunk: string) => void) => Promise<void>;
   updateConfig: (config: Partial<AgentConfig>) => void;
+  buildConversationHistory: (uiMessages: UIChatMessage[], userMessage: string) => ChatMessage[];
+  getSystemPrompt: () => string;
 }
