@@ -5,9 +5,8 @@
 
 import React, { useState } from 'react';
 
-import { Tag } from '@douyinfe/semi-ui';
+import { Spin } from '@douyinfe/semi-ui';
 import { IconChevronDown, IconChevronRight } from '@douyinfe/semi-icons';
-import { CodeHighlighter } from '@ant-design/x';
 
 interface ToolCallCardProps {
   toolName: string;
@@ -23,33 +22,37 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
   defaultOpen = false,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const isRunning = !result;
+  const hasContent = args || result;
 
   return (
     <div className="tool-call-card">
-      <div className="tool-call-header" onClick={() => setIsOpen(!isOpen)}>
-        <span className="tool-call-icon">
-          {isOpen ? <IconChevronDown size="small" /> : <IconChevronRight size="small" />}
-        </span>
-        <span className="tool-call-emoji">🔧</span>
-        <span className="tool-call-title">工具调用: {toolName}</span>
-        <Tag color="blue" size="small">
-          {result ? '已完成' : '执行中'}
-        </Tag>
+      <div className="tool-call-header" onClick={hasContent ? () => setIsOpen(!isOpen) : undefined}>
+        <span className="tool-call-title">{toolName}</span>
+        {(hasContent || isRunning) && (
+          <span className="tool-call-icon">
+            {isRunning ? (
+              <Spin size="small" />
+            ) : isOpen ? (
+              <IconChevronDown size="small" />
+            ) : (
+              <IconChevronRight size="small" />
+            )}
+          </span>
+        )}
       </div>
-      {isOpen && (
+      {isOpen && hasContent && (
         <div className="tool-call-body">
-          <div className="tool-call-section">
-            <div className="tool-call-label">参数：</div>
-            <div className="tool-call-content">
-              <CodeHighlighter lang="json">{args}</CodeHighlighter>
+          {args && (
+            <div className="tool-call-section">
+              <div className="tool-call-label">参数</div>
+              <pre className="tool-call-content">{args}</pre>
             </div>
-          </div>
+          )}
           {result && (
             <div className="tool-call-section">
-              <div className="tool-call-label">结果：</div>
-              <div className="tool-call-content">
-                <CodeHighlighter lang="json">{result}</CodeHighlighter>
-              </div>
+              <div className="tool-call-label">结果</div>
+              <pre className="tool-call-content">{result}</pre>
             </div>
           )}
         </div>

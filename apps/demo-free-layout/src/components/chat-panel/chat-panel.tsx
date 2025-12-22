@@ -197,14 +197,29 @@ export const ChatPanel: React.FC = () => {
               key: msg.id,
               role: msg.role,
               content: msg.content || '正在思考...',
-              avatar: <span>{msg.role === 'assistant' ? '🤖' : '👤'}</span>,
               loading: msg.status === 'sending' && !msg.content,
               streaming: msg.id === streamingMessageId,
             }))}
             role={{
               assistant: {
+                placement: 'start',
                 typing: { effect: 'typing', step: 5, interval: 20 },
                 contentRender: (content: string) => <MessageContent content={content} />,
+                variant: 'filled',
+                styles: {
+                  // @ts-ignore
+                  bubble: {
+                    paddingInlineEnd: 0,
+                  },
+                  content: {
+                    background: 'transparent',
+                    padding: 0,
+                  },
+                },
+              },
+              user: {
+                placement: 'end',
+                variant: 'filled',
               },
             }}
           />
