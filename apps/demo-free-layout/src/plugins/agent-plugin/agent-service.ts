@@ -9,7 +9,6 @@ import type {
   ChatMessage,
   UIChatMessage,
   ChatCompletionRequest,
-  ChatCompletionResponse,
 } from './types';
 import { SYSTEM_PROMPT } from './prompt';
 
@@ -37,51 +36,6 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     ];
 
     return history;
-  }
-
-  public async sendMessage(messages: ChatMessage[]): Promise<string> {
-    if (!this.config.apiKey) {
-      throw new Error('API Key is not configured. Please set the API key in settings.');
-    }
-
-    const request: ChatCompletionRequest = {
-      model: this.config.model!,
-      messages,
-      temperature: this.config.temperature,
-      max_tokens: this.config.maxTokens,
-      stream: false,
-    };
-
-    try {
-      const response = await fetch(`${this.config.baseURL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.config.apiKey}`,
-        },
-        body: JSON.stringify(request),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error?.message || `API request failed with status ${response.status}`
-        );
-      }
-
-      const data: ChatCompletionResponse = await response.json();
-
-      if (!data.choices || data.choices.length === 0) {
-        throw new Error('No response from API');
-      }
-
-      return data.choices[0].message.content;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Failed to send message: ${error.message}`);
-      }
-      throw new Error('Failed to send message: Unknown error');
-    }
   }
 
   public async streamMessage(

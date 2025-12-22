@@ -14,6 +14,7 @@ import { useChatPanel } from '../../plugins/panel-manager-plugin/hooks';
 import type { UIChatMessage } from '../../plugins/agent-plugin/types';
 import { useAgentService } from '../../plugins/agent-plugin/hooks';
 import { initialMessages, suggestionQuestions } from './init-data';
+// @ts-ignore
 import './styles.css';
 
 // 自定义 Code 组件，用于渲染代码高亮和 Mermaid 图表

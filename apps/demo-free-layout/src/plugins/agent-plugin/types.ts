@@ -56,7 +56,6 @@ export interface ChatCompletionResponse {
 }
 
 export interface IWorkflowAgentService {
-  sendMessage: (messages: ChatMessage[]) => Promise<string>;
   streamMessage: (messages: ChatMessage[], onChunk: (chunk: string) => void) => Promise<void>;
   buildConversationHistory: (uiMessages: UIChatMessage[], userMessage: string) => ChatMessage[];
 }
