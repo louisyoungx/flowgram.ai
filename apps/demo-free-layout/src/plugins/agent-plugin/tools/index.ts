@@ -3,36 +3,48 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { Tool, ToolExecutor } from '../types';
-import { todoWriteTool, executeTodoWrite } from './todo-write';
+import { injectable, multiInject } from '@flowgram.ai/free-layout-editor';
+
+import type { Tool } from '../types';
+import { ITool } from './base-tool';
 
 /**
- * 工具注册表
+ * 工具注册表服务
+ * 负责管理所有可用的工具，支持依赖注入
  */
+@injectable()
 export class ToolRegistry {
-  private tools = new Map<string, Tool>();
+  private tools = new Map<string, ITool>();
 
-  private executors = new Map<string, ToolExecutor>();
+  constructor(
+    @multiInject(ITool)
+    toolInstances: ITool[] = []
+  ) {
+    // 自动注册所有通过 IoC 注入的工具
+    for (const tool of toolInstances) {
+      this.register(tool);
+    }
+  }
 
   /**
    * 注册工具
    */
-  register(tool: Tool, executor: ToolExecutor): void {
-    this.tools.set(tool.function.name, tool);
-    this.executors.set(tool.function.name, executor);
+  register(tool: ITool): void {
+    const name = tool.tool.function.name;
+    this.tools.set(name, tool);
   }
 
   /**
-   * 获取所有工具
+   * 获取所有工具定义
    */
   getAllTools(): Tool[] {
-    return Array.from(this.tools.values());
+    return Array.from(this.tools.values()).map((tool) => tool.tool);
   }
 
   /**
-   * 获取工具
+   * 获取工具实例
    */
-  getTool(name: string): Tool | undefined {
+  getTool(name: string): ITool | undefined {
     return this.tools.get(name);
   }
 
@@ -40,11 +52,11 @@ export class ToolRegistry {
    * 执行工具
    */
   async execute(name: string, args: any): Promise<string> {
-    const executor = this.executors.get(name);
-    if (!executor) {
+    const tool = this.tools.get(name);
+    if (!tool) {
       throw new Error(`Tool ${name} not found`);
     }
-    return await executor(args);
+    return await tool.execute(args);
   }
 
   /**
@@ -53,12 +65,16 @@ export class ToolRegistry {
   has(name: string): boolean {
     return this.tools.has(name);
   }
+
+  /**
+   * 获取所有工具名称
+   */
+  getToolNames(): string[] {
+    return Array.from(this.tools.keys());
+  }
 }
 
-/**
- * 默认工具注册表
- */
-export const defaultToolRegistry = new ToolRegistry();
-
-// 注册内置工具
-defaultToolRegistry.register(todoWriteTool, executeTodoWrite);
+// 导出工具类和基类
+export { ITool, BaseTool } from './base-tool';
+export { TodoWriteTool } from './todo-write';
+export { GetWorkflowInfoTool } from './get-workflow-info';

@@ -102,11 +102,6 @@ export interface ToolResult {
 }
 
 /**
- * Tool 执行器
- */
-export type ToolExecutor = (args: any) => Promise<string> | string;
-
-/**
  * ReAct 步骤类型
  */
 export type ReActStep =

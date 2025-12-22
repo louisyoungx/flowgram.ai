@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { Emitter } from '@flowgram.ai/free-layout-editor';
+import { Emitter, injectable, inject } from '@flowgram.ai/free-layout-editor';
 
 import type {
   AgentConfig,
@@ -15,11 +15,12 @@ import type {
   ToolResult,
   ReActConfig,
 } from './types';
-import { defaultToolRegistry } from './tools';
+import { ToolRegistry } from './tools';
 import { SYSTEM_PROMPT } from './prompt';
 import { DEFAULT_AGENT_CONFIG } from './constant';
 import { WorkflowAgentUtils } from './agent-utils';
 
+@injectable()
 export class WorkflowAgentService implements IWorkflowAgentService {
   private config: AgentConfig;
 
@@ -30,6 +31,11 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   public onMessagesChange = this.messagesEmitter.event;
 
   private abortController: AbortController | null = null;
+
+  constructor(
+    @inject(ToolRegistry)
+    private toolRegistry: ToolRegistry
+  ) {}
 
   public init(config?: Partial<AgentConfig>): void {
     this.config = { ...DEFAULT_AGENT_CONFIG, ...config };
@@ -103,7 +109,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     try {
       // 构建对话历史
       const conversationHistory = this.buildConversationHistory();
-      const tools = defaultToolRegistry.getAllTools();
+      const tools = this.toolRegistry.getAllTools();
 
       // 执行 ReAct Loop
       await this.executeReActLoopStream(conversationHistory, tools, {
@@ -460,7 +466,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     for (const toolCall of toolCalls) {
       try {
         const args = JSON.parse(toolCall.function.arguments);
-        const result = await defaultToolRegistry.execute(toolCall.function.name, args);
+        const result = await this.toolRegistry.execute(toolCall.function.name, args);
 
         results.push({
           toolCallId: toolCall.id,
