@@ -7,31 +7,16 @@ import React, { useState, useRef, useEffect } from 'react';
 
 import { IconButton } from '@douyinfe/semi-ui';
 import { IconClose } from '@douyinfe/semi-icons';
-import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
-import { Bubble, Sender, Suggestion, Mermaid, CodeHighlighter } from '@ant-design/x';
+import { Bubble, Sender, Suggestion } from '@ant-design/x';
 
 import { useChatPanel } from '../../plugins/panel-manager-plugin/hooks';
 import type { UIChatMessage } from '../../plugins/agent-plugin/types';
 import { useAgentService } from '../../plugins/agent-plugin/hooks';
+import { defaultToolRegistry } from '../../plugins/agent-plugin';
+import { MessageContent } from './message-content';
 import { initialMessages, suggestionQuestions } from './init-data';
 // @ts-ignore
 import './styles.css';
-
-// 自定义 Code 组件，用于渲染代码高亮和 Mermaid 图表
-const Code: React.FC<ComponentProps> = (props) => {
-  const { className, children } = props;
-  const lang = className?.match(/language-(\w+)/)?.[1] || '';
-
-  if (typeof children !== 'string') return null;
-
-  // Mermaid 图表特殊处理
-  if (lang === 'mermaid') {
-    return <Mermaid>{children}</Mermaid>;
-  }
-
-  // 使用 CodeHighlighter 渲染代码块
-  return <CodeHighlighter lang={lang || 'plaintext'}>{children}</CodeHighlighter>;
-};
 
 export const ChatPanel: React.FC = () => {
   const { close } = useChatPanel();
@@ -51,7 +36,7 @@ export const ChatPanel: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  // 发送消息到 AI
+  // 发送消息到 AI (使用 ReAct Loop)
   const handleSend = async (value: string) => {
     if (!value.trim() || isLoading) return;
 
@@ -68,7 +53,7 @@ export const ChatPanel: React.FC = () => {
     setInputValue('');
     setIsLoading(true);
 
-    // 立即创建一个空的 assistant 消息用于流式显示
+    // 创建一个空的 assistant 消息用于显示工具调用过程
     const assistantMessageId = (Date.now() + 1).toString();
     const assistantMessage: UIChatMessage = {
       id: assistantMessageId,
@@ -84,23 +69,88 @@ export const ChatPanel: React.FC = () => {
       // 使用 service 层的方法构建对话历史
       const conversationHistory = agentService.buildConversationHistory(messages, value);
 
-      // 使用流式响应，实时更新消息内容
-      let fullContent = '';
-      await agentService.streamMessage(conversationHistory, (chunk) => {
-        fullContent += chunk;
-        // 实时更新 assistant 消息的内容
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMessageId ? { ...msg, content: fullContent } : msg
-          )
-        );
+      // 获取所有可用工具
+      const tools = defaultToolRegistry.getAllTools();
+
+      // 使用 ReAct Loop 流式执行，带步骤回调
+      const finalResponse = await agentService.executeReActLoopStream(conversationHistory, tools, {
+        maxIterations: 10,
+        onChunk: (chunk) => {
+          // 流式更新思考内容
+          setMessages((prev) =>
+            prev.map((msg) => {
+              if (msg.id === assistantMessageId) {
+                return { ...msg, content: msg.content + chunk };
+              }
+              return msg;
+            })
+          );
+        },
+        onStep: (step) => {
+          // 根据步骤类型更新 UI
+          if (step.type === 'thought' && step.content) {
+            // 思考已通过 onChunk 流式显示，这里不需要额外操作
+            // 只是标记思考阶段完成
+          } else if (step.type === 'tool_call') {
+            // 使用 XML 格式添加工具调用标记（立即显示）
+            const toolCallsXML = step.toolCalls
+              .map((tc) => {
+                const toolId = tc.id;
+                const toolName = tc.function.name;
+                const args = tc.function.arguments;
+                return `\n\n<tool_call id="${toolId}" name="${toolName}">\n<arguments>\n${args}\n</arguments>\n</tool_call>`;
+              })
+              .join('');
+
+            // 使用 setState 的函数形式确保立即更新
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === assistantMessageId
+                  ? { ...msg, content: msg.content + toolCallsXML }
+                  : msg
+              )
+            );
+          } else if (step.type === 'tool_result') {
+            // 更新对应工具调用的结果
+            setMessages((prev) =>
+              prev.map((msg) => {
+                if (msg.id === assistantMessageId) {
+                  let updatedContent = msg.content;
+                  // 为每个结果更新对应的 tool_call XML
+                  for (const result of step.results) {
+                    const toolId = result.toolCallId;
+                    const resultData = result.result;
+                    // 查找并更新对应的 tool_call，在 </arguments> 后添加 <result>
+                    updatedContent = updatedContent.replace(
+                      new RegExp(
+                        `(<tool_call id="${toolId}"[^>]*>\\s*<arguments>[\\s\\S]*?<\\/arguments>)(\\s*<\\/tool_call>)`,
+                        'g'
+                      ),
+                      `$1\n<result>\n${resultData}\n</result>$2`
+                    );
+                  }
+                  return { ...msg, content: updatedContent };
+                }
+                return msg;
+              })
+            );
+          } else if (step.type === 'response') {
+            // 这是最终响应，将在 ReAct Loop 返回后处理
+          }
+        },
       });
 
-      // 流式传输完成后，更新消息状态为 sent
+      // ReAct Loop 完成，如果有最终响应且与当前内容不同，追加
       setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === assistantMessageId ? { ...msg, status: 'sent' as const } : msg
-        )
+        prev.map((msg) => {
+          if (msg.id === assistantMessageId) {
+            // 检查 finalResponse 是否已经在 content 中
+            const needsAppend = finalResponse && !msg.content.includes(finalResponse);
+            const newContent = needsAppend ? `${msg.content}\n\n${finalResponse}` : msg.content;
+            return { ...msg, content: newContent, status: 'sent' as const };
+          }
+          return msg;
+        })
       );
       setStreamingMessageId(null);
     } catch (error) {
@@ -154,9 +204,7 @@ export const ChatPanel: React.FC = () => {
             role={{
               assistant: {
                 typing: { effect: 'typing', step: 5, interval: 20 },
-                contentRender: (content: string) => (
-                  <XMarkdown components={{ code: Code }}>{content}</XMarkdown>
-                ),
+                contentRender: (content: string) => <MessageContent content={content} />,
               },
             }}
           />

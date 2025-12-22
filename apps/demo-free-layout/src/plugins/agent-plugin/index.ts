@@ -5,4 +5,18 @@
 
 export { createAgentPlugin } from './agent-plugin';
 export { useAgentService } from './hooks';
-export { AgentConfig, IWorkflowAgentService, ChatMessage } from './types';
+export {
+  AgentConfig,
+  IWorkflowAgentService,
+  ChatMessage,
+  UIChatMessage,
+  Tool,
+  ToolCall,
+  ToolResult,
+  ToolFunction,
+  ToolExecutor,
+  ReActStep,
+  ReActConfig,
+} from './types';
+export { defaultToolRegistry, ToolRegistry } from './tools';
+export { todoWriteTool, executeTodoWrite } from './tools/todo-write';
