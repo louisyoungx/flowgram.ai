@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { Emitter } from '@flowgram.ai/free-layout-editor';
+
 import type {
   AgentConfig,
   IWorkflowAgentService,
@@ -16,28 +18,140 @@ import type {
 import { defaultToolRegistry } from './tools';
 import { SYSTEM_PROMPT } from './prompt';
 import { DEFAULT_AGENT_CONFIG } from './constant';
+import { WorkflowAgentUtils } from './agent-utils';
 
 export class WorkflowAgentService implements IWorkflowAgentService {
   private config: AgentConfig;
 
+  private messages: UIChatMessage[] = [];
+
+  private messagesEmitter = new Emitter<UIChatMessage[]>();
+
+  public onMessagesChange = this.messagesEmitter.event;
+
   public init(config?: Partial<AgentConfig>): void {
     this.config = { ...DEFAULT_AGENT_CONFIG, ...config };
+
+    // 设置初始欢迎消息
+    if (this.messages.length === 0) {
+      this.messages = [
+        {
+          id: '1',
+          role: 'assistant',
+          content:
+            '你好！我是 FlowGram AI 助手。我可以帮你创建和编辑流程图，有什么我可以帮助你的吗？',
+          timestamp: Date.now(),
+          status: 'sent',
+        },
+      ];
+    }
   }
 
-  public buildConversationHistory(uiMessages: UIChatMessage[], userMessage: string): ChatMessage[] {
+  public getMessages(): UIChatMessage[] {
+    return [...this.messages];
+  }
+
+  public clearMessages(): void {
+    this.messages = [];
+    this.notifyListeners();
+  }
+
+  private notifyListeners(): void {
+    this.messagesEmitter.fire([...this.messages]);
+  }
+
+  private addMessage(message: UIChatMessage): void {
+    this.messages.push(message);
+    this.notifyListeners();
+  }
+
+  private updateMessage(messageId: string, updates: Partial<UIChatMessage>): void {
+    const index = this.messages.findIndex((msg) => msg.id === messageId);
+    if (index !== -1) {
+      this.messages[index] = { ...this.messages[index], ...updates };
+      this.notifyListeners();
+    }
+  }
+
+  /**
+   * 发送消息并处理 AI 响应
+   */
+  public async sendMessage(content: string): Promise<void> {
+    if (!content.trim()) return;
+
+    // 添加用户消息
+    const userMessage = WorkflowAgentUtils.createUserMessage(content);
+    this.addMessage(userMessage);
+
+    // 创建 assistant 消息
+    const assistantMessage = WorkflowAgentUtils.createAssistantMessage();
+    const assistantMessageId = assistantMessage.id;
+    this.addMessage(assistantMessage);
+
+    try {
+      // 构建对话历史
+      const conversationHistory = this.buildConversationHistory();
+      const tools = defaultToolRegistry.getAllTools();
+
+      // 执行 ReAct Loop
+      await this.executeReActLoopStream(conversationHistory, tools, {
+        maxIterations: 10,
+        onChunk: (chunk) => {
+          const msg = this.messages.find((m) => m.id === assistantMessageId);
+          if (msg) {
+            this.updateMessage(assistantMessageId, {
+              content: msg.content + chunk,
+            });
+          }
+        },
+        onStep: (step) => {
+          if (step.type === 'tool_call') {
+            const toolCallsXML = WorkflowAgentUtils.formatToolCallsToXML(step.toolCalls);
+            const msg = this.messages.find((m) => m.id === assistantMessageId);
+            if (msg) {
+              this.updateMessage(assistantMessageId, {
+                content: msg.content + toolCallsXML,
+              });
+            }
+          } else if (step.type === 'tool_result') {
+            const msg = this.messages.find((m) => m.id === assistantMessageId);
+            if (msg) {
+              const updatedContent = WorkflowAgentUtils.updateToolCallResults(
+                msg.content,
+                step.results
+              );
+              this.updateMessage(assistantMessageId, {
+                content: updatedContent,
+              });
+            }
+          }
+        },
+      });
+
+      // 标记消息发送成功
+      this.updateMessage(assistantMessageId, {
+        status: 'sent',
+      });
+    } catch (error) {
+      // 处理错误
+      const errorContent = WorkflowAgentUtils.formatErrorMessage(error);
+      this.updateMessage(assistantMessageId, {
+        content: errorContent,
+        status: 'error',
+      });
+    }
+  }
+
+  private buildConversationHistory(): ChatMessage[] {
     const history: ChatMessage[] = [
       {
         role: 'system',
         content: this.systemPrompt,
       },
-      ...uiMessages.map((msg) => ({
+      ...this.messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       })),
-      {
-        role: 'user',
-        content: userMessage,
-      },
     ];
 
     return history;
@@ -51,7 +165,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
    * 执行 ReAct Loop（流式版本）
    * 实现思考-行动-观察循环，支持工具调用和流式输出
    */
-  public async executeReActLoopStream(
+  private async executeReActLoopStream(
     messages: ChatMessage[],
     tools: Tool[],
     config?: ReActConfig & { onChunk?: (chunk: string) => void }

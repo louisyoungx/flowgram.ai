@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+import type { Event } from '@flowgram.ai/free-layout-editor';
+
 /**
  * Agent 层消息接口（用于 API 调用）
  */
@@ -123,23 +125,26 @@ export interface ReActConfig {
 
 export interface IWorkflowAgentService {
   init(config?: Partial<AgentConfig>): void;
-  /**
-   * 构建对话历史
-   */
-  buildConversationHistory: (uiMessages: UIChatMessage[], userMessage: string) => ChatMessage[];
 
   /**
-   * 执行 ReAct Loop（流式版本）
-   * @param messages 对话历史
-   * @param tools 可用工具列表
-   * @param config ReAct 配置（包含 onChunk 回调）
-   * @returns 最终响应内容
+   * 获取当前消息列表
    */
-  executeReActLoopStream: (
-    messages: ChatMessage[],
-    tools: Tool[],
-    config?: ReActConfig & { onChunk?: (chunk: string) => void }
-  ) => Promise<string>;
+  getMessages(): UIChatMessage[];
+
+  /**
+   * 监听消息变化
+   */
+  onMessagesChange: Event<UIChatMessage[]>;
+
+  /**
+   * 发送消息（内部处理 ReAct Loop）
+   */
+  sendMessage(content: string): Promise<void>;
+
+  /**
+   * 清空消息历史
+   */
+  clearMessages(): void;
 }
 
 export const IWorkflowAgentService = Symbol('WorkflowAgentService');
