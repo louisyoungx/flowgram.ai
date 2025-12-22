@@ -15,7 +15,7 @@ import {
 } from '../../components/testrun/testrun-panel/test-run-panel';
 import { NodeFormPanel, NodeFormPanelProps } from '../../components/sidebar/node-form-panel';
 import { ProblemPanel } from '../../components/problem-panel/problem-panel';
-import { ChatPanel } from '../../components/chat-panel/chat-panel';
+import { ChatPanel } from '../../components/chat-panel';
 import { PanelType } from './constants';
 
 const nodeFormPanelFactory: PanelFactory<NodeFormPanelProps> = {

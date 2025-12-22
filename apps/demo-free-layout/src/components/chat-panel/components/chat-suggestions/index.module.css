@@ -3,4 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-export { ChatPanel, ChatButton } from './components';
+.suggestions {
+    padding: 8px 16px 0;
+    flex-shrink: 0;
+}

@@ -1,0 +1,78 @@
+/**
+ * Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
+ * SPDX-License-Identifier: MIT
+ */
+
+.card {
+    margin: 8px 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    background: #f9fafb;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.header:hover {
+    background: #f3f4f6;
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.title {
+    flex: 1;
+    font-weight: 500;
+    color: #374151;
+    font-size: 13px;
+}
+
+.body {
+    padding: 12px 14px;
+    background: #fafafa;
+    border-top: 1px solid #f0f0f0;
+}
+
+.section {
+    margin-bottom: 12px;
+}
+
+.section:last-child {
+    margin-bottom: 0;
+}
+
+.label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-bottom: 6px;
+}
+
+.contentText {
+    margin: 0;
+    padding: 8px 10px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
+    color: #374151;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    overflow-x: auto;
+}

@@ -6,7 +6,7 @@
 import { Tooltip, IconButton } from '@douyinfe/semi-ui';
 import { IconComment } from '@douyinfe/semi-icons';
 
-import { useChatPanel } from '../../plugins/panel-manager-plugin/hooks';
+import { useChatPanel } from '../../../../plugins/panel-manager-plugin/hooks';
 
 export const ChatButton = () => {
   const { toggle } = useChatPanel();

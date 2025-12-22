@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: MIT
  */
 
-export { ChatPanel, ChatButton } from './components';
+export * from './message-parser';

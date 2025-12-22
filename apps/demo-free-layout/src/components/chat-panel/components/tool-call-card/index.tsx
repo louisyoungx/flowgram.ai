@@ -8,6 +8,8 @@ import React, { useState } from 'react';
 import { Spin } from '@douyinfe/semi-ui';
 import { IconChevronDown, IconChevronRight } from '@douyinfe/semi-icons';
 
+import styles from './index.module.css';
+
 interface ToolCallCardProps {
   toolName: string;
   arguments: string;
@@ -25,12 +27,18 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
   const isRunning = !result;
   const hasContent = args || result;
 
+  const handleToggle = () => {
+    if (hasContent) {
+      setIsOpen(!isOpen);
+    }
+  };
+
   return (
-    <div className="tool-call-card">
-      <div className="tool-call-header" onClick={hasContent ? () => setIsOpen(!isOpen) : undefined}>
-        <span className="tool-call-title">{toolName}</span>
+    <div className={styles.card}>
+      <div className={styles.header} onClick={handleToggle}>
+        <span className={styles.title}>{toolName}</span>
         {(hasContent || isRunning) && (
-          <span className="tool-call-icon">
+          <span className={styles.icon}>
             {isRunning ? (
               <Spin size="small" />
             ) : isOpen ? (
@@ -42,17 +50,17 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
         )}
       </div>
       {isOpen && hasContent && (
-        <div className="tool-call-body">
+        <div className={styles.body}>
           {args && (
-            <div className="tool-call-section">
-              <div className="tool-call-label">参数</div>
-              <pre className="tool-call-content">{args}</pre>
+            <div className={styles.section}>
+              <div className={styles.label}>参数</div>
+              <pre className={styles.contentText}>{args}</pre>
             </div>
           )}
           {result && (
-            <div className="tool-call-section">
-              <div className="tool-call-label">结果</div>
-              <pre className="tool-call-content">{result}</pre>
+            <div className={styles.section}>
+              <div className={styles.label}>结果</div>
+              <pre className={styles.contentText}>{result}</pre>
             </div>
           )}
         </div>
