@@ -16,7 +16,7 @@ import type {
   ReActStep,
 } from './types';
 import { WorkflowAgentToolRegistry } from './tools';
-import { SYSTEM_PROMPT } from './prompt';
+import SYSTEM_PROMPT from './system-prompt.md?raw';
 import { DEFAULT_AGENT_CONFIG } from './constant';
 import { WorkflowAgentUtils } from './agent-utils';
 
