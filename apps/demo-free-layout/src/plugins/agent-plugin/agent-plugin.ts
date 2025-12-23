@@ -6,7 +6,16 @@
 import { definePluginCreator } from '@flowgram.ai/free-layout-editor';
 
 import { IWorkflowAgentService, type AgentConfig } from './types';
-import { WorkflowAgentToolRegistry, ITool, TodoWriteTool, WorkflowInfoTool } from './tools';
+import {
+  WorkflowAgentToolRegistry,
+  ITool,
+  TodoWriteTool,
+  GetWorkflowStructureTool,
+  GetWorkflowSchemaTool,
+  GetWorkflowInputDefinitionTool,
+  WorkflowValidateTool,
+  WorkflowTestrunTool,
+} from './tools';
 import { WorkflowAgentService } from './agent-service';
 
 export const createAgentPlugin = definePluginCreator<{ config?: Partial<AgentConfig> }>({
@@ -16,7 +25,11 @@ export const createAgentPlugin = definePluginCreator<{ config?: Partial<AgentCon
 
     // 绑定所有工具（使用 multiInject）
     bind(ITool).to(TodoWriteTool).inSingletonScope();
-    bind(ITool).to(WorkflowInfoTool).inSingletonScope();
+    bind(ITool).to(GetWorkflowStructureTool).inSingletonScope();
+    bind(ITool).to(GetWorkflowSchemaTool).inSingletonScope();
+    bind(ITool).to(GetWorkflowInputDefinitionTool).inSingletonScope();
+    bind(ITool).to(WorkflowValidateTool).inSingletonScope();
+    bind(ITool).to(WorkflowTestrunTool).inSingletonScope();
     // 未来添加新工具时，在这里继续绑定：
     // bind(ITool).to(AnotherTool).inSingletonScope();
 

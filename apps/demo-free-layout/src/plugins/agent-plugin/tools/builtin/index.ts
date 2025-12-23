@@ -4,4 +4,8 @@
  */
 
 export { TodoWriteTool } from './todo-write';
-export { WorkflowInfoTool } from './workflow-info';
+export { GetWorkflowStructureTool } from './get-workflow-structure';
+export { GetWorkflowSchemaTool } from './get-workflow-schema';
+export { GetWorkflowInputDefinitionTool } from './get-workflow-input-definition';
+export { WorkflowValidateTool } from './workflow-validate';
+export { WorkflowTestrunTool } from './workflow-testrun';
