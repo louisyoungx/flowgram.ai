@@ -43,7 +43,7 @@ export class GetWorkflowInputDefinitionTool extends BaseTool<Record<string, neve
   private getWorkflowInputDefinition(): IJsonSchema<'object'> {
     const defaultValue: IJsonSchema<'object'> = { type: 'object', properties: {} };
     const startNode =
-      this.document.getNode('start_0') ??
+      this.document.getNode('start') ??
       this.document.getAllNodes().find((n) => n.flowNodeType === FlowNodeBaseType.START);
     if (!startNode) {
       return defaultValue;
