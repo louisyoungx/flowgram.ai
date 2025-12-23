@@ -11,7 +11,7 @@ import type { Tool } from '../types';
  * 工具基类接口
  * 所有工具都需要实现此接口
  */
-export interface ITool<TArgs = any, TResult = string> {
+export interface IAgentTool<TArgs = any, TResult = string> {
   /**
    * 工具定义（OpenAI Function Calling 格式）
    */
@@ -30,13 +30,15 @@ export interface ITool<TArgs = any, TResult = string> {
  * 提供默认实现
  */
 @injectable()
-export abstract class BaseTool<TArgs = any, TResult = string> implements ITool<TArgs, TResult> {
+export abstract class BaseTool<TArgs = any, TResult = string>
+  implements IAgentTool<TArgs, TResult>
+{
   abstract readonly tool: Tool;
 
   abstract execute(args: TArgs): Promise<TResult>;
 }
 
 /**
- * ITool Token（用于 IoC 绑定）
+ * IAgentTool Token（用于 IoC 绑定）
  */
-export const ITool = Symbol.for('ITool');
+export const IAgentTool = Symbol.for('IAgentTool');

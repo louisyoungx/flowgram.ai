@@ -14,10 +14,14 @@ import { parseMessageContent } from './message-parser';
 import styles from './index.module.css';
 
 const Code: React.FC<ComponentProps> = (props) => {
-  const { className, children } = props;
+  const { className, children, block } = props;
   const lang = className?.match(/language-(\w+)/)?.[1] || '';
 
   if (typeof children !== 'string') return null;
+
+  if (!block) {
+    return <code className={styles.inlineCode}>{children}</code>;
+  }
 
   if (lang === 'mermaid') {
     return <Mermaid>{children}</Mermaid>;

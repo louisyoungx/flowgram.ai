@@ -13,7 +13,7 @@ import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
 
 interface WorkflowTestrunParams {
-  testrun_inputs: WorkflowInputs;
+  testrunInputs: WorkflowInputs;
 }
 
 @injectable()
@@ -30,26 +30,26 @@ export class WorkflowTestrunTool extends BaseTool<WorkflowTestrunParams, string>
       parameters: {
         type: 'object',
         properties: {
-          testrun_inputs: {
+          testrunInputs: {
             type: 'object',
             description: '工作流试运行的输入参数。如果工作流无需入参，则传入空对象 {} 即可。',
           },
         },
-        required: ['testrun_inputs'],
+        required: ['testrunInputs'],
       } as IJsonSchema,
     },
   };
 
   public async execute(params: WorkflowTestrunParams): Promise<string> {
-    if (!params.testrun_inputs) {
+    if (!params.testrunInputs) {
       return JSON.stringify({
         success: false,
         error:
-          '参数 testrun_inputs 在执行 workflow_testrun 操作时为必填项,如果工作流无需入参,则传入空对象 {} 即可。',
+          '参数 testrunInputs 在执行 workflow_testrun 操作时为必填项,如果工作流无需入参,则传入空对象 {} 即可。',
       });
     }
 
-    const result = await this.workflowTestRun(params.testrun_inputs);
+    const result = await this.workflowTestRun(params.testrunInputs);
     if (result.errors) {
       return JSON.stringify({
         success: false,

@@ -29,8 +29,6 @@ export const initialData: FlowDocumentJSON = {
               items: {
                 type: 'string',
               },
-              default:
-                '[\n  "Beijing",\n  "Shanghai",\n  "Hangzhou",\n  "New York",\n  "London",\n  "Paris"\n]',
             },
             model_name: {
               type: 'string',

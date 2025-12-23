@@ -3,9 +3,22 @@
  * SPDX-License-Identifier: MIT
  */
 
-export { TodoWriteTool } from './todo-write';
-export { GetWorkflowStructureTool } from './get-workflow-structure';
-export { GetWorkflowSchemaTool } from './get-workflow-schema';
-export { GetWorkflowInputDefinitionTool } from './get-workflow-input-definition';
-export { WorkflowValidateTool } from './workflow-validate';
-export { WorkflowTestrunTool } from './workflow-testrun';
+import { WorkflowValidateTool } from './workflow-validate';
+import { WorkflowTestrunTool } from './workflow-testrun';
+import { TodoWriteTool } from './todo-write';
+import { NodeValidateTool } from './node-validate';
+import { GetWorkflowStructureTool } from './get-workflow-structure';
+import { GetWorkflowSchemaTool } from './get-workflow-schema';
+import { GetWorkflowInputDefinitionTool } from './get-workflow-input-definition';
+import { GetNodeSchemaTool } from './get-node-schema';
+
+export const AGENT_BUILTIN_TOOLS = [
+  TodoWriteTool,
+  GetWorkflowStructureTool,
+  GetWorkflowSchemaTool,
+  GetWorkflowInputDefinitionTool,
+  WorkflowValidateTool,
+  WorkflowTestrunTool,
+  GetNodeSchemaTool,
+  NodeValidateTool,
+];

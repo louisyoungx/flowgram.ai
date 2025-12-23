@@ -4,5 +4,5 @@
  */
 
 export { WorkflowAgentToolRegistry } from './tool-registry';
-export { ITool, BaseTool } from './base-tool';
+export { IAgentTool, BaseTool } from './base-tool';
 export * from './builtin';

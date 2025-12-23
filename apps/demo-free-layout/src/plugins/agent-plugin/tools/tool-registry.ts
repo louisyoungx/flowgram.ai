@@ -6,7 +6,7 @@
 import { injectable, multiInject } from '@flowgram.ai/free-layout-editor';
 
 import type { Tool } from '../types';
-import { ITool } from './base-tool';
+import { IAgentTool } from './base-tool';
 
 /**
  * 工具注册表服务
@@ -14,11 +14,11 @@ import { ITool } from './base-tool';
  */
 @injectable()
 export class WorkflowAgentToolRegistry {
-  private tools = new Map<string, ITool>();
+  private tools = new Map<string, IAgentTool>();
 
   constructor(
-    @multiInject(ITool)
-    toolInstances: ITool[] = []
+    @multiInject(IAgentTool)
+    toolInstances: IAgentTool[] = []
   ) {
     // 自动注册所有通过 IoC 注入的工具
     for (const tool of toolInstances) {
@@ -29,7 +29,7 @@ export class WorkflowAgentToolRegistry {
   /**
    * 注册工具
    */
-  register(tool: ITool): void {
+  register(tool: IAgentTool): void {
     const name = tool.tool.function.name;
     this.tools.set(name, tool);
   }
@@ -44,7 +44,7 @@ export class WorkflowAgentToolRegistry {
   /**
    * 获取工具实例
    */
-  getTool(name: string): ITool | undefined {
+  getTool(name: string): IAgentTool | undefined {
     return this.tools.get(name);
   }
 

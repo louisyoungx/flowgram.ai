@@ -8,7 +8,10 @@ import {
   inject,
   WorkflowDocument,
   WorkflowNodeJSON,
+  FlowNodeBaseType,
 } from '@flowgram.ai/free-layout-editor';
+
+import { WorkflowNodeType } from '@/nodes';
 
 import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
@@ -50,14 +53,21 @@ export class GetWorkflowStructureTool extends BaseTool<Record<string, never>, st
   private getWorkflowStructure() {
     const json = this.document.toJSON();
     const buildStructure = (nodes: WorkflowNodeJSON[]): NodeInfo[] =>
-      nodes.map((node) => ({
-        id: node.id,
-        type: node.type as string,
-        name: node.data.title,
-        description: node.data.description,
-        nodes: node.blocks ? buildStructure(node.blocks) : undefined,
-        edges: node.edges,
-      }));
+      nodes
+        .filter(
+          (node) =>
+            ![WorkflowNodeType.Comment, FlowNodeBaseType.GROUP].includes(
+              node.type as WorkflowNodeType | FlowNodeBaseType
+            )
+        )
+        .map((node) => ({
+          id: node.id,
+          type: node.type as string,
+          name: node.data.title,
+          description: node.data.description,
+          nodes: node.blocks ? buildStructure(node.blocks) : undefined,
+          edges: node.edges,
+        }));
     return {
       nodes: buildStructure(json.nodes),
       edges: json.edges,
