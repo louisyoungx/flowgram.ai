@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: MIT
  */
 
-export { createAgentPlugin } from './agent-plugin';
-export { useAgentService } from './hooks';
+export { TodoWriteTool } from './todo-write';
+export { WorkflowInfoTool } from './workflow-info';

@@ -4,6 +4,7 @@
  */
 
 import type { Event } from '@flowgram.ai/free-layout-editor';
+import type { IJsonSchema } from '@flowgram.ai/form-materials';
 
 /**
  * Agent 层消息接口（用于 API 调用）
@@ -65,11 +66,7 @@ export interface ChatCompletionResponse {
 export interface ToolFunction {
   name: string;
   description: string;
-  parameters: {
-    type: 'object';
-    properties: Record<string, any>;
-    required?: string[];
-  };
+  parameters: IJsonSchema;
 }
 
 /**

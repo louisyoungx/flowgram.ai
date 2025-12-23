@@ -5,8 +5,8 @@
 
 import { injectable } from '@flowgram.ai/free-layout-editor';
 
-import type { Tool } from '../types';
-import { BaseTool } from './base-tool';
+import { BaseTool } from '../base-tool';
+import type { Tool } from '../../types';
 
 /**
  * TodoWrite 工具参数
