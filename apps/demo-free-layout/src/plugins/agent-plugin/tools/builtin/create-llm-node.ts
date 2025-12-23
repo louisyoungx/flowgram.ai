@@ -4,7 +4,15 @@
  */
 
 import { IFlowConstantRefValue } from '@flowgram.ai/runtime-interface';
-import { injectable, inject, WorkflowDocument } from '@flowgram.ai/free-layout-editor';
+import {
+  injectable,
+  inject,
+  WorkflowDocument,
+  WorkflowAutoLayoutTool,
+  Playground,
+  WorkflowSelectService,
+  delay,
+} from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
@@ -29,6 +37,15 @@ interface CreateLLMNodeParams {
 export class CreateLLMNodeTool extends BaseTool<CreateLLMNodeParams, string> {
   @inject(WorkflowDocument)
   private document: WorkflowDocument;
+
+  @inject(WorkflowAutoLayoutTool)
+  private autoLayout: WorkflowAutoLayoutTool;
+
+  @inject(Playground)
+  private playground: Playground;
+
+  @inject(WorkflowSelectService)
+  private selectService: WorkflowSelectService;
 
   public readonly tool: Tool = {
     type: 'function',
@@ -161,6 +178,25 @@ type ValueRef = [string, string]; // [节点ID, 输出变量名]
           },
         },
       },
+    });
+
+    this.autoLayout.handle({
+      enableAnimation: false,
+    });
+
+    await delay(20);
+
+    this.selectService.toggleSelect(node);
+
+    const bounds = node.transform.bounds;
+    this.playground.scrollToView({
+      bounds,
+      scrollDelta: {
+        x: 224,
+        y: 0,
+      },
+      zoom: 1,
+      scrollToCenter: true,
     });
 
     return node.id;

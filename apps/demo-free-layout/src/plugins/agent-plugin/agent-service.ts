@@ -87,7 +87,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       await this.executeReActLoopStream({
         messages,
         tools,
-        maxIterations: 10,
+        maxIterations: 100,
         onChunk: (chunk) => {
           const msg = this.messages.find((m) => m.id === assistantMessageId);
           if (msg) {
@@ -220,6 +220,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
     let currentMessages = [...messages];
     let iteration = 0;
+    let lastContent = '';
 
     while (iteration < maxIterations) {
       iteration++;
@@ -246,6 +247,9 @@ export class WorkflowAgentService implements IWorkflowAgentService {
           }
         },
       });
+
+      // 保存最后的内容
+      lastContent = fullContent;
 
       // 如果有内容（思考过程），发出 thought 步骤
       if (fullContent) {
@@ -308,7 +312,16 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       return fullContent;
     }
 
-    throw new Error(`ReAct Loop 达到最大迭代次数 ${maxIterations}`);
+    // 达到最大迭代次数，输出警告信息但保留之前的内容
+    const warningMessage = `\n\n 已达到最大迭代次数（${maxIterations}次），任务可能未完全完成，输入 “继续” 进行任务。`;
+    onChunk(warningMessage);
+
+    onStep({
+      type: 'response',
+      content: lastContent + warningMessage,
+    });
+
+    return lastContent + warningMessage;
   }
 
   /**

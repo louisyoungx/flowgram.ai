@@ -8,6 +8,7 @@ import {
   inject,
   WorkflowDocument,
   WorkflowLinesManager,
+  WorkflowAutoLayoutTool,
 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
@@ -28,6 +29,9 @@ export class CreateEdgeTool extends BaseTool<CreateEdgeParams, string> {
 
   @inject(WorkflowLinesManager)
   private linesManager: WorkflowLinesManager;
+
+  @inject(WorkflowAutoLayoutTool)
+  private autoLayout: WorkflowAutoLayoutTool;
 
   public readonly tool: Tool = {
     type: 'function',
@@ -108,11 +112,15 @@ export class CreateEdgeTool extends BaseTool<CreateEdgeParams, string> {
   }
 
   private createEdge(params: CreateEdgeParams) {
-    return this.linesManager.createLine({
+    const line = this.linesManager.createLine({
       from: params.from,
       fromPort: params.fromPort,
       to: params.to,
       toPort: params.toPort,
     });
+    this.autoLayout.handle({
+      enableAnimation: false,
+    });
+    return line;
   }
 }
