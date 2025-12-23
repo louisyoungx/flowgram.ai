@@ -16,7 +16,7 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
-import { BaseTool } from '../base-tool';
+import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
 interface UpdateStartNodeParams {
@@ -26,19 +26,7 @@ interface UpdateStartNodeParams {
 }
 
 @injectable()
-export class UpdateStartNodeTool extends BaseTool<UpdateStartNodeParams, string> {
-  @inject(WorkflowDocument)
-  private document: WorkflowDocument;
-
-  @inject(WorkflowAutoLayoutTool)
-  private autoLayout: WorkflowAutoLayoutTool;
-
-  @inject(Playground)
-  private playground: Playground;
-
-  @inject(WorkflowSelectService)
-  private selectService: WorkflowSelectService;
-
+export class UpdateStartNodeTool extends BaseNodeTool<UpdateStartNodeParams, string> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
@@ -135,24 +123,9 @@ outputs 示例
       formModel.setValueIn('outputs', params.outputs);
     }
 
-    this.autoLayout.handle({
-      enableAnimation: false,
-    });
+    await this.handleAutoLayout();
 
-    await delay(20);
-
-    this.selectService.toggleSelect(node);
-
-    const bounds = node.transform.bounds;
-    this.playground.scrollToView({
-      bounds,
-      scrollDelta: {
-        x: 224,
-        y: 0,
-      },
-      zoom: 1,
-      scrollToCenter: true,
-    });
+    this.focusNode(node);
 
     return node.id;
   }

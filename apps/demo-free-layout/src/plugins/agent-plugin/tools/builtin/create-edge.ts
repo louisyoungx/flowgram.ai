@@ -3,16 +3,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-import {
-  injectable,
-  inject,
-  WorkflowDocument,
-  WorkflowLinesManager,
-  WorkflowAutoLayoutTool,
-} from '@flowgram.ai/free-layout-editor';
+import { injectable, inject, WorkflowLinesManager } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
-import { BaseTool } from '../base-tool';
+import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
 interface CreateEdgeParams {
@@ -23,15 +17,9 @@ interface CreateEdgeParams {
 }
 
 @injectable()
-export class CreateEdgeTool extends BaseTool<CreateEdgeParams, string> {
-  @inject(WorkflowDocument)
-  private document: WorkflowDocument;
-
+export class CreateEdgeTool extends BaseNodeTool<CreateEdgeParams, string> {
   @inject(WorkflowLinesManager)
   private linesManager: WorkflowLinesManager;
-
-  @inject(WorkflowAutoLayoutTool)
-  private autoLayout: WorkflowAutoLayoutTool;
 
   public readonly tool: Tool = {
     type: 'function',
@@ -89,26 +77,19 @@ export class CreateEdgeTool extends BaseTool<CreateEdgeParams, string> {
       });
     }
 
-    try {
-      const edge = this.createEdge(params);
-      if (!edge) {
-        return JSON.stringify({
-          success: false,
-          error: '创建连接线失败，可能是端口不存在或连接不合法。',
-        });
-      }
-
-      return JSON.stringify({
-        success: true,
-        data: edge.toJSON(),
-        message: `成功创建从节点 ${params.from} 到节点 ${params.to} 的连接线。`,
-      });
-    } catch (error) {
+    const edge = this.createEdge(params);
+    if (!edge) {
       return JSON.stringify({
         success: false,
-        error: `创建连接线失败: ${error instanceof Error ? error.message : String(error)}`,
+        error: '创建连接线失败，可能是端口不存在或连接不合法。',
       });
     }
+
+    return JSON.stringify({
+      success: true,
+      data: edge.toJSON(),
+      message: `成功创建连接 ${edge.id}`,
+    });
   }
 
   private createEdge(params: CreateEdgeParams) {
@@ -118,9 +99,9 @@ export class CreateEdgeTool extends BaseTool<CreateEdgeParams, string> {
       to: params.to,
       toPort: params.toPort,
     });
-    this.autoLayout.handle({
-      enableAnimation: false,
-    });
+    if (line) {
+      this.handleAutoLayout();
+    }
     return line;
   }
 }

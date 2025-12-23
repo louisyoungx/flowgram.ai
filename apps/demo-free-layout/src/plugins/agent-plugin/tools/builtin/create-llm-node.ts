@@ -4,25 +4,18 @@
  */
 
 import { IFlowConstantRefValue } from '@flowgram.ai/runtime-interface';
-import {
-  injectable,
-  inject,
-  WorkflowDocument,
-  WorkflowAutoLayoutTool,
-  Playground,
-  WorkflowSelectService,
-  delay,
-} from '@flowgram.ai/free-layout-editor';
+import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import { BaseTool } from '../base-tool';
+import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
 type ValueRef = [string, string];
 
 interface CreateLLMNodeParams {
+  operation: 'create';
   id: string;
   title: string;
   modelName: string | ValueRef;
@@ -33,31 +26,33 @@ interface CreateLLMNodeParams {
   prompt: string;
 }
 
+interface ModifyLLMNodeParams {
+  operation: 'modify';
+  id: string;
+  title?: string;
+  modelName?: string | ValueRef;
+  apiKey?: string | ValueRef;
+  apiHost?: string | ValueRef;
+  temperature?: number | ValueRef;
+  systemPrompt?: string;
+  prompt?: string;
+}
+
+type UpdateLLMNodeParams = CreateLLMNodeParams | ModifyLLMNodeParams;
+
 @injectable()
-export class CreateLLMNodeTool extends BaseTool<CreateLLMNodeParams, string> {
-  @inject(WorkflowDocument)
-  private document: WorkflowDocument;
-
-  @inject(WorkflowAutoLayoutTool)
-  private autoLayout: WorkflowAutoLayoutTool;
-
-  @inject(Playground)
-  private playground: Playground;
-
-  @inject(WorkflowSelectService)
-  private selectService: WorkflowSelectService;
-
+export class UpdateLLMNodeTool extends BaseNodeTool<UpdateLLMNodeParams, string> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
-      name: 'CreateLLMNode',
-      description: `在工作流中创建一个 LLM 节点
+      name: 'UpdateLLMNode',
+      description: `在工作流中创建一个 LLM 节点，或者修改一个 LLM 节点的参数
 
-## 参数
+## 创建节点参数类型
 
-接受参数类型:
 \`\`\`typescript
 interface CreateLLMNodeParams {
+  operation: 'create'; // 固定为 create
   id: string; // 节点 ID，英文、数字、下划线组成
   title: string; // 节点标题，根据用户可理解的语言生成
   modelName: string | ValueRef; // 使用的模型名称
@@ -69,7 +64,23 @@ interface CreateLLMNodeParams {
 }
 \`\`\`
 
-额外说明:
+## 修改节点参数类型
+
+\`\`\`typescript
+interface ModifyLLMNodeParams {
+  operation: 'modify'; // 固定为 modify
+  id: string; // 节点 ID，英文、数字、下划线组成
+  title?: string; // 节点标题，根据用户可理解的语言生成
+  modelName?: string | ValueRef; // 使用的模型名称
+  apiKey?: string | ValueRef; // 模型的 API Key
+  apiHost?: string | ValueRef; // 提供模型服务的 API Host
+  temperature?: number | ValueRef; // 模型温度
+  systemPrompt?: string; // 系统提示词
+  prompt?: string; // 用户提示词
+}
+\`\`\`
+
+## 参数额外说明
 
 1. ValueRef 为引用其他前序节点输出变量的结构，例如 ['start_0', 'user_input'] 可以引用开始节点的 user_input 字段
 \`\`\`
@@ -84,26 +95,41 @@ type ValueRef = [string, string]; // [节点ID, 输出变量名]
     },
   };
 
-  public async execute(params: CreateLLMNodeParams): Promise<string> {
-    if (this.document.getNode(params.id)) {
-      return JSON.stringify({
-        success: false,
-        error: `节点 ID ${params.id} 已存在，请重新生成一个唯一的节点 ID。`,
-      });
-    }
-    try {
+  public async execute(params: UpdateLLMNodeParams): Promise<string> {
+    if (params.operation === 'create') {
+      if (this.document.getNode(params.id)) {
+        return JSON.stringify({
+          success: false,
+          error: `节点 ID ${params.id} 已存在，请重新生成一个唯一的节点 ID。`,
+        });
+      }
       const nodeID = await this.createLLMNode(params);
       return JSON.stringify({
         success: true,
         data: { nodeID },
         message: `成功创建 LLM 节点，节点 ID: ${nodeID}`,
       });
-    } catch (error) {
+    }
+    if (params.operation === 'modify') {
+      if (!this.document.getNode(params.id)) {
+        return JSON.stringify({
+          success: false,
+          error: `节点 ID ${params.id} 不存在，无法进行修改。`,
+        });
+      }
+      const nodeID = await this.modifyLLMNode(params);
       return JSON.stringify({
-        success: false,
-        error: `创建 LLM 节点失败: ${error instanceof Error ? error.message : String(error)}`,
+        success: true,
+        data: { nodeID },
+        message: `成功修改 LLM 节点，节点 ID: ${nodeID}`,
       });
     }
+    return JSON.stringify({
+      success: false,
+      error: `无效的操作类型 ${
+        (params as UpdateLLMNodeParams).operation
+      }，仅支持 create 和 modify。`,
+    });
   }
 
   private convertToValueDefine(value: string | number | ValueRef): IFlowConstantRefValue {
@@ -180,24 +206,43 @@ type ValueRef = [string, string]; // [节点ID, 输出变量名]
       },
     });
 
-    this.autoLayout.handle({
-      enableAnimation: false,
+    await this.handleAutoLayout();
+
+    this.focusNode(node);
+
+    return node.id;
+  }
+
+  private async modifyLLMNode(params: ModifyLLMNodeParams): Promise<string> {
+    const node = this.document.getNode(params.id)!;
+
+    const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (key === 'operation' || key === 'id' || value === undefined) {
+        return;
+      }
+      if (key === 'systemPrompt' || key === 'prompt') {
+        formModel.setValueIn(`inputsValues.${key}`, {
+          type: 'template',
+          content: value as string,
+        });
+      } else if (
+        key === 'modelName' ||
+        key === 'apiKey' ||
+        key === 'apiHost' ||
+        key === 'temperature'
+      ) {
+        formModel.setValueIn(
+          `inputsValues.${key}`,
+          this.convertToValueDefine(value as string | number | ValueRef)
+        );
+      }
     });
 
-    await delay(20);
+    await this.handleAutoLayout();
 
-    this.selectService.toggleSelect(node);
-
-    const bounds = node.transform.bounds;
-    this.playground.scrollToView({
-      bounds,
-      scrollDelta: {
-        x: 224,
-        y: 0,
-      },
-      zoom: 1,
-      scrollToCenter: true,
-    });
+    this.focusNode(node);
 
     return node.id;
   }

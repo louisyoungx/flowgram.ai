@@ -12,7 +12,7 @@ import { GetWorkflowStructureTool } from './get-workflow-structure';
 import { GetWorkflowSchemaTool } from './get-workflow-schema';
 import { GetWorkflowInputDefinitionTool } from './get-workflow-input-definition';
 import { GetNodeSchemaTool } from './get-node-schema';
-import { CreateLLMNodeTool } from './create-llm-node';
+import { UpdateLLMNodeTool } from './create-llm-node';
 import { CreateEdgeTool } from './create-edge';
 
 export const AGENT_BUILTIN_TOOLS = [
@@ -24,7 +24,7 @@ export const AGENT_BUILTIN_TOOLS = [
   WorkflowTestrunTool,
   GetNodeSchemaTool,
   NodeValidateTool,
-  CreateLLMNodeTool,
+  UpdateLLMNodeTool,
   CreateEdgeTool,
   UpdateStartNodeTool,
 ];

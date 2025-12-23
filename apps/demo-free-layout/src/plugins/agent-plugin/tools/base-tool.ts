@@ -3,7 +3,16 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { injectable } from '@flowgram.ai/free-layout-editor';
+import {
+  delay,
+  inject,
+  injectable,
+  Playground,
+  WorkflowAutoLayoutTool,
+  WorkflowDocument,
+  WorkflowNodeEntity,
+  WorkflowSelectService,
+} from '@flowgram.ai/free-layout-editor';
 
 import type { Tool } from '../types';
 
@@ -36,6 +45,49 @@ export abstract class BaseTool<TArgs = any, TResult = string>
   abstract readonly tool: Tool;
 
   abstract execute(args: TArgs): Promise<TResult>;
+}
+
+@injectable()
+export abstract class BaseNodeTool<TArgs = any, TResult = string>
+  implements IAgentTool<TArgs, TResult>
+{
+  @inject(WorkflowDocument)
+  protected document: WorkflowDocument;
+
+  @inject(WorkflowAutoLayoutTool)
+  protected autoLayout: WorkflowAutoLayoutTool;
+
+  @inject(Playground)
+  protected playground: Playground;
+
+  @inject(WorkflowSelectService)
+  protected selectService: WorkflowSelectService;
+
+  abstract readonly tool: Tool;
+
+  abstract execute(args: TArgs): Promise<TResult>;
+
+  protected async handleAutoLayout() {
+    await delay(20);
+    await this.autoLayout.handle({
+      enableAnimation: false,
+    });
+  }
+
+  protected focusNode(node: WorkflowNodeEntity) {
+    this.selectService.selectNode(node);
+
+    const bounds = node.transform.bounds;
+    this.playground.scrollToView({
+      bounds,
+      scrollDelta: {
+        x: 224,
+        y: 0,
+      },
+      zoom: 1,
+      scrollToCenter: true,
+    });
+  }
 }
 
 /**
