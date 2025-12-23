@@ -110,14 +110,6 @@ export type ReActStep =
   | { type: 'tool_result'; results: ToolResult[] }
   | { type: 'response'; content: string };
 
-/**
- * ReAct Loop 配置
- */
-export interface ReActConfig {
-  maxIterations?: number; // 最大迭代次数，默认 10
-  onStep?: (step: ReActStep) => void; // 步骤回调
-}
-
 export interface IWorkflowAgentService {
   init(config?: Partial<AgentConfig>): void;
 

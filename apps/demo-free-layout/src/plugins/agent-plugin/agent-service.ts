@@ -13,7 +13,7 @@ import type {
   Tool,
   ToolCall,
   ToolResult,
-  ReActConfig,
+  ReActStep,
 } from './types';
 import { WorkflowAgentToolRegistry } from './tools';
 import { SYSTEM_PROMPT } from './prompt';
@@ -31,25 +31,16 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
   private messagesEmitter = new Emitter<UIChatMessage[]>();
 
-  public onMessagesChange = this.messagesEmitter.event;
-
   private abortController: AbortController | null = null;
+
+  public onMessagesChange = this.messagesEmitter.event;
 
   public init(config?: Partial<AgentConfig>): void {
     this.config = { ...DEFAULT_AGENT_CONFIG, ...config };
 
     // 设置初始欢迎消息
     if (this.messages.length === 0) {
-      this.messages = [
-        {
-          id: '1',
-          role: 'assistant',
-          content:
-            '你好！我是 FlowGram AI 助手。我可以帮你创建和编辑流程图，有什么我可以帮助你的吗？',
-          timestamp: Date.now(),
-          status: 'sent',
-        },
-      ];
+      this.resetMessages();
     }
   }
 
@@ -58,7 +49,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   }
 
   public clearMessages(): void {
-    this.messages = [];
+    this.resetMessages();
     this.notifyListeners();
   }
 
@@ -66,23 +57,6 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     if (this.abortController) {
       this.abortController.abort();
       this.abortController = null;
-    }
-  }
-
-  private notifyListeners(): void {
-    this.messagesEmitter.fire([...this.messages]);
-  }
-
-  private addMessage(message: UIChatMessage): void {
-    this.messages.push(message);
-    this.notifyListeners();
-  }
-
-  private updateMessage(messageId: string, updates: Partial<UIChatMessage>): void {
-    const index = this.messages.findIndex((msg) => msg.id === messageId);
-    if (index !== -1) {
-      this.messages[index] = { ...this.messages[index], ...updates };
-      this.notifyListeners();
     }
   }
 
@@ -106,11 +80,13 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
     try {
       // 构建对话历史
-      const conversationHistory = this.buildConversationHistory();
+      const messages = this.createMessages();
       const tools = this.toolRegistry.getAllTools();
 
       // 执行 ReAct Loop
-      await this.executeReActLoopStream(conversationHistory, tools, {
+      await this.executeReActLoopStream({
+        messages,
+        tools,
         maxIterations: 10,
         onChunk: (chunk) => {
           const msg = this.messages.find((m) => m.id === assistantMessageId);
@@ -180,7 +156,37 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     }
   }
 
-  private buildConversationHistory(): ChatMessage[] {
+  private resetMessages(): void {
+    this.messages = [
+      {
+        id: '1',
+        role: 'assistant',
+        content:
+          '你好！我是 FlowGram AI 助手。我可以帮你创建和编辑流程图，有什么我可以帮助你的吗？',
+        timestamp: Date.now(),
+        status: 'sent',
+      },
+    ];
+  }
+
+  private notifyListeners(): void {
+    this.messagesEmitter.fire([...this.messages]);
+  }
+
+  private addMessage(message: UIChatMessage): void {
+    this.messages.push(message);
+    this.notifyListeners();
+  }
+
+  private updateMessage(messageId: string, updates: Partial<UIChatMessage>): void {
+    const index = this.messages.findIndex((msg) => msg.id === messageId);
+    if (index !== -1) {
+      this.messages[index] = { ...this.messages[index], ...updates };
+      this.notifyListeners();
+    }
+  }
+
+  private createMessages(): ChatMessage[] {
     const history: ChatMessage[] = [
       {
         role: 'system',
@@ -203,14 +209,14 @@ export class WorkflowAgentService implements IWorkflowAgentService {
    * 执行 ReAct Loop（流式版本）
    * 实现思考-行动-观察循环，支持工具调用和流式输出
    */
-  private async executeReActLoopStream(
-    messages: ChatMessage[],
-    tools: Tool[],
-    config?: ReActConfig & { onChunk?: (chunk: string) => void }
-  ): Promise<string> {
-    const maxIterations = config?.maxIterations ?? 10;
-    const onStep = config?.onStep;
-    const onChunk = config?.onChunk;
+  private async executeReActLoopStream(params: {
+    messages: ChatMessage[];
+    tools: Tool[];
+    maxIterations: number;
+    onStep: (step: ReActStep) => void; // 步骤回调
+    onChunk: (chunk: string) => void; // 流式响应回调
+  }): Promise<string> {
+    const { messages, tools, maxIterations, onChunk, onStep } = params;
 
     let currentMessages = [...messages];
     let iteration = 0;
@@ -221,30 +227,28 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       // 调用 LLM 获取响应（流式）
       let fullContent = '';
       let toolCallsDetected = false;
-      const response = await this.callLLMStream(
-        currentMessages,
+      const response = await this.callLLMStream({
+        messages: currentMessages,
         tools,
-        (chunk) => {
+        onChunk: (chunk) => {
           fullContent += chunk;
           // 实时输出思考过程
-          if (onChunk) {
-            onChunk(chunk);
-          }
+          onChunk(chunk);
         },
-        (toolCalls) => {
+        onToolCallDetected: (toolCalls) => {
           // 一旦检测到工具调用，立即触发回调
-          if (!toolCallsDetected && onStep) {
+          if (!toolCallsDetected) {
             toolCallsDetected = true;
             onStep({
               type: 'tool_call',
               toolCalls,
             });
           }
-        }
-      );
+        },
+      });
 
       // 如果有内容（思考过程），发出 thought 步骤
-      if (fullContent && onStep) {
+      if (fullContent) {
         onStep({
           type: 'thought',
           content: fullContent,
@@ -257,12 +261,10 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         // 这里只需要确保有延迟让 UI 更新
         if (!toolCallsDetected) {
           // 如果因为某种原因没有在流式过程中检测到，这里补充触发
-          if (onStep) {
-            onStep({
-              type: 'tool_call',
-              toolCalls: response.toolCalls,
-            });
-          }
+          onStep({
+            type: 'tool_call',
+            toolCalls: response.toolCalls,
+          });
         }
 
         // 添加短暂延迟，确保 UI 有时间更新显示工具调用卡片
@@ -279,12 +281,10 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         const toolResults: ToolResult[] = await this.executeTools(response.toolCalls);
 
         // 发出工具结果步骤
-        if (onStep) {
-          onStep({
-            type: 'tool_result',
-            results: toolResults,
-          });
-        }
+        onStep({
+          type: 'tool_result',
+          results: toolResults,
+        });
 
         // 将工具结果添加到消息历史
         for (const result of toolResults) {
@@ -300,12 +300,10 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       }
 
       // 没有工具调用，返回最终响应
-      if (onStep) {
-        onStep({
-          type: 'response',
-          content: fullContent,
-        });
-      }
+      onStep({
+        type: 'response',
+        content: fullContent,
+      });
 
       return fullContent;
     }
@@ -316,15 +314,16 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   /**
    * 调用 LLM（流式版本）
    */
-  private async callLLMStream(
-    messages: ChatMessage[],
-    tools: Tool[],
-    onChunk: (chunk: string) => void,
-    onToolCallDetected?: (toolCalls: ToolCall[]) => void
-  ): Promise<{
+  private async callLLMStream(params: {
+    messages: ChatMessage[];
+    tools: Tool[];
+    onChunk: (chunk: string) => void;
+    onToolCallDetected: (toolCalls: ToolCall[]) => void;
+  }): Promise<{
     content: string;
     toolCalls?: ToolCall[];
   }> {
+    const { messages, tools, onChunk, onToolCallDetected } = params;
     if (!this.config.apiKey) {
       throw new Error('API Key is not configured. Please set the API key in settings.');
     }
@@ -427,7 +426,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
                 // 检查是否有完整的工具调用（有 name 和 id）
                 // 立即通知 UI
-                if (!toolCallsNotified && toolCalls.length > 0 && onToolCallDetected) {
+                if (!toolCallsNotified && toolCalls.length > 0) {
                   const completeToolCalls = toolCalls.filter((tc) => tc.id && tc.function.name);
                   if (completeToolCalls.length > 0) {
                     toolCallsNotified = true;

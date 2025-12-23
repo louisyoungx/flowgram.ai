@@ -15,7 +15,6 @@ export {
   ToolResult,
   ToolFunction,
   ReActStep,
-  ReActConfig,
 } from './types';
 export {
   WorkflowAgentToolRegistry,
