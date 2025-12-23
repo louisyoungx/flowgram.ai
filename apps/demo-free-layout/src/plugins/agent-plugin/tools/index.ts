@@ -13,7 +13,7 @@ import { ITool } from './base-tool';
  * 负责管理所有可用的工具，支持依赖注入
  */
 @injectable()
-export class ToolRegistry {
+export class WorkflowAgentToolRegistry {
   private tools = new Map<string, ITool>();
 
   constructor(

@@ -15,13 +15,16 @@ import type {
   ToolResult,
   ReActConfig,
 } from './types';
-import { ToolRegistry } from './tools';
+import { WorkflowAgentToolRegistry } from './tools';
 import { SYSTEM_PROMPT } from './prompt';
 import { DEFAULT_AGENT_CONFIG } from './constant';
 import { WorkflowAgentUtils } from './agent-utils';
 
 @injectable()
 export class WorkflowAgentService implements IWorkflowAgentService {
+  @inject(WorkflowAgentToolRegistry)
+  private toolRegistry: WorkflowAgentToolRegistry;
+
   private config: AgentConfig;
 
   private messages: UIChatMessage[] = [];
@@ -31,11 +34,6 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   public onMessagesChange = this.messagesEmitter.event;
 
   private abortController: AbortController | null = null;
-
-  constructor(
-    @inject(ToolRegistry)
-    private toolRegistry: ToolRegistry
-  ) {}
 
   public init(config?: Partial<AgentConfig>): void {
     this.config = { ...DEFAULT_AGENT_CONFIG, ...config };

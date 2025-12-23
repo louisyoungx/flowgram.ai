@@ -17,5 +17,11 @@ export {
   ReActStep,
   ReActConfig,
 } from './types';
-export { ToolRegistry, ITool, BaseTool, TodoWriteTool, GetWorkflowInfoTool } from './tools';
+export {
+  WorkflowAgentToolRegistry,
+  ITool,
+  BaseTool,
+  TodoWriteTool,
+  GetWorkflowInfoTool,
+} from './tools';
 export { WorkflowAgentUtils } from './agent-utils';

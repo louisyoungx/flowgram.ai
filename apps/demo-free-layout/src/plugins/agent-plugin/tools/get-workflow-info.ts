@@ -12,7 +12,7 @@ import { BaseTool } from './base-tool';
  * GetWorkflowInfo 工具参数
  */
 interface GetWorkflowInfoArgs {
-  operation: 'count_nodes' | 'list_nodes' | 'get_node';
+  operation: 'count_nodes' | 'get_workflow_schema' | 'get_node';
   nodeId?: string;
 }
 
@@ -38,7 +38,7 @@ export class GetWorkflowInfoTool extends BaseTool<GetWorkflowInfoArgs, string> {
 
 可用操作：
 - count_nodes: 统计节点数量
-- list_nodes: 列出所有节点的 ID 和类型
+- get_workflow_schema: 列出所有节点与边的信息
 - get_node: 获取特定节点的详细信息（需要提供 nodeId）`,
       parameters: {
         type: 'object',
@@ -46,7 +46,7 @@ export class GetWorkflowInfoTool extends BaseTool<GetWorkflowInfoArgs, string> {
           operation: {
             type: 'string',
             description: '要执行的操作类型',
-            enum: ['count_nodes', 'list_nodes', 'get_node'],
+            enum: ['count_nodes', 'get_workflow_schema', 'get_node'],
           },
           nodeId: {
             type: 'string',
@@ -75,7 +75,7 @@ export class GetWorkflowInfoTool extends BaseTool<GetWorkflowInfoArgs, string> {
           });
         }
 
-        case 'list_nodes': {
+        case 'get_workflow_schema': {
           const nodes = this.document.getAllNodes();
           const json = this.document.toJSON();
           return JSON.stringify({
