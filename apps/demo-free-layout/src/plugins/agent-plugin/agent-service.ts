@@ -105,6 +105,17 @@ export class WorkflowAgentService implements IWorkflowAgentService {
                 content: msg.content + toolCallsXML,
               });
             }
+          } else if (step.type === 'tool_call_update') {
+            const msg = this.messages.find((m) => m.id === assistantMessageId);
+            if (msg) {
+              const updatedContent = WorkflowAgentUtils.updateToolCallArguments(
+                msg.content,
+                step.toolCalls
+              );
+              this.updateMessage(assistantMessageId, {
+                content: updatedContent,
+              });
+            }
           } else if (step.type === 'tool_result') {
             const msg = this.messages.find((m) => m.id === assistantMessageId);
             if (msg) {
@@ -237,7 +248,6 @@ export class WorkflowAgentService implements IWorkflowAgentService {
           onChunk(chunk);
         },
         onToolCallDetected: (toolCalls) => {
-          // 一旦检测到工具调用，立即触发回调
           if (!toolCallsDetected) {
             toolCallsDetected = true;
             onStep({
@@ -261,10 +271,16 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
       // 检查是否有工具调用
       if (response.toolCalls && response.toolCalls.length > 0) {
-        // 工具调用步骤已经在流式解析时触发了（通过 onToolCallDetected）
-        // 这里只需要确保有延迟让 UI 更新
-        if (!toolCallsDetected) {
-          // 如果因为某种原因没有在流式过程中检测到，这里补充触发
+        // 如果在流式传输中已经触发了工具调用回调（显示了 loading）
+        // 这里需要更新完整的参数
+        if (toolCallsDetected) {
+          // 触发参数更新步骤
+          onStep({
+            type: 'tool_call_update',
+            toolCalls: response.toolCalls,
+          });
+        } else {
+          // 如果没有提前触发（不太可能发生），这里触发
           onStep({
             type: 'tool_call',
             toolCalls: response.toolCalls,
@@ -437,13 +453,11 @@ export class WorkflowAgentService implements IWorkflowAgentService {
                   }
                 }
 
-                // 检查是否有完整的工具调用（有 name 和 id）
-                // 立即通知 UI
+                // 检测到工具调用时立即通知（用于显示 loading）
                 if (!toolCallsNotified && toolCalls.length > 0) {
                   const completeToolCalls = toolCalls.filter((tc) => tc.id && tc.function.name);
                   if (completeToolCalls.length > 0) {
                     toolCallsNotified = true;
-                    // 立即触发回调，让 UI 显示工具调用卡片
                     onToolCallDetected([...completeToolCalls]);
                   }
                 }

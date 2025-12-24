@@ -92,6 +92,25 @@ export namespace WorkflowAgentUtils {
       .join('');
 
   /**
+   * 更新消息内容中的工具调用参数
+   */
+  export const updateToolCallArguments = (content: string, toolCalls: ToolCall[]): string => {
+    let updatedContent = content;
+    for (const toolCall of toolCalls) {
+      const toolId = toolCall.id;
+      const args = toolCall.function.arguments;
+      updatedContent = updatedContent.replace(
+        new RegExp(
+          `(<tool_call id="${toolId}"[^>]*>\\s*<arguments>)[\\s\\S]*?(<\\/arguments>)`,
+          'g'
+        ),
+        `$1\n${args}\n$2`
+      );
+    }
+    return updatedContent;
+  };
+
+  /**
    * 更新消息内容中的工具调用结果
    */
   export const updateToolCallResults = (content: string, results: ToolResult[]): string => {

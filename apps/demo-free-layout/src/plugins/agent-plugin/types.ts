@@ -104,6 +104,7 @@ export interface ToolResult {
 export type ReActStep =
   | { type: 'thought'; content: string }
   | { type: 'tool_call'; toolCalls: ToolCall[] }
+  | { type: 'tool_call_update'; toolCalls: ToolCall[] }
   | { type: 'tool_result'; results: ToolResult[] }
   | { type: 'response'; content: string };
 
