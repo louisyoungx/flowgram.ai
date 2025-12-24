@@ -148,7 +148,6 @@ interface CreateEdgeParams {
     });
     if (line) {
       this.handleAutoLayout();
-      this.selectLine(line);
     }
     return line;
   }

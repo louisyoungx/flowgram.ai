@@ -154,4 +154,14 @@ export namespace WorkflowAgentUtils {
       '<tool_call id="$1" name="$2">\n<arguments>$3</arguments>\n<result>\n请求已取消\n</result>\n</tool_call>'
     );
   };
+
+  /**
+   * 从消息内容中移除工具调用XML
+   * 用于构建API消息时，避免将XML格式的工具调用发送给LLM
+   */
+  export const removeToolCallsXML = (content: string): string => {
+    const toolCallRegex =
+      /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>[\s\S]*?<\/arguments>(?:\s*<result>[\s\S]*?<\/result>)?\s*<\/tool_call>/g;
+    return content.replace(toolCallRegex, '').trim();
+  };
 }

@@ -203,10 +203,12 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         role: 'system',
         content: this.systemPrompt,
       },
-      ...this.messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
+      ...this.messages
+        .filter((msg) => msg.role === 'user' || msg.role === 'assistant')
+        .map((msg) => ({
+          role: msg.role,
+          content: WorkflowAgentUtils.removeToolCallsXML(msg.content),
+        })),
     ];
 
     return history;

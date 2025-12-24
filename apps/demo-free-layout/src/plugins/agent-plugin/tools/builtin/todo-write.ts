@@ -12,13 +12,17 @@ import type { Tool } from '../../types';
  * TodoWrite 工具参数
  */
 interface TodoWriteArgs {
-  operation: 'write' | 'read';
+  operation: 'write' | 'read' | 'update' | 'add' | 'remove';
   todoList?: Array<{
     id: number;
     title: string;
     status: 'not_started' | 'in_progress' | 'completed';
     description?: string;
   }>;
+  id?: number;
+  title?: string;
+  status?: 'not_started' | 'in_progress' | 'completed';
+  description?: string;
 }
 
 /**
@@ -79,20 +83,26 @@ export class TodoWriteTool extends BaseTool<TodoWriteArgs, string> {
 - in_progress: 正在进行（一次只能有一个）
 - completed: 已完成
 
-重要：完成每个任务后立即标记为 completed，不要批量处理多个任务。`,
+重要：完成每个任务后立即标记为 completed，不要批量处理多个任务。
+
+操作类型（优先使用增量操作以节省 token）：
+- update: 更新单个任务状态（推荐，最省 token）
+- add: 添加单个新任务（推荐）
+- remove: 删除单个任务
+- write: 初始化或完全替换列表（仅在必要时使用）
+- read: 读取当前列表`,
       parameters: {
         type: 'object',
         properties: {
           operation: {
             type: 'string',
             description:
-              'write: 替换整个待办事项列表。read: 检索当前待办事项列表。写入时必须提供完整列表 - 不支持部分更新。',
-            enum: ['write', 'read'],
+              '操作类型。优先使用 update/add/remove 进行增量更新以节省 token，仅在初始化时使用 write。',
+            enum: ['write', 'read', 'update', 'add', 'remove'],
           },
           todoList: {
             type: 'array',
-            description:
-              '所有待办事项的完整数组（write 操作必需，read 操作忽略）。必须包含所有项目 - 现有的和新的。',
+            description: '仅用于 write 操作：完整的待办事项数组。',
             items: {
               type: 'object',
               properties: {
@@ -117,6 +127,23 @@ export class TodoWriteTool extends BaseTool<TodoWriteArgs, string> {
               },
               required: ['id', 'title', 'status'],
             },
+          },
+          id: {
+            type: 'number',
+            description: '用于 update/remove 操作：要操作的任务 ID。add 操作时自动生成。',
+          },
+          title: {
+            type: 'string',
+            description: '用于 add/update 操作：任务标题。',
+          },
+          status: {
+            type: 'string',
+            description: '用于 add/update 操作：任务状态。',
+            enum: ['not_started', 'in_progress', 'completed'],
+          },
+          description: {
+            type: 'string',
+            description: '用于 add/update 操作：任务描述（可选）。',
           },
         },
         required: ['operation'],
@@ -152,7 +179,6 @@ export class TodoWriteTool extends BaseTool<TodoWriteArgs, string> {
         });
       }
 
-      // 验证待办事项
       const inProgressCount = args.todoList.filter((t) => t.status === 'in_progress').length;
       if (inProgressCount > 1) {
         return JSON.stringify({
@@ -161,7 +187,6 @@ export class TodoWriteTool extends BaseTool<TodoWriteArgs, string> {
         });
       }
 
-      // 验证 ID 唯一性
       const ids = args.todoList.map((t) => t.id);
       if (new Set(ids).size !== ids.length) {
         return JSON.stringify({
@@ -175,6 +200,118 @@ export class TodoWriteTool extends BaseTool<TodoWriteArgs, string> {
         success: true,
         data: args.todoList,
         message: `成功写入 ${args.todoList.length} 个待办事项`,
+      });
+    }
+
+    if (args.operation === 'update') {
+      if (args.id === undefined) {
+        return JSON.stringify({
+          success: false,
+          error: 'update 操作需要提供 id',
+        });
+      }
+
+      const todos = todoStore.read();
+      const todoIndex = todos.findIndex((t) => t.id === args.id);
+
+      if (todoIndex === -1) {
+        return JSON.stringify({
+          success: false,
+          error: `未找到 ID 为 ${args.id} 的任务`,
+        });
+      }
+
+      if (args.status === 'in_progress') {
+        const hasOtherInProgress = todos.some(
+          (t) => t.id !== args.id && t.status === 'in_progress'
+        );
+        if (hasOtherInProgress) {
+          return JSON.stringify({
+            success: false,
+            error: '一次只能有一个 in_progress 状态的任务',
+          });
+        }
+      }
+
+      const updatedTodo = { ...todos[todoIndex] };
+      if (args.title !== undefined) updatedTodo.title = args.title;
+      if (args.status !== undefined) updatedTodo.status = args.status;
+      if (args.description !== undefined) updatedTodo.description = args.description;
+
+      todos[todoIndex] = updatedTodo;
+      todoStore.write(todos);
+
+      return JSON.stringify({
+        success: true,
+        data: updatedTodo,
+        message: `成功更新任务 ${args.id}`,
+      });
+    }
+
+    if (args.operation === 'add') {
+      if (!args.title) {
+        return JSON.stringify({
+          success: false,
+          error: 'add 操作需要提供 title',
+        });
+      }
+
+      const todos = todoStore.read();
+      const newId = todos.length > 0 ? Math.max(...todos.map((t) => t.id)) + 1 : 1;
+
+      if (args.status === 'in_progress') {
+        const hasInProgress = todos.some((t) => t.status === 'in_progress');
+        if (hasInProgress) {
+          return JSON.stringify({
+            success: false,
+            error: '一次只能有一个 in_progress 状态的任务',
+          });
+        }
+      }
+
+      const newTodo: TodoItem = {
+        id: newId,
+        title: args.title,
+        status: args.status || 'not_started',
+        description: args.description,
+      };
+
+      todos.push(newTodo);
+      todoStore.write(todos);
+
+      return JSON.stringify({
+        success: true,
+        data: newTodo,
+        message: `成功添加任务 ${newId}`,
+      });
+    }
+
+    if (args.operation === 'remove') {
+      if (args.id === undefined) {
+        return JSON.stringify({
+          success: false,
+          error: 'remove 操作需要提供 id',
+        });
+      }
+
+      const todos = todoStore.read();
+      const todoIndex = todos.findIndex((t) => t.id === args.id);
+
+      if (todoIndex === -1) {
+        return JSON.stringify({
+          success: false,
+          error: `未找到 ID 为 ${args.id} 的任务`,
+        });
+      }
+
+      const removedTodo = todos[todoIndex];
+      todos.splice(todoIndex, 1);
+      todoStore.write(todos);
+
+      return JSON.stringify({
+        success: true,
+        data: removedTodo,
+        message: `成功删除任务 ${args.id}`,
       });
     }
 
