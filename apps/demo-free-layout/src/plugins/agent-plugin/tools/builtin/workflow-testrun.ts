@@ -63,12 +63,12 @@ export class WorkflowTestrunTool extends BaseTool<WorkflowTestrunParams, string>
   }
 
   private async workflowTestRun(inputs: WorkflowInputs): Promise<TaskRunResult> {
-    await this.runtimeService.taskRun(inputs);
     return new Promise((resolve) => {
       const disposable = this.runtimeService.onResultChanged((result) => {
         disposable.dispose();
         resolve(result);
       });
+      this.runtimeService.taskRun(inputs);
     });
   }
 }

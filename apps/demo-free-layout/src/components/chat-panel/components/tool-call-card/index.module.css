@@ -30,8 +30,10 @@
 .icon {
     display: flex;
     align-items: center;
+    justify-content: center;
     color: #9ca3af;
     flex-shrink: 0;
+    height: 20px;
 }
 
 .title {

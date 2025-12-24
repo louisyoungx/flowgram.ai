@@ -17,6 +17,7 @@ import { GetNodeSchemaTool } from './get-node-schema';
 import { EndNodeTool } from './end-node';
 import { CreateEdgeTool } from './create-edge';
 import { ConditionNodeTool } from './condition-node';
+import { CodeNodeTool } from './code-node';
 
 export const AGENT_BUILTIN_TOOLS = [
   TodoWriteTool,
@@ -32,5 +33,6 @@ export const AGENT_BUILTIN_TOOLS = [
   StartNodeTool,
   EndNodeTool,
   LLMNodeTool,
+  CodeNodeTool,
   ConditionNodeTool,
 ];

@@ -100,3 +100,15 @@ graph TD
     B -->|否| D[结束]
     C --> D
 ```
+
+## 默认 LLM 配置
+
+- apiKey: b0515e86-d99f-4b6c-87f6-f00dad61fc0a
+- baseURL: <https://ark.cn-beijing.volces.com/api/v3>
+- model: kimi-k2-250905
+
+## 工作流生成建议
+
+- 工作流只允许有一个开始节点和一个结束节点
+- 建议在工作流生成完成后使用 WorkflowValidate 进行错误校验
+- 建议在任务交付前跑通试运行

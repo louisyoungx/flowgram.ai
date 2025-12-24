@@ -26,13 +26,16 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
   return (
     <div className={styles.messages}>
       <Bubble.List
-        items={messages.map((msg) => ({
-          key: msg.id,
-          role: msg.role,
-          content: msg.content || '正在思考...',
-          loading: msg.status === 'sending' && !msg.content,
-          streaming: msg.status === 'sending',
-        }))}
+        items={messages.map((msg) => {
+          const hasToolCall = msg.content.includes('<tool_call');
+          return {
+            key: msg.id,
+            role: msg.role,
+            content: msg.content || '正在思考...',
+            loading: msg.status === 'sending' && !msg.content,
+            streaming: msg.status === 'sending' && !hasToolCall,
+          };
+        })}
         role={{
           assistant: {
             placement: 'start',
@@ -47,6 +50,9 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
               content: {
                 background: 'transparent',
                 padding: 0,
+              },
+              body: {
+                width: '100%',
               },
             },
           },
