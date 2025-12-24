@@ -101,6 +101,7 @@ export class CreateEdgeTool extends BaseNodeTool<CreateEdgeParams, string> {
     });
     if (line) {
       this.handleAutoLayout();
+      this.selectLine(line);
     }
     return line;
   }

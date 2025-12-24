@@ -5,15 +5,15 @@
 
 import { WorkflowValidateTool } from './workflow-validate';
 import { WorkflowTestrunTool } from './workflow-testrun';
-import { UpdateStartNodeTool } from './update-start-node';
 import { TodoWriteTool } from './todo-write';
+import { StartNodeTool } from './start-node';
 import { RemoveTool } from './remove-tool';
 import { NodeValidateTool } from './node-validate';
+import { LLMNodeTool } from './llm-node';
 import { GetWorkflowStructureTool } from './get-workflow-structure';
 import { GetWorkflowSchemaTool } from './get-workflow-schema';
 import { GetWorkflowInputDefinitionTool } from './get-workflow-input-definition';
 import { GetNodeSchemaTool } from './get-node-schema';
-import { UpdateLLMNodeTool } from './create-llm-node';
 import { CreateEdgeTool } from './create-edge';
 
 export const AGENT_BUILTIN_TOOLS = [
@@ -25,8 +25,8 @@ export const AGENT_BUILTIN_TOOLS = [
   WorkflowTestrunTool,
   GetNodeSchemaTool,
   NodeValidateTool,
-  UpdateLLMNodeTool,
   CreateEdgeTool,
-  UpdateStartNodeTool,
   RemoveTool,
+  StartNodeTool,
+  LLMNodeTool,
 ];

@@ -10,6 +10,7 @@ import {
   Playground,
   WorkflowAutoLayoutTool,
   WorkflowDocument,
+  WorkflowLineEntity,
   WorkflowNodeEntity,
   WorkflowSelectService,
 } from '@flowgram.ai/free-layout-editor';
@@ -87,6 +88,10 @@ export abstract class BaseNodeTool<TArgs = any, TResult = string>
       zoom: 1,
       scrollToCenter: true,
     });
+  }
+
+  protected selectLine(line: WorkflowLineEntity) {
+    this.selectService.selection = [line];
   }
 }
 

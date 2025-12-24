@@ -12,53 +12,58 @@ import { WorkflowNodeType } from '@/nodes';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
-type ValueRef = [string, string];
+type RefPath = [string, string];
 
 interface CreateLLMNodeParams {
   operation: 'create';
   id: string;
   title: string;
-  modelName: string | ValueRef;
-  apiKey: string | ValueRef;
-  apiHost: string | ValueRef;
-  temperature: number | ValueRef;
+  description: string;
+  modelName: string | RefPath;
+  apiKey: string | RefPath;
+  apiHost: string | RefPath;
+  temperature: number | RefPath;
   systemPrompt: string;
   prompt: string;
 }
 
-interface ModifyLLMNodeParams {
-  operation: 'modify';
+interface UpdateLLMNodeParams {
+  operation: 'update';
   id: string;
   title?: string;
-  modelName?: string | ValueRef;
-  apiKey?: string | ValueRef;
-  apiHost?: string | ValueRef;
-  temperature?: number | ValueRef;
+  description?: string;
+  modelName?: string | RefPath;
+  apiKey?: string | RefPath;
+  apiHost?: string | RefPath;
+  temperature?: number | RefPath;
   systemPrompt?: string;
   prompt?: string;
 }
 
-type UpdateLLMNodeParams = CreateLLMNodeParams | ModifyLLMNodeParams;
+type LLMNodeParams = CreateLLMNodeParams | UpdateLLMNodeParams;
 
 @injectable()
-export class UpdateLLMNodeTool extends BaseNodeTool<UpdateLLMNodeParams, string> {
+export class LLMNodeTool extends BaseNodeTool<LLMNodeParams, string> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
-      name: 'UpdateLLMNode',
+      name: 'LLMNode',
       description: `在工作流中创建一个 LLM 节点，或者修改一个 LLM 节点的参数
 
 ## 创建节点参数类型
+
+全量更新，所有 key 都为必填
 
 \`\`\`typescript
 interface CreateLLMNodeParams {
   operation: 'create'; // 固定为 create
   id: string; // 节点 ID，英文、数字、下划线组成
   title: string; // 节点标题，根据用户可理解的语言生成
-  modelName: string | ValueRef; // 使用的模型名称
-  apiKey: string | ValueRef; // 模型的 API Key
-  apiHost: string | ValueRef; // 提供模型服务的 API Host
-  temperature: number | ValueRef; // 模型温度
+  description: string; // 节点描述，根据用户可理解的语言生成
+  modelName: string | RefPath; // 使用的模型名称
+  apiKey: string | RefPath; // 模型的 API Key
+  apiHost: string | RefPath; // 提供模型服务的 API Host
+  temperature: number | RefPath; // 模型温度
   systemPrompt: string; // 系统提示词
   prompt: string; // 用户提示词
 }
@@ -66,15 +71,18 @@ interface CreateLLMNodeParams {
 
 ## 修改节点参数类型
 
+增量更新，可选部分 key 进行更新
+
 \`\`\`typescript
-interface ModifyLLMNodeParams {
-  operation: 'modify'; // 固定为 modify
+interface UpdateLLMNodeParams {
+  operation: 'update'; // 固定为 update
   id: string; // 节点 ID，英文、数字、下划线组成
   title?: string; // 节点标题，根据用户可理解的语言生成
-  modelName?: string | ValueRef; // 使用的模型名称
-  apiKey?: string | ValueRef; // 模型的 API Key
-  apiHost?: string | ValueRef; // 提供模型服务的 API Host
-  temperature?: number | ValueRef; // 模型温度
+  description?: string; // 节点描述，根据用户可理解的语言生成
+  modelName?: string | RefPath; // 使用的模型名称
+  apiKey?: string | RefPath; // 模型的 API Key
+  apiHost?: string | RefPath; // 提供模型服务的 API Host
+  temperature?: number | RefPath; // 模型温度
   systemPrompt?: string; // 系统提示词
   prompt?: string; // 用户提示词
 }
@@ -82,9 +90,9 @@ interface ModifyLLMNodeParams {
 
 ## 参数额外说明
 
-1. ValueRef 为引用其他前序节点输出变量的结构，例如 ['start_0', 'user_input'] 可以引用开始节点的 user_input 字段
+1. RefPath 为引用其他前序节点输出变量的结构，例如 ['start_0', 'user_input'] 可以引用开始节点的 user_input 字段
 \`\`\`
-type ValueRef = [string, string]; // [节点ID, 输出变量名]
+type RefPath = [string, string]; // [节点ID, 输出变量名]
 \`\`\`
 
 2. systemPrompt 和 prompt 可通过双花括号语法引用前序节点输出变量，遵循 {{NodeID.VarKey}} 规则，例如 "生成一个关于 {{start_0.user_input}} 的故事"
@@ -95,7 +103,7 @@ type ValueRef = [string, string]; // [节点ID, 输出变量名]
     },
   };
 
-  public async execute(params: UpdateLLMNodeParams): Promise<string> {
+  public async execute(params: LLMNodeParams): Promise<string> {
     if (params.operation === 'create') {
       if (this.document.getNode(params.id)) {
         return JSON.stringify({
@@ -110,14 +118,14 @@ type ValueRef = [string, string]; // [节点ID, 输出变量名]
         message: `成功创建 LLM 节点，节点 ID: ${nodeID}`,
       });
     }
-    if (params.operation === 'modify') {
+    if (params.operation === 'update') {
       if (!this.document.getNode(params.id)) {
         return JSON.stringify({
           success: false,
           error: `节点 ID ${params.id} 不存在，无法进行修改。`,
         });
       }
-      const nodeID = await this.modifyLLMNode(params);
+      const nodeID = await this.updateLLMNode(params);
       return JSON.stringify({
         success: true,
         data: { nodeID },
@@ -126,13 +134,11 @@ type ValueRef = [string, string]; // [节点ID, 输出变量名]
     }
     return JSON.stringify({
       success: false,
-      error: `无效的操作类型 ${
-        (params as UpdateLLMNodeParams).operation
-      }，仅支持 create 和 modify。`,
+      error: `无效的操作类型 ${(params as LLMNodeParams).operation}，仅支持 create 和 update。`,
     });
   }
 
-  private convertToValueDefine(value: string | number | ValueRef): IFlowConstantRefValue {
+  private convertToValueDefine(value: string | number | RefPath): IFlowConstantRefValue {
     if (Array.isArray(value)) {
       return {
         type: 'ref',
@@ -151,6 +157,7 @@ type ValueRef = [string, string]; // [节点ID, 输出变量名]
       type: WorkflowNodeType.LLM,
       data: {
         title: params.title,
+        description: params.description,
         inputsValues: {
           modelName: this.convertToValueDefine(params.modelName),
           apiKey: this.convertToValueDefine(params.apiKey),
@@ -213,13 +220,17 @@ type ValueRef = [string, string]; // [节点ID, 输出变量名]
     return node.id;
   }
 
-  private async modifyLLMNode(params: ModifyLLMNodeParams): Promise<string> {
+  private async updateLLMNode(params: UpdateLLMNodeParams): Promise<string> {
     const node = this.document.getNode(params.id)!;
 
     const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();
 
     Object.entries(params).forEach(([key, value]) => {
       if (key === 'operation' || key === 'id' || value === undefined) {
+        return;
+      }
+      if (key === 'title' || key === 'description') {
+        formModel.setValueIn(key, value as string);
         return;
       }
       if (key === 'systemPrompt' || key === 'prompt') {
@@ -235,7 +246,7 @@ type ValueRef = [string, string]; // [节点ID, 输出变量名]
       ) {
         formModel.setValueIn(
           `inputsValues.${key}`,
-          this.convertToValueDefine(value as string | number | ValueRef)
+          this.convertToValueDefine(value as string | number | RefPath)
         );
       }
     });

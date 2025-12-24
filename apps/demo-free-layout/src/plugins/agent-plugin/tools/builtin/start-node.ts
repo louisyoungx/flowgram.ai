@@ -3,41 +3,45 @@
  * SPDX-License-Identifier: MIT
  */
 
-import {
-  injectable,
-  inject,
-  WorkflowDocument,
-  WorkflowAutoLayoutTool,
-  Playground,
-  WorkflowSelectService,
-  delay,
-  FlowNodeFormData,
-  FormModelV2,
-} from '@flowgram.ai/free-layout-editor';
+import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
-interface UpdateStartNodeParams {
+interface StartNodeParams {
   id: string;
   title?: string;
+  description?: string;
   outputs?: IJsonSchema;
 }
 
 @injectable()
-export class UpdateStartNodeTool extends BaseNodeTool<UpdateStartNodeParams, string> {
+export class StartNodeTool extends BaseNodeTool<StartNodeParams, string> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
-      name: 'UpdateStartNode',
+      name: 'StartNode',
       description: `修改工作流 Start 节点参数
 
 IMPORTANT: 本工具会覆盖写 outputs，在执行前建议先调用 GetNodeSchema 工具查询 Start 节点配置，避免覆盖原有的数据结构
 
 ## 参数
 
-Start 节点只有一个 outputs 字段，outputs 字段接受 JSON Schema 格式定义
+全量更新，所有 key 都为必填
+
+\`\`\`typescript
+interface StartNodeParams {
+  id: string; // 节点 ID，英文、数字、下划线组成
+  title?: string; // 节点标题，根据用户可理解的语言生成
+  description?: string; // 节点描述，根据用户可理解的语言生成
+  outputs?: IJsonSchema; // 节点输出变量的 JSON Schema 定义
+}
+\`\`\`
+
+## outputs 字段说明
+
+outputs 字段接受 JSON Schema 格式定义
 
 outputs 示例
 \`\`\`json
@@ -79,6 +83,10 @@ outputs 示例
             type: 'string',
             description: '节点标题，根据用户可理解的语言生成',
           },
+          description: {
+            type: 'string',
+            description: '节点描述，根据用户可理解的语言生成',
+          },
           outputs: {
             type: 'object',
             description: '节点输出变量的 JSON Schema 定义',
@@ -89,7 +97,7 @@ outputs 示例
     },
   };
 
-  public async execute(params: UpdateStartNodeParams): Promise<string> {
+  public async execute(params: StartNodeParams): Promise<string> {
     if (!this.document.getNode(params.id)) {
       return JSON.stringify({
         success: false,
@@ -110,13 +118,17 @@ outputs 示例
     });
   }
 
-  private async updateStartNode(params: UpdateStartNodeParams): Promise<string> {
+  private async updateStartNode(params: StartNodeParams): Promise<string> {
     const node = this.document.getNode(params.id)!;
 
     const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();
 
     if (params.title) {
       formModel.setValueIn('title', params.title);
+    }
+
+    if (params.description) {
+      formModel.setValueIn('description', params.description);
     }
 
     if (params.outputs) {
