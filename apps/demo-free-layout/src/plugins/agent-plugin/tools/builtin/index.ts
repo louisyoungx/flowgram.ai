@@ -7,6 +7,7 @@ import { WorkflowValidateTool } from './workflow-validate';
 import { WorkflowTestrunTool } from './workflow-testrun';
 import { UpdateStartNodeTool } from './update-start-node';
 import { TodoWriteTool } from './todo-write';
+import { RemoveTool } from './remove-tool';
 import { NodeValidateTool } from './node-validate';
 import { GetWorkflowStructureTool } from './get-workflow-structure';
 import { GetWorkflowSchemaTool } from './get-workflow-schema';
@@ -27,4 +28,5 @@ export const AGENT_BUILTIN_TOOLS = [
   UpdateLLMNodeTool,
   CreateEdgeTool,
   UpdateStartNodeTool,
+  RemoveTool,
 ];
