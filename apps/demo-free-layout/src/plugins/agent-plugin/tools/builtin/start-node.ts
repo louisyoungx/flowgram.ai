@@ -48,7 +48,7 @@ outputs 示例
 {
   "type": "object",
   "properties": {
-    "cities": {
+    "KEY_A": {
       "type": "array",
       "extra": {
         "index": 0
@@ -56,9 +56,9 @@ outputs 示例
       "items": {
         "type": "string"
       },
-      "default": ['New York', 'San Francisco', 'Los Angeles']
+      "default": ['A1', 'A2', 'A3']
     },
-    "model_name": {
+    "KEY_B": {
       "type": "string",
       "extra": {
         "index": 2
@@ -66,8 +66,8 @@ outputs 示例
     },
   },
   "required": [
-    "cities",
-    "model_name",
+    "KEY_A",
+    "KEY_B",
   ]
 }
 \`\`\`

@@ -25,7 +25,53 @@ export class CreateEdgeTool extends BaseNodeTool<CreateEdgeParams, string> {
     type: 'function',
     function: {
       name: 'CreateEdge',
-      description: '在工作流中创建节点之间的连接线（边）。',
+      description: `在工作流中创建节点之间的连接线（边）。
+
+## 参数说明
+
+\`\`\`typescript
+interface CreateEdgeParams {
+  from: string;      // 起始节点 ID（必填）
+  fromPort?: string; // 起始节点的输出端口 ID（可选）
+  to: string;        // 目标节点 ID（必填）
+  toPort?: string;   // 目标节点的输入端口 ID（可选）
+}
+\`\`\`
+
+## fromPort 使用说明
+
+对于 Condition 节点，必须指定 fromPort 来选择条件分支：
+- 使用条件的 key 值作为 fromPort，例如 "if_vbeap"、"if_FeBO-L" 等
+- 使用 "else" 作为 fromPort 表示 else 分支（默认分支）
+
+## 示例
+
+1. 普通节点连接（不需要指定端口）：
+\`\`\`json
+{
+  "from": "start",
+  "to": "llm_001"
+}
+\`\`\`
+
+2. Condition 节点的条件分支连接：
+\`\`\`json
+{
+  "from": "condition_001",
+  "fromPort": "if_contains_hello",
+  "to": "llm_success"
+}
+\`\`\`
+
+3. Condition 节点的 else 分支连接：
+\`\`\`json
+{
+  "from": "condition_001",
+  "fromPort": "else",
+  "to": "llm_default"
+}
+\`\`\`
+`,
       parameters: {
         type: 'object',
         properties: {
@@ -35,7 +81,8 @@ export class CreateEdgeTool extends BaseNodeTool<CreateEdgeParams, string> {
           },
           fromPort: {
             type: 'string',
-            description: '起始节点的输出端口 ID，可选。',
+            description:
+              '起始节点的输出端口 ID。对于 Condition 节点，使用条件的 key 值（如 "if_vbeap"）或 "else" 表示 else 分支。',
           },
           to: {
             type: 'string',

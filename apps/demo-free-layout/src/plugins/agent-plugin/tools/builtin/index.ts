@@ -14,7 +14,9 @@ import { GetWorkflowStructureTool } from './get-workflow-structure';
 import { GetWorkflowSchemaTool } from './get-workflow-schema';
 import { GetWorkflowInputDefinitionTool } from './get-workflow-input-definition';
 import { GetNodeSchemaTool } from './get-node-schema';
+import { EndNodeTool } from './end-node';
 import { CreateEdgeTool } from './create-edge';
+import { ConditionNodeTool } from './condition-node';
 
 export const AGENT_BUILTIN_TOOLS = [
   TodoWriteTool,
@@ -28,5 +30,7 @@ export const AGENT_BUILTIN_TOOLS = [
   CreateEdgeTool,
   RemoveTool,
   StartNodeTool,
+  EndNodeTool,
   LLMNodeTool,
+  ConditionNodeTool,
 ];

@@ -12,7 +12,7 @@ import { WorkflowNodeType } from '@/nodes';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
-type RefPath = [string, string];
+type RefPath = string[];
 
 interface CreateLLMNodeParams {
   operation: 'create';
@@ -88,14 +88,15 @@ interface UpdateLLMNodeParams {
 }
 \`\`\`
 
-## 参数额外说明
+## RefPath 说明
 
-1. RefPath 为引用其他前序节点输出变量的结构，例如 ['start_0', 'user_input'] 可以引用开始节点的 user_input 字段
-\`\`\`
-type RefPath = [string, string]; // [节点ID, 输出变量名]
+RefPath 为引用其他前序节点输出变量的结构，例如 ['start_0', 'llm_config', 'model_name'] 可以引用开始节点的 llm_config 对象下的 model_name 字段
+
+\`\`\`typescript
+type RefPath = string[]; // [节点ID, key1, key2, ...]
 \`\`\`
 
-2. systemPrompt 和 prompt 可通过双花括号语法引用前序节点输出变量，遵循 {{NodeID.VarKey}} 规则，例如 "生成一个关于 {{start_0.user_input}} 的故事"
+2. systemPrompt 和 prompt 可通过双花括号语法引用前序节点输出变量，遵循 {{NodeID.VarKey1.xxx}} 规则，例如 "生成一个关于 {{start_0.user_input.theme}} 的故事"
 `,
       parameters: {
         type: 'object',
