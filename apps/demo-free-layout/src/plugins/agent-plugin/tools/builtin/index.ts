@@ -11,6 +11,7 @@ import { RemoveNodeTool } from './remove-node-tool';
 import { RemoveEdgeTool } from './remove-edge-tool';
 import { NodeValidateTool } from './node-validate';
 import { LLMNodeTool } from './llm-node';
+import { HTTPNodeTool } from './http-node';
 import { GetWorkflowStructureTool } from './get-workflow-structure';
 import { GetWorkflowSchemaTool } from './get-workflow-schema';
 import { GetWorkflowInputDefinitionTool } from './get-workflow-input-definition';
@@ -35,6 +36,7 @@ export const AGENT_BUILTIN_TOOLS = [
   StartNodeTool,
   EndNodeTool,
   LLMNodeTool,
+  HTTPNodeTool,
   CodeNodeTool,
   ConditionNodeTool,
 ];

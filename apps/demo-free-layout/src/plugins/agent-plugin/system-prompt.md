@@ -112,4 +112,4 @@ graph TD
 - 工作流只允许有一个开始节点和一个结束节点
 - 建议在工作流生成完成后使用 WorkflowValidate 进行错误校验
 - 建议在任务交付前跑通试运行
-- IMPORTANT:灵活运用 Code，LLM，Condition 节点
+- IMPORTANT: 灵活运用 Code, LLM, Condition, HTTP 节点
