@@ -40,7 +40,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
           assistant: {
             placement: 'start',
             typing: { effect: 'typing', step: 5, interval: 20 },
-            contentRender: (content: string) => <MessageContent content={content} />,
+            contentRender: (content: string, item: any) => {
+              const msg = messages.find((m) => m.id === item.key);
+              const isCompleted = msg?.status === 'sent';
+              return <MessageContent content={content} isCompleted={isCompleted} />;
+            },
             variant: 'filled',
             styles: {
               // @ts-ignore

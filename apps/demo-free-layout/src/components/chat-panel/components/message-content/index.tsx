@@ -9,6 +9,7 @@ import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import { Mermaid, CodeHighlighter } from '@ant-design/x';
 
 import { ToolCallCard } from '../tool-call-card';
+import { MessageActions } from '../message-actions';
 import { useToolRegistry } from '../../../../plugins/agent-plugin/hooks';
 import { parseMessageContent } from './message-parser';
 
@@ -33,11 +34,23 @@ const Code: React.FC<ComponentProps> = (props) => {
 
 interface MessageContentProps {
   content: string;
+  isCompleted?: boolean;
+  onRetry?: () => void;
 }
 
-export const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
+export const MessageContent: React.FC<MessageContentProps> = ({
+  content,
+  isCompleted = false,
+  onRetry,
+}) => {
   const parts = parseMessageContent(content);
   const toolRegistry = useToolRegistry();
+
+  const getTextContent = () =>
+    parts
+      .filter((part) => part.type === 'text')
+      .map((part) => part.content)
+      .join('\n');
 
   return (
     <div className={styles.content}>
@@ -68,6 +81,10 @@ export const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
 
         return null;
       })}
+
+      {isCompleted && (
+        <MessageActions content={getTextContent()} onRetry={onRetry} showCompleted={true} />
+      )}
     </div>
   );
 };
