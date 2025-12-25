@@ -8,7 +8,7 @@ import React from 'react';
 import { Tooltip, Toast } from '@douyinfe/semi-ui';
 import { IconCopy, IconRefresh } from '@douyinfe/semi-icons';
 
-import { useChatMessages, useSchemaRestoreConfirm } from '../../hooks';
+import { useSchemaRestoreConfirm } from '../../hooks';
 import { useAgentService } from '../../../../plugins/agent-plugin';
 
 import styles from './index.module.css';

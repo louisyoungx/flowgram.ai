@@ -76,18 +76,7 @@ export abstract class BaseNodeTool<TArgs = any, TResult = string>
   }
 
   protected focusNode(node: WorkflowNodeEntity) {
-    this.selectService.selectNode(node);
-
-    const bounds = node.transform.bounds;
-    this.playground.scrollToView({
-      bounds,
-      scrollDelta: {
-        x: 224,
-        y: 0,
-      },
-      zoom: 1,
-      scrollToCenter: true,
-    });
+    this.selectService.selectNodeAndScrollToView(node);
   }
 
   protected selectLine(line: WorkflowLineEntity) {

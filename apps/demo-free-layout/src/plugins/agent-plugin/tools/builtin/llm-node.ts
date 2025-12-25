@@ -9,6 +9,7 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
+import { LLMNodeRender } from '../renders';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
@@ -102,6 +103,7 @@ type RefPath = string[]; // [节点ID, key1, key2, ...]
         type: 'object',
       } as IJsonSchema,
     },
+    render: LLMNodeRender,
   };
 
   public async execute(params: LLMNodeParams): Promise<string> {
