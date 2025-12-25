@@ -13,31 +13,39 @@
     overflow: hidden;
 }
 
-.messages::-webkit-scrollbar {
+.messages :global(.ant-bubble-list) {
+    flex: 1;
+    min-height: 0;
+}
+
+.messages :global(.ant-bubble-list-scroll-box)::-webkit-scrollbar {
     width: 6px;
 }
 
-.messages::-webkit-scrollbar-track {
+.messages :global(.ant-bubble-list-scroll-box)::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 3px;
 }
 
-.messages::-webkit-scrollbar-thumb {
+.messages :global(.ant-bubble-list-scroll-box)::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 3px;
 }
 
-.messages::-webkit-scrollbar-thumb:hover {
+.messages :global(.ant-bubble-list-scroll-box)::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.userMessageWrapper {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.userMessageContent {
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.06);
+    padding: 8px 12px;
+    border-radius: 8px;
+    width: fit-content;
 }

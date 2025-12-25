@@ -19,7 +19,6 @@ interface ChatMessagesProps {
 }
 
 export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLDivElement>(null);
   const {
     editingMessageId,
@@ -30,10 +29,6 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
     cancelEdit,
     submitEdit,
   } = useChatEdit();
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   useEffect(() => {
     if (!editingMessageId) return;
@@ -50,74 +45,93 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
     };
   }, [editingMessageId, cancelEdit]);
 
+  const bubbleItems = messages.map((msg) => {
+    const hasToolCall = msg.content.includes('<tool_call');
+    return {
+      key: msg.id,
+      role: msg.role,
+      content: msg.content || '正在思考...',
+      loading: msg.status === 'sending' && !msg.content,
+      streaming: msg.status === 'sending' && !hasToolCall,
+    };
+  });
+
   return (
     <div className={styles.messages}>
-      {messages.map((msg, index) => {
-        if (msg.id === editingMessageId) {
-          return (
-            <div key={msg.id} style={{ marginBottom: '16px' }} ref={editInputRef}>
-              <ChatInput
-                value={editValue}
-                onChange={setEditValue}
-                onSubmit={submitEdit}
-                onCancel={cancelEdit}
-                loading={isLoading}
-              />
-            </div>
-          );
-        }
-
-        const hasToolCall = msg.content.includes('<tool_call');
-        const isCompleted = msg.status === 'sent';
-
-        return (
-          <Bubble.List
-            key={msg.id}
-            items={[
-              {
-                key: msg.id,
-                role: msg.role,
-                content: msg.content || '正在思考...',
-                loading: msg.status === 'sending' && !msg.content,
-                streaming: msg.status === 'sending' && !hasToolCall,
+      <Bubble.List
+        autoScroll
+        items={bubbleItems}
+        role={{
+          assistant: {
+            placement: 'start',
+            typing: { effect: 'typing', step: 5, interval: 20 },
+            contentRender: (content: string, { key }: any) => {
+              const msg = messages.find((m) => m.id === key);
+              const isCompleted = msg?.status === 'sent';
+              return <MessageContent content={content} isCompleted={isCompleted} messageId={key} />;
+            },
+            variant: 'filled',
+            styles: {
+              // @ts-ignore
+              bubble: {
+                paddingInlineEnd: 0,
               },
-            ]}
-            role={{
-              assistant: {
-                placement: 'start',
-                typing: { effect: 'typing', step: 5, interval: 20 },
-                contentRender: (content: string) => (
-                  <MessageContent content={content} isCompleted={isCompleted} messageId={msg.id} />
-                ),
-                variant: 'filled',
-                styles: {
-                  // @ts-ignore
-                  bubble: {
-                    paddingInlineEnd: 0,
-                  },
-                  content: {
-                    background: 'transparent',
-                    padding: 0,
-                  },
-                  body: {
-                    width: '100%',
-                  },
-                },
+              content: {
+                background: 'transparent',
+                padding: 0,
               },
-              user: {
-                placement: 'end',
-                variant: 'filled',
-                contentRender: (content: string) => (
-                  <div onClick={() => startEdit(msg.id, msg.content)} style={{ cursor: 'pointer' }}>
+              body: {
+                width: '100%',
+              },
+            },
+          },
+          user: {
+            placement: 'end',
+            variant: 'filled',
+            contentRender: (content: string, { key }: any) => {
+              const isEditing = editingMessageId === key;
+
+              if (isEditing) {
+                return (
+                  <div ref={editInputRef} style={{ width: '100%' }}>
+                    <ChatInput
+                      value={editValue}
+                      onChange={setEditValue}
+                      onSubmit={submitEdit}
+                      onCancel={cancelEdit}
+                      loading={isLoading}
+                    />
+                  </div>
+                );
+              }
+
+              return (
+                <div className={styles.userMessageWrapper}>
+                  <div
+                    onClick={() => startEdit(key, content)}
+                    className={styles.userMessageContent}
+                  >
                     {content}
                   </div>
-                ),
+                </div>
+              );
+            },
+            styles: {
+              // @ts-ignore
+              bubble: {
+                paddingInlineStart: 0,
               },
-            }}
-          />
-        );
-      })}
-      <div ref={messagesEndRef} />
+              content: {
+                background: 'transparent',
+                padding: 0,
+              },
+              body: {
+                width: '100%',
+              },
+            },
+          },
+        }}
+      />
     </div>
   );
 };
