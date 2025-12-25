@@ -39,6 +39,7 @@ export interface TaskRunResult {
     inputs: WorkflowInputs;
     outputs: WorkflowOutputs;
   };
+  report?: IReport;
 }
 
 @injectable()
@@ -171,12 +172,13 @@ export class WorkflowRuntimeService {
     if (workflowStatus.terminated) {
       clearInterval(this.syncTaskReportIntervalID);
       if (Object.keys(outputs).length > 0) {
-        this.resultEmitter.fire({ result: { inputs, outputs, taskID: this.taskID } });
+        this.resultEmitter.fire({ result: { inputs, outputs, taskID: this.taskID }, report });
       } else {
         this.resultEmitter.fire({
           errors: messages?.error?.map((message) =>
             message.nodeID ? `${message.nodeID}: ${message.message}` : message.message
           ),
+          report,
         });
       }
     }

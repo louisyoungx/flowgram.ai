@@ -7,6 +7,7 @@ import { WorkflowInputs } from '@flowgram.ai/runtime-interface';
 import { injectable, inject } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
+import { ValidateService } from '@/services';
 import { TaskRunResult, WorkflowRuntimeService } from '@/plugins/runtime-plugin/runtime-service';
 
 import { BaseTool } from '../base-tool';
@@ -20,6 +21,9 @@ interface WorkflowTestrunParams {
 export class WorkflowTestrunTool extends BaseTool<WorkflowTestrunParams, string> {
   @inject(WorkflowRuntimeService)
   private runtimeService: WorkflowRuntimeService;
+
+  @inject(ValidateService)
+  private validateService: ValidateService;
 
   public readonly tool: Tool = {
     type: 'function',
@@ -49,16 +53,28 @@ export class WorkflowTestrunTool extends BaseTool<WorkflowTestrunParams, string>
       });
     }
 
+    const validationResults = await this.validateService.validateNodes();
+
+    if (validationResults.length) {
+      return JSON.stringify({
+        success: false,
+        error: `工作流校验未通过，发现 ${validationResults.length} 个问题，无法进行试运行，请先修复问题后再试。`,
+        data: validationResults,
+      });
+    }
+
     const result = await this.workflowTestRun(params.testrunInputs);
     if (result.errors) {
       return JSON.stringify({
         success: false,
         error: result.errors.join('; '),
+        report: result.report,
       });
     }
     return JSON.stringify({
       success: true,
       data: result.result,
+      report: result.report,
     });
   }
 

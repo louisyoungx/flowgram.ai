@@ -6,10 +6,13 @@
 import React from 'react';
 
 import {
+  FlowNodeFormData,
+  FormModelV2,
   useService,
   WorkflowDocument,
   WorkflowSelectService,
 } from '@flowgram.ai/free-layout-editor';
+import { IconSmallTriangleDown, IconSmallTriangleRight } from '@douyinfe/semi-icons';
 
 import { useNodeFormPanel } from '@/plugins/panel-manager-plugin/hooks';
 import { nodeRegistries } from '@/nodes';
@@ -42,6 +45,8 @@ export const GenericNodeRender: React.FC<{
 }> = ({ args, result, nodeType }) => {
   const document = useService(WorkflowDocument);
   const selectService = useService(WorkflowSelectService);
+  const [isInputExpanded, setIsInputExpanded] = React.useState(false);
+  const [isOutputExpanded, setIsOutputExpanded] = React.useState(false);
 
   if (!args) {
     return null;
@@ -64,13 +69,16 @@ export const GenericNodeRender: React.FC<{
     [nodeType]
   );
 
+  const nodeId = args.id;
+  const node = document.getNode(nodeId);
+  const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();
+
   const isCreate = args.operation === 'create';
   const success = parsedResult?.success ?? false;
   const hasResult = parsedResult !== null;
 
-  const nodeId = args.id;
-  const nodeTitle = args.title;
-  const nodeDescription = args.description;
+  const nodeTitle = args.title ?? formModel?.getValueIn('title') ?? 'Node';
+  const nodeDescription = args.description ?? formModel?.getValueIn('description');
 
   const borderColor = hasResult && !success ? '#ef4444' : 'rgba(6, 7, 9, 0.15)';
 
@@ -85,10 +93,28 @@ export const GenericNodeRender: React.FC<{
     }
   }, [document, selectService, nodeId]);
 
+  const toggleInputExpand = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsInputExpanded((prev) => !prev);
+  }, []);
+
+  const toggleOutputExpand = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsOutputExpanded((prev) => !prev);
+  }, []);
+
+  const filteredArgs = React.useMemo(() => {
+    const { operation, id, title, description, ...rest } = args;
+    return rest;
+  }, [args]);
+
+  const hasArgs = Object.keys(filteredArgs).length > 0;
+
   return (
     <div
       style={{
-        width: '360px',
+        width: '100%',
+        maxWidth: '360px',
         backgroundColor: '#fff',
         border: `1px solid ${borderColor}`,
         borderRadius: '8px',
@@ -236,16 +262,113 @@ export const GenericNodeRender: React.FC<{
           </span>
         </div>
 
-        {nodeRegistry?.info?.description && !nodeDescription && (
+        {hasArgs && (
           <div
             style={{
-              fontSize: '11px',
-              color: '#9ca3af',
-              lineHeight: '1.4',
-              fontStyle: 'italic',
+              marginTop: '4px',
             }}
           >
-            {truncateText(nodeRegistry.info.description, 60)}
+            <div
+              onClick={toggleInputExpand}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                color: '#6b7280',
+                fontWeight: 500,
+                userSelect: 'none',
+              }}
+            >
+              {isInputExpanded ? (
+                <IconSmallTriangleDown style={{ fontSize: '14px' }} />
+              ) : (
+                <IconSmallTriangleRight style={{ fontSize: '14px' }} />
+              )}
+              <span>输入参数</span>
+            </div>
+
+            {isInputExpanded && (
+              <div
+                style={{
+                  marginTop: '8px',
+                  padding: '8px',
+                  backgroundColor: '#f9fafb',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  fontFamily: 'monospace',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                }}
+              >
+                <pre
+                  style={{
+                    margin: 0,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    color: '#374151',
+                  }}
+                >
+                  {JSON.stringify(filteredArgs, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div>
+        )}
+
+        {hasResult && parsedResult.data && (
+          <div
+            style={{
+              marginTop: '4px',
+            }}
+          >
+            <div
+              onClick={toggleOutputExpand}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                color: '#6b7280',
+                fontWeight: 500,
+                userSelect: 'none',
+              }}
+            >
+              {isOutputExpanded ? (
+                <IconSmallTriangleDown style={{ fontSize: '14px' }} />
+              ) : (
+                <IconSmallTriangleRight style={{ fontSize: '14px' }} />
+              )}
+              <span>输出参数</span>
+            </div>
+
+            {isOutputExpanded && (
+              <div
+                style={{
+                  marginTop: '8px',
+                  padding: '8px',
+                  backgroundColor: '#f9fafb',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  fontFamily: 'monospace',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                }}
+              >
+                <pre
+                  style={{
+                    margin: 0,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    color: '#374151',
+                  }}
+                >
+                  {JSON.stringify(parsedResult.data, null, 2)}
+                </pre>
+              </div>
+            )}
           </div>
         )}
 

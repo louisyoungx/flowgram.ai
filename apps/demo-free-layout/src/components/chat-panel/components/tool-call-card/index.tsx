@@ -5,8 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 
-import { Spin } from '@douyinfe/semi-ui';
-import { IconChevronDown, IconChevronRight, IconClose } from '@douyinfe/semi-icons';
+import { IconChevronDown, IconChevronRight, IconClose, IconSpin } from '@douyinfe/semi-icons';
 
 import styles from './index.module.css';
 
@@ -100,7 +99,7 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
           {(hasContent || isRunning) && (
             <span className={styles.icon}>
               {isRunning ? (
-                <Spin size="small" />
+                <IconSpin size="small" className={styles.spinning} />
               ) : isOpen ? (
                 <IconChevronDown size="small" />
               ) : (
