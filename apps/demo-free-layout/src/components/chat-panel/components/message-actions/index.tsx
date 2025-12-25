@@ -5,7 +5,7 @@
 
 import React from 'react';
 
-import { Tooltip } from '@douyinfe/semi-ui';
+import { Tooltip, Toast } from '@douyinfe/semi-ui';
 import { IconCopy, IconRefresh } from '@douyinfe/semi-icons';
 
 import styles from './index.module.css';
@@ -23,6 +23,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
 }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
+    Toast.success('复制成功');
   };
 
   return (

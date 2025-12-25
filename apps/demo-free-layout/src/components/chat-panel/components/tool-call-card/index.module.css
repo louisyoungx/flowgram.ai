@@ -80,6 +80,8 @@
     font-weight: 500;
     color: #374151;
     font-size: 13px;
+    display: flex;
+    justify-content: flex-start;
 }
 
 .body {

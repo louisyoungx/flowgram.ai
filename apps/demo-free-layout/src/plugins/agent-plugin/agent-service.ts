@@ -168,16 +168,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   }
 
   private resetMessages(): void {
-    this.messages = [
-      {
-        id: '1',
-        role: 'assistant',
-        content:
-          '你好！我是 FlowGram AI 助手。我可以帮你创建和编辑流程图，有什么我可以帮助你的吗？',
-        timestamp: Date.now(),
-        status: 'sent',
-      },
-    ];
+    this.messages = [];
   }
 
   private notifyListeners(): void {
@@ -327,10 +318,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         content: fullContent,
       });
 
-      return {
-        content: fullContent,
-        usage: lastUsage,
-      };
+      return fullContent;
     }
 
     // 达到最大迭代次数，输出警告信息但保留之前的内容

@@ -6,7 +6,7 @@
 import React, { useState, useMemo } from 'react';
 
 import { Spin } from '@douyinfe/semi-ui';
-import { IconChevronDown, IconChevronRight, IconTick, IconClose } from '@douyinfe/semi-icons';
+import { IconChevronDown, IconChevronRight, IconClose } from '@douyinfe/semi-icons';
 
 import styles from './index.module.css';
 
@@ -92,7 +92,9 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
       <div className={styles.header} onClick={handleToggle}>
         <span className={styles.title}>
           {toolName}
-          {(isCancelled || !isSuccess) && <span className={styles.statusIcon}>{statusIcon}</span>}
+          {!isRunning && (isCancelled || !isSuccess) && (
+            <span className={styles.statusIcon}>{statusIcon}</span>
+          )}
         </span>
         <div className={styles.headerRight}>
           {(hasContent || isRunning) && (

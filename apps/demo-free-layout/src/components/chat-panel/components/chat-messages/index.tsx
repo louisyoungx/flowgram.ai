@@ -5,6 +5,7 @@
 
 import React, { useRef, useEffect } from 'react';
 
+import { IconComment } from '@douyinfe/semi-icons';
 import { Bubble } from '@ant-design/x';
 
 import { MessageContent } from '../message-content';
@@ -22,6 +23,26 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  if (messages.length === 0) {
+    return (
+      <div className={styles.messages}>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyContent}>
+            <div className={styles.emptyIcon}>
+              <IconComment style={{ fontSize: '64px' }} />
+            </div>
+            <div className={styles.emptyTitle}>你好！我是 FlowGram AI 助手</div>
+            <div className={styles.emptyDescription}>
+              我可以帮你创建和编辑流程图,
+              <br />
+              有什么我可以帮助你的吗？
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.messages}>

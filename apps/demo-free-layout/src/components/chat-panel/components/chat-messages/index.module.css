@@ -30,3 +30,52 @@
 .messages::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+.emptyState {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.emptyContent {
+    text-align: center;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.emptyIcon {
+    font-size: 64px;
+    line-height: 1;
+    margin-bottom: 12px;
+    color: #cbcbcb;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.emptyTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.4;
+}
+
+.emptyDescription {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.8;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

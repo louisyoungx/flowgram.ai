@@ -27,7 +27,6 @@
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: #52c41a;
 }
 
 .checkIcon {
@@ -44,7 +43,7 @@
 }
 
 .completedText {
-    color: #52c41a;
+    color: rgba(0, 0, 0, 0.5);
     font-weight: 500;
 }
 
@@ -53,11 +52,11 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: rgba(0, 0, 0, 0.45);
+    color: rgba(0, 0, 0, 0.3);
     transition: color 0.2s;
     font-size: 14px;
 }
 
 .iconButton:hover {
-    color: rgba(0, 0, 0, 0.85);
+    color: rgba(0, 0, 0, 0.5);
 }
