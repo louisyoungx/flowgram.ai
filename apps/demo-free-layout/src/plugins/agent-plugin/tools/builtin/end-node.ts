@@ -7,6 +7,9 @@ import { IFlowConstantRefValue } from '@flowgram.ai/runtime-interface';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
+import { WorkflowNodeType } from '@/nodes';
+
+import { createNodeRender } from '../renders';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
@@ -131,6 +134,7 @@ interface RefValue {
         required: ['id'],
       } as IJsonSchema,
     },
+    render: createNodeRender(WorkflowNodeType.End),
   };
 
   public async execute(params: UpdateEndNodeParams): Promise<string> {

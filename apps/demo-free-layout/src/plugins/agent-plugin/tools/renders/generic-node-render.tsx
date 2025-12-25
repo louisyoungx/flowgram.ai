@@ -11,40 +11,19 @@ import {
   WorkflowSelectService,
 } from '@flowgram.ai/free-layout-editor';
 
+import { useNodeFormPanel } from '@/plugins/panel-manager-plugin/hooks';
 import { nodeRegistries } from '@/nodes';
 import { WorkflowNodeType } from '@/nodes';
 
-type RefPath = string[];
-
-interface CreateLLMNodeArgs {
-  operation: 'create';
-  id: string;
-  title: string;
-  description: string;
-  modelName: string | RefPath;
-  apiKey: string | RefPath;
-  apiHost: string | RefPath;
-  temperature: number | RefPath;
-  systemPrompt: string;
-  prompt: string;
-}
-
-interface UpdateLLMNodeArgs {
-  operation: 'update';
+interface BaseNodeArgs {
+  operation?: 'create' | 'update';
   id: string;
   title?: string;
   description?: string;
-  modelName?: string | RefPath;
-  apiKey?: string | RefPath;
-  apiHost?: string | RefPath;
-  temperature?: number | RefPath;
-  systemPrompt?: string;
-  prompt?: string;
+  [key: string]: any;
 }
 
-type LLMNodeArgs = CreateLLMNodeArgs | UpdateLLMNodeArgs;
-
-interface LLMNodeResult {
+interface NodeResult {
   success: boolean;
   data?: { nodeID: string };
   message?: string;
@@ -56,10 +35,11 @@ const truncateText = (text: string, maxLength: number = 50): string => {
   return text.substring(0, maxLength) + '...';
 };
 
-export const LLMNodeRender: React.FC<{
-  args: LLMNodeArgs;
-  result?: LLMNodeResult | string;
-}> = ({ args, result }) => {
+export const GenericNodeRender: React.FC<{
+  args: BaseNodeArgs;
+  result?: NodeResult | string;
+  nodeType: WorkflowNodeType;
+}> = ({ args, result, nodeType }) => {
   const document = useService(WorkflowDocument);
   const selectService = useService(WorkflowSelectService);
 
@@ -67,7 +47,7 @@ export const LLMNodeRender: React.FC<{
     return null;
   }
 
-  const parsedResult: LLMNodeResult | null = React.useMemo(() => {
+  const parsedResult: NodeResult | null = React.useMemo(() => {
     if (!result) return null;
     if (typeof result === 'string') {
       try {
@@ -79,9 +59,9 @@ export const LLMNodeRender: React.FC<{
     return result;
   }, [result]);
 
-  const llmRegistry = React.useMemo(
-    () => nodeRegistries.find((reg) => reg.type === WorkflowNodeType.LLM),
-    []
+  const nodeRegistry = React.useMemo(
+    () => nodeRegistries.find((reg) => reg.type === nodeType),
+    [nodeType]
   );
 
   const isCreate = args.operation === 'create';
@@ -89,19 +69,19 @@ export const LLMNodeRender: React.FC<{
   const hasResult = parsedResult !== null;
 
   const nodeId = args.id;
-  const nodeTitle = isCreate
-    ? (args as CreateLLMNodeArgs).title
-    : (args as UpdateLLMNodeArgs).title;
-  const nodeDescription = isCreate
-    ? (args as CreateLLMNodeArgs).description
-    : (args as UpdateLLMNodeArgs).description;
+  const nodeTitle = args.title;
+  const nodeDescription = args.description;
 
   const borderColor = hasResult && !success ? '#ef4444' : 'rgba(6, 7, 9, 0.15)';
+
+  const operationLabel = isCreate ? `创建节点 ${nodeType}` : `更新节点 ${nodeType}`;
+  const { open: openNodeFormPanel } = useNodeFormPanel();
 
   const handleClick = React.useCallback(() => {
     const node = document.getNode(nodeId);
     if (node) {
       selectService.selectNodeAndScrollToView(node);
+      openNodeFormPanel({ nodeId: node.id });
     }
   }, [document, selectService, nodeId]);
 
@@ -146,10 +126,10 @@ export const LLMNodeRender: React.FC<{
             marginBottom: nodeDescription ? '6px' : '0',
           }}
         >
-          {llmRegistry?.info?.icon && (
+          {nodeRegistry?.info?.icon && (
             <img
-              src={llmRegistry.info.icon}
-              alt="LLM"
+              src={nodeRegistry.info.icon}
+              alt={nodeType}
               style={{
                 width: '24px',
                 height: '24px',
@@ -175,7 +155,7 @@ export const LLMNodeRender: React.FC<{
                 color: '#1f2937',
               }}
             >
-              {nodeTitle || 'LLM Node'}
+              {nodeTitle || nodeRegistry?.info?.description || 'Node'}
             </div>
             <div
               style={{
@@ -252,11 +232,11 @@ export const LLMNodeRender: React.FC<{
               fontWeight: 500,
             }}
           >
-            {isCreate ? '创建 LLM 节点' : '更新 LLM 节点'}
+            {operationLabel}
           </span>
         </div>
 
-        {llmRegistry?.info?.description && !nodeDescription && (
+        {nodeRegistry?.info?.description && !nodeDescription && (
           <div
             style={{
               fontSize: '11px',
@@ -265,7 +245,7 @@ export const LLMNodeRender: React.FC<{
               fontStyle: 'italic',
             }}
           >
-            {truncateText(llmRegistry.info.description, 60)}
+            {truncateText(nodeRegistry.info.description, 60)}
           </div>
         )}
 
@@ -274,7 +254,6 @@ export const LLMNodeRender: React.FC<{
             style={{
               marginTop: '4px',
               padding: '0 8px',
-              // backgroundColor: success ? '#f3f4f6' : '#fef2f2',
               borderRadius: '4px',
               fontSize: '11px',
               color: success ? '#374151' : '#991b1b',

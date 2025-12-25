@@ -9,6 +9,7 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
+import { createNodeRender } from '../renders';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
@@ -223,6 +224,7 @@ outputs 示例：
         type: 'object',
       } as IJsonSchema,
     },
+    render: createNodeRender(WorkflowNodeType.Code),
   };
 
   public async execute(params: CodeNodeParams): Promise<string> {

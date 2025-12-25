@@ -5,14 +5,17 @@
 
 import React from 'react';
 
+import { WorkflowNodeType } from '@/nodes';
+
 import { TodoWriteRender } from './todo-write-render';
-import { LLMNodeRender } from './llm-node-render';
+import { GenericNodeRender } from './generic-node-render';
 import { AskUserQuestionRender } from './ask-user-question-render';
 
-export const TOOL_RENDERS: Record<string, React.FC<{ args: any; result?: any }>> = {
-  AskUserQuestion: AskUserQuestionRender,
-  TodoWrite: TodoWriteRender,
-  LLMNode: LLMNodeRender,
+export const createNodeRender = (nodeType: WorkflowNodeType) => {
+  const NodeRender: React.FC<{ args: any; result?: any }> = ({ args, result }) => (
+    <GenericNodeRender args={args} result={result} nodeType={nodeType} />
+  );
+  return NodeRender;
 };
 
-export { AskUserQuestionRender, TodoWriteRender, LLMNodeRender };
+export { AskUserQuestionRender, TodoWriteRender, GenericNodeRender };
