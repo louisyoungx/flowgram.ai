@@ -15,6 +15,7 @@ interface ToolCallCardProps {
   arguments: string;
   result?: string;
   defaultOpen?: boolean;
+  customRender?: (args: any, result?: any) => React.ReactNode;
 }
 
 export const ToolCallCard: React.FC<ToolCallCardProps> = ({
@@ -22,6 +23,7 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
   arguments: args,
   result,
   defaultOpen = false,
+  customRender,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const isRunning = !result;
@@ -32,6 +34,38 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
       setIsOpen(!isOpen);
     }
   };
+
+  let parsedArgs: any = null;
+  let parsedResult: any = null;
+  let hasValidArgs = false;
+
+  try {
+    if (args && args.trim()) {
+      parsedArgs = JSON.parse(args);
+      hasValidArgs = true;
+    }
+  } catch (e) {
+    console.warn(`Failed to parse tool arguments for ${toolName}:`, args, e);
+    parsedArgs = null;
+  }
+
+  try {
+    if (result && result.trim()) {
+      parsedResult = JSON.parse(result);
+    }
+  } catch (e) {
+    console.warn(`Failed to parse tool result for ${toolName}:`, result, e);
+    parsedResult = null;
+  }
+
+  if (customRender && hasValidArgs) {
+    const CustomRenderComponent = customRender;
+    return (
+      <div style={{ margin: '8px 0' }}>
+        <CustomRenderComponent args={parsedArgs} result={parsedResult} />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.card}>

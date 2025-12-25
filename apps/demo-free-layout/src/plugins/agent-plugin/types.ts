@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+import type React from 'react';
+
 import type { Event } from '@flowgram.ai/free-layout-editor';
 import type { IJsonSchema } from '@flowgram.ai/form-materials';
 
@@ -75,6 +77,7 @@ export interface ToolFunction {
 export interface Tool {
   type: 'function';
   function: ToolFunction;
+  render?: React.FC<{ args: any; result?: any }>;
 }
 
 /**

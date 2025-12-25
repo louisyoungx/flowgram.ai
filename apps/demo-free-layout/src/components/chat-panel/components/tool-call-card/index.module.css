@@ -78,3 +78,7 @@
     line-height: 1.5;
     overflow-x: auto;
 }
+
+.customRender {
+    padding: 8px;
+}

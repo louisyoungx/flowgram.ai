@@ -5,6 +5,7 @@
 
 import { injectable } from '@flowgram.ai/free-layout-editor';
 
+import { TodoWriteRender } from '../renders/todo-write-render';
 import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
 
@@ -85,19 +86,21 @@ export class TodoWriteTool extends BaseTool<TodoWriteArgs, string> {
 
 重要：完成每个任务后立即标记为 completed，不要批量处理多个任务。
 
-操作类型（优先使用增量操作以节省 token）：
-- update: 更新单个任务状态（推荐，最省 token）
-- add: 添加单个新任务（推荐）
-- remove: 删除单个任务
-- write: 初始化或完全替换列表（仅在必要时使用）
-- read: 读取当前列表`,
+操作类型（必须严格遵守）：
+- update: 更新单个任务状态（推荐，最省 token）- 用于标记任务为 in_progress 或 completed
+- add: 添加单个新任务（推荐）- 用于在执行过程中发现新任务
+- remove: 删除单个任务 - 用于删除不再需要的任务
+- write: 初始化完整列表（警告：仅在会话开始创建初始任务列表时使用一次！之后必须使用 update/add/remove）
+- read: 读取当前列表
+
+IMPORTANT：write 操作会完全替换整个列表，导致之前的任务历史丢失。创建初始列表后，必须使用 update 来改变任务状态，使用 add 来添加新任务。禁止多次使用 write 操作。`,
       parameters: {
         type: 'object',
         properties: {
           operation: {
             type: 'string',
             description:
-              '操作类型。优先使用 update/add/remove 进行增量更新以节省 token，仅在初始化时使用 write。',
+              '操作类型。必须使用 update/add/remove 进行增量更新。write 只能在创建初始列表时使用一次，之后禁止再次使用 write。',
             enum: ['write', 'read', 'update', 'add', 'remove'],
           },
           todoList: {
@@ -149,6 +152,7 @@ export class TodoWriteTool extends BaseTool<TodoWriteArgs, string> {
         required: ['operation'],
       },
     },
+    render: TodoWriteRender,
   };
 
   /**
@@ -281,7 +285,7 @@ export class TodoWriteTool extends BaseTool<TodoWriteArgs, string> {
 
       return JSON.stringify({
         success: true,
-        data: newTodo,
+        data: todos,
         message: `成功添加任务 ${newId}`,
       });
     }

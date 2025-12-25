@@ -9,6 +9,7 @@ import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import { Mermaid, CodeHighlighter } from '@ant-design/x';
 
 import { ToolCallCard } from '../tool-call-card';
+import { useToolRegistry } from '../../../../plugins/agent-plugin/hooks';
 import { parseMessageContent } from './message-parser';
 
 import styles from './index.module.css';
@@ -36,6 +37,7 @@ interface MessageContentProps {
 
 export const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
   const parts = parseMessageContent(content);
+  const toolRegistry = useToolRegistry();
 
   return (
     <div className={styles.content}>
@@ -49,6 +51,9 @@ export const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
         }
 
         if (part.type === 'tool_call') {
+          const tool = toolRegistry.getTool(part.toolName || '');
+          const customRender = tool?.tool.render;
+
           return (
             <ToolCallCard
               key={part.id || index}
@@ -56,6 +61,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
               arguments={part.toolArgs || ''}
               result={part.toolResult}
               defaultOpen={false}
+              customRender={customRender}
             />
           );
         }
