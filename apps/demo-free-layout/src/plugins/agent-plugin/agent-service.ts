@@ -90,6 +90,23 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     await this.sendMessage(userMessage.content);
   }
 
+  public async editAndResendMessage(messageId: string, newContent: string): Promise<void> {
+    const messageIndex = this.messages.findIndex((m) => m.id === messageId);
+    if (messageIndex === -1) {
+      return;
+    }
+
+    const message = this.messages[messageIndex];
+    if (message.role !== 'user') {
+      return;
+    }
+
+    this.messages = this.messages.slice(0, messageIndex);
+    this.notifyListeners();
+
+    await this.sendMessage(newContent);
+  }
+
   /**
    * 发送消息并处理 AI 响应
    */

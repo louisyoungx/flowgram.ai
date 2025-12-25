@@ -17,14 +17,35 @@ import styles from './index.module.css';
 export const ChatPanel: React.FC = () => {
   const { close } = useChatPanel();
   const messages = useChatMessages();
-  const { inputValue, setInputValue, isLoading, handleSend, handleCancel } = useChatInput();
+  const {
+    inputValue,
+    setInputValue,
+    editInputValue,
+    setEditInputValue,
+    isLoading,
+    handleSend,
+    handleEditSend,
+    handleCancel,
+    handleEditCancel,
+    editingMessageId,
+    startEditMessage,
+  } = useChatInput();
 
   return (
     <div className={styles.panel}>
       <ChatHeader onClose={close} />
 
       <div className={styles.content}>
-        <ChatMessages messages={messages} />
+        <ChatMessages
+          messages={messages}
+          editingMessageId={editingMessageId}
+          onEditMessage={startEditMessage}
+          editInputValue={editInputValue}
+          onEditInputChange={setEditInputValue}
+          onEditSubmit={handleEditSend}
+          onEditCancel={handleEditCancel}
+          isLoading={isLoading}
+        />
 
         {messages.length <= 1 && <ChatSuggestions onSelect={handleSend} />}
 

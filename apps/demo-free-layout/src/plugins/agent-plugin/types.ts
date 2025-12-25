@@ -143,6 +143,11 @@ export interface IWorkflowAgentService {
    * 重试指定的消息
    */
   retryMessage(messageId: string): Promise<void>;
+
+  /**
+   * 编辑并重新发送指定的用户消息
+   */
+  editAndResendMessage(messageId: string, newContent: string): Promise<void>;
 }
 
 export const IWorkflowAgentService = Symbol('WorkflowAgentService');
