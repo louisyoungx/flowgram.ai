@@ -8,22 +8,33 @@ import React from 'react';
 import { Tooltip, Toast } from '@douyinfe/semi-ui';
 import { IconCopy, IconRefresh } from '@douyinfe/semi-icons';
 
+import { useChatMessages } from '../../hooks';
+import { useAgentService } from '../../../../plugins/agent-plugin';
+
 import styles from './index.module.css';
 
 interface MessageActionsProps {
   content: string;
-  onRetry?: () => void;
   showCompleted?: boolean;
+  messageId?: string;
 }
 
 export const MessageActions: React.FC<MessageActionsProps> = ({
   content,
-  onRetry,
   showCompleted = true,
+  messageId,
 }) => {
+  const agentService = useAgentService();
+
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
     Toast.success('复制成功');
+  };
+
+  const handleRetry = () => {
+    if (messageId) {
+      agentService.retryMessage(messageId);
+    }
   };
 
   return (
@@ -42,13 +53,11 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
             <IconCopy />
           </span>
         </Tooltip>
-        {onRetry && (
-          <Tooltip content="重试">
-            <span className={styles.iconButton} onClick={onRetry}>
-              <IconRefresh />
-            </span>
-          </Tooltip>
-        )}
+        <Tooltip content="重试">
+          <span className={styles.iconButton} onClick={handleRetry}>
+            <IconRefresh />
+          </span>
+        </Tooltip>
       </div>
     </div>
   );

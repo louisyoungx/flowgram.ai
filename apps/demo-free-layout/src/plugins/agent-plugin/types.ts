@@ -138,6 +138,11 @@ export interface IWorkflowAgentService {
    * 取消当前正在进行的请求
    */
   cancelCurrentRequest(): void;
+
+  /**
+   * 重试指定的消息
+   */
+  retryMessage(messageId: string): Promise<void>;
 }
 
 export const IWorkflowAgentService = Symbol('WorkflowAgentService');

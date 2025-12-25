@@ -35,13 +35,13 @@ const Code: React.FC<ComponentProps> = (props) => {
 interface MessageContentProps {
   content: string;
   isCompleted?: boolean;
-  onRetry?: () => void;
+  messageId?: string;
 }
 
 export const MessageContent: React.FC<MessageContentProps> = ({
   content,
   isCompleted = false,
-  onRetry,
+  messageId,
 }) => {
   const parts = parseMessageContent(content);
   const toolRegistry = useToolRegistry();
@@ -83,7 +83,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({
       })}
 
       {isCompleted && (
-        <MessageActions content={getTextContent()} onRetry={onRetry} showCompleted={true} />
+        <MessageActions content={getTextContent()} showCompleted={true} messageId={messageId} />
       )}
     </div>
   );

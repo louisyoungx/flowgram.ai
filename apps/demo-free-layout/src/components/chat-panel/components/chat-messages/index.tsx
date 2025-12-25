@@ -64,7 +64,9 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
             contentRender: (content: string, item: any) => {
               const msg = messages.find((m) => m.id === item.key);
               const isCompleted = msg?.status === 'sent';
-              return <MessageContent content={content} isCompleted={isCompleted} />;
+              return (
+                <MessageContent content={content} isCompleted={isCompleted} messageId={item.key} />
+              );
             },
             variant: 'filled',
             styles: {

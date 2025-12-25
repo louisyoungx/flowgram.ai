@@ -19,7 +19,7 @@
 .right {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
 }
 
 .completed {
@@ -45,6 +45,7 @@
 .completedText {
     color: rgba(0, 0, 0, 0.5);
     font-weight: 500;
+    font-size: 12px;
 }
 
 .iconButton {
@@ -54,7 +55,7 @@
     cursor: pointer;
     color: rgba(0, 0, 0, 0.3);
     transition: color 0.2s;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .iconButton:hover {

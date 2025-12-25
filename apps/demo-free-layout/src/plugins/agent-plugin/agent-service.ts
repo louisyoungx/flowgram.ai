@@ -60,6 +60,36 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     }
   }
 
+  public async retryMessage(messageId: string): Promise<void> {
+    const messageIndex = this.messages.findIndex((m) => m.id === messageId);
+    if (messageIndex === -1) {
+      return;
+    }
+
+    const message = this.messages[messageIndex];
+    if (message.role !== 'assistant') {
+      return;
+    }
+
+    let userMessageIndex = -1;
+    for (let i = messageIndex - 1; i >= 0; i--) {
+      if (this.messages[i].role === 'user') {
+        userMessageIndex = i;
+        break;
+      }
+    }
+
+    if (userMessageIndex === -1) {
+      return;
+    }
+
+    const userMessage = this.messages[userMessageIndex];
+    this.messages = this.messages.slice(0, userMessageIndex);
+    this.notifyListeners();
+
+    await this.sendMessage(userMessage.content);
+  }
+
   /**
    * 发送消息并处理 AI 响应
    */
