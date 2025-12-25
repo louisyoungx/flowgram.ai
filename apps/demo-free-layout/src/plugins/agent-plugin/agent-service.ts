@@ -327,7 +327,10 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         content: fullContent,
       });
 
-      return fullContent;
+      return {
+        content: fullContent,
+        usage: lastUsage,
+      };
     }
 
     // 达到最大迭代次数，输出警告信息但保留之前的内容
@@ -484,34 +487,32 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   }
 
   /**
-   * 执行工具调用
+   * 执行工具调用（并发执行）
    */
   private async executeTools(toolCalls: ToolCall[]): Promise<ToolResult[]> {
-    const results: ToolResult[] = [];
-
-    for (const toolCall of toolCalls) {
+    const promises = toolCalls.map(async (toolCall) => {
       try {
         const args = JSON.parse(toolCall.function.arguments);
         const result = await this.toolRegistry.execute(toolCall.function.name, args);
 
-        results.push({
+        return {
           toolCallId: toolCall.id,
           result,
-        });
+        };
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
-        results.push({
+        return {
           toolCallId: toolCall.id,
           result: JSON.stringify({
             success: false,
             error: errorMessage,
           }),
           error: errorMessage,
-        });
+        };
       }
-    }
+    });
 
-    return results;
+    return Promise.all(promises);
   }
 }
