@@ -7,23 +7,24 @@ import React from 'react';
 
 import { Suggestion } from '@ant-design/x';
 
+import { useChatInput } from '../../hooks';
 import { suggestionQuestions } from '../../constants';
 
 import styles from './index.module.css';
 
-interface ChatSuggestionsProps {
-  onSelect: (value: string) => void;
-}
+export const ChatSuggestions: React.FC = () => {
+  const { send } = useChatInput();
 
-export const ChatSuggestions: React.FC<ChatSuggestionsProps> = ({ onSelect }) => (
-  <div className={styles.suggestions}>
-    <Suggestion
-      items={suggestionQuestions.map((text, index) => ({
-        key: index.toString(),
-        label: text,
-        value: text,
-      }))}
-      onSelect={onSelect}
-    />
-  </div>
-);
+  return (
+    <div className={styles.suggestions}>
+      <Suggestion
+        items={suggestionQuestions.map((text, index) => ({
+          key: index.toString(),
+          label: text,
+          value: text,
+        }))}
+        onSelect={send}
+      />
+    </div>
+  );
+};

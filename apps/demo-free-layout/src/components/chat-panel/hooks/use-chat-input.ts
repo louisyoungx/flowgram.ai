@@ -9,66 +9,34 @@ import { useAgentService } from '../../../plugins/agent-plugin';
 
 export const useChatInput = () => {
   const agentService = useAgentService();
-  const [inputValue, setInputValue] = useState('');
-  const [editInputValue, setEditInputValue] = useState('');
+  const [value, setValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
 
-  const handleSend = async (value: string) => {
-    if (!value.trim() || isLoading) return;
+  const send = async (inputValue: string) => {
+    if (!inputValue.trim() || isLoading) return;
 
-    setInputValue('');
+    setValue('');
     setIsLoading(true);
 
     try {
-      await agentService.sendMessage(value);
+      await agentService.sendMessage(inputValue);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleEditSend = async (value: string) => {
-    if (!value.trim() || isLoading || !editingMessageId) return;
-
-    setIsLoading(true);
-
-    try {
-      await agentService.editAndResendMessage(editingMessageId, value);
-      setEditingMessageId(null);
-      setEditInputValue('');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCancel = () => {
+  const cancel = () => {
     if (isLoading) {
       agentService.cancelCurrentRequest();
       setIsLoading(false);
     }
   };
 
-  const handleEditCancel = () => {
-    setEditingMessageId(null);
-    setEditInputValue('');
-  };
-
-  const startEditMessage = (messageId: string, content: string) => {
-    setEditingMessageId(messageId);
-    setEditInputValue(content);
-  };
-
   return {
-    inputValue,
-    setInputValue,
-    editInputValue,
-    setEditInputValue,
+    value,
+    setValue,
     isLoading,
-    handleSend,
-    handleEditSend,
-    handleCancel,
-    handleEditCancel,
-    editingMessageId,
-    startEditMessage,
+    send,
+    cancel,
   };
 };
