@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import { Spin } from '@douyinfe/semi-ui';
-import { IconChevronDown, IconChevronRight } from '@douyinfe/semi-icons';
+import { IconChevronDown, IconChevronRight, IconTick, IconClose } from '@douyinfe/semi-icons';
 
 import styles from './index.module.css';
 
@@ -35,28 +35,36 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
     }
   };
 
-  let parsedArgs: any = null;
-  let parsedResult: any = null;
-  let hasValidArgs = false;
+  const { parsedArgs, parsedResult, hasValidArgs, isSuccess, isCancelled } = useMemo(() => {
+    let parsedArgs: any = null;
+    let parsedResult: any = null;
+    let hasValidArgs = false;
+    let isSuccess = false;
+    let isCancelled = false;
 
-  try {
-    if (args && args.trim()) {
-      parsedArgs = JSON.parse(args);
-      hasValidArgs = true;
+    try {
+      if (args && args.trim()) {
+        parsedArgs = JSON.parse(args);
+        hasValidArgs = true;
+      }
+    } catch (e) {
+      console.warn(`Failed to parse tool arguments for ${toolName}:`, args, e);
+      parsedArgs = null;
     }
-  } catch (e) {
-    console.warn(`Failed to parse tool arguments for ${toolName}:`, args, e);
-    parsedArgs = null;
-  }
 
-  try {
-    if (result && result.trim()) {
-      parsedResult = JSON.parse(result);
+    try {
+      if (result && result.trim()) {
+        parsedResult = JSON.parse(result);
+        isSuccess = parsedResult?.success === true;
+        isCancelled = result.includes('请求已取消') || result.includes('已取消');
+      }
+    } catch (e) {
+      console.warn(`Failed to parse tool result for ${toolName}:`, result, e);
+      parsedResult = null;
     }
-  } catch (e) {
-    console.warn(`Failed to parse tool result for ${toolName}:`, result, e);
-    parsedResult = null;
-  }
+
+    return { parsedArgs, parsedResult, hasValidArgs, isSuccess, isCancelled };
+  }, [args, result, toolName]);
 
   if (customRender && hasValidArgs) {
     const CustomRenderComponent = customRender;
@@ -67,21 +75,38 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
     );
   }
 
+  const statusIcon = isCancelled ? (
+    <IconClose size="small" className={styles.cancelledIcon} />
+  ) : isSuccess ? (
+    <></>
+  ) : (
+    <IconClose size="small" className={styles.errorIcon} />
+  );
+
+  const cardClassName = `${styles.card} ${isRunning ? styles.running : ''} ${
+    isCancelled ? styles.cancelled : ''
+  } ${!isSuccess && result ? styles.error : ''}`;
+
   return (
-    <div className={styles.card}>
+    <div className={cardClassName}>
       <div className={styles.header} onClick={handleToggle}>
-        <span className={styles.title}>{toolName}</span>
-        {(hasContent || isRunning) && (
-          <span className={styles.icon}>
-            {isRunning ? (
-              <Spin size="small" />
-            ) : isOpen ? (
-              <IconChevronDown size="small" />
-            ) : (
-              <IconChevronRight size="small" />
-            )}
-          </span>
-        )}
+        <span className={styles.title}>
+          {toolName}
+          {(isCancelled || !isSuccess) && <span className={styles.statusIcon}>{statusIcon}</span>}
+        </span>
+        <div className={styles.headerRight}>
+          {(hasContent || isRunning) && (
+            <span className={styles.icon}>
+              {isRunning ? (
+                <Spin size="small" />
+              ) : isOpen ? (
+                <IconChevronDown size="small" />
+              ) : (
+                <IconChevronRight size="small" />
+              )}
+            </span>
+          )}
+        </div>
       </div>
       {isOpen && hasContent && (
         <div className={styles.body}>

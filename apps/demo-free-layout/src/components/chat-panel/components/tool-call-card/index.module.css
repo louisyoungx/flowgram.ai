@@ -9,13 +9,23 @@
     border-radius: 6px;
     overflow: hidden;
     background: #fff;
+    transition: all 0.2s ease;
+}
+
+.card.running {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+.card.cancelled {
+    border-color: #9ca3af;
+    opacity: 0.8;
 }
 
 .header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    gap: 8px;
     padding: 10px 14px;
     cursor: pointer;
     background: #f9fafb;
@@ -27,13 +37,42 @@
     background: #f3f4f6;
 }
 
-.icon {
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.statusIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: 20px;
+    width: 20px;
+}
+
+.toggleIcon {
     display: flex;
     align-items: center;
     justify-content: center;
     color: #9ca3af;
     flex-shrink: 0;
     height: 20px;
+    width: 20px;
+}
+
+.successIcon {
+    color: #10b981;
+}
+
+.errorIcon {
+    color: #ef4444;
+}
+
+.cancelledIcon {
+    color: #9ca3af;
 }
 
 .title {
