@@ -6,3 +6,4 @@
 export { useChatMessages } from './use-chat-messages';
 export { useChatInput } from './use-chat-input';
 export { useChatEdit } from './use-chat-edit';
+export { useSchemaRestoreConfirm } from './use-schema-restore-confirm';

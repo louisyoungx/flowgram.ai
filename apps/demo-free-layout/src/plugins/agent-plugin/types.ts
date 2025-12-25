@@ -5,7 +5,7 @@
 
 import type React from 'react';
 
-import type { Event } from '@flowgram.ai/free-layout-editor';
+import type { Event, WorkflowJSON } from '@flowgram.ai/free-layout-editor';
 import type { IJsonSchema } from '@flowgram.ai/form-materials';
 
 /**
@@ -27,6 +27,10 @@ export interface UIChatMessage {
   content: string;
   timestamp: number;
   status?: 'sending' | 'sent' | 'error';
+}
+
+export interface AgentServiceChatMessage extends UIChatMessage {
+  schema?: WorkflowJSON;
 }
 
 export interface AgentConfig {
@@ -120,6 +124,16 @@ export interface IWorkflowAgentService {
   getMessages(): UIChatMessage[];
 
   /**
+   * 检查指定消息是否有 schema
+   */
+  hasSchema(messageId: string): boolean;
+
+  /**
+   * 获取指定消息之前的用户消息 ID
+   */
+  getPreviousUserMessageId(messageId: string): string | null;
+
+  /**
    * 监听消息变化
    */
   onMessagesChange: Event<UIChatMessage[]>;
@@ -148,6 +162,10 @@ export interface IWorkflowAgentService {
    * 编辑并重新发送指定的用户消息
    */
   editAndResendMessage(messageId: string, newContent: string): Promise<void>;
+  /**
+   * 恢复指定消息的 schema
+   */
+  restoreSchema(messageId: string): void;
 }
 
 export const IWorkflowAgentService = Symbol('WorkflowAgentService');

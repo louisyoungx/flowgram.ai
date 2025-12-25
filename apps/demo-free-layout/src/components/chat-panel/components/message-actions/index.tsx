@@ -8,7 +8,7 @@ import React from 'react';
 import { Tooltip, Toast } from '@douyinfe/semi-ui';
 import { IconCopy, IconRefresh } from '@douyinfe/semi-icons';
 
-import { useChatMessages } from '../../hooks';
+import { useChatMessages, useSchemaRestoreConfirm } from '../../hooks';
 import { useAgentService } from '../../../../plugins/agent-plugin';
 
 import styles from './index.module.css';
@@ -25,6 +25,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   messageId,
 }) => {
   const agentService = useAgentService();
+  const { confirmWithSchemaRestore } = useSchemaRestoreConfirm();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
@@ -32,9 +33,21 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   };
 
   const handleRetry = () => {
-    if (messageId) {
+    if (!messageId) return;
+
+    const userMessageId = agentService.getPreviousUserMessageId(messageId);
+    if (!userMessageId) {
       agentService.retryMessage(messageId);
+      return;
     }
+
+    const proceedWithRetry = () => {
+      agentService.retryMessage(messageId);
+    };
+
+    confirmWithSchemaRestore(userMessageId, proceedWithRetry, {
+      content: '重试消息将会清除后续的所有消息。是否需要先回退工作流的改动？',
+    });
   };
 
   return (

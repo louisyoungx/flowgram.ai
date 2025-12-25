@@ -3,7 +3,15 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { Emitter, injectable, inject } from '@flowgram.ai/free-layout-editor';
+import {
+  Emitter,
+  injectable,
+  inject,
+  WorkflowDocument,
+  WorkflowOperationBaseService,
+  Playground,
+  fitView,
+} from '@flowgram.ai/free-layout-editor';
 
 import type {
   AgentConfig,
@@ -14,6 +22,7 @@ import type {
   ToolCall,
   ToolResult,
   ReActStep,
+  AgentServiceChatMessage,
 } from './types';
 import { WorkflowAgentToolRegistry } from './tools';
 import SYSTEM_PROMPT from './system-prompt.md?raw';
@@ -25,9 +34,15 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   @inject(WorkflowAgentToolRegistry)
   private toolRegistry: WorkflowAgentToolRegistry;
 
+  @inject(WorkflowDocument) document: WorkflowDocument;
+
+  @inject(WorkflowOperationBaseService) operationService: WorkflowOperationBaseService;
+
+  @inject(Playground) playground: Playground;
+
   private config: AgentConfig;
 
-  private messages: UIChatMessage[] = [];
+  private messages: AgentServiceChatMessage[] = [];
 
   private messagesEmitter = new Emitter<UIChatMessage[]>();
 
@@ -45,7 +60,27 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   }
 
   public getMessages(): UIChatMessage[] {
-    return [...this.messages];
+    return this.messages.map(({ schema, ...msg }) => msg);
+  }
+
+  public hasSchema(messageId: string): boolean {
+    const message = this.messages.find((m) => m.id === messageId);
+    return !!message?.schema;
+  }
+
+  public getPreviousUserMessageId(messageId: string): string | null {
+    const messageIndex = this.messages.findIndex((m) => m.id === messageId);
+    if (messageIndex === -1) {
+      return null;
+    }
+
+    for (let i = messageIndex - 1; i >= 0; i--) {
+      if (this.messages[i].role === 'user') {
+        return this.messages[i].id;
+      }
+    }
+
+    return null;
   }
 
   public clearMessages(): void {
@@ -58,6 +93,17 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       this.abortController.abort();
       this.abortController = null;
     }
+  }
+
+  public restoreSchema(messageId: string): void {
+    const message = this.messages.find((m) => m.id === messageId);
+    if (!message?.schema) {
+      return;
+    }
+
+    this.operationService.fromJSON(message.schema);
+
+    fitView(this.document, this.playground.config);
   }
 
   public async retryMessage(messageId: string): Promise<void> {
@@ -118,7 +164,12 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
     // 添加用户消息
     const userMessage = WorkflowAgentUtils.createUserMessage(content);
-    this.addMessage(userMessage);
+
+    // 在发送消息前保存当前 workflow schema 快照
+    const schema = this.document.toJSON();
+    const userMessageWithSchema = { ...userMessage, schema };
+
+    this.addMessage(userMessageWithSchema);
 
     // 创建 assistant 消息
     const assistantMessage = WorkflowAgentUtils.createAssistantMessage();
@@ -219,7 +270,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   }
 
   private notifyListeners(): void {
-    this.messagesEmitter.fire([...this.messages]);
+    this.messagesEmitter.fire(this.getMessages());
   }
 
   private addMessage(message: UIChatMessage): void {

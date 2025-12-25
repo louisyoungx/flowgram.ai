@@ -6,9 +6,11 @@
 import { useState } from 'react';
 
 import { useAgentService } from '../../../plugins/agent-plugin';
+import { useSchemaRestoreConfirm } from './use-schema-restore-confirm';
 
 export const useChatEdit = () => {
   const agentService = useAgentService();
+  const { confirmWithSchemaRestore } = useSchemaRestoreConfirm();
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,14 +28,20 @@ export const useChatEdit = () => {
   const submitEdit = async (value: string) => {
     if (!value.trim() || isLoading || !editingMessageId) return;
 
-    setIsLoading(true);
+    const proceedWithEdit = async () => {
+      setIsLoading(true);
 
-    try {
-      await agentService.editAndResendMessage(editingMessageId, value);
-      cancelEdit();
-    } finally {
-      setIsLoading(false);
-    }
+      try {
+        await agentService.editAndResendMessage(editingMessageId, value);
+        cancelEdit();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    confirmWithSchemaRestore(editingMessageId, proceedWithEdit, {
+      content: '编辑并重新发送消息将会清除后续的所有消息。是否需要先回退工作流的改动？',
+    });
   };
 
   return {
