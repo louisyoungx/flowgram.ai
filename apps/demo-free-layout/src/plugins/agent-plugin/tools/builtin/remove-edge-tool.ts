@@ -108,6 +108,7 @@ export class RemoveEdgeTool extends BaseNodeTool<RemoveEdgeToolParams, RemoveEdg
     line.dispose();
 
     this.handleAutoLayout();
+    this.fitView();
 
     return {
       success: true,

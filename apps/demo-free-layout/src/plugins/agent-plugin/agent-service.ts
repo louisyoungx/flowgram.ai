@@ -287,17 +287,24 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   }
 
   private createMessages(): ChatMessage[] {
+    const filteredMessages = this.messages.filter(
+      (msg) => msg.role === 'user' || msg.role === 'assistant'
+    );
+
     const history: ChatMessage[] = [
       {
         role: 'system',
         content: this.systemPrompt,
       },
-      ...this.messages
-        .filter((msg) => msg.role === 'user' || msg.role === 'assistant')
-        .map((msg) => ({
+      ...filteredMessages.map((msg, index) => {
+        const isRecentMessage = index >= filteredMessages.length - 4;
+        return {
           role: msg.role,
-          content: WorkflowAgentUtils.removeToolCallsXML(msg.content),
-        })),
+          content: isRecentMessage
+            ? WorkflowAgentUtils.convertToolCallsToText(msg.content)
+            : WorkflowAgentUtils.removeToolCallsXML(msg.content),
+        };
+      }),
     ];
 
     return history;
@@ -577,12 +584,26 @@ export class WorkflowAgentService implements IWorkflowAgentService {
    */
   private async executeTools(toolCalls: ToolCall[]): Promise<ToolResult[]> {
     const promises = toolCalls.map(async (toolCall) => {
-      const args = JSON.parse(toolCall.function.arguments);
-      const result = await this.toolRegistry.execute(toolCall.function.name, args);
-      return {
-        toolCallId: toolCall.id,
-        result,
-      };
+      try {
+        const args = JSON.parse(toolCall.function.arguments);
+        const result = await this.toolRegistry.execute(toolCall.function.name, args);
+
+        return {
+          toolCallId: toolCall.id,
+          result,
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+
+        return {
+          toolCallId: toolCall.id,
+          result: JSON.stringify({
+            success: false,
+            error: errorMessage,
+          }),
+          error: errorMessage,
+        };
+      }
     });
 
     return Promise.all(promises);

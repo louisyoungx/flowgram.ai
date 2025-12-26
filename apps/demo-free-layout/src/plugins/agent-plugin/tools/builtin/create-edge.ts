@@ -128,8 +128,8 @@ interface CreateEdgeParams {
 
     const edge = this.createEdge(params);
     if (edge) {
-      await this.handleAutoLayout();
-      await this.fitView();
+      this.handleAutoLayout();
+      this.fitView();
     }
     if (!edge) {
       return {

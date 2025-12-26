@@ -162,6 +162,31 @@ export namespace WorkflowAgentUtils {
   export const removeToolCallsXML = (content: string): string => {
     const toolCallRegex =
       /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>[\s\S]*?<\/arguments>(?:\s*<result>[\s\S]*?<\/result>)?\s*<\/tool_call>/g;
-    return content.replace(toolCallRegex, '').trim();
+    return content.replace(toolCallRegex, '[Old tool result content cleared]').trim();
+  };
+
+  /**
+   * 将工具调用XML转换为文本描述
+   * 用于最近的消息，保留工具调用的语义但避免LLM误以为输出XML就能调用工具
+   */
+  export const convertToolCallsToText = (content: string): string => {
+    const toolCallRegex =
+      /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>([\s\S]*?)<\/arguments>(?:\s*<result>([\s\S]*?)<\/result>)?\s*<\/tool_call>/g;
+
+    return content
+      .replace(toolCallRegex, (match, id, name, args, result) => {
+        const truncatedArgs = args.trim().substring(0, 100);
+        let replacement = `\n\n[Old tool called: ${name}, args: ${truncatedArgs}${
+          args.trim().length > 100 ? '...' : ''
+        }`;
+        if (result) {
+          const truncatedResult = result.trim().substring(0, 150);
+          replacement += `, result: ${truncatedResult}${result.trim().length > 150 ? '...' : ''}]`;
+        } else {
+          replacement += ']';
+        }
+        return replacement;
+      })
+      .trim();
   };
 }

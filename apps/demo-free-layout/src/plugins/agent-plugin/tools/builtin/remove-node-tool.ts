@@ -64,6 +64,7 @@ export class RemoveNodeTool extends BaseNodeTool<RemoveNodeToolParams, RemoveNod
     node.dispose();
 
     this.handleAutoLayout();
+    this.fitView();
 
     return {
       success: true,
