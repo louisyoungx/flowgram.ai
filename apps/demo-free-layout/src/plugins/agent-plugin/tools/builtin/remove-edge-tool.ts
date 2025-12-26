@@ -6,6 +6,7 @@
 import { injectable, inject, WorkflowLinesManager } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
+import type { ToolCallResult } from '../tool-result';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
@@ -16,8 +17,13 @@ interface RemoveEdgeToolParams {
   targetPortID?: string;
 }
 
+interface RemoveEdgeResult {
+  sourceNodeID: string;
+  targetNodeID: string;
+}
+
 @injectable()
-export class RemoveEdgeTool extends BaseNodeTool<RemoveEdgeToolParams, string> {
+export class RemoveEdgeTool extends BaseNodeTool<RemoveEdgeToolParams, RemoveEdgeResult> {
   @inject(WorkflowLinesManager)
   private linesManager: WorkflowLinesManager;
 
@@ -52,28 +58,28 @@ export class RemoveEdgeTool extends BaseNodeTool<RemoveEdgeToolParams, string> {
     },
   };
 
-  public async execute(params: RemoveEdgeToolParams): Promise<string> {
+  public async execute(params: RemoveEdgeToolParams): Promise<ToolCallResult<RemoveEdgeResult>> {
     if (!params.sourceNodeID || !params.targetNodeID) {
-      return JSON.stringify({
+      return {
         success: false,
         error: '参数 sourceNodeID 和 targetNodeID 在执行 RemoveEdge 操作时为必填项。',
-      });
+      };
     }
 
     const sourceNode = this.document.getNode(params.sourceNodeID);
     if (!sourceNode) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `未找到 ID 为 ${params.sourceNodeID} 的起始节点。`,
-      });
+      };
     }
 
     const targetNode = this.document.getNode(params.targetNodeID);
     if (!targetNode) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `未找到 ID 为 ${params.targetNodeID} 的目标节点。`,
-      });
+      };
     }
 
     const line = this.linesManager.getAllLines().find((l) => {
@@ -86,26 +92,27 @@ export class RemoveEdgeTool extends BaseNodeTool<RemoveEdgeToolParams, string> {
     });
 
     if (!line) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `未找到从节点 ${params.sourceNodeID} 到节点 ${params.targetNodeID} 的连接线。`,
-      });
+      };
     }
 
     if (!this.linesManager.canRemove(line)) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `连接线不允许删除。`,
-      });
+      };
     }
 
     line.dispose();
 
     this.handleAutoLayout();
 
-    return JSON.stringify({
+    return {
       success: true,
+      data: { sourceNodeID: params.sourceNodeID, targetNodeID: params.targetNodeID },
       message: `成功删除从节点 ${params.sourceNodeID} 到节点 ${params.targetNodeID} 的连接线`,
-    });
+    };
   }
 }

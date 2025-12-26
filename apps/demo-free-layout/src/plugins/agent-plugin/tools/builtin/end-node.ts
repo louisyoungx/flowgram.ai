@@ -9,6 +9,7 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
+import type { ToolCallResult } from '../tool-result';
 import { createNodeRender } from '../renders';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
@@ -24,8 +25,12 @@ interface UpdateEndNodeParams {
   inputsValues?: InputsValuesItem;
 }
 
+interface EndNodeResult {
+  nodeID: string;
+}
+
 @injectable()
-export class EndNodeTool extends BaseNodeTool<UpdateEndNodeParams, string> {
+export class EndNodeTool extends BaseNodeTool<UpdateEndNodeParams, EndNodeResult> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
@@ -137,25 +142,25 @@ interface RefValue {
     render: createNodeRender(WorkflowNodeType.End),
   };
 
-  public async execute(params: UpdateEndNodeParams): Promise<string> {
+  public async execute(params: UpdateEndNodeParams): Promise<ToolCallResult<EndNodeResult>> {
     if (!this.document.getNode(params.id)) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `节点 ID ${params.id} 不存在，请确认后重新输入。`,
-      });
+      };
     }
     if (!params.title && !params.description && !params.inputsValues) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `参数 title、description、inputs 和 inputsValues 不能同时为空，请至少提供一个参数进行更新。`,
-      });
+      };
     }
     const nodeID = await this.updateEndNode(params);
-    return JSON.stringify({
+    return {
       success: true,
       data: { nodeID },
       message: `成功修改 ${nodeID} 节点`,
-    });
+    };
   }
 
   private async updateEndNode(params: UpdateEndNodeParams): Promise<string> {

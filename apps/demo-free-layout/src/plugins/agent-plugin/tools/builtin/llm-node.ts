@@ -9,6 +9,7 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
+import type { ToolCallResult } from '../tool-result';
 import { createNodeRender } from '../renders';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
@@ -43,8 +44,12 @@ interface UpdateLLMNodeParams {
 
 type LLMNodeParams = CreateLLMNodeParams | UpdateLLMNodeParams;
 
+interface LLMNodeResult {
+  nodeID: string;
+}
+
 @injectable()
-export class LLMNodeTool extends BaseNodeTool<LLMNodeParams, string> {
+export class LLMNodeTool extends BaseNodeTool<LLMNodeParams, LLMNodeResult> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
@@ -106,39 +111,39 @@ type RefPath = string[]; // [节点ID, key1, key2, ...]
     render: createNodeRender(WorkflowNodeType.LLM),
   };
 
-  public async execute(params: LLMNodeParams): Promise<string> {
+  public async execute(params: LLMNodeParams): Promise<ToolCallResult<LLMNodeResult>> {
     if (params.operation === 'create') {
       if (this.document.getNode(params.id)) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `节点 ID ${params.id} 已存在，请重新生成一个唯一的节点 ID。`,
-        });
+        };
       }
       const nodeID = await this.createLLMNode(params);
-      return JSON.stringify({
+      return {
         success: true,
         data: { nodeID },
         message: `成功创建 LLM 节点，节点 ID: ${nodeID}`,
-      });
+      };
     }
     if (params.operation === 'update') {
       if (!this.document.getNode(params.id)) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `节点 ID ${params.id} 不存在，无法进行修改。`,
-        });
+        };
       }
       const nodeID = await this.updateLLMNode(params);
-      return JSON.stringify({
+      return {
         success: true,
         data: { nodeID },
         message: `成功修改 LLM 节点，节点 ID: ${nodeID}`,
-      });
+      };
     }
-    return JSON.stringify({
+    return {
       success: false,
       error: `无效的操作类型 ${(params as LLMNodeParams).operation}，仅支持 create 和 update。`,
-    });
+    };
   }
 
   private convertToValueDefine(value: string | number | RefPath): IFlowConstantRefValue {

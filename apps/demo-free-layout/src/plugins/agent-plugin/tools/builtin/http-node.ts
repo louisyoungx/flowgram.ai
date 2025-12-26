@@ -9,6 +9,7 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
+import type { ToolCallResult } from '../tool-result';
 import { createNodeRender } from '../renders';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
@@ -64,8 +65,12 @@ interface UpdateHTTPNodeParams {
 
 type HTTPNodeParams = CreateHTTPNodeParams | UpdateHTTPNodeParams;
 
+interface HTTPNodeResult {
+  nodeID: string;
+}
+
 @injectable()
-export class HTTPNodeTool extends BaseNodeTool<HTTPNodeParams, string> {
+export class HTTPNodeTool extends BaseNodeTool<HTTPNodeParams, HTTPNodeResult> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
@@ -190,39 +195,39 @@ interface TimeoutConfig {
     render: createNodeRender(WorkflowNodeType.HTTP),
   };
 
-  public async execute(params: HTTPNodeParams): Promise<string> {
+  public async execute(params: HTTPNodeParams): Promise<ToolCallResult<HTTPNodeResult>> {
     if (params.operation === 'create') {
       if (this.document.getNode(params.id)) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `节点 ID ${params.id} 已存在，请重新生成一个唯一的节点 ID。`,
-        });
+        };
       }
       const nodeID = await this.createHTTPNode(params);
-      return JSON.stringify({
+      return {
         success: true,
         data: { nodeID },
         message: `成功创建 HTTP 节点，节点 ID: ${nodeID}`,
-      });
+      };
     }
     if (params.operation === 'update') {
       if (!this.document.getNode(params.id)) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `节点 ID ${params.id} 不存在，无法进行修改。`,
-        });
+        };
       }
       const nodeID = await this.updateHTTPNode(params);
-      return JSON.stringify({
+      return {
         success: true,
         data: { nodeID },
         message: `成功修改 HTTP 节点，节点 ID: ${nodeID}`,
-      });
+      };
     }
-    return JSON.stringify({
+    return {
       success: false,
       error: `无效的操作类型 ${(params as HTTPNodeParams).operation}，仅支持 create 和 update。`,
-    });
+    };
   }
 
   private async createHTTPNode(params: CreateHTTPNodeParams): Promise<string> {

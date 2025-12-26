@@ -4,8 +4,10 @@
  */
 
 import { injectable, inject, WorkflowLinesManager } from '@flowgram.ai/free-layout-editor';
+import type { WorkflowEdgeJSON } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
+import type { ToolCallResult } from '../tool-result';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
@@ -16,8 +18,10 @@ interface CreateEdgeParams {
   toPort?: string;
 }
 
+type CreateEdgeResult = WorkflowEdgeJSON;
+
 @injectable()
-export class CreateEdgeTool extends BaseNodeTool<CreateEdgeParams, string> {
+export class CreateEdgeTool extends BaseNodeTool<CreateEdgeParams, CreateEdgeResult> {
   @inject(WorkflowLinesManager)
   private linesManager: WorkflowLinesManager;
 
@@ -98,45 +102,43 @@ interface CreateEdgeParams {
     },
   };
 
-  public async execute(params: CreateEdgeParams): Promise<string> {
-    // 验证必填参数
+  public async execute(params: CreateEdgeParams): Promise<ToolCallResult<CreateEdgeResult>> {
     if (!params.from || !params.to) {
-      return JSON.stringify({
+      return {
         success: false,
         error: '参数 from 和 to 在执行 CreateEdge 操作时为必填项。',
-      });
+      };
     }
 
-    // 验证节点是否存在
     const fromNode = this.document.getNode(params.from);
     if (!fromNode) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `未找到 ID 为 ${params.from} 的起始节点。`,
-      });
+      };
     }
 
     const toNode = this.document.getNode(params.to);
     if (!toNode) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `未找到 ID 为 ${params.to} 的目标节点。`,
-      });
+      };
     }
 
     const edge = this.createEdge(params);
     if (!edge) {
-      return JSON.stringify({
+      return {
         success: false,
         error: '创建连接线失败，可能是端口不存在或连接不合法。',
-      });
+      };
     }
 
-    return JSON.stringify({
+    return {
       success: true,
       data: edge.toJSON(),
       message: `成功创建连接 ${edge.id}`,
-    });
+    };
   }
 
   private createEdge(params: CreateEdgeParams) {

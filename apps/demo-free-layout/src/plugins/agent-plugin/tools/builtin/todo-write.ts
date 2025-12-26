@@ -5,6 +5,7 @@
 
 import { injectable } from '@flowgram.ai/free-layout-editor';
 
+import type { ToolCallResult } from '../tool-result';
 import { TodoWriteRender } from '../renders/todo-write-render';
 import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
@@ -36,6 +37,8 @@ interface TodoItem {
   description?: string;
 }
 
+type TodoWriteResult = TodoItem[] | TodoItem;
+
 /**
  * Todo 列表存储
  */
@@ -63,7 +66,7 @@ const todoStore = new TodoStore();
  * 支持依赖注入，可以注入 WorkflowDocument 等服务
  */
 @injectable()
-export class TodoWriteTool extends BaseTool<TodoWriteArgs, string> {
+export class TodoWriteTool extends BaseTool<TodoWriteArgs, TodoWriteResult> {
   // 如果需要注入服务，可以这样写：
   // @inject(WorkflowDocument) private document: WorkflowDocument;
 
@@ -158,71 +161,71 @@ IMPORTANT：write 操作会完全替换整个列表，导致之前的任务历�
   /**
    * 执行工具
    */
-  async execute(args: TodoWriteArgs): Promise<string> {
+  async execute(args: TodoWriteArgs): Promise<ToolCallResult<TodoWriteResult>> {
     if (args.operation === 'read') {
       const todos = todoStore.read();
       if (todos.length === 0) {
-        return JSON.stringify({
+        return {
           success: true,
           data: [],
           message: '待办事项列表为空',
-        });
+        };
       }
-      return JSON.stringify({
+      return {
         success: true,
         data: todos,
         message: `当前有 ${todos.length} 个待办事项`,
-      });
+      };
     }
 
     if (args.operation === 'write') {
       if (!args.todoList || !Array.isArray(args.todoList)) {
-        return JSON.stringify({
+        return {
           success: false,
           error: 'write 操作需要提供 todoList 数组',
-        });
+        };
       }
 
       const inProgressCount = args.todoList.filter((t) => t.status === 'in_progress').length;
       if (inProgressCount > 1) {
-        return JSON.stringify({
+        return {
           success: false,
           error: '一次只能有一个 in_progress 状态的任务',
-        });
+        };
       }
 
       const ids = args.todoList.map((t) => t.id);
       if (new Set(ids).size !== ids.length) {
-        return JSON.stringify({
+        return {
           success: false,
           error: '待办事项 ID 必须唯一',
-        });
+        };
       }
 
       todoStore.write(args.todoList);
-      return JSON.stringify({
+      return {
         success: true,
         data: args.todoList,
         message: `成功写入 ${args.todoList.length} 个待办事项`,
-      });
+      };
     }
 
     if (args.operation === 'update') {
       if (args.id === undefined) {
-        return JSON.stringify({
+        return {
           success: false,
           error: 'update 操作需要提供 id',
-        });
+        };
       }
 
       const todos = todoStore.read();
       const todoIndex = todos.findIndex((t) => t.id === args.id);
 
       if (todoIndex === -1) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `未找到 ID 为 ${args.id} 的任务`,
-        });
+        };
       }
 
       if (args.status === 'in_progress') {
@@ -230,10 +233,10 @@ IMPORTANT：write 操作会完全替换整个列表，导致之前的任务历�
           (t) => t.id !== args.id && t.status === 'in_progress'
         );
         if (hasOtherInProgress) {
-          return JSON.stringify({
+          return {
             success: false,
             error: '一次只能有一个 in_progress 状态的任务',
-          });
+          };
         }
       }
 
@@ -245,19 +248,19 @@ IMPORTANT：write 操作会完全替换整个列表，导致之前的任务历�
       todos[todoIndex] = updatedTodo;
       todoStore.write(todos);
 
-      return JSON.stringify({
+      return {
         success: true,
         data: updatedTodo,
         message: `成功更新任务 ${args.id}`,
-      });
+      };
     }
 
     if (args.operation === 'add') {
       if (!args.title) {
-        return JSON.stringify({
+        return {
           success: false,
           error: 'add 操作需要提供 title',
-        });
+        };
       }
 
       const todos = todoStore.read();
@@ -266,10 +269,10 @@ IMPORTANT：write 操作会完全替换整个列表，导致之前的任务历�
       if (args.status === 'in_progress') {
         const hasInProgress = todos.some((t) => t.status === 'in_progress');
         if (hasInProgress) {
-          return JSON.stringify({
+          return {
             success: false,
             error: '一次只能有一个 in_progress 状态的任务',
-          });
+          };
         }
       }
 
@@ -283,45 +286,45 @@ IMPORTANT：write 操作会完全替换整个列表，导致之前的任务历�
       todos.push(newTodo);
       todoStore.write(todos);
 
-      return JSON.stringify({
+      return {
         success: true,
         data: todos,
         message: `成功添加任务 ${newId}`,
-      });
+      };
     }
 
     if (args.operation === 'remove') {
       if (args.id === undefined) {
-        return JSON.stringify({
+        return {
           success: false,
           error: 'remove 操作需要提供 id',
-        });
+        };
       }
 
       const todos = todoStore.read();
       const todoIndex = todos.findIndex((t) => t.id === args.id);
 
       if (todoIndex === -1) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `未找到 ID 为 ${args.id} 的任务`,
-        });
+        };
       }
 
       const removedTodo = todos[todoIndex];
       todos.splice(todoIndex, 1);
       todoStore.write(todos);
 
-      return JSON.stringify({
+      return {
         success: true,
         data: removedTodo,
         message: `成功删除任务 ${args.id}`,
-      });
+      };
     }
 
-    return JSON.stringify({
+    return {
       success: false,
       error: '未知的操作类型',
-    });
+    };
   }
 }

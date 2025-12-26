@@ -9,10 +9,12 @@ import {
   WorkflowDocument,
   WorkflowNodeJSON,
   FlowNodeBaseType,
+  WorkflowEdgeJSON,
 } from '@flowgram.ai/free-layout-editor';
 
 import { WorkflowNodeType } from '@/nodes';
 
+import type { ToolCallResult } from '../tool-result';
 import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
 
@@ -24,8 +26,13 @@ interface NodeInfo {
   nodes?: NodeInfo[];
 }
 
+interface WorkflowStructure {
+  nodes: NodeInfo[];
+  edges: WorkflowEdgeJSON[];
+}
+
 @injectable()
-export class GetWorkflowStructureTool extends BaseTool<Record<string, never>, string> {
+export class GetWorkflowStructureTool extends BaseTool<Record<string, never>, WorkflowStructure> {
   @inject(WorkflowDocument)
   private document: WorkflowDocument;
 
@@ -41,13 +48,13 @@ export class GetWorkflowStructureTool extends BaseTool<Record<string, never>, st
     },
   };
 
-  public async execute(): Promise<string> {
+  public async execute(): Promise<ToolCallResult<WorkflowStructure>> {
     const structure = this.getWorkflowStructure();
-    return JSON.stringify({
+    return {
       success: true,
       data: structure,
       message: `成功获取工作流完整结构`,
-    });
+    };
   }
 
   private getWorkflowStructure() {

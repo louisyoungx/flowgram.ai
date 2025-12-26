@@ -21,9 +21,16 @@ interface TodoWriteArgs {
   description?: string;
 }
 
+interface TodoWriteResult {
+  success: boolean;
+  data?: TodoItem | TodoItem[];
+  message?: string;
+  error?: string;
+}
+
 export const TodoWriteRender: React.FC<{
   args: TodoWriteArgs;
-  result?: any;
+  result?: TodoWriteResult;
 }> = ({ args, result }) => {
   if (!result || !result.success) {
     return null;

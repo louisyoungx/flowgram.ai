@@ -8,6 +8,7 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
+import type { ToolCallResult } from '../tool-result';
 import { createNodeRender } from '../renders';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
@@ -19,8 +20,12 @@ interface StartNodeParams {
   outputs?: IJsonSchema;
 }
 
+interface StartNodeResult {
+  nodeID: string;
+}
+
 @injectable()
-export class StartNodeTool extends BaseNodeTool<StartNodeParams, string> {
+export class StartNodeTool extends BaseNodeTool<StartNodeParams, StartNodeResult> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
@@ -101,25 +106,25 @@ outputs 示例
     render: createNodeRender(WorkflowNodeType.Start),
   };
 
-  public async execute(params: StartNodeParams): Promise<string> {
+  public async execute(params: StartNodeParams): Promise<ToolCallResult<StartNodeResult>> {
     if (!this.document.getNode(params.id)) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `节点 ID ${params.id} 不存在，请确认后重新输入。`,
-      });
+      };
     }
     if (!params.title && !params.outputs) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `参数 title 和 outputs 不能同时为空，请至少提供一个参数进行更新。`,
-      });
+      };
     }
     const nodeID = await this.updateStartNode(params);
-    return JSON.stringify({
+    return {
       success: true,
       data: { nodeID },
       message: `成功修改 ${nodeID} 节点`,
-    });
+    };
   }
 
   private async updateStartNode(params: StartNodeParams): Promise<string> {

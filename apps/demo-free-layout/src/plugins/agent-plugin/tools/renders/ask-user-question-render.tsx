@@ -12,22 +12,24 @@ interface AskUserQuestionArgs {
   options?: string[];
 }
 
+interface AskUserQuestionResult {
+  success: boolean;
+  data?: {
+    question: string;
+    answer: string;
+  };
+  error?: string;
+}
+
 export const AskUserQuestionRender: React.FC<{
   args: AskUserQuestionArgs;
-  result?: any;
+  result?: AskUserQuestionResult;
 }> = ({ args, result }) => {
   if (!args || !args.question) {
     return null;
   }
 
-  let answerText: string | undefined;
-  if (result) {
-    if (typeof result === 'string') {
-      answerText = result;
-    } else if (result.answer) {
-      answerText = result.answer;
-    }
-  }
+  const answerText = result?.data?.answer;
 
   if (answerText) {
     return (

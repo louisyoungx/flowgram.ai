@@ -7,11 +7,12 @@ import { injectable, inject } from '@flowgram.ai/free-layout-editor';
 
 import { ValidateService } from '@/services';
 
-import { BaseTool } from '../base-tool';
+import type { ToolCallResult } from '../tool-result';
+import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
 @injectable()
-export class WorkflowValidateTool extends BaseTool<Record<string, never>, string> {
+export class WorkflowValidateTool extends BaseNodeTool<Record<string, never>, any[]> {
   @inject(ValidateService)
   private validateService: ValidateService;
 
@@ -27,15 +28,16 @@ export class WorkflowValidateTool extends BaseTool<Record<string, never>, string
     },
   };
 
-  public async execute(): Promise<string> {
+  public async execute(): Promise<ToolCallResult<any[]>> {
+    await this.fitView();
     const validationResults = await this.workflowValidate();
-    return JSON.stringify({
+    return {
       success: true,
       data: validationResults,
       message: validationResults.length
         ? `工作流校验共发现 ${validationResults.length} 个问题`
         : `完成工作流校验，未发现问题`,
-    });
+    };
   }
 
   private async workflowValidate() {

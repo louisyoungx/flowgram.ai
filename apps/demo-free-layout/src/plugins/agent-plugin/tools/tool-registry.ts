@@ -6,6 +6,7 @@
 import { injectable, multiInject } from '@flowgram.ai/free-layout-editor';
 
 import type { Tool } from '../types';
+import { ToolCallResult } from './tool-result';
 import { IAgentTool } from './base-tool';
 
 /**
@@ -56,7 +57,17 @@ export class WorkflowAgentToolRegistry {
     if (!tool) {
       throw new Error(`Tool ${name} not found`);
     }
-    return await tool.execute(args);
+    try {
+      const toolResult = await tool.execute(args);
+      return JSON.stringify(toolResult);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const toolResult: ToolCallResult<null> = {
+        success: false,
+        error: errorMessage,
+      };
+      return JSON.stringify(toolResult);
+    }
   }
 
   /**

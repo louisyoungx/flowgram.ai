@@ -8,6 +8,7 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { ValidateService } from '@/services';
 
+import type { ToolCallResult } from '../tool-result';
 import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
 
@@ -15,8 +16,13 @@ interface NodeValidateParams {
   nodeID: string;
 }
 
+interface NodeValidateResult {
+  node: any;
+  feedbacks: any[];
+}
+
 @injectable()
-export class NodeValidateTool extends BaseTool<NodeValidateParams, string> {
+export class NodeValidateTool extends BaseTool<NodeValidateParams, NodeValidateResult> {
   @inject(ValidateService)
   private validateService: ValidateService;
 
@@ -41,29 +47,29 @@ export class NodeValidateTool extends BaseTool<NodeValidateParams, string> {
     },
   };
 
-  public async execute(params: NodeValidateParams): Promise<string> {
+  public async execute(params: NodeValidateParams): Promise<ToolCallResult<NodeValidateResult>> {
     if (!params.nodeID) {
-      return JSON.stringify({
+      return {
         success: false,
         error: '参数 nodeID 在执行 NodeValidate 操作时为必填项。',
-      });
+      };
     }
 
     const validationResult = await this.nodeValidate(params.nodeID);
     if (validationResult === null) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `未找到 ID 为 ${params.nodeID} 的节点。`,
-      });
+      };
     }
 
-    return JSON.stringify({
+    return {
       success: true,
       data: validationResult,
       message: validationResult.feedbacks.length
         ? `节点 ${params.nodeID} 校验共发现 ${validationResult.feedbacks.length} 个问题`
         : `完成节点 ${params.nodeID} 校验，未发现问题`,
-    });
+    };
   }
 
   private async nodeValidate(nodeID: string) {

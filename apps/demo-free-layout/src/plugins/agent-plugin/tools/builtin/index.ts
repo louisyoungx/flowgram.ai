@@ -42,3 +42,9 @@ export const AGENT_BUILTIN_TOOLS = [
   CodeNodeTool,
   ConditionNodeTool,
 ];
+
+export type {
+  ToolCallResult as ToolResult,
+  ToolSuccessResult,
+  ToolErrorResult,
+} from '../tool-result';

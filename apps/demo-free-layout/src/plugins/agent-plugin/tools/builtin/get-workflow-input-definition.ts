@@ -11,11 +11,15 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
+import type { ToolCallResult } from '../tool-result';
 import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
 
 @injectable()
-export class GetWorkflowInputDefinitionTool extends BaseTool<Record<string, never>, string> {
+export class GetWorkflowInputDefinitionTool extends BaseTool<
+  Record<string, never>,
+  IJsonSchema<'object'>
+> {
   @inject(WorkflowDocument)
   private document: WorkflowDocument;
 
@@ -31,13 +35,13 @@ export class GetWorkflowInputDefinitionTool extends BaseTool<Record<string, neve
     },
   };
 
-  public async execute(): Promise<string> {
+  public async execute(): Promise<ToolCallResult<IJsonSchema<'object'>>> {
     const inputDef = this.getWorkflowInputDefinition();
-    return JSON.stringify({
+    return {
       success: true,
       data: inputDef,
       message: `成功获取工作流输入定义`,
-    });
+    };
   }
 
   private getWorkflowInputDefinition(): IJsonSchema<'object'> {

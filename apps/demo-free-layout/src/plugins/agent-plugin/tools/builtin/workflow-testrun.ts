@@ -10,15 +10,24 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 import { ValidateService } from '@/services';
 import { TaskRunResult, WorkflowRuntimeService } from '@/plugins/runtime-plugin/runtime-service';
 
-import { BaseTool } from '../base-tool';
+import type { ToolCallResult } from '../tool-result';
+import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
 interface WorkflowTestrunParams {
   testrunInputs: WorkflowInputs;
 }
 
+interface WorkflowTestrunResult {
+  result?: any;
+  report?: any;
+}
+
 @injectable()
-export class WorkflowTestrunTool extends BaseTool<WorkflowTestrunParams, string> {
+export class WorkflowTestrunTool extends BaseNodeTool<
+  WorkflowTestrunParams,
+  WorkflowTestrunResult
+> {
   @inject(WorkflowRuntimeService)
   private runtimeService: WorkflowRuntimeService;
 
@@ -44,38 +53,44 @@ export class WorkflowTestrunTool extends BaseTool<WorkflowTestrunParams, string>
     },
   };
 
-  public async execute(params: WorkflowTestrunParams): Promise<string> {
+  public async execute(
+    params: WorkflowTestrunParams
+  ): Promise<ToolCallResult<WorkflowTestrunResult>> {
+    await this.fitView();
     if (!params.testrunInputs) {
-      return JSON.stringify({
+      return {
         success: false,
         error:
           '参数 testrunInputs 在执行 workflow_testrun 操作时为必填项,如果工作流无需入参,则传入空对象 {} 即可。',
-      });
+      };
     }
 
     const validationResults = await this.validateService.validateNodes();
 
     if (validationResults.length) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `工作流校验未通过，发现 ${validationResults.length} 个问题，无法进行试运行，请先修复问题后再试。`,
         data: validationResults,
-      });
+      };
     }
 
     const result = await this.workflowTestRun(params.testrunInputs);
     if (result.errors) {
-      return JSON.stringify({
+      return {
         success: false,
         error: result.errors.join('; '),
-        report: result.report,
-      });
+        data: { report: result.report },
+      };
     }
-    return JSON.stringify({
+    return {
       success: true,
-      data: result.result,
-      report: result.report,
-    });
+      data: {
+        result: result.result,
+        report: result.report,
+      },
+      message: '工作流试运行成功',
+    };
   }
 
   private async workflowTestRun(inputs: WorkflowInputs): Promise<TaskRunResult> {

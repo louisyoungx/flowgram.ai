@@ -11,6 +11,7 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
+import type { ToolCallResult } from '../tool-result';
 import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
 
@@ -19,7 +20,7 @@ interface GetNodeSchemaParams {
 }
 
 @injectable()
-export class GetNodeSchemaTool extends BaseTool<GetNodeSchemaParams, string> {
+export class GetNodeSchemaTool extends BaseTool<GetNodeSchemaParams, WorkflowNodeJSON> {
   @inject(WorkflowDocument)
   private document: WorkflowDocument;
 
@@ -41,26 +42,26 @@ export class GetNodeSchemaTool extends BaseTool<GetNodeSchemaParams, string> {
     },
   };
 
-  public async execute(params: GetNodeSchemaParams): Promise<string> {
+  public async execute(params: GetNodeSchemaParams): Promise<ToolCallResult<WorkflowNodeJSON>> {
     if (!params.nodeID) {
-      return JSON.stringify({
+      return {
         success: false,
         error: '参数 nodeID 在执行 GetWorkflowNodeSchema 操作时为必填项。',
-      });
+      };
     }
 
     const nodeSchema = this.getNodeSchema(params.nodeID);
     if (!nodeSchema) {
-      return JSON.stringify({
+      return {
         success: false,
         error: `未找到 ID 为 ${params.nodeID} 的节点。`,
-      });
+      };
     }
-    return JSON.stringify({
+    return {
       success: true,
       data: nodeSchema,
       message: `成功获取节点 ${params.nodeID} 的 Schema。`,
-    });
+    };
   }
 
   private getNodeSchema(nodeID: string): WorkflowNodeJSON | null {

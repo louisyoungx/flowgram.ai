@@ -10,11 +10,12 @@ import {
   WorkflowJSON,
 } from '@flowgram.ai/free-layout-editor';
 
+import type { ToolCallResult } from '../tool-result';
 import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
 
 @injectable()
-export class GetWorkflowSchemaTool extends BaseTool<Record<string, never>, string> {
+export class GetWorkflowSchemaTool extends BaseTool<Record<string, never>, WorkflowJSON> {
   @inject(WorkflowDocument)
   private document: WorkflowDocument;
 
@@ -30,13 +31,13 @@ export class GetWorkflowSchemaTool extends BaseTool<Record<string, never>, strin
     },
   };
 
-  public async execute(): Promise<string> {
+  public async execute(): Promise<ToolCallResult<WorkflowJSON>> {
     const json = this.getWorkflowSchema();
-    return JSON.stringify({
+    return {
       success: true,
       data: json,
       message: `成功获取工作流完整 Schema`,
-    });
+    };
   }
 
   private getWorkflowSchema(): WorkflowJSON {

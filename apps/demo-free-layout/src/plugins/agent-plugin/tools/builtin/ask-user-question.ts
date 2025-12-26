@@ -5,6 +5,7 @@
 
 import { injectable } from '@flowgram.ai/free-layout-editor';
 
+import type { ToolCallResult } from '../tool-result';
 import { AskUserQuestionRender } from '../renders/ask-user-question-render';
 import { BaseTool } from '../base-tool';
 import type { Tool } from '../../types';
@@ -23,8 +24,13 @@ interface QuestionState {
 
 const questionStore = new Map<string, QuestionState>();
 
+interface AskUserQuestionResult {
+  question: string;
+  answer: string;
+}
+
 @injectable()
-export class AskUserQuestionTool extends BaseTool<AskUserQuestionArgs, string> {
+export class AskUserQuestionTool extends BaseTool<AskUserQuestionArgs, AskUserQuestionResult> {
   readonly tool: Tool = {
     type: 'function',
     function: {
@@ -61,21 +67,22 @@ export class AskUserQuestionTool extends BaseTool<AskUserQuestionArgs, string> {
     render: AskUserQuestionRender,
   };
 
-  async execute(args: AskUserQuestionArgs): Promise<string> {
+  async execute(args: AskUserQuestionArgs): Promise<ToolCallResult<AskUserQuestionResult>> {
     const questionId = args.question;
 
-    return new Promise<string>((resolve) => {
+    return new Promise<ToolCallResult<AskUserQuestionResult>>((resolve) => {
       questionStore.set(questionId, {
         question: args.question,
         options: args.options,
         resolve: (answer: string) => {
-          resolve(
-            JSON.stringify({
-              success: true,
+          resolve({
+            success: true,
+            data: {
               question: args.question,
               answer,
-            })
-          );
+            },
+            message: '用户已回答问题',
+          });
         },
       });
 
@@ -83,12 +90,10 @@ export class AskUserQuestionTool extends BaseTool<AskUserQuestionArgs, string> {
         const state = questionStore.get(questionId);
         if (state && !state.answer) {
           questionStore.delete(questionId);
-          resolve(
-            JSON.stringify({
-              success: false,
-              error: '用户未在规定时间内回答问题',
-            })
-          );
+          resolve({
+            success: false,
+            error: '用户未在规定时间内回答问题',
+          });
         }
       }, 300000);
     });

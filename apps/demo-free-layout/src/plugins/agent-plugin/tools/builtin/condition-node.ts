@@ -3,41 +3,16 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { IFlowConstantRefValue } from '@flowgram.ai/runtime-interface';
+import { ConditionItem } from '@flowgram.ai/runtime-interface';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
+import type { ToolCallResult } from '../tool-result';
 import { createNodeRender } from '../renders';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
-
-enum ConditionOperator {
-  EQ = 'eq',
-  NEQ = 'neq',
-  GT = 'gt',
-  GTE = 'gte',
-  LT = 'lt',
-  LTE = 'lte',
-  IN = 'in',
-  NIN = 'nin',
-  CONTAINS = 'contains',
-  NOT_CONTAINS = 'not_contains',
-  IS_EMPTY = 'is_empty',
-  IS_NOT_EMPTY = 'is_not_empty',
-  IS_TRUE = 'is_true',
-  IS_FALSE = 'is_false',
-}
-
-interface ConditionItem {
-  key: string;
-  value: {
-    left: IFlowConstantRefValue;
-    operator: ConditionOperator;
-    right?: IFlowConstantRefValue;
-  };
-}
 
 interface CreateConditionNodeParams {
   operation: 'create';
@@ -57,8 +32,12 @@ interface UpdateConditionNodeParams {
 
 type ConditionNodeParams = CreateConditionNodeParams | UpdateConditionNodeParams;
 
+interface ConditionNodeResult {
+  nodeID: string;
+}
+
 @injectable()
-export class ConditionNodeTool extends BaseNodeTool<ConditionNodeParams, string> {
+export class ConditionNodeTool extends BaseNodeTool<ConditionNodeParams, ConditionNodeResult> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
@@ -205,56 +184,52 @@ enum ConditionOperator {
     render: createNodeRender(WorkflowNodeType.Condition),
   };
 
-  public async execute(params: ConditionNodeParams): Promise<string> {
+  public async execute(params: ConditionNodeParams): Promise<ToolCallResult<ConditionNodeResult>> {
     if (params.operation === 'create') {
       if (this.document.getNode(params.id)) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `节点 ID ${params.id} 已存在，请重新生成一个唯一的节点 ID。`,
-        });
+        };
       }
       const nodeID = await this.createConditionNode(params);
-      return JSON.stringify({
+      return {
         success: true,
         data: { nodeID },
         message: `成功创建 Condition 节点，节点 ID: ${nodeID}`,
-      });
+      };
     }
     if (params.operation === 'update') {
       if (!this.document.getNode(params.id)) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `节点 ID ${params.id} 不存在，无法进行修改。`,
-        });
+        };
       }
       const nodeID = await this.updateConditionNode(params);
-      return JSON.stringify({
+      return {
         success: true,
         data: { nodeID },
         message: `成功修改 Condition 节点，节点 ID: ${nodeID}`,
-      });
+      };
     }
-    return JSON.stringify({
+    return {
       success: false,
       error: `无效的操作类型 ${
         (params as ConditionNodeParams).operation
       }，仅支持 create 和 update。`,
-    });
+    };
   }
 
   private convertConditionItem(item: ConditionItem) {
-    const result: any = {
+    const result: ConditionItem = {
       key: item.key,
       value: {
         left: item.value.left,
         operator: item.value.operator,
+        right: item.value.right,
       },
     };
-
-    if (item.value.right !== undefined) {
-      result.value.right = item.value.right;
-    }
-
     return result;
   }
 

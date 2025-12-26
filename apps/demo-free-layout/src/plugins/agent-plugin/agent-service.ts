@@ -577,26 +577,12 @@ export class WorkflowAgentService implements IWorkflowAgentService {
    */
   private async executeTools(toolCalls: ToolCall[]): Promise<ToolResult[]> {
     const promises = toolCalls.map(async (toolCall) => {
-      try {
-        const args = JSON.parse(toolCall.function.arguments);
-        const result = await this.toolRegistry.execute(toolCall.function.name, args);
-
-        return {
-          toolCallId: toolCall.id,
-          result,
-        };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        return {
-          toolCallId: toolCall.id,
-          result: JSON.stringify({
-            success: false,
-            error: errorMessage,
-          }),
-          error: errorMessage,
-        };
-      }
+      const args = JSON.parse(toolCall.function.arguments);
+      const result = await this.toolRegistry.execute(toolCall.function.name, args);
+      return {
+        toolCallId: toolCall.id,
+        result,
+      };
     });
 
     return Promise.all(promises);

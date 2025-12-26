@@ -9,6 +9,7 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
+import type { ToolCallResult } from '../tool-result';
 import { createNodeRender } from '../renders';
 import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
@@ -44,8 +45,12 @@ interface UpdateCodeNodeParams {
 
 type CodeNodeParams = CreateCodeNodeParams | UpdateCodeNodeParams;
 
+interface CodeNodeResult {
+  nodeID: string;
+}
+
 @injectable()
-export class CodeNodeTool extends BaseNodeTool<CodeNodeParams, string> {
+export class CodeNodeTool extends BaseNodeTool<CodeNodeParams, CodeNodeResult> {
   public readonly tool: Tool = {
     type: 'function',
     function: {
@@ -227,39 +232,39 @@ outputs 示例：
     render: createNodeRender(WorkflowNodeType.Code),
   };
 
-  public async execute(params: CodeNodeParams): Promise<string> {
+  public async execute(params: CodeNodeParams): Promise<ToolCallResult<CodeNodeResult>> {
     if (params.operation === 'create') {
       if (this.document.getNode(params.id)) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `节点 ID ${params.id} 已存在，请重新生成一个唯一的节点 ID。`,
-        });
+        };
       }
       const nodeID = await this.createCodeNode(params);
-      return JSON.stringify({
+      return {
         success: true,
         data: { nodeID },
         message: `成功创建 Code 节点，节点 ID: ${nodeID}`,
-      });
+      };
     }
     if (params.operation === 'update') {
       if (!this.document.getNode(params.id)) {
-        return JSON.stringify({
+        return {
           success: false,
           error: `节点 ID ${params.id} 不存在，无法进行修改。`,
-        });
+        };
       }
       const nodeID = await this.updateCodeNode(params);
-      return JSON.stringify({
+      return {
         success: true,
         data: { nodeID },
         message: `成功修改 Code 节点，节点 ID: ${nodeID}`,
-      });
+      };
     }
-    return JSON.stringify({
+    return {
       success: false,
       error: `无效的操作类型 ${(params as CodeNodeParams).operation}，仅支持 create 和 update。`,
-    });
+    };
   }
 
   private async createCodeNode(params: CreateCodeNodeParams): Promise<string> {
