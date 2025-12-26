@@ -168,7 +168,7 @@ export const GenericNodeRender: React.FC<{
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
+              alignItems: 'flex-start',
               gap: '8px',
               flex: 1,
               minWidth: 0,

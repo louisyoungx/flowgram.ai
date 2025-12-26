@@ -18,16 +18,8 @@ interface WorkflowTestrunParams {
   testrunInputs: WorkflowInputs;
 }
 
-interface WorkflowTestrunResult {
-  result?: any;
-  report?: any;
-}
-
 @injectable()
-export class WorkflowTestrunTool extends BaseNodeTool<
-  WorkflowTestrunParams,
-  WorkflowTestrunResult
-> {
+export class WorkflowTestrunTool extends BaseNodeTool<WorkflowTestrunParams, TaskRunResult> {
   @inject(WorkflowRuntimeService)
   private runtimeService: WorkflowRuntimeService;
 
@@ -53,9 +45,7 @@ export class WorkflowTestrunTool extends BaseNodeTool<
     },
   };
 
-  public async execute(
-    params: WorkflowTestrunParams
-  ): Promise<ToolCallResult<WorkflowTestrunResult>> {
+  public async execute(params: WorkflowTestrunParams): Promise<ToolCallResult<TaskRunResult>> {
     await this.fitView();
     if (!params.testrunInputs) {
       return {
@@ -85,10 +75,7 @@ export class WorkflowTestrunTool extends BaseNodeTool<
     }
     return {
       success: true,
-      data: {
-        result: result.result,
-        report: result.report,
-      },
+      data: result,
       message: '工作流试运行成功',
     };
   }

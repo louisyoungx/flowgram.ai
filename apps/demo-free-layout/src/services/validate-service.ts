@@ -11,11 +11,12 @@ import {
   FlowNodeFormData,
   FormModelV2,
   WorkflowDocument,
+  FormFeedback,
 } from '@flowgram.ai/free-layout-editor';
 
 export interface ValidateResult {
   node: FlowNodeEntity;
-  feedbacks: any[];
+  feedbacks: FormFeedback[];
 }
 
 @injectable()

@@ -5,6 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 
+import classNames from 'classnames';
 import { IconChevronDown, IconChevronRight, IconClose, IconSpin } from '@douyinfe/semi-icons';
 
 import styles from './index.module.css';
@@ -81,15 +82,26 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
   ) : (
     <IconClose size="small" className={styles.errorIcon} />
   );
-
-  const cardClassName = `${styles.card} ${isRunning ? styles.running : ''} ${
-    isCancelled ? styles.cancelled : ''
-  } ${!isSuccess && result ? styles.error : ''}`;
-
   return (
-    <div className={cardClassName}>
-      <div className={styles.header} onClick={handleToggle}>
-        <span className={styles.title}>
+    <div
+      className={classNames(styles.card, {
+        [styles.running]: isRunning,
+        [styles.cancelled]: isCancelled,
+        [styles.error]: !isSuccess && result,
+        [styles.cardExpanded]: isOpen,
+      })}
+    >
+      <div
+        className={classNames(styles.header, {
+          [styles.headerExpanded]: isOpen,
+        })}
+        onClick={handleToggle}
+      >
+        <span
+          className={classNames(styles.title, {
+            [styles.titleRunning]: isRunning,
+          })}
+        >
           {toolName}
           {!isRunning && (isCancelled || !isSuccess) && (
             <span className={styles.statusIcon}>{statusIcon}</span>

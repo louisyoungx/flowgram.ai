@@ -5,11 +5,19 @@
 
 .card {
     margin: 8px 0;
-    border: 1px solid #e5e7eb;
+    border: 1px solid transparent;
     border-radius: 6px;
     overflow: hidden;
     background: #fff;
     transition: all 0.2s ease;
+}
+
+.card:hover {
+    background: #f3f4f6;
+}
+
+.cardExpanded {
+    border: 1px solid #e5e7eb;
 }
 
 .card.running {
@@ -28,12 +36,12 @@
     gap: 8px;
     padding: 10px 14px;
     cursor: pointer;
-    background: #f9fafb;
+    background: rgb(249, 250, 251);
     transition: background 0.2s;
     user-select: none;
 }
 
-.header:hover {
+.headerExpanded {
     background: #f3f4f6;
 }
 
@@ -78,16 +86,21 @@
 .title {
     flex: 1;
     font-weight: 500;
-    color: #374151;
-    font-size: 13px;
+    font-size: 12px;
+    color: rgb(107, 114, 128);
     display: flex;
     justify-content: flex-start;
+}
+
+.titleRunning {
+    color: #374151;
+    font-size: 13px;
 }
 
 .body {
     padding: 12px 14px;
     background: #fafafa;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid rgb(249, 250, 251);
 }
 
 .section {

@@ -127,6 +127,10 @@ interface CreateEdgeParams {
     }
 
     const edge = this.createEdge(params);
+    if (edge) {
+      await this.handleAutoLayout();
+      await this.fitView();
+    }
     if (!edge) {
       return {
         success: false,
@@ -142,15 +146,12 @@ interface CreateEdgeParams {
   }
 
   private createEdge(params: CreateEdgeParams) {
-    const line = this.linesManager.createLine({
+    const edge = this.linesManager.createLine({
       from: params.from,
       fromPort: params.fromPort,
       to: params.to,
       toPort: params.toPort,
     });
-    if (line) {
-      this.handleAutoLayout();
-    }
-    return line;
+    return edge;
   }
 }
