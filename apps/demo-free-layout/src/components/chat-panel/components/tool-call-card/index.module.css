@@ -124,13 +124,14 @@
     background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 4px;
-    font-size: 12px;
-    font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
     color: #374151;
     white-space: pre-wrap;
     word-break: break-word;
     line-height: 1.5;
-    overflow-x: auto;
+    font-size: 11px;
+    font-family: 'monospace';
+    max-height: 200px;
+    overflow: auto;
 }
 
 .customRender {
