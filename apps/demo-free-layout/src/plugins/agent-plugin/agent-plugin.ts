@@ -6,12 +6,19 @@
 import { definePluginCreator } from '@flowgram.ai/free-layout-editor';
 
 import { IWorkflowAgentService, type AgentConfig } from './types';
-import { WorkflowAgentToolRegistry, IAgentTool, AGENT_BUILTIN_TOOLS } from './tools';
-import { WorkflowAgentService } from './agent-service';
+import { IAgentTool, AGENT_BUILTIN_TOOLS } from './tools';
+import {
+  WorkflowAgentToolRegistry,
+  WorkflowAgentService,
+  ContextCompactor,
+  LLMClient,
+  MessageManager,
+  ReActLoopExecutor,
+} from './services';
 
 export const createAgentPlugin = definePluginCreator<{ config?: Partial<AgentConfig> }>({
   onBind({ bind }, opts) {
-    // 绑定工具注册表
+    // 注册所有核心服务
     bind(WorkflowAgentToolRegistry).toSelf().inSingletonScope();
 
     // 绑定所有工具（使用 multiInject）
@@ -19,7 +26,10 @@ export const createAgentPlugin = definePluginCreator<{ config?: Partial<AgentCon
       bind(IAgentTool).to(ToolFactory).inSingletonScope();
     });
 
-    // 绑定 Agent 服务
+    bind(LLMClient).toSelf().inSingletonScope();
+    bind(MessageManager).toSelf().inSingletonScope();
+    bind(ReActLoopExecutor).toSelf().inSingletonScope();
+    bind(ContextCompactor).toSelf().inSingletonScope();
     bind(WorkflowAgentService).toSelf().inSingletonScope();
     bind(IWorkflowAgentService).to(WorkflowAgentService).inSingletonScope();
   },

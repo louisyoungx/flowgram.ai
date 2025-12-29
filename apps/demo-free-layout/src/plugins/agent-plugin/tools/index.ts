@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-export { WorkflowAgentToolRegistry } from './tool-registry';
 export { IAgentTool, BaseTool } from './base-tool';
 export * from './builtin';
 export * from './renders';

@@ -3,25 +3,17 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { useClientContext } from '@flowgram.ai/free-layout-editor';
+import { useService } from '@flowgram.ai/free-layout-editor';
 
 import { IWorkflowAgentService } from './types';
-import { WorkflowAgentToolRegistry } from './tools';
+import { WorkflowAgentToolRegistry } from './services';
 
 export const useAgentService = (): IWorkflowAgentService => {
-  const ctx = useClientContext();
-  const agentService = ctx.get(IWorkflowAgentService);
-  if (!agentService) {
-    throw new Error('AgentService not found. Make sure AgentPlugin is registered.');
-  }
+  const agentService = useService(IWorkflowAgentService);
   return agentService as IWorkflowAgentService;
 };
 
 export const useToolRegistry = (): WorkflowAgentToolRegistry => {
-  const ctx = useClientContext();
-  const toolRegistry = ctx.get(WorkflowAgentToolRegistry);
-  if (!toolRegistry) {
-    throw new Error('ToolRegistry not found. Make sure AgentPlugin is registered.');
-  }
+  const toolRegistry = useService(WorkflowAgentToolRegistry);
   return toolRegistry;
 };
