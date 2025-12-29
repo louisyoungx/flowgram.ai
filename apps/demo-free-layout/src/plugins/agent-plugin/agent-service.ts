@@ -297,7 +297,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         content: this.systemPrompt,
       },
       ...filteredMessages.map((msg, index) => {
-        const isRecentMessage = index >= filteredMessages.length - 4;
+        const isRecentMessage = index >= filteredMessages.length - 3;
         return {
           role: msg.role,
           content: isRecentMessage
@@ -346,6 +346,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
           onChunk(chunk);
         },
         onToolCallDetected: (toolCalls) => {
+          // 一旦检测到工具调用就立即通知 UI（显示 loading 状态）
           if (!toolCallsDetected) {
             toolCallsDetected = true;
             onStep({
@@ -369,16 +370,14 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
       // 检查是否有工具调用
       if (response.toolCalls && response.toolCalls.length > 0) {
-        // 如果在流式传输中已经触发了工具调用回调（显示了 loading）
-        // 这里需要更新完整的参数
+        // 如果已经提前通知过（显示了 loading），这里更新完整的参数
         if (toolCallsDetected) {
-          // 触发参数更新步骤
           onStep({
             type: 'tool_call_update',
             toolCalls: response.toolCalls,
           });
         } else {
-          // 如果没有提前触发（不太可能发生），这里触发
+          // 如果流式传输中未检测到（边缘情况），这里统一触发
           onStep({
             type: 'tool_call',
             toolCalls: response.toolCalls,
@@ -388,10 +387,19 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         // 添加短暂延迟，确保 UI 有时间更新显示工具调用卡片
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        // 将助手的工具调用添加到消息历史
+        // 根据 OpenAI API 规范，分离思考内容和工具调用
+        // 如果有思考内容，先添加一条纯文本的 assistant 消息
+        if (fullContent.trim()) {
+          currentMessages.push({
+            role: 'assistant',
+            content: fullContent,
+          });
+        }
+
+        // 然后添加工具调用消息（content 为空或仅包含简短说明）
         currentMessages.push({
           role: 'assistant',
-          content: fullContent,
+          content: '',
           tool_calls: response.toolCalls,
         } as any);
 
@@ -551,11 +559,13 @@ export class WorkflowAgentService implements IWorkflowAgentService {
                   }
                 }
 
-                // 检测到工具调用时立即通知（用于显示 loading）
+                // 检测到工具调用时立即通知 UI（用于显示 loading）
+                // 只要有 id 和 name 就通知，arguments 可以是部分的
                 if (!toolCallsNotified && toolCalls.length > 0) {
                   const completeToolCalls = toolCalls.filter((tc) => tc.id && tc.function.name);
                   if (completeToolCalls.length > 0) {
                     toolCallsNotified = true;
+                    // 立即通知，即使 arguments 还未完全收集
                     onToolCallDetected([...completeToolCalls]);
                   }
                 }
