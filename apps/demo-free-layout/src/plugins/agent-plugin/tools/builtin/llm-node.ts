@@ -27,6 +27,7 @@ interface CreateLLMNodeParams {
   temperature: number | RefPath;
   systemPrompt: string;
   prompt: string;
+  parentNodeID?: string;
 }
 
 interface UpdateLLMNodeParams {
@@ -72,6 +73,7 @@ interface CreateLLMNodeParams {
   temperature: number | RefPath; // 模型温度
   systemPrompt: string; // 系统提示词
   prompt: string; // 用户提示词
+  parentNodeID?: string; // 可选，指定父 Loop 节点 ID，将节点创建在 Loop 内
 }
 \`\`\`
 
@@ -160,7 +162,7 @@ type RefPath = string[]; // [节点ID, key1, key2, ...]
   }
 
   private async createLLMNode(params: CreateLLMNodeParams): Promise<string> {
-    const node = this.document.createWorkflowNode({
+    const nodeConfig = {
       id: params.id,
       type: WorkflowNodeType.LLM,
       data: {
@@ -219,7 +221,11 @@ type RefPath = string[]; // [节点ID, key1, key2, ...]
           },
         },
       },
-    });
+    };
+
+    const node = params.parentNodeID
+      ? this.document.createWorkflowNode(nodeConfig, false, params.parentNodeID)
+      : this.document.createWorkflowNode(nodeConfig);
 
     await this.handleAutoLayout();
 

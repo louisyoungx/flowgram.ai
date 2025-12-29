@@ -52,11 +52,11 @@ export const TodoWriteRender: React.FC<{
     return '○';
   };
 
-  const completedCount = todoList.filter((t) => t.status === 'completed').length;
+  // const completedCount = todoList.filter((t) => t.status === 'completed').length;
 
   // 对于增量操作，只显示被操作的单个任务
   let displayList = todoList;
-  let title = `待办事项 (${completedCount}/${todoList.length})`;
+  let title = `待办事项`;
 
   if (args.operation === 'update' && args.id !== undefined) {
     const updatedTodo = todoList.find((t) => t.id === args.id);

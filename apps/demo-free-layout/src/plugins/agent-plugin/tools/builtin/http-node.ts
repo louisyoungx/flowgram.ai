@@ -49,6 +49,7 @@ interface CreateHTTPNodeParams {
   headersValues?: ValuesItem;
   paramsValues?: ValuesItem;
   timeout?: TimeoutConfig;
+  parentNodeID?: string;
 }
 
 interface UpdateHTTPNodeParams {
@@ -92,6 +93,7 @@ interface CreateHTTPNodeParams {
   headersValues?: ValuesItem; // 请求头值映射
   paramsValues?: ValuesItem; // URL 参数值映射
   timeout?: TimeoutConfig; // 超时和重试配置
+  parentNodeID?: string; // 可选，指定父 Loop 节点 ID，将节点创建在 Loop 内
 }
 \`\`\`
 
@@ -231,7 +233,7 @@ interface TimeoutConfig {
   }
 
   private async createHTTPNode(params: CreateHTTPNodeParams): Promise<string> {
-    const node = this.document.createWorkflowNode({
+    const nodeConfig = {
       id: params.id,
       type: WorkflowNodeType.HTTP,
       data: {
@@ -270,7 +272,11 @@ interface TimeoutConfig {
           },
         },
       },
-    });
+    };
+
+    const node = params.parentNodeID
+      ? this.document.createWorkflowNode(nodeConfig, false, params.parentNodeID)
+      : this.document.createWorkflowNode(nodeConfig);
 
     await this.handleAutoLayout();
 

@@ -31,6 +31,7 @@ interface CreateCodeNodeParams {
   inputsValues?: InputsValuesItem;
   script: ScriptContent;
   outputs?: IJsonSchema;
+  parentNodeID?: string;
 }
 
 interface UpdateCodeNodeParams {
@@ -268,7 +269,7 @@ outputs 示例：
   }
 
   private async createCodeNode(params: CreateCodeNodeParams): Promise<string> {
-    const node = this.document.createWorkflowNode({
+    const nodeConfig = {
       id: params.id,
       type: WorkflowNodeType.Code,
       data: {
@@ -281,7 +282,11 @@ outputs 示例：
           properties: {},
         },
       },
-    });
+    };
+
+    const node = params.parentNodeID
+      ? this.document.createWorkflowNode(nodeConfig, false, params.parentNodeID)
+      : this.document.createWorkflowNode(nodeConfig);
 
     await this.handleAutoLayout();
 

@@ -176,14 +176,16 @@ export namespace WorkflowAgentUtils {
     return content
       .replace(toolCallRegex, (match, id, name, args, result) => {
         const truncatedArgs = args.trim().substring(0, 100);
-        let replacement = `\n\n[Old tool called: ${name}, args: ${truncatedArgs}${
+        let replacement = `\n\n<system_note>Tool ${name} was called with args: ${truncatedArgs}${
           args.trim().length > 100 ? '...' : ''
         }`;
         if (result) {
           const truncatedResult = result.trim().substring(0, 150);
-          replacement += `, result: ${truncatedResult}${result.trim().length > 150 ? '...' : ''}]`;
+          replacement += `, returned: ${truncatedResult}${
+            result.trim().length > 150 ? '...' : ''
+          }</system_note>`;
         } else {
-          replacement += ']';
+          replacement += '</system_note>';
         }
         return replacement;
       })

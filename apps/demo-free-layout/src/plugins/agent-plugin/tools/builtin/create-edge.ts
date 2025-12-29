@@ -126,6 +126,19 @@ interface CreateEdgeParams {
       };
     }
 
+    const fromParentId = fromNode.parent?.id;
+    const toParentId = toNode.parent?.id;
+    if (fromParentId !== toParentId) {
+      return {
+        success: false,
+        error: `无法创建连接线：起始节点 ${params.from} 和目标节点 ${
+          params.to
+        } 不在同一个容器中。起始节点容器: ${fromParentId || 'root'}，目标节点容器: ${
+          toParentId || 'root'
+        }。`,
+      };
+    }
+
     const edge = this.createEdge(params);
     if (edge) {
       this.handleAutoLayout();

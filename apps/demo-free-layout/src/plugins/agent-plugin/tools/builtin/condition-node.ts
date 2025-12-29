@@ -20,6 +20,7 @@ interface CreateConditionNodeParams {
   title: string;
   description?: string;
   conditions: ConditionItem[];
+  parentNodeID?: string;
 }
 
 interface UpdateConditionNodeParams {
@@ -55,6 +56,7 @@ interface CreateConditionNodeParams {
   title: string; // 节点标题，根据用户可理解的语言生成
   description?: string; // 节点描述，根据用户可理解的语言生成
   conditions: ConditionItem[]; // 条件列表
+  parentNodeID?: string; // 可选，指定父 Loop 节点 ID，将节点创建在 Loop 内
 }
 \`\`\`
 
@@ -236,7 +238,7 @@ enum ConditionOperator {
   private async createConditionNode(params: CreateConditionNodeParams): Promise<string> {
     const conditions = params.conditions.map((item) => this.convertConditionItem(item));
 
-    const node = this.document.createWorkflowNode({
+    const nodeConfig = {
       id: params.id,
       type: WorkflowNodeType.Condition,
       data: {
@@ -244,7 +246,11 @@ enum ConditionOperator {
         description: params.description,
         conditions,
       },
-    });
+    };
+
+    const node = params.parentNodeID
+      ? this.document.createWorkflowNode(nodeConfig, false, params.parentNodeID)
+      : this.document.createWorkflowNode(nodeConfig);
 
     await this.handleAutoLayout();
 
