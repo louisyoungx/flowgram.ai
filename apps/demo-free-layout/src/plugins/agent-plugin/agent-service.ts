@@ -26,7 +26,14 @@ import type {
 } from './types';
 import { WorkflowAgentToolRegistry } from './tools';
 import SYSTEM_PROMPT from './system-prompt.md?raw';
-import { DEFAULT_AGENT_CONFIG } from './constant';
+import {
+  DEFAULT_AGENT_CONFIG,
+  TOOL_RESULT_TOKEN_THRESHOLD,
+  TOOL_RESULT_KEEP_WINDOW,
+  CONTEXT_COMPACT_THRESHOLD,
+  CONTEXT_COMPACT_KEEP_RECENT,
+  MIN_MESSAGES_BETWEEN_SUMMARIES,
+} from './constant';
 import { WorkflowAgentUtils } from './agent-utils';
 
 @injectable()
@@ -47,6 +54,12 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   private messagesEmitter = new Emitter<UIChatMessage[]>();
 
   private abortController: AbortController | null = null;
+
+  /** 对话历史的智能总结（不影响 UI 显示，只用于 API 调用） */
+  private conversationSummary: string | null = null;
+
+  /** 上次执行智能总结时的消息索引 */
+  private lastSummaryMessageIndex: number = 0;
 
   public onMessagesChange = this.messagesEmitter.event;
 
@@ -233,6 +246,9 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       this.updateMessage(assistantMessageId, {
         status: 'sent',
       });
+
+      // 对话成功完成后，执行智能总结（同步，确保下次对话前完成）
+      await this.compactContextIfNeeded();
     } catch (error) {
       // 检查是否为取消错误
       if (
@@ -267,6 +283,9 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
   private resetMessages(): void {
     this.messages = [];
+    // 重置智能总结状态
+    this.conversationSummary = null;
+    this.lastSummaryMessageIndex = 0;
   }
 
   private notifyListeners(): void {
@@ -291,21 +310,69 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       (msg) => msg.role === 'user' || msg.role === 'assistant'
     );
 
+    // Step 1: 计算工具调用的累积 token
+    let totalToolTokens = 0;
+    const toolTokensPerMessage: number[] = [];
+
+    for (const msg of filteredMessages) {
+      const tokens = WorkflowAgentUtils.estimateToolTokens(msg.content);
+      totalToolTokens += tokens;
+      toolTokensPerMessage.push(tokens);
+    }
+
+    // Step 2: Micro Compact（规则压缩）只有超过阈值时才触发，对前缀缓存友好
+    const shouldMicroCompact = totalToolTokens > TOOL_RESULT_TOKEN_THRESHOLD;
+    let microCompactBoundary = 0;
+
+    if (shouldMicroCompact) {
+      let keptTokens = 0;
+      for (let i = filteredMessages.length - 1; i >= 0; i--) {
+        keptTokens += toolTokensPerMessage[i];
+        if (keptTokens > TOOL_RESULT_KEEP_WINDOW) {
+          microCompactBoundary = i + 1;
+          break;
+        }
+      }
+    }
+
+    // Step 3: 构建消息历史
     const history: ChatMessage[] = [
       {
         role: 'system',
         content: this.systemPrompt,
       },
-      ...filteredMessages.map((msg, index) => {
-        const isRecentMessage = index >= filteredMessages.length - 3;
-        return {
-          role: msg.role,
-          content: isRecentMessage
-            ? WorkflowAgentUtils.convertToolCallsToText(msg.content)
-            : WorkflowAgentUtils.removeToolCallsXML(msg.content),
-        };
-      }),
     ];
+
+    // 如果有历史摘要，添加到上下文开头
+    if (this.conversationSummary) {
+      history.push({
+        role: 'assistant',
+        content: `[Previous conversation summary]\n\n${this.conversationSummary}`,
+      });
+    }
+
+    // 添加消息，应用规则压缩
+    const processedMessages = filteredMessages.map((msg, index) => {
+      let content = msg.content;
+
+      // 如果在压缩边界之前，清理工具结果
+      if (shouldMicroCompact && index < microCompactBoundary) {
+        content = WorkflowAgentUtils.clearToolResults(content);
+      }
+
+      // 最近的消息保留工具调用语义（转文本），旧消息移除
+      const isRecentMessage = index >= filteredMessages.length - CONTEXT_COMPACT_KEEP_RECENT;
+      content = isRecentMessage
+        ? WorkflowAgentUtils.convertToolCallsToText(content)
+        : WorkflowAgentUtils.removeToolCallsXML(content);
+
+      return {
+        role: msg.role,
+        content,
+      };
+    });
+
+    history.push(...processedMessages);
 
     return history;
   }
@@ -617,5 +684,116 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     });
 
     return Promise.all(promises);
+  }
+
+  /**
+   * 检查是否需要执行智能总结，如需要则执行
+   */
+  private async compactContextIfNeeded(): Promise<void> {
+    const filteredMessages = this.messages.filter(
+      (msg) => msg.role === 'user' || msg.role === 'assistant'
+    );
+
+    // 估算当前总 token 数
+    const totalTokens = filteredMessages.reduce(
+      (sum, msg) => sum + WorkflowAgentUtils.estimateTokens(msg.content),
+      0
+    );
+
+    // 检查是否达到压缩阈值
+    if (totalTokens < CONTEXT_COMPACT_THRESHOLD) return;
+
+    // 检查自上次压缩以来是否有足够的新消息
+    const messagesSinceLastSummary = filteredMessages.length - this.lastSummaryMessageIndex;
+    if (messagesSinceLastSummary < MIN_MESSAGES_BETWEEN_SUMMARIES) return;
+
+    // 执行智能总结
+    try {
+      console.log('[Context Compact] Starting intelligent summarization...');
+
+      const summary = await this.generateConversationSummary();
+
+      if (summary) {
+        this.conversationSummary = summary;
+        this.lastSummaryMessageIndex = filteredMessages.length;
+        console.log('[Context Compact] Summary generated successfully');
+      }
+    } catch (error) {
+      console.warn('[Context Compact] Failed to generate summary:', error);
+      // 失败时不影响正常流程
+    }
+  }
+
+  /**
+   * 生成对话历史的智能摘要
+   */
+  private async generateConversationSummary(): Promise<string | null> {
+    const filteredMessages = this.messages.filter(
+      (msg) => msg.role === 'user' || msg.role === 'assistant'
+    );
+
+    // 保留最近的消息不参与摘要
+    const messagesToSummarize = filteredMessages.slice(
+      0,
+      -CONTEXT_COMPACT_KEEP_RECENT * 2 // 保留最近 N 轮（每轮 2 条消息）
+    );
+
+    if (messagesToSummarize.length < 4) {
+      // 太少的消息不值得摘要
+      return null;
+    }
+
+    // 构建摘要请求
+    const summaryMessages: ChatMessage[] = [
+      {
+        role: 'system',
+        content: 'You are a helpful assistant that summarizes conversations concisely.',
+      },
+      ...messagesToSummarize.map((msg) => ({
+        role: msg.role,
+        content: WorkflowAgentUtils.convertToolCallsToText(msg.content),
+      })),
+      {
+        role: 'user',
+        content: WorkflowAgentUtils.SUMMARY_PROMPT,
+      },
+    ];
+
+    // 调用 LLM 生成摘要（非流式）
+    const response = await this.callLLMForSummary(summaryMessages);
+
+    // 提取 <summary> 标签内的内容
+    const summaryMatch = response.match(/<summary>([\s\S]*?)<\/summary>/);
+    return summaryMatch ? summaryMatch[1].trim() : response;
+  }
+
+  /**
+   * 调用 LLM 生成摘要（非流式，简化版）
+   */
+  private async callLLMForSummary(messages: ChatMessage[]): Promise<string> {
+    if (!this.config.apiKey) {
+      throw new Error('API Key is not configured');
+    }
+
+    const response = await fetch(`${this.config.baseURL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.config.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.config.model,
+        messages,
+        temperature: 0.3, // 低温度确保摘要一致性
+        max_tokens: 2000, // 摘要不需要太长
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Summary API request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || '';
   }
 }

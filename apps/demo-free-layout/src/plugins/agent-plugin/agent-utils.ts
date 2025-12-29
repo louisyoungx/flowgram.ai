@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { ToolCall, ToolResult, UIChatMessage } from './types';
+import { ChatMessage, ToolCall, ToolResult, UIChatMessage } from './types';
 
 export interface ParsedContent {
   type: 'text' | 'tool_call';
@@ -191,4 +191,85 @@ export namespace WorkflowAgentUtils {
       })
       .trim();
   };
+
+  // ============================================
+  // Context Compact 工具函数
+  // ============================================
+
+  /**
+   * 估算文本的 token 数量
+   * 使用简单的字符比例估算（中英文混合约 1 token ≈ 4 字符）
+   */
+  export const estimateTokens = (text: string): number => {
+    if (!text) return 0;
+    return Math.ceil(text.length / 4);
+  };
+
+  /**
+   * 估算消息数组的总 token 数
+   */
+  export const estimateTotalTokens = (messages: ChatMessage[]): number =>
+    messages.reduce((total, msg) => total + estimateTokens(msg.content), 0);
+
+  /**
+   * 估算消息中工具调用部分的 token 数
+   */
+  export const estimateToolTokens = (content: string): number => {
+    const toolCallRegex = /<tool_call[\s\S]*?<\/tool_call>/g;
+    const matches = content.match(toolCallRegex) || [];
+    return matches.reduce((sum, match) => sum + estimateTokens(match), 0);
+  };
+
+  /**
+   * 清理工具调用结果（Micro Compact）
+   * 将 <result>...</result> 替换为占位符，保留工具调用的结构
+   */
+  export const clearToolResults = (content: string): string =>
+    content.replace(
+      /<result>[\s\S]*?<\/result>/g,
+      '<result>[Old tool result content cleared]</result>'
+    );
+
+  /**
+   * 智能总结的 Prompt 模板
+   */
+  export const SUMMARY_PROMPT = `Your task is to create a detailed summary of the conversation so far, focusing on workflow editor operations.
+
+Your summary should include:
+
+1. **Primary Request**: The user's main goal with the workflow editor
+2. **Completed Actions**: List all completed workflow operations:
+   - Nodes created (with names and types)
+   - Edges/connections added
+   - Node configurations changed
+   - Nodes deleted or modified
+3. **Current Workflow State**: Brief description of the current workflow structure
+4. **Errors and Fixes**: Any errors encountered and how they were resolved
+5. **Pending Tasks**: Unfinished tasks the user explicitly requested
+6. **All User Messages**: List all non-tool user messages verbatim (critical for understanding intent)
+7. **Current Work**: What was being worked on immediately before this summary
+
+Be concise but preserve all technical details. Output in the following format:
+
+<summary>
+1. Primary Request: [description]
+
+2. Completed Actions:
+   - [action 1]
+   - [action 2]
+
+3. Current Workflow State: [description]
+
+4. Errors and Fixes:
+   - [error]: [fix]
+
+5. Pending Tasks:
+   - [task 1]
+
+6. User Messages:
+   - "[message 1]"
+   - "[message 2]"
+
+7. Current Work: [description]
+</summary>`;
 }
