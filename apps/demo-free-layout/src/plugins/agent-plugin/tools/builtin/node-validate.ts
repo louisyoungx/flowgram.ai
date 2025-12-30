@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { injectable, inject, WorkflowDocument } from '@flowgram.ai/free-layout-editor';
+import {
+  injectable,
+  inject,
+  WorkflowDocument,
+  FormFeedback,
+} from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { ValidateService } from '@/services';
@@ -16,10 +21,7 @@ interface NodeValidateParams {
   nodeID: string;
 }
 
-interface NodeValidateResult {
-  node: any;
-  feedbacks: any[];
-}
+type NodeValidateResult = FormFeedback[];
 
 @injectable()
 export class NodeValidateTool extends BaseTool<NodeValidateParams, NodeValidateResult> {
@@ -55,8 +57,8 @@ export class NodeValidateTool extends BaseTool<NodeValidateParams, NodeValidateR
       };
     }
 
-    const validationResult = await this.nodeValidate(params.nodeID);
-    if (validationResult === null) {
+    const feedbacks = await this.nodeValidate(params.nodeID);
+    if (!feedbacks) {
       return {
         success: false,
         error: `未找到 ID 为 ${params.nodeID} 的节点。`,
@@ -65,9 +67,9 @@ export class NodeValidateTool extends BaseTool<NodeValidateParams, NodeValidateR
 
     return {
       success: true,
-      data: validationResult,
-      message: validationResult.feedbacks.length
-        ? `节点 ${params.nodeID} 校验共发现 ${validationResult.feedbacks.length} 个问题`
+      data: feedbacks,
+      message: feedbacks.length
+        ? `节点 ${params.nodeID} 校验共发现 ${feedbacks.length} 个问题`
         : `完成节点 ${params.nodeID} 校验，未发现问题`,
     };
   }
@@ -79,9 +81,6 @@ export class NodeValidateTool extends BaseTool<NodeValidateParams, NodeValidateR
     }
 
     const feedbacks = await this.validateService.validateNode(node);
-    return {
-      node: this.document.toNodeJSON(node),
-      feedbacks,
-    };
+    return feedbacks;
   }
 }

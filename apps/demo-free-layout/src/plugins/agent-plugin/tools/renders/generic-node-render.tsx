@@ -181,7 +181,7 @@ export const GenericNodeRender: React.FC<{
                 color: '#1f2937',
               }}
             >
-              {nodeTitle || nodeRegistry?.info?.description || 'Node'}
+              {nodeTitle}
             </div>
             <div
               style={{

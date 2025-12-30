@@ -402,7 +402,7 @@ export function useEditorProps(
             baseURL: 'https://ark.cn-beijing.volces.com/api/v3',
             model: 'kimi-k2-250905',
             temperature: 0.7,
-            maxTokens: 2000,
+            maxTokens: 200000,
           },
         }),
       ],

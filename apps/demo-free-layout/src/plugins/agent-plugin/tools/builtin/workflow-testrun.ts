@@ -15,7 +15,7 @@ import { BaseNodeTool } from '../base-tool';
 import type { Tool } from '../../types';
 
 interface WorkflowTestrunParams {
-  testrunInputs: WorkflowInputs;
+  inputs: WorkflowInputs;
 }
 
 @injectable()
@@ -35,23 +35,23 @@ export class WorkflowTestrunTool extends BaseNodeTool<WorkflowTestrunParams, Tas
       parameters: {
         type: 'object',
         properties: {
-          testrunInputs: {
+          inputs: {
             type: 'object',
             description: '工作流试运行的输入参数。如果工作流无需入参，则传入空对象 {} 即可。',
           },
         },
-        required: ['testrunInputs'],
+        required: ['inputs'],
       } as IJsonSchema,
     },
   };
 
   public async execute(params: WorkflowTestrunParams): Promise<ToolCallResult<TaskRunResult>> {
     await this.fitView();
-    if (!params.testrunInputs) {
+    if (!params.inputs) {
       return {
         success: false,
         error:
-          '参数 testrunInputs 在执行 workflow_testrun 操作时为必填项,如果工作流无需入参,则传入空对象 {} 即可。',
+          '参数 inputs 在执行 workflow_testrun 操作时为必填项,如果工作流无需入参,则传入空对象 {} 即可。',
       };
     }
 
@@ -65,7 +65,7 @@ export class WorkflowTestrunTool extends BaseNodeTool<WorkflowTestrunParams, Tas
       };
     }
 
-    const result = await this.workflowTestRun(params.testrunInputs);
+    const result = await this.workflowTestRun(params.inputs);
     if (result.errors) {
       return {
         success: false,
