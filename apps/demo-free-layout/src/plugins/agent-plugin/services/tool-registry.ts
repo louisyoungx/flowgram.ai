@@ -5,7 +5,7 @@
 
 import { injectable, multiInject } from '@flowgram.ai/free-layout-editor';
 
-import type { Tool } from '../types';
+import type { Tool, ToolCall } from '../types';
 import { ToolCallResult } from '../tools/type';
 import { IAgentTool } from '../tools/base-tool';
 
@@ -52,12 +52,13 @@ export class WorkflowAgentToolRegistry {
   /**
    * 执行工具
    */
-  async execute(name: string, args: any): Promise<string> {
-    const tool = this.tools.get(name);
+  async execute(toolCall: ToolCall): Promise<string> {
+    const tool = this.tools.get(toolCall.function.name);
     if (!tool) {
-      throw new Error(`Tool ${name} not found`);
+      throw new Error(`Tool ${toolCall.function.name} not found`);
     }
     try {
+      const args = JSON.parse(toolCall.function.arguments);
       const toolResult = await tool.execute(args);
       return JSON.stringify(toolResult);
     } catch (error) {

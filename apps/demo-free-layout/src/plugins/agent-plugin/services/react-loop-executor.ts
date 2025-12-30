@@ -162,8 +162,7 @@ export class ReActLoopExecutor {
   private async executeTools(toolCalls: ToolCall[]): Promise<ToolResult[]> {
     const promises = toolCalls.map(async (toolCall) => {
       try {
-        const args = JSON.parse(toolCall.function.arguments);
-        const result = await this.toolRegistry.execute(toolCall.function.name, args);
+        const result = await this.toolRegistry.execute(toolCall);
 
         return {
           toolCallId: toolCall.id,

@@ -33,7 +33,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   private messageManager: MessageManager;
 
   @inject(ReActLoopExecutor)
-  private reactLoopExecutor: ReActLoopExecutor;
+  private reActLoopExecutor: ReActLoopExecutor;
 
   @inject(ContextCompactor)
   private contextCompactor: ContextCompactor;
@@ -172,7 +172,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       const tools = this.toolRegistry.getAllTools();
 
       // 执行 ReAct Loop
-      await this.reactLoopExecutor.execute({
+      await this.reActLoopExecutor.execute({
         messages,
         tools,
         maxIterations: 100,

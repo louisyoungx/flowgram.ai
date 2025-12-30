@@ -400,9 +400,9 @@ export function useEditorProps(
             // 默认配置 - 用户应通过 UI 设置更新
             apiKey: 'b0515e86-d99f-4b6c-87f6-f00dad61fc0a',
             baseURL: 'https://ark.cn-beijing.volces.com/api/v3',
-            model: 'kimi-k2-250905',
+            model: 'ep-20251230144443-fjqcc',
             temperature: 0.7,
-            maxTokens: 200000,
+            maxTokens: 32768,
           },
         }),
       ],
