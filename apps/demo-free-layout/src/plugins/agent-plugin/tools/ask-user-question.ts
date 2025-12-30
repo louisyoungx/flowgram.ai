@@ -5,10 +5,10 @@
 
 import { injectable } from '@flowgram.ai/free-layout-editor';
 
-import type { ToolCallResult } from '../tool-result';
+import type { ToolCallResult } from './type';
+import { BaseTool } from './base-tool';
+import type { Tool } from '../types';
 import { AskUserQuestionRender } from '../renders/ask-user-question-render';
-import { BaseTool } from '../base-tool';
-import type { Tool } from '../../types';
 
 interface AskUserQuestionArgs {
   question: string;

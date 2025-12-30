@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 
-import { AskUserQuestionTool } from '../builtin/ask-user-question';
+import { AskUserQuestionTool } from '../tools/ask-user-question';
 
 interface AskUserQuestionArgs {
   question: string;

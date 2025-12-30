@@ -13,9 +13,9 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { ValidateService } from '@/services';
 
-import type { ToolCallResult } from '../tool-result';
-import { BaseTool } from '../base-tool';
-import type { Tool } from '../../types';
+import type { ToolCallResult } from './type';
+import { BaseTool } from './base-tool';
+import type { Tool } from '../types';
 
 interface NodeValidateParams {
   nodeID: string;

@@ -11,9 +11,9 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
-import type { ToolCallResult } from '../tool-result';
-import { BaseTool } from '../base-tool';
-import type { Tool } from '../../types';
+import type { ToolCallResult } from './type';
+import { BaseTool } from './base-tool';
+import type { Tool } from '../types';
 
 interface GetNodeSchemaParams {
   nodeID: string;

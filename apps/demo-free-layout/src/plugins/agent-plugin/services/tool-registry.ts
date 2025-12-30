@@ -6,7 +6,7 @@
 import { injectable, multiInject } from '@flowgram.ai/free-layout-editor';
 
 import type { Tool } from '../types';
-import { ToolCallResult } from '../tools/tool-result';
+import { ToolCallResult } from '../tools/type';
 import { IAgentTool } from '../tools/base-tool';
 
 /**

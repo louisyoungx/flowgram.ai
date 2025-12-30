@@ -10,9 +10,9 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 import { ValidateService } from '@/services';
 import { TaskRunResult, WorkflowRuntimeService } from '@/plugins/runtime-plugin/runtime-service';
 
-import type { ToolCallResult } from '../tool-result';
-import { BaseNodeTool } from '../base-tool';
-import type { Tool } from '../../types';
+import type { ToolCallResult } from './type';
+import { BaseNodeTool } from './base-tool';
+import type { Tool } from '../types';
 
 interface WorkflowTestrunParams {
   inputs: WorkflowInputs;

@@ -12,10 +12,10 @@ import {
   fitView,
 } from '@flowgram.ai/free-layout-editor';
 
+import { WorkflowAgentUtils } from '../utils';
 import type { AgentConfig, IWorkflowAgentService, UIChatMessage } from '../types';
-import SYSTEM_PROMPT from '../system-prompt.md?raw';
+import SystemPrompt from '../prompts/system-prompt.md?raw';
 import { DEFAULT_AGENT_CONFIG } from '../constant';
-import { WorkflowAgentUtils } from '../agent-utils';
 import {
   LLMClient,
   MessageManager,
@@ -205,7 +205,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   }
 
   private get systemPrompt(): string {
-    return SYSTEM_PROMPT;
+    return SystemPrompt;
   }
 
   /**

@@ -17,7 +17,7 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 
 import type { Tool } from '../types';
-import type { ToolCallResult } from './tool-result';
+import type { ToolCallResult } from './type';
 
 /**
  * 工具基类接口

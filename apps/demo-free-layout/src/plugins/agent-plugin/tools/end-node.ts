@@ -9,10 +9,10 @@ import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from '../tool-result';
+import type { ToolCallResult } from './type';
+import { BaseNodeTool } from './base-tool';
+import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
-import { BaseNodeTool } from '../base-tool';
-import type { Tool } from '../../types';
 
 interface InputsValuesItem {
   [key: string]: IFlowConstantRefValue;

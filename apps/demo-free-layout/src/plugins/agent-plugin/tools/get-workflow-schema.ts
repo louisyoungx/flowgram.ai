@@ -10,9 +10,9 @@ import {
   WorkflowJSON,
 } from '@flowgram.ai/free-layout-editor';
 
-import type { ToolCallResult } from '../tool-result';
-import { BaseTool } from '../base-tool';
-import type { Tool } from '../../types';
+import type { ToolCallResult } from './type';
+import { BaseTool } from './base-tool';
+import type { Tool } from '../types';
 
 @injectable()
 export class GetWorkflowSchemaTool extends BaseTool<Record<string, never>, WorkflowJSON> {

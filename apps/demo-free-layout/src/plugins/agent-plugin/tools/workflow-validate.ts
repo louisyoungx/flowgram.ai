@@ -13,9 +13,9 @@ import {
 import { ValidateService } from '@/services';
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from '../tool-result';
-import { BaseNodeTool } from '../base-tool';
-import type { Tool } from '../../types';
+import type { ToolCallResult } from './type';
+import { BaseNodeTool } from './base-tool';
+import type { Tool } from '../types';
 
 interface WorkflowValidateResult {
   formFeedbacks: Record<string, FormFeedback[]>;

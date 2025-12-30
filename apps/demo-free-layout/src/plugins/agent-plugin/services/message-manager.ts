@@ -5,13 +5,13 @@
 
 import { Emitter, injectable } from '@flowgram.ai/free-layout-editor';
 
+import { WorkflowAgentUtils } from '../utils';
 import type { AgentServiceChatMessage, ChatMessage, UIChatMessage } from '../types';
 import {
   TOOL_RESULT_TOKEN_THRESHOLD,
   TOOL_RESULT_KEEP_WINDOW,
   CONTEXT_COMPACT_KEEP_RECENT,
 } from '../constant';
-import { WorkflowAgentUtils } from '../agent-utils';
 
 /**
  * 消息管理服务

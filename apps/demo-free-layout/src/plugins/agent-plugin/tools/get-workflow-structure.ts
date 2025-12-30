@@ -14,9 +14,9 @@ import {
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from '../tool-result';
-import { BaseTool } from '../base-tool';
-import type { Tool } from '../../types';
+import type { ToolCallResult } from './type';
+import { BaseTool } from './base-tool';
+import type { Tool } from '../types';
 
 interface NodeInfo {
   id: string;

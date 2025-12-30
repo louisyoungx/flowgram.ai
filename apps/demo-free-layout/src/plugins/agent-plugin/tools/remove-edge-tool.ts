@@ -6,9 +6,9 @@
 import { injectable, inject, WorkflowLinesManager } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
-import type { ToolCallResult } from '../tool-result';
-import { BaseNodeTool } from '../base-tool';
-import type { Tool } from '../../types';
+import type { ToolCallResult } from './type';
+import { BaseNodeTool } from './base-tool';
+import type { Tool } from '../types';
 
 interface RemoveEdgeToolParams {
   sourceNodeID: string;

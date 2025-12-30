@@ -5,13 +5,14 @@
 
 import { injectable, inject } from '@flowgram.ai/free-layout-editor';
 
+import { WorkflowAgentUtils } from '../utils';
 import type { AgentServiceChatMessage, ChatMessage } from '../types';
+import SummaryPrompt from '../prompts/summary-prompt.md?raw';
 import {
   CONTEXT_COMPACT_THRESHOLD,
   CONTEXT_COMPACT_KEEP_RECENT,
   MIN_MESSAGES_BETWEEN_SUMMARIES,
 } from '../constant';
-import { WorkflowAgentUtils } from '../agent-utils';
 import { LLMClient } from './llm-client';
 
 /**
@@ -78,7 +79,7 @@ export class ContextCompactor {
       })),
       {
         role: 'user',
-        content: WorkflowAgentUtils.SUMMARY_PROMPT,
+        content: SummaryPrompt,
       },
     ];
 
