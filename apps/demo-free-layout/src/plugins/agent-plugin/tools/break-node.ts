@@ -38,6 +38,7 @@ export class BreakNodeTool extends BaseNodeTool<BreakNodeParams, BreakNodeResult
     type: 'function',
     function: {
       name: 'BreakNode',
+      intro: '创建或修改 Break 节点',
       description: `在 Loop 节点内创建一个 Break 节点，或者修改一个 Break 节点的参数
 
 Break 节点用于跳出 Loop 循环，终止后续的迭代。

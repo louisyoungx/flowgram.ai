@@ -11,14 +11,21 @@ import type { ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
 import type { Tool } from '../types';
 
-interface CreateEdgeParams {
+interface EdgeDefinition {
   from: string;
   fromPort?: string;
   to: string;
   toPort?: string;
 }
 
-type CreateEdgeResult = WorkflowEdgeJSON;
+interface CreateEdgeParams {
+  edges: EdgeDefinition[];
+}
+
+interface CreateEdgeResult {
+  created: WorkflowEdgeJSON[];
+  failed: { edge: EdgeDefinition; reason: string }[];
+}
 
 @injectable()
 export class CreateEdgeTool extends BaseNodeTool<CreateEdgeParams, CreateEdgeResult> {
@@ -29,16 +36,21 @@ export class CreateEdgeTool extends BaseNodeTool<CreateEdgeParams, CreateEdgeRes
     type: 'function',
     function: {
       name: 'CreateEdge',
-      description: `在工作流中创建节点之间的连接线（边）。
+      intro: '批量创建节点之间的连接线',
+      description: `在工作流中批量创建节点之间的连接线（边）。
 
 ## 参数说明
 
 \`\`\`typescript
-interface CreateEdgeParams {
+interface EdgeDefinition {
   from: string;      // 起始节点 ID（必填）
   fromPort?: string; // 起始节点的输出端口 ID（可选）
   to: string;        // 目标节点 ID（必填）
   toPort?: string;   // 目标节点的输入端口 ID（可选）
+}
+
+interface CreateEdgeParams {
+  edges: EdgeDefinition[];  // 要创建的边列表
 }
 \`\`\`
 
@@ -50,79 +62,121 @@ interface CreateEdgeParams {
 
 ## 示例
 
-1. 普通节点连接（不需要指定端口）：
+批量创建多条连接线：
 \`\`\`json
 {
-  "from": "start",
-  "to": "llm_001"
-}
-\`\`\`
-
-2. Condition 节点的条件分支连接：
-\`\`\`json
-{
-  "from": "condition_001",
-  "fromPort": "if_contains_hello",
-  "to": "llm_success"
-}
-\`\`\`
-
-3. Condition 节点的 else 分支连接：
-\`\`\`json
-{
-  "from": "condition_001",
-  "fromPort": "else",
-  "to": "llm_default"
+  "edges": [
+    { "from": "start", "to": "llm_001" },
+    { "from": "llm_001", "to": "condition_001" },
+    { "from": "condition_001", "fromPort": "if_success", "to": "llm_success" },
+    { "from": "condition_001", "fromPort": "else", "to": "llm_default" }
+  ]
 }
 \`\`\`
 `,
       parameters: {
         type: 'object',
         properties: {
-          from: {
-            type: 'string',
-            description: '起始节点 ID。',
-          },
-          fromPort: {
-            type: 'string',
-            description:
-              '起始节点的输出端口 ID。对于 Condition 节点，使用条件的 key 值（如 "if_vbeap"）或 "else" 表示 else 分支。',
-          },
-          to: {
-            type: 'string',
-            description: '目标节点 ID。',
-          },
-          toPort: {
-            type: 'string',
-            description: '目标节点的输入端口 ID，可选。',
+          edges: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                from: {
+                  type: 'string',
+                  description: '起始节点 ID。',
+                },
+                fromPort: {
+                  type: 'string',
+                  description:
+                    '起始节点的输出端口 ID。对于 Condition 节点，使用条件的 key 值（如 "if_vbeap"）或 "else" 表示 else 分支。',
+                },
+                to: {
+                  type: 'string',
+                  description: '目标节点 ID。',
+                },
+                toPort: {
+                  type: 'string',
+                  description: '目标节点的输入端口 ID，可选。',
+                },
+              },
+              required: ['from', 'to'],
+            },
+            description: '要创建的边列表',
           },
         },
-        required: ['from', 'to'],
+        required: ['edges'],
       } as IJsonSchema,
     },
   };
 
   public async execute(params: CreateEdgeParams): Promise<ToolCallResult<CreateEdgeResult>> {
-    if (!params.from || !params.to) {
+    const { edges } = params;
+
+    if (!edges || edges.length === 0) {
       return {
         success: false,
-        error: '参数 from 和 to 在执行 CreateEdge 操作时为必填项。',
+        error: '参数 edges 不能为空',
       };
     }
 
-    const fromNode = this.document.getNode(params.from);
+    const created: WorkflowEdgeJSON[] = [];
+    const failed: { edge: EdgeDefinition; reason: string }[] = [];
+
+    for (const edgeDef of edges) {
+      const result = this.validateAndCreateEdge(edgeDef);
+      if (result.success) {
+        created.push(result.data!);
+      } else {
+        failed.push({ edge: edgeDef, reason: result.error! });
+      }
+    }
+
+    if (created.length > 0) {
+      this.handleAutoLayout();
+      this.fitView();
+    }
+
+    if (created.length === 0) {
+      return {
+        success: false,
+        error: '所有连接线创建失败',
+        data: { created, failed },
+      };
+    }
+
+    return {
+      success: true,
+      data: { created, failed },
+      message: `成功创建 ${created.length} 条连接线${
+        failed.length > 0 ? `，${failed.length} 条失败` : ''
+      }`,
+    };
+  }
+
+  private validateAndCreateEdge(
+    edgeDef: EdgeDefinition
+  ): { success: true; data: WorkflowEdgeJSON } | { success: false; error: string } {
+    if (!edgeDef.from || !edgeDef.to) {
+      return {
+        success: false,
+        error: '参数 from 和 to 为必填项',
+      };
+    }
+
+    const fromNode = this.document.getNode(edgeDef.from);
     if (!fromNode) {
       return {
         success: false,
-        error: `未找到 ID 为 ${params.from} 的起始节点。`,
+        error: `未找到 ID 为 ${edgeDef.from} 的起始节点`,
       };
     }
 
-    const toNode = this.document.getNode(params.to);
+    const toNode = this.document.getNode(edgeDef.to);
     if (!toNode) {
       return {
         success: false,
-        error: `未找到 ID 为 ${params.to} 的目标节点。`,
+        error: `未找到 ID 为 ${edgeDef.to} 的目标节点`,
       };
     }
 
@@ -131,40 +185,27 @@ interface CreateEdgeParams {
     if (fromParentId !== toParentId) {
       return {
         success: false,
-        error: `无法创建连接线：起始节点 ${params.from} 和目标节点 ${
-          params.to
-        } 不在同一个容器中。起始节点容器: ${fromParentId || 'root'}，目标节点容器: ${
-          toParentId || 'root'
-        }。`,
+        error: `起始节点和目标节点不在同一个容器中`,
       };
     }
 
-    const edge = this.createEdge(params);
-    if (edge) {
-      this.handleAutoLayout();
-      this.fitView();
-    }
+    const edge = this.linesManager.createLine({
+      from: edgeDef.from,
+      fromPort: edgeDef.fromPort,
+      to: edgeDef.to,
+      toPort: edgeDef.toPort,
+    });
+
     if (!edge) {
       return {
         success: false,
-        error: '创建连接线失败，可能是端口不存在或连接不合法。',
+        error: '创建连接线失败，可能是端口不存在或连接不合法',
       };
     }
 
     return {
       success: true,
       data: edge.toJSON(),
-      message: `成功创建连接 ${edge.id}`,
     };
-  }
-
-  private createEdge(params: CreateEdgeParams) {
-    const edge = this.linesManager.createLine({
-      from: params.from,
-      fromPort: params.fromPort,
-      to: params.to,
-      toPort: params.toPort,
-    });
-    return edge;
   }
 }

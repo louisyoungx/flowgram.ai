@@ -55,6 +55,7 @@ export class LLMNodeTool extends BaseNodeTool<LLMNodeParams, LLMNodeResult> {
     type: 'function',
     function: {
       name: 'LLMNode',
+      intro: '创建或修改 LLM 节点',
       description: `在工作流中创建一个 LLM 节点，或者修改一个 LLM 节点的参数
 
 ## 创建节点参数类型

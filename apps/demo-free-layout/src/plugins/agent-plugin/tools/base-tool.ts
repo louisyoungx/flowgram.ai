@@ -30,6 +30,11 @@ export interface IAgentTool<TArgs = any, TData = any> {
   readonly tool: Tool;
 
   /**
+   * 是否默认激活（核心工具设为 true）
+   */
+  readonly activated?: boolean;
+
+  /**
    * 执行工具
    * @param args 工具参数
    * @returns 执行结果（ToolResult 结构体）

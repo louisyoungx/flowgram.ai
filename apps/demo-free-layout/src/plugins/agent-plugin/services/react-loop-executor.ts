@@ -5,13 +5,12 @@
 
 import { injectable, inject } from '@flowgram.ai/free-layout-editor';
 
-import type { ChatMessage, Tool, ToolCall, ToolResult, ReActStep } from '../types';
+import type { ChatMessage, ToolCall, ToolResult, ReActStep } from '../types';
 import { WorkflowAgentToolRegistry } from './tool-registry';
 import { LLMClient } from './llm-client';
 
 export interface ReActLoopParams {
   messages: ChatMessage[];
-  tools: Tool[];
   maxIterations: number;
   signal?: AbortSignal;
   onStep: (step: ReActStep) => void;
@@ -34,7 +33,7 @@ export class ReActLoopExecutor {
    * 执行 ReAct Loop（流式版本）
    */
   async execute(params: ReActLoopParams): Promise<string> {
-    const { messages, tools, maxIterations, signal, onChunk, onStep } = params;
+    const { messages, maxIterations, signal, onChunk, onStep } = params;
 
     let currentMessages = [...messages];
     let iteration = 0;
@@ -43,7 +42,8 @@ export class ReActLoopExecutor {
     while (iteration < maxIterations) {
       iteration++;
 
-      // 调用 LLM 获取响应（流式）
+      const tools = this.toolRegistry.getAllTools();
+
       let fullContent = '';
       let toolCallsDetected = false;
       const response = await this.llmClient.callStream({

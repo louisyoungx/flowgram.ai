@@ -33,6 +33,8 @@ interface WorkflowStructure {
 
 @injectable()
 export class GetWorkflowStructureTool extends BaseTool<Record<string, never>, WorkflowStructure> {
+  readonly activated = true;
+
   @inject(WorkflowDocument)
   private document: WorkflowDocument;
 
@@ -40,6 +42,7 @@ export class GetWorkflowStructureTool extends BaseTool<Record<string, never>, Wo
     type: 'function',
     function: {
       name: 'GetWorkflowStructure',
+      intro: '获取工作流整体结构',
       description: '获取工作流的整体结构，包括节点和边的基本信息',
       parameters: {
         type: 'object',

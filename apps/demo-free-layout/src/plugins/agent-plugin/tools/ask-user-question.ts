@@ -31,10 +31,13 @@ interface AskUserQuestionResult {
 
 @injectable()
 export class AskUserQuestionTool extends BaseTool<AskUserQuestionArgs, AskUserQuestionResult> {
+  readonly activated = true;
+
   readonly tool: Tool = {
     type: 'function',
     function: {
       name: 'AskUserQuestion',
+      intro: '向用户提问以获取必要信息',
       description: `向用户提问以获取必要的信息。
 
 使用场景：

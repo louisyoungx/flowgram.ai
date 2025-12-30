@@ -45,6 +45,7 @@ export class LoopNodeTool extends BaseNodeTool<LoopNodeParams, LoopNodeResult> {
     type: 'function',
     function: {
       name: 'LoopNode',
+      intro: '创建或修改 Loop 循环节点',
       description: `在工作流中创建一个 Loop 节点，或者修改一个 Loop 节点的参数
 
 Loop 节点是一个容器节点，用于遍历数组并对每个元素执行一系列子节点。

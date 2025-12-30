@@ -28,6 +28,7 @@ export class GetNodeSchemaTool extends BaseTool<GetNodeSchemaParams, WorkflowNod
     type: 'function',
     function: {
       name: 'GetNodeSchema',
+      intro: '获取指定节点的 Schema',
       description: '获取工作流节点的 Schema。',
       parameters: {
         type: 'object',

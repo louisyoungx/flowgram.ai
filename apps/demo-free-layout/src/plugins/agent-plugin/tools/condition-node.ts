@@ -43,6 +43,7 @@ export class ConditionNodeTool extends BaseNodeTool<ConditionNodeParams, Conditi
     type: 'function',
     function: {
       name: 'ConditionNode',
+      intro: '创建或修改 Condition 节点',
       description: `在工作流中创建一个 Condition 节点，或者修改一个 Condition 节点的参数
 
 ## 创建节点参数类型

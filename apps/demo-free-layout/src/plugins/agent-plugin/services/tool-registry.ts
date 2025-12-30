@@ -9,51 +9,85 @@ import type { Tool, ToolCall } from '../types';
 import { ToolCallResult } from '../tools/type';
 import { IAgentTool } from '../tools/base-tool';
 
-/**
- * 工具注册表服务
- * 负责管理所有可用的工具，支持依赖注入
- */
+interface ToolInfo {
+  name: string;
+  intro: string;
+}
+
+interface ToolState {
+  tool: IAgentTool;
+  activated: boolean;
+}
+
 @injectable()
 export class WorkflowAgentToolRegistry {
-  private tools = new Map<string, IAgentTool>();
+  private tools = new Map<string, ToolState>();
 
   constructor(
     @multiInject(IAgentTool)
     toolInstances: IAgentTool[] = []
   ) {
-    // 自动注册所有通过 IoC 注入的工具
     for (const tool of toolInstances) {
       this.register(tool);
     }
   }
 
-  /**
-   * 注册工具
-   */
   register(tool: IAgentTool): void {
     const name = tool.tool.function.name;
-    this.tools.set(name, tool);
+    this.tools.set(name, {
+      tool,
+      activated: tool.activated ?? false,
+    });
   }
 
-  /**
-   * 获取所有工具定义
-   */
   getAllTools(): Tool[] {
-    return Array.from(this.tools.values()).map((tool) => tool.tool);
+    return Array.from(this.tools.values())
+      .filter((state) => state.activated)
+      .map((state) => state.tool.tool);
   }
 
-  /**
-   * 获取工具实例
-   */
+  getActivatedTools(): ToolInfo[] {
+    return Array.from(this.tools.values())
+      .filter((state) => state.activated)
+      .map((state) => ({
+        name: state.tool.tool.function.name,
+        intro: state.tool.tool.function.intro || state.tool.tool.function.description,
+      }));
+  }
+
+  getInactiveTools(): ToolInfo[] {
+    return Array.from(this.tools.values())
+      .filter((state) => !state.activated)
+      .map((state) => ({
+        name: state.tool.tool.function.name,
+        intro: state.tool.tool.function.intro || state.tool.tool.function.description,
+      }));
+  }
+
+  activateTool(name: string): boolean {
+    const state = this.tools.get(name);
+    if (!state || state.activated) {
+      return false;
+    }
+    state.activated = true;
+    return true;
+  }
+
+  deactivateTool(name: string): boolean {
+    const state = this.tools.get(name);
+    if (!state || !state.activated || state.tool.activated) {
+      return false;
+    }
+    state.activated = false;
+    return true;
+  }
+
   getTool(name: string): IAgentTool | undefined {
-    return this.tools.get(name);
+    return this.tools.get(name)?.tool;
   }
 
-  /**
-   * 执行工具
-   */
   async execute(toolCall: ToolCall): Promise<string> {
-    const tool = this.tools.get(toolCall.function.name);
+    const tool = this.getTool(toolCall.function.name);
     if (!tool) {
       throw new Error(`Tool ${toolCall.function.name} not found`);
     }
@@ -71,16 +105,10 @@ export class WorkflowAgentToolRegistry {
     }
   }
 
-  /**
-   * 检查工具是否存在
-   */
   has(name: string): boolean {
     return this.tools.has(name);
   }
 
-  /**
-   * 获取所有工具名称
-   */
   getToolNames(): string[] {
     return Array.from(this.tools.keys());
   }

@@ -67,13 +67,13 @@ const todoStore = new TodoStore();
  */
 @injectable()
 export class TodoWriteTool extends BaseTool<TodoWriteArgs, TodoWriteResult> {
-  // 如果需要注入服务，可以这样写：
-  // @inject(WorkflowDocument) private document: WorkflowDocument;
+  readonly activated = true;
 
   readonly tool: Tool = {
     type: 'function',
     function: {
       name: 'TodoWrite',
+      intro: '管理任务待办事项列表',
       description: `管理工作流任务的待办事项列表。用于规划、跟踪和更新任务状态。
 
 使用场景：

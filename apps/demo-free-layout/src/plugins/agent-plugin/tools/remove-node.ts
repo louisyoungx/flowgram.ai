@@ -24,6 +24,7 @@ export class RemoveNodeTool extends BaseNodeTool<RemoveNodeToolParams, RemoveNod
     type: 'function',
     function: {
       name: 'RemoveNode',
+      intro: '删除工作流节点',
       description: '从工作流中删除节点。',
       parameters: {
         type: 'object',

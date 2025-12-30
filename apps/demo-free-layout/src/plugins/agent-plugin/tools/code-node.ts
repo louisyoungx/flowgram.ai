@@ -56,6 +56,7 @@ export class CodeNodeTool extends BaseNodeTool<CodeNodeParams, CodeNodeResult> {
     type: 'function',
     function: {
       name: 'CodeNode',
+      intro: '创建或修改 Code 节点',
       description: `在工作流中创建一个 Code 节点，或者修改一个 Code 节点的参数
 
 ## 创建节点参数类型

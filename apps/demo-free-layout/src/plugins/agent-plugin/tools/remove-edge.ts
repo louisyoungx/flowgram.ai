@@ -31,6 +31,7 @@ export class RemoveEdgeTool extends BaseNodeTool<RemoveEdgeToolParams, RemoveEdg
     type: 'function',
     function: {
       name: 'RemoveEdge',
+      intro: '删除节点连接线',
       description: '从工作流中删除连接线（边）。',
       parameters: {
         type: 'object',

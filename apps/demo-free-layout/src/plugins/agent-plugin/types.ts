@@ -72,6 +72,7 @@ export interface ChatCompletionResponse {
 export interface ToolFunction {
   name: string;
   description: string;
+  intro: string;
   parameters: IJsonSchema;
 }
 

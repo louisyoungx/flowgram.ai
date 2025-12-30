@@ -30,6 +30,7 @@ export class StartNodeTool extends BaseNodeTool<StartNodeParams, StartNodeResult
     type: 'function',
     function: {
       name: 'StartNode',
+      intro: '修改工作流 Start 节点参数',
       description: `修改工作流 Start 节点参数
 
 IMPORTANT: 本工具会覆盖写 outputs，在执行前建议先调用 GetNodeSchema 工具查询 Start 节点配置，避免覆盖原有的数据结构

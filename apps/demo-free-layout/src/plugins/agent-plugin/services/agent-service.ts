@@ -16,13 +16,7 @@ import { WorkflowAgentUtils } from '../utils';
 import type { AgentConfig, IWorkflowAgentService, UIChatMessage } from '../types';
 import SystemPrompt from '../prompts/system-prompt.md?raw';
 import { DEFAULT_AGENT_CONFIG } from '../constant';
-import {
-  LLMClient,
-  MessageManager,
-  ReActLoopExecutor,
-  ContextCompactor,
-  WorkflowAgentToolRegistry,
-} from '.';
+import { LLMClient, MessageManager, ReActLoopExecutor, ContextCompactor } from '.';
 
 @injectable()
 export class WorkflowAgentService implements IWorkflowAgentService {
@@ -37,9 +31,6 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
   @inject(ContextCompactor)
   private contextCompactor: ContextCompactor;
-
-  @inject(WorkflowAgentToolRegistry)
-  private toolRegistry: WorkflowAgentToolRegistry;
 
   @inject(WorkflowDocument)
   document: WorkflowDocument;
@@ -167,14 +158,10 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     this.messageManager.addMessage(assistantMessage);
 
     try {
-      // 构建对话历史
       const messages = this.messageManager.buildApiMessages(this.systemPrompt);
-      const tools = this.toolRegistry.getAllTools();
 
-      // 执行 ReAct Loop
       await this.reActLoopExecutor.execute({
         messages,
-        tools,
         maxIterations: 100,
         signal: this.abortController.signal,
         onChunk: (chunk) => {

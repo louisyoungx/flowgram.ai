@@ -38,6 +38,7 @@ export class ContinueNodeTool extends BaseNodeTool<ContinueNodeParams, ContinueN
     type: 'function',
     function: {
       name: 'ContinueNode',
+      intro: '创建或修改 Continue 节点',
       description: `在 Loop 节点内创建一个 Continue 节点，或者修改一个 Continue 节点的参数
 
 Continue 节点用于跳过当前迭代，继续执行下一次迭代。

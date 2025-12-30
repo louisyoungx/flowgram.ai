@@ -23,6 +23,7 @@ export class GetWorkflowSchemaTool extends BaseTool<Record<string, never>, Workf
     type: 'function',
     function: {
       name: 'GetWorkflowSchema',
+      intro: '获取工作流完整 Schema',
       description: '详细列出所有节点与边的信息',
       parameters: {
         type: 'object',

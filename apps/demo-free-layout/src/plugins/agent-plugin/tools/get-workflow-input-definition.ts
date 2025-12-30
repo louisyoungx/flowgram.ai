@@ -27,6 +27,7 @@ export class GetWorkflowInputDefinitionTool extends BaseTool<
     type: 'function',
     function: {
       name: 'GetWorkflowInputDefinition',
+      intro: '获取工作流输入定义',
       description: '获取工作流的输入定义',
       parameters: {
         type: 'object',

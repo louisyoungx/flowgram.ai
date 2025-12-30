@@ -35,6 +35,7 @@ export class NodeValidateTool extends BaseTool<NodeValidateParams, NodeValidateR
     type: 'function',
     function: {
       name: 'NodeValidate',
+      intro: '验证指定节点配置',
       description: '验证指定节点的配置是否正确。',
       parameters: {
         type: 'object',

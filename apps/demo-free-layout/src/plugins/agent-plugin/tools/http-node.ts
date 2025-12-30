@@ -76,6 +76,7 @@ export class HTTPNodeTool extends BaseNodeTool<HTTPNodeParams, HTTPNodeResult> {
     type: 'function',
     function: {
       name: 'HTTPNode',
+      intro: '创建或修改 HTTP 节点',
       description: `在工作流中创建一个 HTTP 节点，或者修改一个 HTTP 节点的参数
 
 ## 创建节点参数类型
@@ -192,6 +193,15 @@ interface TimeoutConfig {
 `,
       parameters: {
         type: 'object',
+        properties: {
+          operation: {
+            type: 'string',
+            enum: ['create', 'update'],
+            description: '操作类型，必须是 "create" 或 "update"',
+          },
+          // ... 其他属性
+        },
+        required: ['operation', 'id'],
       } as IJsonSchema,
     },
     render: createNodeRender(WorkflowNodeType.HTTP),
@@ -228,7 +238,9 @@ interface TimeoutConfig {
     }
     return {
       success: false,
-      error: `无效的操作类型 ${(params as HTTPNodeParams).operation}，仅支持 create 和 update。`,
+      error: `无效的操作类型 operation:${
+        (params as HTTPNodeParams).operation
+      }，operation 仅支持 create 和 update。`,
     };
   }
 

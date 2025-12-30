@@ -35,6 +35,7 @@ export class EndNodeTool extends BaseNodeTool<UpdateEndNodeParams, EndNodeResult
     type: 'function',
     function: {
       name: 'EndNode',
+      intro: '修改工作流 End 节点参数',
       description: `修改工作流 End 节点参数
 
 IMPORTANT: 本工具会覆盖写 inputsValues，在执行前建议先调用 GetNodeSchema 工具查询 End 节点配置，避免覆盖原有的数据结构

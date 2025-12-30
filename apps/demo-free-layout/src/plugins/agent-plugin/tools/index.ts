@@ -7,11 +7,12 @@ import { WorkflowValidateTool } from './workflow-validate';
 import { WorkflowTestrunTool } from './workflow-testrun';
 import { TodoWriteTool } from './todo-write';
 import { StartNodeTool } from './start-node';
-import { RemoveNodeTool } from './remove-node-tool';
-import { RemoveEdgeTool } from './remove-edge-tool';
+import { RemoveNodeTool } from './remove-node';
+import { RemoveEdgeTool } from './remove-edge';
 import { NodeValidateTool } from './node-validate';
 import { LoopNodeTool } from './loop-node';
 import { LLMNodeTool } from './llm-node';
+import { ListToolsTool } from './list-tools';
 import { HTTPNodeTool } from './http-node';
 import { GetWorkflowStructureTool } from './get-workflow-structure';
 import { GetWorkflowSchemaTool } from './get-workflow-schema';
@@ -24,6 +25,7 @@ import { ConditionNodeTool } from './condition-node';
 import { CodeNodeTool } from './code-node';
 import { BreakNodeTool } from './break-node';
 import { AskUserQuestionTool } from './ask-user-question';
+import { ActivateToolTool } from './activate-tool';
 
 export { IAgentTool, BaseTool } from './base-tool';
 
@@ -49,4 +51,6 @@ export const AGENT_BUILTIN_TOOLS = [
   LoopNodeTool,
   BreakNodeTool,
   ContinueNodeTool,
+  ListToolsTool,
+  ActivateToolTool,
 ];

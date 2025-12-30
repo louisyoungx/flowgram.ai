@@ -31,6 +31,7 @@ export class WorkflowValidateTool extends BaseNodeTool<unknown, WorkflowValidate
     type: 'function',
     function: {
       name: 'WorkflowValidate',
+      intro: '验证工作流配置是否正确',
       description: '验证工作流中所有节点的配置是否正确',
       parameters: {
         type: 'object',

@@ -30,6 +30,7 @@ export class WorkflowTestrunTool extends BaseNodeTool<WorkflowTestrunParams, Tas
     type: 'function',
     function: {
       name: 'WorkflowTestrun',
+      intro: '执行工作流试运行',
       description:
         '工作流试运行\nIMPORTANT: 若不清楚入参格式，请先调用 GetWorkflowInputDefinition 工具获取工作流输入定义。',
       parameters: {

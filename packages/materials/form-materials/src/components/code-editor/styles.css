@@ -4,8 +4,10 @@
  */
 
 .gedit-m-code-editor-container {
+    max-height: 50vh;
+    overflow: auto;
 }
 
 .gedit-m-code-editor-container.mini {
-  height: 24px;
+    height: 24px;
 }
