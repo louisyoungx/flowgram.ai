@@ -5,8 +5,8 @@
 
 import { injectable, multiInject } from '@flowgram.ai/free-layout-editor';
 
-import type { Tool, ToolCall } from '../types';
-import { ToolCallResult, IAgentTool } from '../tools/type';
+import type { Tool, ToolCall, ToolResult } from '../types';
+import { IAgentTool } from '../tools/type';
 
 interface ToolInfo {
   name: string;
@@ -31,7 +31,7 @@ export class WorkflowAgentToolRegistry {
     }
   }
 
-  register(tool: IAgentTool): void {
+  public register(tool: IAgentTool): void {
     const name = tool.tool.function.name;
     this.tools.set(name, {
       tool,
@@ -39,13 +39,13 @@ export class WorkflowAgentToolRegistry {
     });
   }
 
-  getAllTools(): Tool[] {
+  public getAllTools(): Tool[] {
     return Array.from(this.tools.values())
       .filter((state) => state.activated)
       .map((state) => state.tool.tool);
   }
 
-  getActivatedTools(): ToolInfo[] {
+  public getActivatedTools(): ToolInfo[] {
     return Array.from(this.tools.values())
       .filter((state) => state.activated)
       .map((state) => ({
@@ -54,7 +54,7 @@ export class WorkflowAgentToolRegistry {
       }));
   }
 
-  getInactiveTools(): ToolInfo[] {
+  public getInactiveTools(): ToolInfo[] {
     return Array.from(this.tools.values())
       .filter((state) => !state.activated)
       .map((state) => ({
@@ -63,7 +63,7 @@ export class WorkflowAgentToolRegistry {
       }));
   }
 
-  activateTool(name: string): boolean {
+  public activateTool(name: string): boolean {
     const state = this.tools.get(name);
     if (!state || state.activated) {
       return false;
@@ -72,7 +72,7 @@ export class WorkflowAgentToolRegistry {
     return true;
   }
 
-  deactivateTool(name: string): boolean {
+  public deactivateTool(name: string): boolean {
     const state = this.tools.get(name);
     if (!state || !state.activated || state.tool.activated) {
       return false;
@@ -81,38 +81,37 @@ export class WorkflowAgentToolRegistry {
     return true;
   }
 
-  getTool(name: string): IAgentTool | undefined {
+  public getTool(name: string): IAgentTool | undefined {
     return this.tools.get(name)?.tool;
   }
 
-  async execute(toolCall: ToolCall): Promise<string> {
-    const tool = this.getTool(toolCall.function.name);
-    if (!tool) {
-      throw new Error(`Tool ${toolCall.function.name} not found`);
-    }
-    try {
-      const args = JSON.parse(toolCall.function.arguments);
-      const toolResult = await tool.execute(args);
-      return JSON.stringify(toolResult);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      const toolResult: ToolCallResult<null> = {
-        success: false,
-        error: errorMessage,
-      };
-      return JSON.stringify(toolResult);
-    }
+  public async executeTools(toolCalls: ToolCall[]): Promise<ToolResult[]> {
+    const promises = toolCalls.map(async (toolCall) => {
+      try {
+        const result = await this.execute(toolCall);
+
+        return {
+          toolCallId: toolCall.id,
+          result,
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+
+        return {
+          toolCallId: toolCall.id,
+          result: JSON.stringify({
+            success: false,
+            error: errorMessage,
+          }),
+          error: errorMessage,
+        };
+      }
+    });
+
+    return Promise.all(promises);
   }
 
-  has(name: string): boolean {
-    return this.tools.has(name);
-  }
-
-  getToolNames(): string[] {
-    return Array.from(this.tools.keys());
-  }
-
-  buildToolsReminder(): string | null {
+  public buildToolsReminder(): string | null {
     const activatedTools = this.getActivatedTools();
     const inactiveTools = this.getInactiveTools();
 
@@ -141,5 +140,24 @@ export class WorkflowAgentToolRegistry {
     lines.push('</system-reminder>');
 
     return lines.join('\n');
+  }
+
+  private async execute(toolCall: ToolCall): Promise<string> {
+    const toolName = toolCall.function.name;
+    const state = this.tools.get(toolName);
+
+    if (!state) {
+      throw new Error(`Tool ${toolName} not found`);
+    }
+
+    if (!state.activated) {
+      throw new Error(
+        `Tool ${toolName} is not activated. Please use activate_tool to activate it first.`
+      );
+    }
+
+    const args = JSON.parse(toolCall.function.arguments);
+    const toolResult = await state.tool.execute(args);
+    return JSON.stringify(toolResult);
   }
 }

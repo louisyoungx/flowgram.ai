@@ -5,7 +5,7 @@
 
 import { injectable, inject } from '@flowgram.ai/free-layout-editor';
 
-import type { ChatMessage, ToolCall, ToolResult, ReActStep } from '../types';
+import type { ChatMessage, ToolResult, ReActStep } from '../types';
 import { WorkflowAgentToolRegistry } from './tool-registry';
 import { LLMClient } from './llm-client';
 
@@ -119,8 +119,7 @@ export class ReActLoopExecutor {
         currentMessages.push(assistantToolCallMsg);
         onChatMessage(assistantToolCallMsg);
 
-        // 执行工具调用
-        const toolResults: ToolResult[] = await this.executeTools(response.toolCalls);
+        const toolResults: ToolResult[] = await this.toolRegistry.executeTools(response.toolCalls);
 
         // 发出工具结果步骤
         onStep({
@@ -187,34 +186,5 @@ export class ReActLoopExecutor {
       content: toolsReminder,
     });
     return result;
-  }
-
-  /**
-   * 执行工具调用（并发执行）
-   */
-  private async executeTools(toolCalls: ToolCall[]): Promise<ToolResult[]> {
-    const promises = toolCalls.map(async (toolCall) => {
-      try {
-        const result = await this.toolRegistry.execute(toolCall);
-
-        return {
-          toolCallId: toolCall.id,
-          result,
-        };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        return {
-          toolCallId: toolCall.id,
-          result: JSON.stringify({
-            success: false,
-            error: errorMessage,
-          }),
-          error: errorMessage,
-        };
-      }
-    });
-
-    return Promise.all(promises);
   }
 }
