@@ -92,11 +92,6 @@
     justify-content: flex-start;
 }
 
-.titleRunning {
-    color: #374151;
-    font-size: 13px;
-}
-
 .body {
     padding: 12px 14px;
     background: #fafafa;

@@ -6,8 +6,7 @@
 import { injectable, multiInject } from '@flowgram.ai/free-layout-editor';
 
 import type { Tool, ToolCall } from '../types';
-import { ToolCallResult } from '../tools/type';
-import { IAgentTool } from '../tools/base-tool';
+import { ToolCallResult, IAgentTool } from '../tools/type';
 
 interface ToolInfo {
   name: string;
@@ -111,5 +110,36 @@ export class WorkflowAgentToolRegistry {
 
   getToolNames(): string[] {
     return Array.from(this.tools.keys());
+  }
+
+  buildToolsReminder(): string | null {
+    const activatedTools = this.getActivatedTools();
+    const inactiveTools = this.getInactiveTools();
+
+    if (activatedTools.length === 0 && inactiveTools.length === 0) {
+      return null;
+    }
+
+    const lines: string[] = ['<system-reminder>'];
+
+    if (activatedTools.length > 0) {
+      lines.push('<activated-tools>');
+      for (const tool of activatedTools) {
+        lines.push(`  ${tool.name}: ${tool.intro}`);
+      }
+      lines.push('</activated-tools>');
+    }
+
+    if (inactiveTools.length > 0) {
+      lines.push('<inactive-tools>');
+      for (const tool of inactiveTools) {
+        lines.push(`  ${tool.name}: ${tool.intro}`);
+      }
+      lines.push('</inactive-tools>');
+    }
+
+    lines.push('</system-reminder>');
+
+    return lines.join('\n');
   }
 }

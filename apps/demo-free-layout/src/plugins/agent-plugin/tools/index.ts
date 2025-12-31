@@ -26,8 +26,7 @@ import { CodeNodeTool } from './code-node';
 import { BreakNodeTool } from './break-node';
 import { AskUserQuestionTool } from './ask-user-question';
 import { ActivateToolTool } from './activate-tool';
-
-export { IAgentTool, BaseTool } from './base-tool';
+export { IAgentTool, ToolCallResult } from './type';
 
 export const AGENT_BUILTIN_TOOLS = [
   TodoWriteTool,

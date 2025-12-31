@@ -97,11 +97,7 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
         })}
         onClick={handleToggle}
       >
-        <span
-          className={classNames(styles.title, {
-            [styles.titleRunning]: isRunning,
-          })}
-        >
+        <span className={styles.title}>
           {toolName}
           {!isRunning && (isCancelled || !isSuccess) && (
             <span className={styles.statusIcon}>{statusIcon}</span>

@@ -17,30 +17,7 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 
 import type { Tool } from '../types';
-import type { ToolCallResult } from './type';
-
-/**
- * 工具基类接口
- * 所有工具都需要实现此接口
- */
-export interface IAgentTool<TArgs = any, TData = any> {
-  /**
-   * 工具定义（OpenAI Function Calling 格式）
-   */
-  readonly tool: Tool;
-
-  /**
-   * 是否默认激活（核心工具设为 true）
-   */
-  readonly activated?: boolean;
-
-  /**
-   * 执行工具
-   * @param args 工具参数
-   * @returns 执行结果（ToolResult 结构体）
-   */
-  execute(args: TArgs): Promise<ToolCallResult<TData>>;
-}
+import type { ToolCallResult, IAgentTool } from './type';
 
 /**
  * 工具基类
@@ -91,8 +68,3 @@ export abstract class BaseNodeTool<TArgs = any, TData = any> implements IAgentTo
     this.selectService.selection = [line];
   }
 }
-
-/**
- * IAgentTool Token（用于 IoC 绑定）
- */
-export const IAgentTool = Symbol.for('IAgentTool');

@@ -10,10 +10,6 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   maxTokens: 200000,
 };
 
-// ============================================
-// Context Compact 配置（参考 Claude Code 实现）
-// ============================================
-
 /**
  * Micro Compact（规则压缩）配置
  * 当工具调用累积内容超过此阈值时，触发规则压缩

@@ -44,11 +44,12 @@ export class ReActLoopExecutor {
       iteration++;
 
       const tools = this.toolRegistry.getAllTools();
+      const messagesWithToolsReminder = this.injectToolsReminder(currentMessages);
 
       let fullContent = '';
       let toolCallsDetected = false;
       const response = await this.llmClient.callStream({
-        messages: currentMessages,
+        messages: messagesWithToolsReminder,
         tools,
         signal,
         onChunk: (chunk) => {
@@ -172,6 +173,20 @@ export class ReActLoopExecutor {
     });
 
     return lastContent + warningMessage;
+  }
+
+  private injectToolsReminder(messages: ChatMessage[]): ChatMessage[] {
+    const toolsReminder = this.toolRegistry.buildToolsReminder();
+    if (!toolsReminder) {
+      return messages;
+    }
+
+    const result = [...messages];
+    result.splice(1, 0, {
+      role: 'user',
+      content: toolsReminder,
+    });
+    return result;
   }
 
   /**
