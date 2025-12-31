@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { ChatMessage, ToolCall, ToolResult, UIChatMessage } from './types';
+import { ToolCall, ToolResult, UIMessage } from './types';
 
 export interface ParsedContent {
   type: 'text' | 'tool_call';
@@ -14,52 +14,11 @@ export interface ParsedContent {
   id?: string;
 }
 
-export function parseMessageContent(content: string): ParsedContent[] {
-  const parts: ParsedContent[] = [];
-  const toolCallRegex =
-    /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>([\s\S]*?)<\/arguments>(?:\s*<result>([\s\S]*?)<\/result>)?\s*<\/tool_call>/g;
-
-  let lastIndex = 0;
-  let match;
-
-  while ((match = toolCallRegex.exec(content)) !== null) {
-    if (match.index > lastIndex) {
-      const textContent = content.slice(lastIndex, match.index).trim();
-      if (textContent) {
-        parts.push({ type: 'text', content: textContent });
-      }
-    }
-
-    parts.push({
-      type: 'tool_call',
-      id: match[1],
-      toolName: match[2],
-      toolArgs: match[3].trim(),
-      toolResult: match[4]?.trim(),
-    });
-
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < content.length) {
-    const textContent = content.slice(lastIndex).trim();
-    if (textContent) {
-      parts.push({ type: 'text', content: textContent });
-    }
-  }
-
-  if (parts.length === 0 && content.trim()) {
-    parts.push({ type: 'text', content: content.trim() });
-  }
-
-  return parts;
-}
-
 export namespace WorkflowAgentUtils {
   /**
    * 创建新的用户消息
    */
-  export const createUserMessage = (content: string): UIChatMessage => ({
+  export const createUserMessage = (content: string): UIMessage => ({
     id: Date.now().toString(),
     role: 'user',
     content,
@@ -70,7 +29,7 @@ export namespace WorkflowAgentUtils {
   /**
    * 创建新的 Assistant 消息
    */
-  export const createAssistantMessage = (id?: string): UIChatMessage => ({
+  export const createAssistantMessage = (id?: string): UIMessage => ({
     id: id || (Date.now() + 1).toString(),
     role: 'assistant',
     content: '',
@@ -156,47 +115,6 @@ export namespace WorkflowAgentUtils {
   };
 
   /**
-   * 从消息内容中移除工具调用XML
-   * 用于构建API消息时，避免将XML格式的工具调用发送给LLM
-   */
-  export const removeToolCallsXML = (content: string): string => {
-    const toolCallRegex =
-      /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>[\s\S]*?<\/arguments>(?:\s*<result>[\s\S]*?<\/result>)?\s*<\/tool_call>/g;
-    return content.replace(toolCallRegex, '[Old tool result content cleared]').trim();
-  };
-
-  /**
-   * 将工具调用XML转换为文本描述
-   * 用于最近的消息，保留工具调用的语义但避免LLM误以为输出XML就能调用工具
-   */
-  export const convertToolCallsToText = (content: string): string => {
-    const toolCallRegex =
-      /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>([\s\S]*?)<\/arguments>(?:\s*<result>([\s\S]*?)<\/result>)?\s*<\/tool_call>/g;
-
-    return content
-      .replace(toolCallRegex, (match, id, name, args, result) => {
-        const truncatedArgs = args.trim().substring(0, 100);
-        let replacement = `\n\n<system_note>Tool ${name} was called with args: ${truncatedArgs}${
-          args.trim().length > 100 ? '...' : ''
-        }`;
-        if (result) {
-          const truncatedResult = result.trim().substring(0, 150);
-          replacement += `, returned: ${truncatedResult}${
-            result.trim().length > 150 ? '...' : ''
-          }</system_note>`;
-        } else {
-          replacement += '</system_note>';
-        }
-        return replacement;
-      })
-      .trim();
-  };
-
-  // ============================================
-  // Context Compact 工具函数
-  // ============================================
-
-  /**
    * 估算文本的 token 数量
    * 使用简单的字符比例估算（中英文混合约 1 token ≈ 4 字符）
    */
@@ -204,29 +122,4 @@ export namespace WorkflowAgentUtils {
     if (!text) return 0;
     return Math.ceil(text.length / 4);
   };
-
-  /**
-   * 估算消息数组的总 token 数
-   */
-  export const estimateTotalTokens = (messages: ChatMessage[]): number =>
-    messages.reduce((total, msg) => total + estimateTokens(msg.content), 0);
-
-  /**
-   * 估算消息中工具调用部分的 token 数
-   */
-  export const estimateToolTokens = (content: string): number => {
-    const toolCallRegex = /<tool_call[\s\S]*?<\/tool_call>/g;
-    const matches = content.match(toolCallRegex) || [];
-    return matches.reduce((sum, match) => sum + estimateTokens(match), 0);
-  };
-
-  /**
-   * 清理工具调用结果（Micro Compact）
-   * 将 <result>...</result> 替换为占位符，保留工具调用的结构
-   */
-  export const clearToolResults = (content: string): string =>
-    content.replace(
-      /<result>[\s\S]*?<\/result>/g,
-      '<result>[Old tool result content cleared]</result>'
-    );
 }

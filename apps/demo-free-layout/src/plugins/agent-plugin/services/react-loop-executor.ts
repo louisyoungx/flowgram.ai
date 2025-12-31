@@ -15,6 +15,7 @@ export interface ReActLoopParams {
   signal?: AbortSignal;
   onStep: (step: ReActStep) => void;
   onChunk: (chunk: string) => void;
+  onChatMessage: (msg: ChatMessage) => void;
 }
 
 /**
@@ -33,7 +34,7 @@ export class ReActLoopExecutor {
    * 执行 ReAct Loop（流式版本）
    */
   async execute(params: ReActLoopParams): Promise<string> {
-    const { messages, maxIterations, signal, onChunk, onStep } = params;
+    const { messages, maxIterations, signal, onChunk, onStep, onChatMessage } = params;
 
     let currentMessages = [...messages];
     let iteration = 0;
@@ -100,18 +101,22 @@ export class ReActLoopExecutor {
         // 根据 OpenAI API 规范，分离思考内容和工具调用
         // 如果有思考内容，先添加一条纯文本的 assistant 消息
         if (fullContent.trim()) {
-          currentMessages.push({
+          const assistantThoughtMsg: ChatMessage = {
             role: 'assistant',
             content: fullContent,
-          });
+          };
+          currentMessages.push(assistantThoughtMsg);
+          onChatMessage(assistantThoughtMsg);
         }
 
         // 然后添加工具调用消息（content 为空或仅包含简短说明）
-        currentMessages.push({
+        const assistantToolCallMsg: ChatMessage = {
           role: 'assistant',
           content: '',
           tool_calls: response.toolCalls,
-        } as any);
+        };
+        currentMessages.push(assistantToolCallMsg);
+        onChatMessage(assistantToolCallMsg);
 
         // 执行工具调用
         const toolResults: ToolResult[] = await this.executeTools(response.toolCalls);
@@ -124,18 +129,25 @@ export class ReActLoopExecutor {
 
         // 将工具结果添加到消息历史
         for (const result of toolResults) {
-          currentMessages.push({
+          const toolMsg: ChatMessage = {
             role: 'tool',
             content: result.result,
             tool_call_id: result.toolCallId,
-          } as any);
+          };
+          currentMessages.push(toolMsg);
+          onChatMessage(toolMsg);
         }
 
-        // 继续下一次循环
         continue;
       }
 
       // 没有工具调用，返回最终响应
+      const finalAssistantMsg: ChatMessage = {
+        role: 'assistant',
+        content: fullContent,
+      };
+      onChatMessage(finalAssistantMsg);
+
       onStep({
         type: 'response',
         content: fullContent,
@@ -147,6 +159,12 @@ export class ReActLoopExecutor {
     // 达到最大迭代次数，输出警告信息但保留之前的内容
     const warningMessage = `\n\n 已达到最大迭代次数（${maxIterations}次），任务可能未完全完成，输入 "继续" 进行任务。`;
     onChunk(warningMessage);
+
+    const finalMsg: ChatMessage = {
+      role: 'assistant',
+      content: lastContent + warningMessage,
+    };
+    onChatMessage(finalMsg);
 
     onStep({
       type: 'response',

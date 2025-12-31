@@ -5,19 +5,19 @@
 
 import { useState, useEffect } from 'react';
 
-import type { UIChatMessage } from '../../../plugins/agent-plugin/types';
+import type { UIMessage } from '../../../plugins/agent-plugin/types';
 import { useAgentService } from '../../../plugins/agent-plugin/hooks';
 
-export const useChatMessages = (): UIChatMessage[] => {
+export const useChatMessages = (): UIMessage[] => {
   const agentService = useAgentService();
-  const [messages, setMessages] = useState<UIChatMessage[]>([]);
+  const [messages, setMessages] = useState<UIMessage[]>([]);
 
   useEffect(() => {
     // 初始化时获取消息
-    setMessages(agentService.getMessages());
+    setMessages(agentService.getUIMessages());
 
     // 订阅消息变化
-    const disposable = agentService.onMessagesChange((newMessages) => {
+    const disposable = agentService.onUIMessagesChange((newMessages) => {
       setMessages(newMessages);
     });
 

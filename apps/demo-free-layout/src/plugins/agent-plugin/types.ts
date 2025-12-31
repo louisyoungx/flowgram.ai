@@ -8,20 +8,31 @@ import type React from 'react';
 import type { Event, WorkflowJSON } from '@flowgram.ai/free-layout-editor';
 import type { IJsonSchema } from '@flowgram.ai/form-materials';
 
-/**
- * Agent 层消息接口（用于 API 调用）
- */
-export interface ChatMessage {
-  role: 'user' | 'assistant' | 'system' | 'tool';
+export interface UserMessage {
+  role: 'user';
   content: string;
-  tool_calls?: ToolCall[];
-  tool_call_id?: string;
 }
 
-/**
- * UI 层消息接口（包含额外的 UI 状态）
- */
-export interface UIChatMessage {
+export interface AssistantMessage {
+  role: 'assistant';
+  content: string;
+  tool_calls?: ToolCall[];
+}
+
+export interface SystemMessage {
+  role: 'system';
+  content: string;
+}
+
+export interface ToolMessage {
+  role: 'tool';
+  content: string;
+  tool_call_id: string;
+}
+
+export type ChatMessage = UserMessage | AssistantMessage | SystemMessage | ToolMessage;
+
+export interface UIMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
@@ -29,8 +40,13 @@ export interface UIChatMessage {
   status?: 'sending' | 'sent' | 'error';
 }
 
-export interface AgentServiceChatMessage extends UIChatMessage {
+export interface MessageHistory {
   schema?: WorkflowJSON;
+  uiMessages: {
+    user: UIMessage;
+    assistant: UIMessage;
+  };
+  chatMessages: ChatMessage[];
 }
 
 export interface AgentConfig {
@@ -93,7 +109,7 @@ export interface ToolCall {
   type: 'function';
   function: {
     name: string;
-    arguments: string; // JSON string
+    arguments: string;
   };
 }
 
@@ -104,7 +120,6 @@ export interface ToolResult {
   toolCallId: string;
   result: string;
 }
-
 /**
  * ReAct 步骤类型
  */
@@ -117,11 +132,10 @@ export type ReActStep =
 
 export interface IWorkflowAgentService {
   init(config?: Partial<AgentConfig>): void;
-
   /**
    * 获取当前消息列表
    */
-  getMessages(): UIChatMessage[];
+  getUIMessages(): UIMessage[];
 
   /**
    * 检查指定消息是否有 schema
@@ -136,7 +150,7 @@ export interface IWorkflowAgentService {
   /**
    * 监听消息变化
    */
-  onMessagesChange: Event<UIChatMessage[]>;
+  onUIMessagesChange: Event<UIMessage[]>;
 
   /**
    * 发送消息（内部处理 ReAct Loop）
@@ -162,6 +176,7 @@ export interface IWorkflowAgentService {
    * 编辑并重新发送指定的用户消息
    */
   editAndResendMessage(messageId: string, newContent: string): Promise<void>;
+
   /**
    * 恢复指定消息的 schema
    */

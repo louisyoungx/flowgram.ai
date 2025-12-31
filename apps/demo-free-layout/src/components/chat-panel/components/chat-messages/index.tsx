@@ -10,12 +10,12 @@ import { Bubble } from '@ant-design/x';
 import { MessageContent } from '../message-content';
 import { ChatInput } from '../chat-input';
 import { useChatEdit } from '../../hooks';
-import type { UIChatMessage } from '../../../../plugins/agent-plugin/types';
+import type { UIMessage } from '../../../../plugins/agent-plugin/types';
 
 import styles from './index.module.css';
 
 interface ChatMessagesProps {
-  messages: UIChatMessage[];
+  messages: UIMessage[];
 }
 
 export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {

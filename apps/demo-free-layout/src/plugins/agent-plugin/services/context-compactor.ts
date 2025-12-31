@@ -6,7 +6,7 @@
 import { injectable, inject } from '@flowgram.ai/free-layout-editor';
 
 import { WorkflowAgentUtils } from '../utils';
-import type { AgentServiceChatMessage, ChatMessage } from '../types';
+import type { MessageHistory, ChatMessage } from '../types';
 import SummaryPrompt from '../prompts/summary-prompt.md?raw';
 import {
   CONTEXT_COMPACT_THRESHOLD,
@@ -15,67 +15,50 @@ import {
 } from '../constant';
 import { LLMClient } from './llm-client';
 
-/**
- * 上下文压缩服务
- * 负责对话历史的智能总结和压缩
- */
 @injectable()
 export class ContextCompactor {
   @inject(LLMClient)
   private llmClient: LLMClient;
 
-  /**
-   * 检查是否需要执行智能总结
-   */
-  shouldCompact(messages: AgentServiceChatMessage[], lastSummaryIndex: number): boolean {
-    const filteredMessages = messages.filter(
-      (msg) => msg.role === 'user' || msg.role === 'assistant'
-    );
+  shouldCompact(histories: MessageHistory[], lastSummaryIndex: number): boolean {
+    const allChatMessages = histories.flatMap((h) => h.chatMessages);
 
-    // 估算当前总 token 数
-    const totalTokens = filteredMessages.reduce(
+    const totalTokens = allChatMessages.reduce(
       (sum, msg) => sum + WorkflowAgentUtils.estimateTokens(msg.content),
       0
     );
 
-    // 检查是否达到压缩阈值
     if (totalTokens < CONTEXT_COMPACT_THRESHOLD) return false;
 
-    // 检查自上次压缩以来是否有足够的新消息
-    const messagesSinceLastSummary = filteredMessages.length - lastSummaryIndex;
-    if (messagesSinceLastSummary < MIN_MESSAGES_BETWEEN_SUMMARIES) return false;
+    const historiesSinceLastSummary = histories.length - lastSummaryIndex;
+    if (historiesSinceLastSummary < MIN_MESSAGES_BETWEEN_SUMMARIES / 2) return false;
 
     return true;
   }
 
-  /**
-   * 生成对话历史的智能摘要
-   */
-  async generateSummary(messages: AgentServiceChatMessage[]): Promise<string | null> {
-    const filteredMessages = messages.filter(
-      (msg) => msg.role === 'user' || msg.role === 'assistant'
-    );
+  async generateSummary(histories: MessageHistory[]): Promise<string | null> {
+    const historiesToSummarize = histories.slice(0, -CONTEXT_COMPACT_KEEP_RECENT);
 
-    // 保留最近的消息不参与摘要
-    const messagesToSummarize = filteredMessages.slice(
-      0,
-      -CONTEXT_COMPACT_KEEP_RECENT * 2 // 保留最近 N 轮（每轮 2 条消息）
-    );
-
-    if (messagesToSummarize.length < 4) {
-      // 太少的消息不值得摘要
+    if (historiesToSummarize.length < 2) {
       return null;
     }
 
-    // 构建摘要请求
+    const messagesToSummarize: ChatMessage[] = historiesToSummarize.flatMap((h) =>
+      h.chatMessages.filter((m) => m.role === 'user' || m.role === 'assistant')
+    );
+
+    if (messagesToSummarize.length < 4) {
+      return null;
+    }
+
     const summaryMessages: ChatMessage[] = [
       {
         role: 'system',
         content: 'You are a helpful assistant that summarizes conversations concisely.',
       },
       ...messagesToSummarize.map((msg) => ({
-        role: msg.role,
-        content: WorkflowAgentUtils.convertToolCallsToText(msg.content),
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
       })),
       {
         role: 'user',
@@ -83,13 +66,11 @@ export class ContextCompactor {
       },
     ];
 
-    // 调用 LLM 生成摘要
     const response = await this.llmClient.callSync(summaryMessages, {
-      temperature: 0.3, // 低温度确保摘要一致性
-      maxTokens: 2000, // 摘要不需要太长
+      temperature: 0.3,
+      maxTokens: 2000,
     });
 
-    // 提取 <summary> 标签内的内容
     const summaryMatch = response.match(/<summary>([\s\S]*?)<\/summary>/);
     return summaryMatch ? summaryMatch[1].trim() : response;
   }

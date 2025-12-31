@@ -23,7 +23,7 @@ interface CreateEdgeParams {
 }
 
 interface CreateEdgeResult {
-  created: WorkflowEdgeJSON[];
+  created: EdgeDefinition[];
   failed: { edge: EdgeDefinition; reason: string }[];
 }
 
@@ -120,13 +120,13 @@ interface CreateEdgeParams {
       };
     }
 
-    const created: WorkflowEdgeJSON[] = [];
+    const created: EdgeDefinition[] = [];
     const failed: { edge: EdgeDefinition; reason: string }[] = [];
 
     for (const edgeDef of edges) {
       const result = this.validateAndCreateEdge(edgeDef);
       if (result.success) {
-        created.push(result.data!);
+        created.push(edgeDef);
       } else {
         failed.push({ edge: edgeDef, reason: result.error! });
       }

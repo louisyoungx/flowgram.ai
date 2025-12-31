@@ -13,8 +13,7 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 
 import { WorkflowAgentUtils } from '../utils';
-import type { AgentConfig, IWorkflowAgentService, UIChatMessage } from '../types';
-import SystemPrompt from '../prompts/system-prompt.md?raw';
+import type { AgentConfig, IWorkflowAgentService, UIMessage } from '../types';
 import { DEFAULT_AGENT_CONFIG } from '../constant';
 import { LLMClient, MessageManager, ReActLoopExecutor, ContextCompactor } from '.';
 
@@ -50,12 +49,12 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     this.llmClient.init(this.config);
   }
 
-  public get onMessagesChange() {
-    return this.messageManager.onMessagesChange;
+  public get onUIMessagesChange() {
+    return this.messageManager.onUIMessagesChange;
   }
 
-  public getMessages(): UIChatMessage[] {
-    return this.messageManager.getMessages();
+  public getUIMessages(): UIMessage[] {
+    return this.messageManager.getUIMessages();
   }
 
   public hasSchema(messageId: string): boolean {
@@ -67,7 +66,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   }
 
   public clearMessages(): void {
-    this.messageManager.resetMessages();
+    this.messageManager.resetHistories();
   }
 
   public cancelCurrentRequest(): void {
@@ -78,96 +77,78 @@ export class WorkflowAgentService implements IWorkflowAgentService {
   }
 
   public restoreSchema(messageId: string): void {
-    const message = this.messageManager.findMessage(messageId);
-    if (!message?.schema) {
+    const history = this.messageManager.findHistoryByMessageId(messageId);
+    if (!history?.schema) {
       return;
     }
 
-    this.operationService.fromJSON(message.schema);
+    this.operationService.fromJSON(history.schema);
     fitView(this.document, this.playground.config);
   }
 
   public async retryMessage(messageId: string): Promise<void> {
-    const messageIndex = this.messageManager.findMessageIndex(messageId);
-    if (messageIndex === -1) {
+    const historyIndex = this.messageManager.findHistoryIndexByMessageId(messageId);
+    if (historyIndex === -1) {
       return;
     }
 
-    const message = this.messageManager.findMessage(messageId);
-    if (!message || message.role !== 'assistant') {
+    const history = this.messageManager.findHistoryByMessageId(messageId);
+    if (!history) {
       return;
     }
 
-    // 找到之前的用户消息
-    let userMessageIndex = -1;
-    const allMessages = this.messageManager.getAllMessages();
-    for (let i = messageIndex - 1; i >= 0; i--) {
-      if (allMessages[i].role === 'user') {
-        userMessageIndex = i;
-        break;
-      }
-    }
-
-    if (userMessageIndex === -1) {
+    const uiMessage = this.messageManager.findUIMessage(messageId);
+    if (!uiMessage || uiMessage.role !== 'assistant') {
       return;
     }
 
-    const userMessage = allMessages[userMessageIndex];
-    this.messageManager.truncateMessages(userMessageIndex);
+    const userContent = history.uiMessages.user.content;
+    this.messageManager.truncateHistories(historyIndex);
 
-    await this.sendMessage(userMessage.content);
+    await this.sendMessage(userContent);
   }
 
   public async editAndResendMessage(messageId: string, newContent: string): Promise<void> {
-    const messageIndex = this.messageManager.findMessageIndex(messageId);
-    if (messageIndex === -1) {
+    const historyIndex = this.messageManager.findHistoryIndexByMessageId(messageId);
+    if (historyIndex === -1) {
       return;
     }
 
-    const message = this.messageManager.findMessage(messageId);
-    if (!message || message.role !== 'user') {
+    const uiMessage = this.messageManager.findUIMessage(messageId);
+    if (!uiMessage || uiMessage.role !== 'user') {
       return;
     }
 
-    this.messageManager.truncateMessages(messageIndex);
+    this.messageManager.truncateHistories(historyIndex);
 
     await this.sendMessage(newContent);
   }
 
-  /**
-   * 发送消息并处理 AI 响应
-   */
   public async sendMessage(content: string): Promise<void> {
     if (!content.trim()) return;
 
-    // 创建新的 AbortController
     this.abortController = new AbortController();
 
-    // 添加用户消息
-    const userMessage = WorkflowAgentUtils.createUserMessage(content);
+    const userUIMessage = WorkflowAgentUtils.createUserMessage(content);
+    const assistantUIMessage = WorkflowAgentUtils.createAssistantMessage();
+    const assistantMessageId = assistantUIMessage.id;
 
-    // 在发送消息前保存当前 workflow schema 快照
     const schema = this.document.toJSON();
-    const userMessageWithSchema = { ...userMessage, schema };
+    this.messageManager.createHistory(userUIMessage, assistantUIMessage, schema);
 
-    this.messageManager.addMessage(userMessageWithSchema);
-
-    // 创建 assistant 消息
-    const assistantMessage = WorkflowAgentUtils.createAssistantMessage();
-    const assistantMessageId = assistantMessage.id;
-    this.messageManager.addMessage(assistantMessage);
+    this.messageManager.appendChatMessage({ role: 'user', content });
 
     try {
-      const messages = this.messageManager.buildApiMessages(this.systemPrompt);
+      const messages = this.messageManager.buildApiMessages();
 
       await this.reActLoopExecutor.execute({
         messages,
         maxIterations: 100,
         signal: this.abortController.signal,
         onChunk: (chunk) => {
-          const msg = this.messageManager.findMessage(assistantMessageId);
+          const msg = this.messageManager.findUIMessage(assistantMessageId);
           if (msg) {
-            this.messageManager.updateMessage(assistantMessageId, {
+            this.messageManager.updateUIMessage(assistantMessageId, {
               content: msg.content + chunk,
             });
           }
@@ -175,14 +156,15 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         onStep: (step) => {
           this.handleReActStep(assistantMessageId, step);
         },
+        onChatMessage: (msg) => {
+          this.messageManager.appendChatMessage(msg);
+        },
       });
 
-      // 标记消息发送成功
-      this.messageManager.updateMessage(assistantMessageId, {
+      this.messageManager.updateUIMessage(assistantMessageId, {
         status: 'sent',
       });
 
-      // 对话成功完成后，执行智能总结
       await this.compactContextIfNeeded();
     } catch (error) {
       this.handleError(assistantMessageId, error);
@@ -191,23 +173,16 @@ export class WorkflowAgentService implements IWorkflowAgentService {
     }
   }
 
-  private get systemPrompt(): string {
-    return SystemPrompt;
-  }
-
-  /**
-   * 处理 ReAct 步骤回调
-   */
   private handleReActStep(
     assistantMessageId: string,
     step: { type: string; toolCalls?: any[]; results?: any[]; content?: string }
   ): void {
-    const msg = this.messageManager.findMessage(assistantMessageId);
+    const msg = this.messageManager.findUIMessage(assistantMessageId);
     if (!msg) return;
 
     if (step.type === 'tool_call' && step.toolCalls) {
       const toolCallsXML = WorkflowAgentUtils.formatToolCallsToXML(step.toolCalls);
-      this.messageManager.updateMessage(assistantMessageId, {
+      this.messageManager.updateUIMessage(assistantMessageId, {
         content: msg.content + toolCallsXML,
       });
     } else if (step.type === 'tool_call_update' && step.toolCalls) {
@@ -215,64 +190,55 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         msg.content,
         step.toolCalls
       );
-      this.messageManager.updateMessage(assistantMessageId, {
+      this.messageManager.updateUIMessage(assistantMessageId, {
         content: updatedContent,
       });
     } else if (step.type === 'tool_result' && step.results) {
       const updatedContent = WorkflowAgentUtils.updateToolCallResults(msg.content, step.results);
-      this.messageManager.updateMessage(assistantMessageId, {
+      this.messageManager.updateUIMessage(assistantMessageId, {
         content: updatedContent,
       });
     }
   }
 
-  /**
-   * 处理错误
-   */
   private handleError(assistantMessageId: string, error: unknown): void {
-    // 检查是否为取消错误
     if (
       error instanceof Error &&
       (error.name === 'AbortError' || error.message.includes('aborted'))
     ) {
-      // 取消请求时，处理未完成的工具调用
-      const msg = this.messageManager.findMessage(assistantMessageId);
+      const msg = this.messageManager.findUIMessage(assistantMessageId);
       if (msg) {
         const updatedContent = WorkflowAgentUtils.markIncompleteToolCallsAsCancelled(msg.content);
-        this.messageManager.updateMessage(assistantMessageId, {
+        this.messageManager.updateUIMessage(assistantMessageId, {
           content: updatedContent,
           status: 'sent',
         });
       } else {
-        this.messageManager.updateMessage(assistantMessageId, {
+        this.messageManager.updateUIMessage(assistantMessageId, {
           status: 'sent',
         });
       }
     } else {
-      // 处理其他错误
       const errorContent = WorkflowAgentUtils.formatErrorMessage(error);
-      this.messageManager.updateMessage(assistantMessageId, {
+      this.messageManager.updateUIMessage(assistantMessageId, {
         content: errorContent,
         status: 'error',
       });
     }
   }
 
-  /**
-   * 检查是否需要执行智能总结，如需要则执行
-   */
   private async compactContextIfNeeded(): Promise<void> {
-    const messages = this.messageManager.getAllMessages();
-    const lastSummaryIndex = this.messageManager.getLastSummaryMessageIndex();
+    const histories = this.messageManager.getAllHistories();
+    const lastSummaryIndex = this.messageManager.getLastSummaryHistoryIndex();
 
-    if (!this.contextCompactor.shouldCompact(messages, lastSummaryIndex)) {
+    if (!this.contextCompactor.shouldCompact(histories, lastSummaryIndex)) {
       return;
     }
 
     try {
       console.log('[Context Compact] Starting intelligent summarization...');
 
-      const summary = await this.contextCompactor.generateSummary(messages);
+      const summary = await this.contextCompactor.generateSummary(histories);
 
       if (summary) {
         this.messageManager.setConversationSummary(summary);
@@ -280,7 +246,6 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       }
     } catch (error) {
       console.warn('[Context Compact] Failed to generate summary:', error);
-      // 失败时不影响正常流程
     }
   }
 }
