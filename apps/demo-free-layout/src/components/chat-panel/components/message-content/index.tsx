@@ -65,7 +65,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({
 
         if (part.type === 'tool_call') {
           const tool = toolRegistry.getTool(part.toolName || '');
-          const customRender = tool?.tool.render;
+          const customRender = tool?.definition.render;
 
           return (
             <ToolCallCard

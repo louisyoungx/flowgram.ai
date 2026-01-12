@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 
+import type { ToolCallResult } from '../tools/type';
 import { AskUserQuestionTool } from '../tools/ask-user-question';
 
 interface AskUserQuestionArgs {
@@ -12,14 +13,12 @@ interface AskUserQuestionArgs {
   options?: string[];
 }
 
-interface AskUserQuestionResult {
-  success: boolean;
-  data?: {
-    question: string;
-    answer: string;
-  };
-  error?: string;
+interface AskUserQuestionResultData {
+  question: string;
+  answer: string;
 }
+
+type AskUserQuestionResult = ToolCallResult<AskUserQuestionResultData>;
 
 export const AskUserQuestionRender: React.FC<{
   args: AskUserQuestionArgs;

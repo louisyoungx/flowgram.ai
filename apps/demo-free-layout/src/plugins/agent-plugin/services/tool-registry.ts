@@ -32,35 +32,49 @@ export class WorkflowAgentToolRegistry {
   }
 
   public register(tool: IAgentTool): void {
-    const name = tool.tool.function.name;
+    const name = tool.definition.name || this.getToolName(tool);
     this.tools.set(name, {
       tool,
       activated: tool.activated ?? false,
     });
   }
 
-  public getAllTools(): Tool[] {
-    return Array.from(this.tools.values())
-      .filter((state) => state.activated)
-      .map((state) => state.tool.tool);
+  public getAllTools(): Record<string, Tool> {
+    const result: Record<string, Tool> = {};
+    for (const [name, state] of this.tools.entries()) {
+      if (state.activated) {
+        const toolDef = state.tool.definition;
+        result[name] = {
+          description: toolDef.description,
+          parameters: toolDef.parameters,
+        };
+      }
+    }
+    return result;
   }
 
   public getActivatedTools(): ToolInfo[] {
     return Array.from(this.tools.values())
       .filter((state) => state.activated)
-      .map((state) => ({
-        name: state.tool.tool.function.name,
-        intro: state.tool.tool.function.intro || state.tool.tool.function.description,
-      }));
+      .map((state) => {
+        const name = state.tool.definition.name || this.getToolName(state.tool);
+        return {
+          name,
+          intro: state.tool.definition.description,
+        };
+      });
   }
 
   public getInactiveTools(): ToolInfo[] {
     return Array.from(this.tools.values())
       .filter((state) => !state.activated)
-      .map((state) => ({
-        name: state.tool.tool.function.name,
-        intro: state.tool.tool.function.intro || state.tool.tool.function.description,
-      }));
+      .map((state) => {
+        const name = state.tool.definition.name || this.getToolName(state.tool);
+        return {
+          name,
+          intro: state.tool.definition.description,
+        };
+      });
   }
 
   public activateTool(name: string): boolean {
@@ -91,19 +105,19 @@ export class WorkflowAgentToolRegistry {
         const result = await this.execute(toolCall);
 
         return {
-          toolCallId: toolCall.id,
+          toolCallId: toolCall.toolCallId,
           result,
         };
       } catch (error) {
+        console.error(`Error executing tool ${toolCall.toolName}:`, error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
         return {
-          toolCallId: toolCall.id,
+          toolCallId: toolCall.toolCallId,
           result: JSON.stringify({
             success: false,
             error: errorMessage,
           }),
-          error: errorMessage,
         };
       }
     });
@@ -142,8 +156,12 @@ export class WorkflowAgentToolRegistry {
     return lines.join('\n');
   }
 
+  private getToolName(tool: IAgentTool): string {
+    return tool.constructor.name.replace(/Tool$/, '');
+  }
+
   private async execute(toolCall: ToolCall): Promise<string> {
-    const toolName = toolCall.function.name;
+    const toolName = toolCall.toolName;
     const state = this.tools.get(toolName);
 
     if (!state) {
@@ -156,8 +174,7 @@ export class WorkflowAgentToolRegistry {
       );
     }
 
-    const args = JSON.parse(toolCall.function.arguments);
-    const toolResult = await state.tool.execute(args);
+    const toolResult = await state.tool.execute(toolCall.args);
     return JSON.stringify(toolResult);
   }
 }

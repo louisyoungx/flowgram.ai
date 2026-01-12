@@ -5,6 +5,8 @@
 
 import React from 'react';
 
+import type { ToolCallResult } from '../tools/type';
+
 interface TodoItem {
   id: number;
   title: string;
@@ -21,12 +23,8 @@ interface TodoWriteArgs {
   description?: string;
 }
 
-interface TodoWriteResult {
-  success: boolean;
-  data?: TodoItem | TodoItem[];
-  message?: string;
-  error?: string;
-}
+type TodoWriteResultData = TodoItem[] | TodoItem;
+type TodoWriteResult = ToolCallResult<TodoWriteResultData>;
 
 export const TodoWriteRender: React.FC<{
   args: TodoWriteArgs;

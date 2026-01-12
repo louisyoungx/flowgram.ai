@@ -97,9 +97,12 @@ export class ReActLoopExecutor {
         }
 
         // 添加短暂延迟，确保 UI 有时间更新显示工具调用卡片
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        const UI_UPDATE_DELAY = 100;
+        await new Promise((resolve) => {
+          setTimeout(resolve, UI_UPDATE_DELAY);
+        });
 
-        // 根据 OpenAI API 规范，分离思考内容和工具调用
+        // 根据 AI SDK 规范，分离思考内容和工具调用
         // 如果有思考内容，先添加一条纯文本的 assistant 消息
         if (fullContent.trim()) {
           const assistantThoughtMsg: ChatMessage = {
@@ -110,15 +113,22 @@ export class ReActLoopExecutor {
           onChatMessage(assistantThoughtMsg);
         }
 
-        // 然后添加工具调用消息（content 为空或仅包含简短说明）
+        // 然后添加工具调用消息
         const assistantToolCallMsg: ChatMessage = {
           role: 'assistant',
-          content: '',
-          tool_calls: response.toolCalls,
+          content: [
+            ...response.toolCalls.map((tc) => ({
+              type: 'tool-call' as const,
+              toolCallId: tc.toolCallId,
+              toolName: tc.toolName,
+              args: tc.args,
+            })),
+          ],
         };
         currentMessages.push(assistantToolCallMsg);
         onChatMessage(assistantToolCallMsg);
 
+        // 执行工具调用
         const toolResults: ToolResult[] = await this.toolRegistry.executeTools(response.toolCalls);
 
         // 发出工具结果步骤
@@ -127,12 +137,20 @@ export class ReActLoopExecutor {
           results: toolResults,
         });
 
-        // 将工具结果添加到消息历史
+        // 将工具结果添加到消息历史（使用 AI SDK 的 tool-result 格式）
         for (const result of toolResults) {
           const toolMsg: ChatMessage = {
             role: 'tool',
-            content: result.result,
-            tool_call_id: result.toolCallId,
+            content: [
+              {
+                type: 'tool-result',
+                toolCallId: result.toolCallId,
+                toolName:
+                  response.toolCalls.find((tc) => tc.toolCallId === result.toolCallId)?.toolName ||
+                  '',
+                result: result.result,
+              },
+            ],
           };
           currentMessages.push(toolMsg);
           onChatMessage(toolMsg);

@@ -12,7 +12,7 @@ import { BaseTool } from './base-tool';
 
 interface ToolInfo {
   name: string;
-  description: string;
+  intro: string;
 }
 
 interface ListToolsResult {

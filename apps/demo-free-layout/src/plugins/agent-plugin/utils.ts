@@ -43,9 +43,9 @@ export namespace WorkflowAgentUtils {
   export const formatToolCallsToXML = (toolCalls: ToolCall[]): string =>
     toolCalls
       .map((tc) => {
-        const toolId = tc.id;
-        const toolName = tc.function.name;
-        const args = tc.function.arguments;
+        const toolId = tc.toolCallId;
+        const toolName = tc.toolName;
+        const args = JSON.stringify(tc.args);
         return `\n\n<tool_call id="${toolId}" name="${toolName}">\n<arguments>\n${args}\n</arguments>\n</tool_call>`;
       })
       .join('');
@@ -56,8 +56,8 @@ export namespace WorkflowAgentUtils {
   export const updateToolCallArguments = (content: string, toolCalls: ToolCall[]): string => {
     let updatedContent = content;
     for (const toolCall of toolCalls) {
-      const toolId = toolCall.id;
-      const args = toolCall.function.arguments;
+      const toolId = toolCall.toolCallId;
+      const args = JSON.stringify(toolCall.args);
       updatedContent = updatedContent.replace(
         new RegExp(
           `(<tool_call id="${toolId}"[^>]*>\\s*<arguments>)[\\s\\S]*?(<\\/arguments>)`,
@@ -115,11 +115,49 @@ export namespace WorkflowAgentUtils {
   };
 
   /**
+   * 从消息内容中移除工具调用XML
+   * 用于构建API消息时，避免将XML格式的工具调用发送给LLM
+   */
+  export const removeToolCallsXML = (content: string): string => {
+    const toolCallRegex =
+      /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>[\s\S]*?<\/arguments>(?:\s*<result>[\s\S]*?<\/result>)?\s*<\/tool_call>/g;
+    return content.replace(toolCallRegex, '[Old tool result content cleared]').trim();
+  };
+
+  /**
+   * 将工具调用XML转换为文本描述
+   * 用于最近的消息，保留工具调用的语义但避免LLM误以为输出XML就能调用工具
+   */
+  export const convertToolCallsToText = (content: string): string => {
+    const toolCallRegex =
+      /<tool_call id="([^"]+)" name="([^"]+)">\s*<arguments>([\s\S]*?)<\/arguments>(?:\s*<result>([\s\S]*?)<\/result>)?\s*<\/tool_call>/g;
+
+    return content
+      .replace(toolCallRegex, (match, id, name, args, result) => {
+        const truncatedArgs = args.trim().substring(0, 100);
+        let replacement = `\n\n<system_note>Tool ${name} was called with args: ${truncatedArgs}${
+          args.trim().length > 100 ? '...' : ''
+        }`;
+        if (result) {
+          const truncatedResult = result.trim().substring(0, 150);
+          replacement += `, returned: ${truncatedResult}${
+            result.trim().length > 150 ? '...' : ''
+          }</system_note>`;
+        } else {
+          replacement += '</system_note>';
+        }
+        return replacement;
+      })
+      .trim();
+  };
+  /**
    * 估算文本的 token 数量
    * 使用简单的字符比例估算（中英文混合约 1 token ≈ 4 字符）
    */
   export const estimateTokens = (text: string): number => {
-    if (!text) return 0;
+    if (!text) {
+      return 0;
+    }
     return Math.ceil(text.length / 4);
   };
 }

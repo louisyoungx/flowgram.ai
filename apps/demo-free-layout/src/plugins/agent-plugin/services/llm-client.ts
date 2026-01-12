@@ -3,13 +3,18 @@
  * SPDX-License-Identifier: MIT
  */
 
+import type { Tool } from 'ai';
+import { streamText } from 'ai';
 import { injectable } from '@flowgram.ai/free-layout-editor';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createAnthropic } from '@ai-sdk/anthropic';
 
-import type { AgentConfig, ChatMessage, ToolCall, Tool } from '../types';
+import type { AgentConfig, ChatMessage, ToolCall } from '../types';
 
 export interface LLMStreamParams {
   messages: ChatMessage[];
-  tools: Tool[];
+  tools: Record<string, Tool>;
   onChunk: (chunk: string) => void;
   onToolCallDetected: (toolCalls: ToolCall[]) => void;
   signal?: AbortSignal;
@@ -22,7 +27,8 @@ export interface LLMStreamResponse {
 
 /**
  * LLM 客户端服务
- * 负责与 LLM API 的通信，支持流式和非流式调用
+ * 使用 Vercel AI SDK 进行统一的 LLM 调用
+ * 支持多种模型提供商、自动缓存、流式响应等特性
  */
 @injectable()
 export class LLMClient {
@@ -42,135 +48,144 @@ export class LLMClient {
     return this.config;
   }
 
+  private isClaudeModel(modelName?: string): boolean {
+    if (!modelName) {
+      return false;
+    }
+    return (
+      modelName.toLowerCase().includes('claude') || modelName.toLowerCase().includes('anthropic')
+    );
+  }
+
+  private isGeminiModel(modelName?: string): boolean {
+    if (!modelName) {
+      return false;
+    }
+    return modelName.toLowerCase().includes('gemini') || modelName.toLowerCase().includes('google');
+  }
+
+  private createProvider(config: AgentConfig) {
+    const modelName = config.model || '';
+
+    if (this.isClaudeModel(modelName)) {
+      return createAnthropic({
+        apiKey: config.apiKey,
+        baseURL: config.baseURL,
+      });
+    }
+
+    if (this.isGeminiModel(modelName)) {
+      return createGoogleGenerativeAI({
+        apiKey: config.apiKey,
+        baseURL: config.baseURL,
+      });
+    }
+
+    return createOpenAI({
+      apiKey: config.apiKey,
+      baseURL: config.baseURL,
+    });
+  }
+
   /**
    * 流式调用 LLM
    */
   async callStream(params: LLMStreamParams): Promise<LLMStreamResponse> {
     const { messages, tools, onChunk, onToolCallDetected, signal } = params;
 
+    console.log('[LLMClient] Starting stream call with:', {
+      messageCount: messages.length,
+      toolCount: Object.keys(tools).length,
+      config: this.config,
+    });
+
     if (!this.config?.apiKey) {
       throw new Error('API Key is not configured. Please set the API key in settings.');
     }
 
-    const request: any = {
-      model: this.config.model!,
-      messages,
-      temperature: this.config.temperature,
-      max_tokens: this.config.maxTokens,
-      stream: true,
-    };
-
-    // 如果提供了工具，添加到请求中
-    if (tools.length > 0) {
-      request.tools = tools;
-      request.tool_choice = 'auto';
-    }
-
     try {
-      const response = await fetch(`${this.config.baseURL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.config.apiKey}`,
-        },
-        body: JSON.stringify(request),
-        signal,
+      const provider = this.createProvider(this.config);
+      const modelName = this.config.model || 'gpt-4';
+
+      console.log('[LLMClient] Provider info:', {
+        modelName,
+        isClaudeModel: this.isClaudeModel(modelName),
+        isGeminiModel: this.isGeminiModel(modelName),
+        baseURL: this.config.baseURL,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error?.message || `API request failed with status ${response.status}`
-        );
-      }
+      const result = await streamText({
+        model: provider(modelName),
+        messages,
+        tools,
+        temperature: this.config.temperature,
+        maxTokens: this.config.maxTokens,
+        abortSignal: signal,
+        toolCallStreaming: true,
+      });
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('Response body is not readable');
-      }
+      console.log('[LLMClient] streamText initiated, starting to read stream');
 
-      const decoder = new TextDecoder();
-      let buffer = '';
       let fullContent = '';
-      let toolCalls: ToolCall[] | undefined;
-      let toolCallsNotified = false;
+      const toolCalls: ToolCall[] = [];
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      console.log('[LLMClient] Starting to process stream...');
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+      try {
+        for await (const part of result.fullStream) {
+          console.log('[LLMClient] Received stream part:', part.type, part);
 
-        for (const line of lines) {
-          const trimmedLine = line.trim();
-          if (!trimmedLine || trimmedLine === 'data: [DONE]') continue;
-
-          if (trimmedLine.startsWith('data: ')) {
-            try {
-              const jsonStr = trimmedLine.slice(6);
-              const data = JSON.parse(jsonStr);
-              const delta = data.choices?.[0]?.delta;
-
-              if (delta?.content) {
-                fullContent += delta.content;
-                onChunk(delta.content);
-              }
-
-              // 收集工具调用信息
-              if (delta?.tool_calls) {
-                if (!toolCalls) {
-                  toolCalls = [];
-                }
-                for (const tc of delta.tool_calls) {
-                  const index = tc.index ?? 0;
-                  if (!toolCalls[index]) {
-                    toolCalls[index] = {
-                      id: tc.id || '',
-                      type: 'function',
-                      function: {
-                        name: tc.function?.name || '',
-                        arguments: tc.function?.arguments || '',
-                      },
-                    };
-                  } else {
-                    // 追加参数
-                    if (tc.function?.arguments) {
-                      toolCalls[index].function.arguments += tc.function.arguments;
-                    }
-                    if (tc.function?.name) {
-                      toolCalls[index].function.name = tc.function.name;
-                    }
-                    if (tc.id) {
-                      toolCalls[index].id = tc.id;
-                    }
-                  }
-                }
-
-                // 检测到工具调用时立即通知 UI（用于显示 loading）
-                // 只要有 id 和 name 就通知，arguments 可以是部分的
-                if (!toolCallsNotified && toolCalls.length > 0) {
-                  const completeToolCalls = toolCalls.filter((tc) => tc.id && tc.function.name);
-                  if (completeToolCalls.length > 0) {
-                    toolCallsNotified = true;
-                    // 立即通知，即使 arguments 还未完全收集
-                    onToolCallDetected([...completeToolCalls]);
-                  }
-                }
-              }
-            } catch (e) {
-              console.warn('Failed to parse SSE data:', e);
+          if (part.type === 'text-delta') {
+            fullContent += part.textDelta;
+            onChunk(part.textDelta);
+          } else if (part.type === 'tool-call-streaming-start') {
+            const partialToolCall: ToolCall = {
+              type: 'tool-call',
+              toolCallId: part.toolCallId,
+              toolName: part.toolName,
+              args: {},
+            };
+            toolCalls.push(partialToolCall);
+            onToolCallDetected([...toolCalls]);
+          } else if (part.type === 'tool-call-delta') {
+          } else if (part.type === 'tool-call') {
+            const existingIndex = toolCalls.findIndex((tc) => tc.toolCallId === part.toolCallId);
+            if (existingIndex >= 0) {
+              toolCalls[existingIndex] = part;
+            } else {
+              toolCalls.push(part);
             }
+          } else if (part.type === 'error') {
+            console.error('[LLMClient] Stream error:', part.error);
+            throw part.error;
           }
         }
+      } catch (streamError) {
+        console.error('[LLMClient] Stream processing error:', streamError);
+        throw streamError;
+      }
+
+      console.log('[LLMClient] Stream completed, full content length:', fullContent.length);
+
+      const resolvedToolCalls = await result.toolCalls;
+      console.log('[LLMClient] Resolved tool calls:', resolvedToolCalls);
+
+      if (resolvedToolCalls && resolvedToolCalls.length > 0) {
+        toolCalls.length = 0;
+        toolCalls.push(...resolvedToolCalls);
       }
 
       return {
         content: fullContent,
-        toolCalls,
+        toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
       };
     } catch (error) {
+      console.error('[LLMClient] Error calling LLM:', error);
+      console.error('[LLMClient] Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       if (error instanceof Error) {
         throw new Error(`Failed to call LLM: ${error.message}`);
       }
@@ -192,25 +207,31 @@ export class LLMClient {
       throw new Error('API Key is not configured');
     }
 
-    const response = await fetch(`${this.config.baseURL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.config.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: this.config.model,
+    try {
+      const provider = this.createProvider(this.config);
+      const modelName = this.config.model || 'gpt-4';
+
+      const DEFAULT_TEMPERATURE = 0.3;
+      const DEFAULT_MAX_TOKENS = 2000;
+
+      const result = await streamText({
+        model: provider(modelName),
         messages,
-        temperature: options?.temperature ?? 0.3,
-        max_tokens: options?.maxTokens ?? 2000,
-      }),
-    });
+        temperature: options?.temperature ?? DEFAULT_TEMPERATURE,
+        maxTokens: options?.maxTokens ?? DEFAULT_MAX_TOKENS,
+      });
 
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status}`);
+      let content = '';
+      for await (const delta of result.textStream) {
+        content += delta;
+      }
+
+      return content;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to call LLM: ${error.message}`);
+      }
+      throw new Error('Failed to call LLM: Unknown error');
     }
-
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || '';
   }
 }

@@ -6,7 +6,7 @@
 import { Emitter, injectable, type WorkflowJSON } from '@flowgram.ai/free-layout-editor';
 
 import { WorkflowAgentUtils } from '../utils';
-import type { MessageHistory, ChatMessage, UIMessage, ToolMessage } from '../types';
+import type { MessageHistory, ChatMessage, UIMessage } from '../types';
 import SystemPrompt from '../prompts/system-prompt.md?raw';
 import { TOOL_RESULT_TOKEN_THRESHOLD, TOOL_RESULT_KEEP_WINDOW } from '../constant';
 
@@ -197,6 +197,23 @@ export class MessageManager {
     return messages;
   }
 
+  private extractToolContent(content: ChatMessage['content']): string {
+    if (typeof content === 'string') {
+      return content;
+    }
+    if (Array.isArray(content)) {
+      return content
+        .map((part) => {
+          if ('result' in part) {
+            return typeof part.result === 'string' ? part.result : JSON.stringify(part.result);
+          }
+          return '';
+        })
+        .join('');
+    }
+    return '';
+  }
+
   private applyMicroCompact(chatMessages: ChatMessage[]): ChatMessage[] {
     const toolMessages: Array<{ index: number; tokens: number }> = [];
     let totalToolTokens = 0;
@@ -204,7 +221,8 @@ export class MessageManager {
     for (let i = 0; i < chatMessages.length; i++) {
       const msg = chatMessages[i];
       if (msg.role === 'tool') {
-        const tokens = WorkflowAgentUtils.estimateTokens(msg.content);
+        const contentStr = this.extractToolContent(msg.content);
+        const tokens = WorkflowAgentUtils.estimateTokens(contentStr);
         toolMessages.push({ index: i, tokens });
         totalToolTokens += tokens;
       }
@@ -233,8 +251,15 @@ export class MessageManager {
       if (toolIndicesToClear.has(index) && msg.role === 'tool') {
         return {
           ...msg,
-          content: '[Old tool result content cleared]',
-        } as ToolMessage;
+          content: [
+            {
+              type: 'tool-result' as const,
+              toolCallId: '',
+              toolName: '',
+              result: '[Old tool result content cleared]',
+            },
+          ],
+        };
       }
       return msg;
     });

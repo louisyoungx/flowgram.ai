@@ -5,32 +5,11 @@
 
 import type React from 'react';
 
+import z from 'zod';
+import type { CoreMessage, ToolCallPart } from 'ai';
 import type { Event, WorkflowJSON } from '@flowgram.ai/free-layout-editor';
-import type { IJsonSchema } from '@flowgram.ai/form-materials';
 
-export interface UserMessage {
-  role: 'user';
-  content: string;
-}
-
-export interface AssistantMessage {
-  role: 'assistant';
-  content: string;
-  tool_calls?: ToolCall[];
-}
-
-export interface SystemMessage {
-  role: 'system';
-  content: string;
-}
-
-export interface ToolMessage {
-  role: 'tool';
-  content: string;
-  tool_call_id: string;
-}
-
-export type ChatMessage = UserMessage | AssistantMessage | SystemMessage | ToolMessage;
+export type ChatMessage = CoreMessage;
 
 export interface UIMessage {
   id: string;
@@ -57,61 +36,22 @@ export interface AgentConfig {
   maxTokens?: number;
 }
 
-export interface ChatCompletionRequest {
-  model: string;
-  messages: ChatMessage[];
-  temperature?: number;
-  max_tokens?: number;
-  stream?: boolean;
-}
-
-export interface ChatCompletionResponse {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: Array<{
-    index: number;
-    message: ChatMessage;
-    finish_reason: string;
-  }>;
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-}
-
 /**
- * Tool 函数定义
+ * Tool 定义 - 直接使用 AI SDK 的 Tool 格式并扩展渲染功能
  */
-export interface ToolFunction {
-  name: string;
+export interface Tool<ARGS = any, RESULT = any> {
+  name?: string;
   description: string;
-  intro: string;
-  parameters: IJsonSchema;
+  parameters: z.ZodType<ARGS> | any;
+  execute?: (args: ARGS) => Promise<RESULT>;
+  // 自定义渲染组件
+  render?: React.FC<{ args: ARGS; result?: RESULT }>;
 }
 
 /**
- * Tool 定义
+ * Tool 调用（使用 AI SDK 的 ToolCallPart）
  */
-export interface Tool {
-  type: 'function';
-  function: ToolFunction;
-  render?: React.FC<{ args: any; result?: any }>;
-}
-
-/**
- * Tool 调用参数
- */
-export interface ToolCall {
-  id: string;
-  type: 'function';
-  function: {
-    name: string;
-    arguments: string;
-  };
-}
+export type ToolCall = ToolCallPart;
 
 /**
  * Tool 执行结果

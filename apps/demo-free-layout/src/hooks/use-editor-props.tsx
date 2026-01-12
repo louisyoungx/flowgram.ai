@@ -398,7 +398,7 @@ export function useEditorProps(
           config: {
             // Default config - users should update via UI settings
             // 默认配置 - 用户应通过 UI 设置更新
-            apiKey: 'b0515e86-d99f-4b6c-87f6-f00dad61fc0a',
+            apiKey: 'e96f48f1-daf9-447e-8258-5003bfbffd0f',
             baseURL: 'https://ark.cn-beijing.volces.com/api/v3',
             model: 'kimi-k2-250905',
             temperature: 0.7,
