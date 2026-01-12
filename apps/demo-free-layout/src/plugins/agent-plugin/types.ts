@@ -11,10 +11,23 @@ import type { Event, WorkflowJSON } from '@flowgram.ai/free-layout-editor';
 
 export type ChatMessage = CoreMessage;
 
+export type ToolCallState = 'streaming' | 'pending' | 'completed' | 'error' | 'cancelled';
+
+export type UIMessagePart =
+  | { type: 'text'; text: string }
+  | {
+      type: 'tool-call';
+      toolCallId: string;
+      toolName: string;
+      args: unknown;
+      result?: unknown;
+      state: ToolCallState;
+    };
+
 export interface UIMessage {
   id: string;
   role: 'user' | 'assistant';
-  content: string;
+  parts: UIMessagePart[];
   timestamp: number;
   status?: 'sending' | 'sent' | 'error';
 }
@@ -44,7 +57,6 @@ export interface Tool<ARGS = any, RESULT = any> {
   description: string;
   parameters: z.ZodType<ARGS> | any;
   execute?: (args: ARGS) => Promise<RESULT>;
-  // 自定义渲染组件
   render?: React.FC<{ args: ARGS; result?: RESULT }>;
 }
 
@@ -72,54 +84,15 @@ export type ReActStep =
 
 export interface IWorkflowAgentService {
   init(config?: Partial<AgentConfig>): void;
-  /**
-   * 获取当前消息列表
-   */
   getUIMessages(): UIMessage[];
-
-  /**
-   * 检查指定消息是否有 schema
-   */
   hasSchema(messageId: string): boolean;
-
-  /**
-   * 获取指定消息之前的用户消息 ID
-   */
   getPreviousUserMessageId(messageId: string): string | null;
-
-  /**
-   * 监听消息变化
-   */
   onUIMessagesChange: Event<UIMessage[]>;
-
-  /**
-   * 发送消息（内部处理 ReAct Loop）
-   */
   sendMessage(content: string): Promise<void>;
-
-  /**
-   * 清空消息历史
-   */
   clearMessages(): void;
-
-  /**
-   * 取消当前正在进行的请求
-   */
   cancelCurrentRequest(): void;
-
-  /**
-   * 重试指定的消息
-   */
   retryMessage(messageId: string): Promise<void>;
-
-  /**
-   * 编辑并重新发送指定的用户消息
-   */
   editAndResendMessage(messageId: string, newContent: string): Promise<void>;
-
-  /**
-   * 恢复指定消息的 schema
-   */
   restoreSchema(messageId: string): void;
 }
 

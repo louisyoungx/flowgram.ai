@@ -8,26 +8,44 @@ import React, { useState, useMemo } from 'react';
 import classNames from 'classnames';
 import { IconChevronDown, IconChevronRight, IconClose, IconSpin } from '@douyinfe/semi-icons';
 
+import type { ToolCallState } from '../../../../plugins/agent-plugin/types';
+
 import styles from './index.module.css';
 
 interface ToolCallCardProps {
   toolName: string;
-  arguments: string;
-  result?: string;
+  args: unknown;
+  result?: unknown;
+  state: ToolCallState;
   defaultOpen?: boolean;
-  customRender?: (args: any, result?: any) => React.ReactNode;
+  customRender?: React.FC<{ args: unknown; result?: unknown }>;
 }
 
 export const ToolCallCard: React.FC<ToolCallCardProps> = ({
   toolName,
-  arguments: args,
+  args,
   result,
+  state,
   defaultOpen = false,
   customRender,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  const isRunning = !result;
-  const hasContent = args || result;
+  const isRunning = state === 'pending' || state === 'streaming';
+  const isCancelled = state === 'cancelled';
+  const isError = state === 'error';
+  const isSuccess = state === 'completed';
+
+  const argsString = useMemo(() => {
+    if (args === null || args === undefined) return '';
+    return typeof args === 'string' ? args : JSON.stringify(args, null, 2);
+  }, [args]);
+
+  const resultString = useMemo(() => {
+    if (result === null || result === undefined) return '';
+    return typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+  }, [result]);
+
+  const hasContent = argsString || resultString;
 
   const handleToggle = () => {
     if (hasContent) {
@@ -35,59 +53,24 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
     }
   };
 
-  const { parsedArgs, parsedResult, hasValidArgs, isSuccess, isCancelled } = useMemo(() => {
-    let parsedArgs: any = null;
-    let parsedResult: any = null;
-    let hasValidArgs = false;
-    let isSuccess = false;
-    let isCancelled = false;
-
-    try {
-      if (args && args.trim()) {
-        parsedArgs = JSON.parse(args);
-        hasValidArgs = true;
-      }
-    } catch (e) {
-      console.warn(`Failed to parse tool arguments for ${toolName}:`, args, e);
-      parsedArgs = null;
-    }
-
-    try {
-      if (result && result.trim()) {
-        parsedResult = JSON.parse(result);
-        isSuccess = parsedResult?.success === true;
-        isCancelled = result.includes('请求已取消') || result.includes('已取消');
-      }
-    } catch (e) {
-      console.warn(`Failed to parse tool result for ${toolName}:`, result, e);
-      parsedResult = null;
-    }
-
-    return { parsedArgs, parsedResult, hasValidArgs, isSuccess, isCancelled };
-  }, [args, result, toolName]);
-
-  if (customRender && hasValidArgs) {
+  if (customRender && args !== null && args !== undefined && !isRunning) {
     const CustomRenderComponent = customRender;
     return (
       <div style={{ margin: '8px 0' }}>
-        <CustomRenderComponent args={parsedArgs} result={parsedResult} />
+        <CustomRenderComponent args={args} result={result} />
       </div>
     );
   }
 
-  const statusIcon = isCancelled ? (
-    <IconClose size="small" className={styles.cancelledIcon} />
-  ) : isSuccess ? (
-    <></>
-  ) : (
-    <IconClose size="small" className={styles.errorIcon} />
-  );
+  const statusIcon =
+    isCancelled || isError ? <IconClose size="small" className={styles.errorIcon} /> : null;
+
   return (
     <div
       className={classNames(styles.card, {
         [styles.running]: isRunning,
         [styles.cancelled]: isCancelled,
-        [styles.error]: !isSuccess && result,
+        [styles.error]: isError,
         [styles.cardExpanded]: isOpen,
       })}
     >
@@ -99,7 +82,7 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
       >
         <span className={styles.title}>
           {toolName}
-          {!isRunning && (isCancelled || !isSuccess) && (
+          {!isRunning && (isCancelled || isError) && (
             <span className={styles.statusIcon}>{statusIcon}</span>
           )}
         </span>
@@ -119,16 +102,16 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
       </div>
       {isOpen && hasContent && (
         <div className={styles.body}>
-          {args && (
+          {argsString && (
             <div className={styles.section}>
               <div className={styles.label}>参数</div>
-              <pre className={styles.contentText}>{args}</pre>
+              <pre className={styles.contentText}>{argsString}</pre>
             </div>
           )}
-          {result && (
+          {resultString && (
             <div className={styles.section}>
               <div className={styles.label}>结果</div>
-              <pre className={styles.contentText}>{result}</pre>
+              <pre className={styles.contentText}>{resultString}</pre>
             </div>
           )}
         </div>

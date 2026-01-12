@@ -6,31 +6,28 @@
 import { Emitter, injectable, type WorkflowJSON } from '@flowgram.ai/free-layout-editor';
 
 import { WorkflowAgentUtils } from '../utils';
-import type { MessageHistory, ChatMessage, UIMessage } from '../types';
+import type {
+  MessageHistory,
+  ChatMessage,
+  UIMessage,
+  UIMessagePart,
+  ToolCallState,
+} from '../types';
 import SystemPrompt from '../prompts/system-prompt.md?raw';
 import { TOOL_RESULT_TOKEN_THRESHOLD, TOOL_RESULT_KEEP_WINDOW } from '../constant';
 
-/**
- * 消息管理服务
- * 负责消息的 CRUD、事件通知、历史管理
- */
 @injectable()
 export class MessageManager {
   private histories: MessageHistory[] = [];
 
   private uiMessagesEmitter = new Emitter<UIMessage[]>();
 
-  /** 对话历史的智能总结（不影响 UI 显示，只用于 API 调用） */
   private conversationSummary: string | null = null;
 
-  /** 上次执行智能总结时的消息索引 */
   private lastSummaryHistoryIndex: number = 0;
 
   public onUIMessagesChange = this.uiMessagesEmitter.event;
 
-  /**
-   * 获取所有消息（UI 层）
-   */
   getUIMessages(): UIMessage[] {
     const messages: UIMessage[] = [];
     for (const history of this.histories) {
@@ -40,9 +37,6 @@ export class MessageManager {
     return messages;
   }
 
-  /**
-   * 获取所有消息（包含 schema，内部使用）
-   */
   getAllHistories(): MessageHistory[] {
     return this.histories;
   }
@@ -51,9 +45,6 @@ export class MessageManager {
     return this.histories[this.histories.length - 1];
   }
 
-  /**
-   * 根据 ID 查找消息
-   */
   findUIMessage(messageId: string): UIMessage | undefined {
     for (const history of this.histories) {
       if (history.uiMessages.user.id === messageId) {
@@ -78,17 +69,11 @@ export class MessageManager {
     );
   }
 
-  /**
-   * 检查指定消息是否有 schema
-   */
   hasSchema(messageId: string): boolean {
     const history = this.findHistoryByMessageId(messageId);
     return !!history?.schema;
   }
 
-  /**
-   * 获取指定消息之前的用户消息 ID
-   */
   getPreviousUserMessageId(messageId: string): string | null {
     const historyIndex = this.findHistoryIndexByMessageId(messageId);
     if (historyIndex <= 0) {
@@ -137,9 +122,85 @@ export class MessageManager {
     }
   }
 
-  /**
-   * 截断消息到指定索引
-   */
+  appendTextToMessage(messageId: string, text: string): void {
+    const msg = this.findUIMessage(messageId);
+    if (!msg) return;
+
+    const lastPart = msg.parts[msg.parts.length - 1];
+    if (lastPart && lastPart.type === 'text') {
+      lastPart.text += text;
+    } else {
+      msg.parts.push({ type: 'text', text });
+    }
+    this.notifyListeners();
+  }
+
+  appendToolCallPart(messageId: string, toolCallId: string, toolName: string, args: unknown): void {
+    const msg = this.findUIMessage(messageId);
+    if (!msg) return;
+
+    msg.parts.push({
+      type: 'tool-call',
+      toolCallId,
+      toolName,
+      args,
+      state: 'pending',
+    });
+    this.notifyListeners();
+  }
+
+  updateToolCallArgs(messageId: string, toolCallId: string, args: unknown): void {
+    const msg = this.findUIMessage(messageId);
+    if (!msg) return;
+
+    const part = msg.parts.find(
+      (p): p is Extract<UIMessagePart, { type: 'tool-call' }> =>
+        p.type === 'tool-call' && p.toolCallId === toolCallId
+    );
+    if (part) {
+      part.args = args;
+      part.state = 'streaming';
+      this.notifyListeners();
+    }
+  }
+
+  updateToolCallResult(
+    messageId: string,
+    toolCallId: string,
+    result: unknown,
+    state: ToolCallState = 'completed'
+  ): void {
+    const msg = this.findUIMessage(messageId);
+    if (!msg) return;
+
+    const part = msg.parts.find(
+      (p): p is Extract<UIMessagePart, { type: 'tool-call' }> =>
+        p.type === 'tool-call' && p.toolCallId === toolCallId
+    );
+    if (part) {
+      part.result = result;
+      part.state = state;
+      this.notifyListeners();
+    }
+  }
+
+  markIncompleteToolCallsAsCancelled(messageId: string): void {
+    const msg = this.findUIMessage(messageId);
+    if (!msg) return;
+
+    let changed = false;
+    for (const part of msg.parts) {
+      if (part.type === 'tool-call' && part.state !== 'completed' && part.state !== 'error') {
+        part.state = 'cancelled';
+        part.result = '请求已取消';
+        changed = true;
+      }
+    }
+    if (changed) {
+      this.notifyListeners();
+    }
+  }
+
   truncateHistories(toIndex: number): void {
     this.histories = this.histories.slice(0, toIndex);
     if (this.lastSummaryHistoryIndex > toIndex) {
@@ -148,9 +209,6 @@ export class MessageManager {
     this.notifyListeners();
   }
 
-  /**
-   * 重置所有消息
-   */
   resetHistories(): void {
     this.histories = [];
     this.conversationSummary = null;

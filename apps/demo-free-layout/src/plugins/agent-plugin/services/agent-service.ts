@@ -13,7 +13,7 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 
 import { WorkflowAgentUtils } from '../utils';
-import type { AgentConfig, IWorkflowAgentService, UIMessage } from '../types';
+import type { AgentConfig, IWorkflowAgentService, UIMessage, ToolCall, ToolResult } from '../types';
 import { DEFAULT_AGENT_CONFIG } from '../constant';
 import { LLMClient, MessageManager, ReActLoopExecutor, ContextCompactor } from '.';
 
@@ -102,7 +102,8 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       return;
     }
 
-    const userContent = history.uiMessages.user.content;
+    const userTextPart = history.uiMessages.user.parts.find((p) => p.type === 'text');
+    const userContent = userTextPart && userTextPart.type === 'text' ? userTextPart.text : '';
     this.messageManager.truncateHistories(historyIndex);
 
     await this.sendMessage(userContent);
@@ -146,12 +147,7 @@ export class WorkflowAgentService implements IWorkflowAgentService {
         maxIterations: 100,
         signal: this.abortController.signal,
         onChunk: (chunk) => {
-          const msg = this.messageManager.findUIMessage(assistantMessageId);
-          if (msg) {
-            this.messageManager.updateUIMessage(assistantMessageId, {
-              content: msg.content + chunk,
-            });
-          }
+          this.messageManager.appendTextToMessage(assistantMessageId, chunk);
         },
         onStep: (step) => {
           this.handleReActStep(assistantMessageId, step);
@@ -175,30 +171,45 @@ export class WorkflowAgentService implements IWorkflowAgentService {
 
   private handleReActStep(
     assistantMessageId: string,
-    step: { type: string; toolCalls?: any[]; results?: any[]; content?: string }
+    step: { type: string; toolCalls?: ToolCall[]; results?: ToolResult[]; content?: string }
   ): void {
-    const msg = this.messageManager.findUIMessage(assistantMessageId);
-    if (!msg) return;
-
     if (step.type === 'tool_call' && step.toolCalls) {
-      const toolCallsXML = WorkflowAgentUtils.formatToolCallsToXML(step.toolCalls);
-      this.messageManager.updateUIMessage(assistantMessageId, {
-        content: msg.content + toolCallsXML,
-      });
+      for (const tc of step.toolCalls) {
+        this.messageManager.appendToolCallPart(
+          assistantMessageId,
+          tc.toolCallId,
+          tc.toolName,
+          tc.args
+        );
+      }
     } else if (step.type === 'tool_call_update' && step.toolCalls) {
-      const updatedContent = WorkflowAgentUtils.updateToolCallArguments(
-        msg.content,
-        step.toolCalls
-      );
-      this.messageManager.updateUIMessage(assistantMessageId, {
-        content: updatedContent,
-      });
+      for (const tc of step.toolCalls) {
+        this.messageManager.updateToolCallArgs(assistantMessageId, tc.toolCallId, tc.args);
+      }
     } else if (step.type === 'tool_result' && step.results) {
-      const updatedContent = WorkflowAgentUtils.updateToolCallResults(msg.content, step.results);
-      this.messageManager.updateUIMessage(assistantMessageId, {
-        content: updatedContent,
-      });
+      for (const result of step.results) {
+        let parsedResult: unknown;
+        try {
+          parsedResult = JSON.parse(result.result);
+        } catch {
+          parsedResult = result.result;
+        }
+        const state = this.determineToolCallState(parsedResult);
+        this.messageManager.updateToolCallResult(
+          assistantMessageId,
+          result.toolCallId,
+          parsedResult,
+          state
+        );
+      }
     }
+  }
+
+  private determineToolCallState(result: unknown): 'completed' | 'error' {
+    if (typeof result === 'object' && result !== null && 'success' in result) {
+      return (result as { success: boolean }).success ? 'completed' : 'error';
+    }
+    return 'completed';
   }
 
   private handleError(assistantMessageId: string, error: unknown): void {
@@ -206,22 +217,14 @@ export class WorkflowAgentService implements IWorkflowAgentService {
       error instanceof Error &&
       (error.name === 'AbortError' || error.message.includes('aborted'))
     ) {
-      const msg = this.messageManager.findUIMessage(assistantMessageId);
-      if (msg) {
-        const updatedContent = WorkflowAgentUtils.markIncompleteToolCallsAsCancelled(msg.content);
-        this.messageManager.updateUIMessage(assistantMessageId, {
-          content: updatedContent,
-          status: 'sent',
-        });
-      } else {
-        this.messageManager.updateUIMessage(assistantMessageId, {
-          status: 'sent',
-        });
-      }
+      this.messageManager.markIncompleteToolCallsAsCancelled(assistantMessageId);
+      this.messageManager.updateUIMessage(assistantMessageId, {
+        status: 'sent',
+      });
     } else {
       const errorContent = WorkflowAgentUtils.formatErrorMessage(error);
+      this.messageManager.appendTextToMessage(assistantMessageId, errorContent);
       this.messageManager.updateUIMessage(assistantMessageId, {
-        content: errorContent,
         status: 'error',
       });
     }

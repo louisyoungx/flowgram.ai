@@ -10,13 +10,19 @@ import { Bubble } from '@ant-design/x';
 import { MessageContent } from '../message-content';
 import { ChatInput } from '../chat-input';
 import { useChatEdit } from '../../hooks';
-import type { UIMessage } from '../../../../plugins/agent-plugin/types';
+import type { UIMessage, UIMessagePart } from '../../../../plugins/agent-plugin/types';
 
 import styles from './index.module.css';
 
 interface ChatMessagesProps {
   messages: UIMessage[];
 }
+
+const getTextFromParts = (parts: UIMessagePart[]): string =>
+  parts
+    .filter((p): p is Extract<UIMessagePart, { type: 'text' }> => p.type === 'text')
+    .map((p) => p.text)
+    .join('\n');
 
 export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
   const editInputRef = useRef<HTMLDivElement>(null);
@@ -46,12 +52,13 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
   }, [editingMessageId, cancelEdit]);
 
   const bubbleItems = messages.map((msg) => {
-    const hasToolCall = msg.content.includes('<tool_call');
+    const hasToolCall = msg.parts.some((p) => p.type === 'tool-call');
+    const textContent = getTextFromParts(msg.parts);
     return {
       key: msg.id,
       role: msg.role,
-      content: msg.content || '正在思考...',
-      loading: msg.status === 'sending' && !msg.content,
+      content: textContent || '正在思考...',
+      loading: msg.status === 'sending' && msg.parts.length === 0,
       streaming: msg.status === 'sending' && !hasToolCall,
     };
   });
@@ -65,10 +72,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
           assistant: {
             placement: 'start',
             typing: { effect: 'typing', step: 5, interval: 20 },
-            contentRender: (content: string, { key }: any) => {
+            contentRender: (_content: string, { key }: any) => {
               const msg = messages.find((m) => m.id === key);
-              const isCompleted = msg?.status === 'sent';
-              return <MessageContent content={content} isCompleted={isCompleted} messageId={key} />;
+              if (!msg) return null;
+              const isCompleted = msg.status === 'sent';
+              return <MessageContent parts={msg.parts} isCompleted={isCompleted} messageId={key} />;
             },
             variant: 'filled',
             styles: {

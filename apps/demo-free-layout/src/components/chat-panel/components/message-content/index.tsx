@@ -10,8 +10,8 @@ import { Mermaid, CodeHighlighter } from '@ant-design/x';
 
 import { ToolCallCard } from '../tool-call-card';
 import { MessageActions } from '../message-actions';
+import type { UIMessagePart } from '../../../../plugins/agent-plugin/types';
 import { useToolRegistry } from '../../../../plugins/agent-plugin/hooks';
-import { parseMessageContent } from './message-parser';
 
 import styles from './index.module.css';
 
@@ -33,23 +33,22 @@ const Code: React.FC<ComponentProps> = (props) => {
 };
 
 interface MessageContentProps {
-  content: string;
+  parts: UIMessagePart[];
   isCompleted?: boolean;
   messageId?: string;
 }
 
 export const MessageContent: React.FC<MessageContentProps> = ({
-  content,
+  parts,
   isCompleted = false,
   messageId,
 }) => {
-  const parts = parseMessageContent(content);
   const toolRegistry = useToolRegistry();
 
   const getTextContent = () =>
     parts
-      .filter((part) => part.type === 'text')
-      .map((part) => part.content)
+      .filter((part): part is Extract<UIMessagePart, { type: 'text' }> => part.type === 'text')
+      .map((part) => part.text)
       .join('\n');
 
   return (
@@ -58,21 +57,22 @@ export const MessageContent: React.FC<MessageContentProps> = ({
         if (part.type === 'text') {
           return (
             <div key={index} className={styles.text}>
-              <XMarkdown components={{ code: Code }}>{part.content || ''}</XMarkdown>
+              <XMarkdown components={{ code: Code }}>{part.text || ''}</XMarkdown>
             </div>
           );
         }
 
-        if (part.type === 'tool_call') {
-          const tool = toolRegistry.getTool(part.toolName || '');
+        if (part.type === 'tool-call') {
+          const tool = toolRegistry.getTool(part.toolName);
           const customRender = tool?.definition.render;
 
           return (
             <ToolCallCard
-              key={part.id || index}
-              toolName={part.toolName || ''}
-              arguments={part.toolArgs || ''}
-              result={part.toolResult}
+              key={part.toolCallId}
+              toolName={part.toolName}
+              args={part.args}
+              result={part.result}
+              state={part.state}
               defaultOpen={false}
               customRender={customRender}
             />
