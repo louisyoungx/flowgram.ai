@@ -3,48 +3,54 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { IFlowConstantRefValue } from '@flowgram.ai/runtime-interface';
+import { z } from 'zod';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
 
-interface ScriptContent {
-  language: 'javascript';
-  content: string;
-}
+const ScriptContentSchema = z.object({
+  language: z.literal('javascript').describe('脚本语言，目前只支持 javascript'),
+  content: z.string().describe('脚本代码内容'),
+});
 
-interface InputsValuesItem {
-  [key: string]: IFlowConstantRefValue;
-}
+const FlowConstantRefValueSchema = z.union([
+  z.object({
+    type: z.literal('constant'),
+    content: z.any(),
+  }),
+  z.object({
+    type: z.literal('ref'),
+    content: z.array(z.string()),
+  }),
+]);
 
-interface CreateCodeNodeParams {
-  operation: 'create';
-  id: string;
-  title: string;
-  description?: string;
-  inputsValues?: InputsValuesItem;
-  script: ScriptContent;
-  outputs?: IJsonSchema;
-  parentNodeID?: string;
-}
+const CodeNodeParamsSchema = z.discriminatedUnion('operation', [
+  z.object({
+    operation: z.literal('create'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+    inputsValues: z.record(FlowConstantRefValueSchema).optional().describe('节点输入值映射'),
+    script: ScriptContentSchema.describe('脚本内容'),
+    outputs: z.any().optional().describe('节点输出变量的 JSON Schema 定义'),
+    parentNodeID: z.string().optional().describe('可选，指定父 Loop 节点 ID，将节点创建在 Loop 内'),
+  }),
+  z.object({
+    operation: z.literal('update'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().optional().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+    inputsValues: z.record(FlowConstantRefValueSchema).optional().describe('节点输入值映射'),
+    script: ScriptContentSchema.optional().describe('脚本内容'),
+    outputs: z.any().optional().describe('节点输出变量的 JSON Schema 定义'),
+  }),
+]);
 
-interface UpdateCodeNodeParams {
-  operation: 'update';
-  id: string;
-  title?: string;
-  description?: string;
-  inputsValues?: InputsValuesItem;
-  script?: ScriptContent;
-  outputs?: IJsonSchema;
-}
-
-type CodeNodeParams = CreateCodeNodeParams | UpdateCodeNodeParams;
+type CodeNodeParams = z.infer<typeof CodeNodeParamsSchema>;
 
 interface CodeNodeResult {
   nodeID: string;
@@ -52,12 +58,9 @@ interface CodeNodeResult {
 
 @injectable()
 export class CodeNodeTool extends BaseNodeTool<CodeNodeParams, CodeNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'CodeNode',
-      intro: '创建或修改 Code 节点',
-      description: `在工作流中创建一个 Code 节点，或者修改一个 Code 节点的参数
+  public readonly definition: AgentToolDefinition<CodeNodeParams, CodeNodeResult> = {
+    name: 'CodeNode',
+    description: `在工作流中创建一个 Code 节点，或者修改一个 Code 节点的参数
 
 ## 创建节点参数类型
 
@@ -227,10 +230,7 @@ outputs 示例：
 }
 \`\`\`
 `,
-      parameters: {
-        type: 'object',
-      } as IJsonSchema,
-    },
+    parameters: CodeNodeParamsSchema,
     render: createNodeRender(WorkflowNodeType.Code),
   };
 
@@ -265,11 +265,13 @@ outputs 示例：
     }
     return {
       success: false,
-      error: `无效的操作类型 ${(params as CodeNodeParams).operation}，仅支持 create 和 update。`,
+      error: `无效的操作类型，仅支持 create 和 update。`,
     };
   }
 
-  private async createCodeNode(params: CreateCodeNodeParams): Promise<string> {
+  private async createCodeNode(
+    params: Extract<CodeNodeParams, { operation: 'create' }>
+  ): Promise<string> {
     const nodeConfig = {
       id: params.id,
       type: WorkflowNodeType.Code,
@@ -296,7 +298,9 @@ outputs 示例：
     return node.id;
   }
 
-  private async updateCodeNode(params: UpdateCodeNodeParams): Promise<string> {
+  private async updateCodeNode(
+    params: Extract<CodeNodeParams, { operation: 'update' }>
+  ): Promise<string> {
     const node = this.document.getNode(params.id)!;
 
     const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();

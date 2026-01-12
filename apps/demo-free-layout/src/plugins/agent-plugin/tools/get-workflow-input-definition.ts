@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import {
   injectable,
   inject,
@@ -11,9 +12,8 @@ import {
 } from '@flowgram.ai/free-layout-editor';
 import { IJsonSchema } from '@flowgram.ai/form-materials';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseTool } from './base-tool';
-import type { Tool } from '../types';
 
 @injectable()
 export class GetWorkflowInputDefinitionTool extends BaseTool<
@@ -23,17 +23,10 @@ export class GetWorkflowInputDefinitionTool extends BaseTool<
   @inject(WorkflowDocument)
   private document: WorkflowDocument;
 
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'GetWorkflowInputDefinition',
-      intro: '获取工作流输入定义',
-      description: '获取工作流的输入定义',
-      parameters: {
-        type: 'object',
-        properties: {},
-      },
-    },
+  public readonly definition: AgentToolDefinition<Record<string, never>, IJsonSchema<'object'>> = {
+    name: 'GetWorkflowInputDefinition',
+    description: '获取工作流的输入定义',
+    parameters: z.object({}),
   };
 
   public async execute(): Promise<ToolCallResult<IJsonSchema<'object'>>> {

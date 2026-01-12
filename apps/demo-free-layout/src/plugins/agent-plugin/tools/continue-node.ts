@@ -3,30 +3,30 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
 
-interface CreateContinueNodeParams {
-  operation: 'create';
-  id: string;
-  title: string;
-  parentNodeID: string;
-}
+const ContinueNodeParamsSchema = z.discriminatedUnion('operation', [
+  z.object({
+    operation: z.literal('create'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().describe('节点标题，根据用户可理解的语言生成'),
+    parentNodeID: z.string().describe('父 Loop 节点的 ID'),
+  }),
+  z.object({
+    operation: z.literal('update'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().optional().describe('节点标题，根据用户可理解的语言生成'),
+  }),
+]);
 
-interface UpdateContinueNodeParams {
-  operation: 'update';
-  id: string;
-  title?: string;
-}
-
-type ContinueNodeParams = CreateContinueNodeParams | UpdateContinueNodeParams;
+type ContinueNodeParams = z.infer<typeof ContinueNodeParamsSchema>;
 
 interface ContinueNodeResult {
   nodeID: string;
@@ -34,12 +34,9 @@ interface ContinueNodeResult {
 
 @injectable()
 export class ContinueNodeTool extends BaseNodeTool<ContinueNodeParams, ContinueNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'ContinueNode',
-      intro: '创建或修改 Continue 节点',
-      description: `在 Loop 节点内创建一个 Continue 节点，或者修改一个 Continue 节点的参数
+  public readonly definition: AgentToolDefinition<ContinueNodeParams, ContinueNodeResult> = {
+    name: 'ContinueNode',
+    description: `在 Loop 节点内创建一个 Continue 节点，或者修改一个 Continue 节点的参数
 
 Continue 节点用于跳过当前迭代，继续执行下一次迭代。
 
@@ -92,12 +89,8 @@ Continue 节点通常与 Condition 节点配合使用，在满足特定条件时
 
 1. Continue 节点只能在 Loop 节点内创建
 2. Continue 节点执行后，将跳过当前迭代的剩余步骤，直接进入下一次迭代
-3. 通常与 Condition 节点配合使用，实现条件跳过
-`,
-      parameters: {
-        type: 'object',
-      } as IJsonSchema,
-    },
+3. 通常与 Condition 节点配合使用，实现条件跳过`,
+    parameters: ContinueNodeParamsSchema,
     render: createNodeRender(WorkflowNodeType.Continue),
   };
 
@@ -148,13 +141,13 @@ Continue 节点通常与 Condition 节点配合使用，在满足特定条件时
     }
     return {
       success: false,
-      error: `无效的操作类型 ${
-        (params as ContinueNodeParams).operation
-      }，仅支持 create 和 update。`,
+      error: `无效的操作类型，仅支持 create 和 update。`,
     };
   }
 
-  private async createContinueNode(params: CreateContinueNodeParams): Promise<string> {
+  private async createContinueNode(
+    params: Extract<ContinueNodeParams, { operation: 'create' }>
+  ): Promise<string> {
     const node = this.document.createWorkflowNode(
       {
         id: params.id,
@@ -174,7 +167,9 @@ Continue 节点通常与 Condition 节点配合使用，在满足特定条件时
     return node.id;
   }
 
-  private async updateContinueNode(params: UpdateContinueNodeParams): Promise<string> {
+  private async updateContinueNode(
+    params: Extract<ContinueNodeParams, { operation: 'update' }>
+  ): Promise<string> {
     const node = this.document.getNode(params.id)!;
 
     const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();

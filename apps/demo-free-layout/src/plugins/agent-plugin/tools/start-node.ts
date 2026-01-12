@@ -3,22 +3,23 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
 
-interface StartNodeParams {
-  id: string;
-  title?: string;
-  description?: string;
-  outputs?: IJsonSchema;
-}
+const StartNodeParamsSchema = z.object({
+  id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+  title: z.string().optional().describe('节点标题，根据用户可理解的语言生成'),
+  description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+  outputs: z.any().optional().describe('节点输出变量的 JSON Schema 定义'),
+});
+
+type StartNodeParams = z.infer<typeof StartNodeParamsSchema>;
 
 interface StartNodeResult {
   nodeID: string;
@@ -26,12 +27,9 @@ interface StartNodeResult {
 
 @injectable()
 export class StartNodeTool extends BaseNodeTool<StartNodeParams, StartNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'StartNode',
-      intro: '修改工作流 Start 节点参数',
-      description: `修改工作流 Start 节点参数
+  public readonly definition: AgentToolDefinition<StartNodeParams, StartNodeResult> = {
+    name: 'StartNode',
+    description: `修改工作流 Start 节点参数
 
 IMPORTANT: 本工具会覆盖写 outputs，在执行前建议先调用 GetNodeSchema 工具查询 Start 节点配置，避免覆盖原有的数据结构
 
@@ -79,31 +77,8 @@ outputs 示例
     "KEY_B",
   ]
 }
-\`\`\`
-`,
-      parameters: {
-        type: 'object',
-        properties: {
-          id: {
-            type: 'string',
-            description: '节点 ID，英文、数字、下划线组成',
-          },
-          title: {
-            type: 'string',
-            description: '节点标题，根据用户可理解的语言生成',
-          },
-          description: {
-            type: 'string',
-            description: '节点描述，根据用户可理解的语言生成',
-          },
-          outputs: {
-            type: 'object',
-            description: '节点输出变量的 JSON Schema 定义',
-          },
-        },
-        required: ['id'],
-      } as IJsonSchema,
-    },
+\`\`\``,
+    parameters: StartNodeParamsSchema,
     render: createNodeRender(WorkflowNodeType.Start),
   };
 

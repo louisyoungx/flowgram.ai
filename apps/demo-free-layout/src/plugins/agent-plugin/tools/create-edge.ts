@@ -3,24 +3,31 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { injectable, inject, WorkflowLinesManager } from '@flowgram.ai/free-layout-editor';
 import type { WorkflowEdgeJSON } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 
-interface EdgeDefinition {
-  from: string;
-  fromPort?: string;
-  to: string;
-  toPort?: string;
-}
+const EdgeDefinitionSchema = z.object({
+  from: z.string().describe('起始节点 ID'),
+  fromPort: z
+    .string()
+    .optional()
+    .describe(
+      '起始节点的输出端口 ID。对于 Condition 节点，使用条件的 key 值（如 "if_vbeap"）或 "else" 表示 else 分支。'
+    ),
+  to: z.string().describe('目标节点 ID'),
+  toPort: z.string().optional().describe('目标节点的输入端口 ID，可选'),
+});
 
-interface CreateEdgeParams {
-  edges: EdgeDefinition[];
-}
+const CreateEdgeParamsSchema = z.object({
+  edges: z.array(EdgeDefinitionSchema).describe('要创建的边列表'),
+});
+
+type EdgeDefinition = z.infer<typeof EdgeDefinitionSchema>;
+type CreateEdgeParams = z.infer<typeof CreateEdgeParamsSchema>;
 
 interface CreateEdgeResult {
   created: EdgeDefinition[];
@@ -32,12 +39,9 @@ export class CreateEdgeTool extends BaseNodeTool<CreateEdgeParams, CreateEdgeRes
   @inject(WorkflowLinesManager)
   private linesManager: WorkflowLinesManager;
 
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'CreateEdge',
-      intro: '批量创建节点之间的连接线',
-      description: `在工作流中批量创建节点之间的连接线（边）。
+  public readonly definition: AgentToolDefinition<CreateEdgeParams, CreateEdgeResult> = {
+    name: 'CreateEdge',
+    description: `在工作流中批量创建节点之间的连接线（边）。
 
 ## 参数说明
 
@@ -74,40 +78,7 @@ interface CreateEdgeParams {
 }
 \`\`\`
 `,
-      parameters: {
-        type: 'object',
-        properties: {
-          edges: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                from: {
-                  type: 'string',
-                  description: '起始节点 ID。',
-                },
-                fromPort: {
-                  type: 'string',
-                  description:
-                    '起始节点的输出端口 ID。对于 Condition 节点，使用条件的 key 值（如 "if_vbeap"）或 "else" 表示 else 分支。',
-                },
-                to: {
-                  type: 'string',
-                  description: '目标节点 ID。',
-                },
-                toPort: {
-                  type: 'string',
-                  description: '目标节点的输入端口 ID，可选。',
-                },
-              },
-              required: ['from', 'to'],
-            },
-            description: '要创建的边列表',
-          },
-        },
-        required: ['edges'],
-      } as IJsonSchema,
-    },
+    parameters: CreateEdgeParamsSchema,
   };
 
   public async execute(params: CreateEdgeParams): Promise<ToolCallResult<CreateEdgeResult>> {

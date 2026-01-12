@@ -3,44 +3,32 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import {
   injectable,
   inject,
   WorkflowNodeJSON,
   WorkflowDocument,
 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseTool } from './base-tool';
-import type { Tool } from '../types';
 
-interface GetNodeSchemaParams {
-  nodeID: string;
-}
+const GetNodeSchemaParamsSchema = z.object({
+  nodeID: z.string().describe('要获取 Schema 的节点 ID'),
+});
+
+type GetNodeSchemaParams = z.infer<typeof GetNodeSchemaParamsSchema>;
 
 @injectable()
 export class GetNodeSchemaTool extends BaseTool<GetNodeSchemaParams, WorkflowNodeJSON> {
   @inject(WorkflowDocument)
   private document: WorkflowDocument;
 
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'GetNodeSchema',
-      intro: '获取指定节点的 Schema',
-      description: '获取工作流节点的 Schema。',
-      parameters: {
-        type: 'object',
-        properties: {
-          nodeID: {
-            type: 'string',
-            description: '要获取 Schema 的节点 ID。',
-          },
-        },
-        required: ['nodeID'],
-      } as IJsonSchema,
-    },
+  public readonly definition: AgentToolDefinition<GetNodeSchemaParams, WorkflowNodeJSON> = {
+    name: 'GetNodeSchema',
+    description: '获取工作流节点的 Schema',
+    parameters: GetNodeSchemaParamsSchema,
   };
 
   public async execute(params: GetNodeSchemaParams): Promise<ToolCallResult<WorkflowNodeJSON>> {
@@ -51,25 +39,19 @@ export class GetNodeSchemaTool extends BaseTool<GetNodeSchemaParams, WorkflowNod
       };
     }
 
-    const nodeSchema = this.getNodeSchema(params.nodeID);
-    if (!nodeSchema) {
+    const node = this.document.getNode(params.nodeID);
+    if (!node) {
       return {
         success: false,
         error: `未找到 ID 为 ${params.nodeID} 的节点。`,
       };
     }
+
+    const nodeSchema = this.document.toNodeJSON(node);
     return {
       success: true,
       data: nodeSchema,
       message: `成功获取节点 ${params.nodeID} 的 Schema。`,
     };
-  }
-
-  private getNodeSchema(nodeID: string): WorkflowNodeJSON | null {
-    const node = this.document.getNode(nodeID);
-    if (!node) {
-      return null;
-    }
-    return this.document.toNodeJSON(node);
   }
 }

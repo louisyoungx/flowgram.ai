@@ -3,37 +3,47 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { nanoid } from 'nanoid';
-import { IFlowConstantRefValue } from '@flowgram.ai/runtime-interface';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
 
-interface CreateLoopNodeParams {
-  operation: 'create';
-  id: string;
-  title: string;
-  description?: string;
-  loopFor: IFlowConstantRefValue;
-  loopOutputs?: Record<string, IFlowConstantRefValue>;
-}
+const FlowConstantRefValueSchema = z.union([
+  z.object({
+    type: z.literal('constant'),
+    content: z.any(),
+  }),
+  z.object({
+    type: z.literal('ref'),
+    content: z.array(z.string()),
+  }),
+]);
 
-interface UpdateLoopNodeParams {
-  operation: 'update';
-  id: string;
-  title?: string;
-  description?: string;
-  loopFor?: IFlowConstantRefValue;
-  loopOutputs?: Record<string, IFlowConstantRefValue>;
-}
+const LoopNodeParamsSchema = z.discriminatedUnion('operation', [
+  z.object({
+    operation: z.literal('create'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+    loopFor: FlowConstantRefValueSchema.describe('要遍历的数组变量引用'),
+    loopOutputs: z.record(FlowConstantRefValueSchema).optional().describe('Loop 输出变量映射'),
+  }),
+  z.object({
+    operation: z.literal('update'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().optional().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+    loopFor: FlowConstantRefValueSchema.optional().describe('要遍历的数组变量引用'),
+    loopOutputs: z.record(FlowConstantRefValueSchema).optional().describe('Loop 输出变量映射'),
+  }),
+]);
 
-type LoopNodeParams = CreateLoopNodeParams | UpdateLoopNodeParams;
+type LoopNodeParams = z.infer<typeof LoopNodeParamsSchema>;
 
 interface LoopNodeResult {
   nodeID: string;
@@ -41,12 +51,9 @@ interface LoopNodeResult {
 
 @injectable()
 export class LoopNodeTool extends BaseNodeTool<LoopNodeParams, LoopNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'LoopNode',
-      intro: '创建或修改 Loop 循环节点',
-      description: `在工作流中创建一个 Loop 节点，或者修改一个 Loop 节点的参数
+  public readonly definition: AgentToolDefinition<LoopNodeParams, LoopNodeResult> = {
+    name: 'LoopNode',
+    description: `在工作流中创建一个 Loop 节点，或者修改一个 Loop 节点的参数
 
 Loop 节点是一个容器节点，用于遍历数组并对每个元素执行一系列子节点。
 
@@ -270,21 +277,8 @@ Loop 是一个容器节点，可以在其内部创建子节点（如 HTTP、Code
 3. Loop 内的子节点可以引用 \`{loopId}_locals.item\` 和 \`{loopId}_locals.index\`
 4. loopOutputs 用于收集每次迭代的结果，最终输出为数组
 5. 可以在 Loop 内创建 Break 和 Continue 节点来控制循环流程
-6. **Loop 内的节点如果没有正确连接，工作流将无法正常执行**
-`,
-      parameters: {
-        type: 'object',
-        properties: {
-          operation: {
-            type: 'string',
-            enum: ['create', 'update'],
-            description: '操作类型：create 表示创建新节点，update 表示更新现有节点',
-          },
-          id: { type: 'string', description: '节点 ID' },
-        },
-        required: ['operation', 'id'],
-      } as IJsonSchema,
-    },
+6. **Loop 内的节点如果没有正确连接，工作流将无法正常执行**`,
+    parameters: LoopNodeParamsSchema,
     render: createNodeRender(WorkflowNodeType.Loop),
   };
 
@@ -319,11 +313,13 @@ Loop 是一个容器节点，可以在其内部创建子节点（如 HTTP、Code
     }
     return {
       success: false,
-      error: `无效的操作类型 ${(params as LoopNodeParams).operation}，仅支持 create 和 update。`,
+      error: `无效的操作类型，仅支持 create 和 update。`,
     };
   }
 
-  private async createLoopNode(params: CreateLoopNodeParams): Promise<string> {
+  private async createLoopNode(
+    params: Extract<LoopNodeParams, { operation: 'create' }>
+  ): Promise<string> {
     const node = this.document.createWorkflowNode({
       id: params.id,
       type: WorkflowNodeType.Loop,
@@ -337,23 +333,13 @@ Loop 是一个容器节点，可以在其内部创建子节点（如 HTTP、Code
         {
           id: `block_start_${nanoid(5)}`,
           type: WorkflowNodeType.BlockStart,
-          meta: {
-            position: {
-              x: 32,
-              y: 0,
-            },
-          },
+          meta: { position: { x: 32, y: 0 } },
           data: {},
         },
         {
           id: `block_end_${nanoid(5)}`,
           type: WorkflowNodeType.BlockEnd,
-          meta: {
-            position: {
-              x: 192,
-              y: 0,
-            },
-          },
+          meta: { position: { x: 192, y: 0 } },
           data: {},
         },
       ],
@@ -366,7 +352,9 @@ Loop 是一个容器节点，可以在其内部创建子节点（如 HTTP、Code
     return node.id;
   }
 
-  private async updateLoopNode(params: UpdateLoopNodeParams): Promise<string> {
+  private async updateLoopNode(
+    params: Extract<LoopNodeParams, { operation: 'update' }>
+  ): Promise<string> {
     const node = this.document.getNode(params.id)!;
 
     const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();

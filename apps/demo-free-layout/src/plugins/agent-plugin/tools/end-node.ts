@@ -3,27 +3,23 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { IFlowConstantRefValue } from '@flowgram.ai/runtime-interface';
+import { z } from 'zod';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
 
-interface InputsValuesItem {
-  [key: string]: IFlowConstantRefValue;
-}
+const UpdateEndNodeParamsSchema = z.object({
+  id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+  title: z.string().optional().describe('节点标题，根据用户可理解的语言生成'),
+  description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+  inputsValues: z.record(z.any()).optional().describe('节点输入值映射'),
+});
 
-interface UpdateEndNodeParams {
-  id: string;
-  title?: string;
-  description?: string;
-  inputsValues?: InputsValuesItem;
-}
+type UpdateEndNodeParams = z.infer<typeof UpdateEndNodeParamsSchema>;
 
 interface EndNodeResult {
   nodeID: string;
@@ -31,12 +27,9 @@ interface EndNodeResult {
 
 @injectable()
 export class EndNodeTool extends BaseNodeTool<UpdateEndNodeParams, EndNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'EndNode',
-      intro: '修改工作流 End 节点参数',
-      description: `修改工作流 End 节点参数
+  public readonly definition: AgentToolDefinition<UpdateEndNodeParams, EndNodeResult> = {
+    name: 'EndNode',
+    description: `修改工作流 End 节点参数
 
 IMPORTANT: 本工具会覆盖写 inputsValues，在执行前建议先调用 GetNodeSchema 工具查询 End 节点配置，避免覆盖原有的数据结构
 
@@ -115,31 +108,8 @@ interface RefValue {
     }
   }
 }
-\`\`\`
-`,
-      parameters: {
-        type: 'object',
-        properties: {
-          id: {
-            type: 'string',
-            description: '节点 ID，英文、数字、下划线组成',
-          },
-          title: {
-            type: 'string',
-            description: '节点标题，根据用户可理解的语言生成',
-          },
-          description: {
-            type: 'string',
-            description: '节点描述，根据用户可理解的语言生成',
-          },
-          inputsValues: {
-            type: 'object',
-            description: '节点输入值映射',
-          },
-        },
-        required: ['id'],
-      } as IJsonSchema,
-    },
+\`\`\``,
+    parameters: UpdateEndNodeParamsSchema,
     render: createNodeRender(WorkflowNodeType.End),
   };
 
@@ -153,7 +123,7 @@ interface RefValue {
     if (!params.title && !params.description && !params.inputsValues) {
       return {
         success: false,
-        error: `参数 title、description、inputs 和 inputsValues 不能同时为空，请至少提供一个参数进行更新。`,
+        error: `参数 title、description 和 inputsValues 不能同时为空，请至少提供一个参数进行更新。`,
       };
     }
     const nodeID = await this.updateEndNode(params);

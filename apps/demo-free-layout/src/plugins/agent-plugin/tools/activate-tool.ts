@@ -3,16 +3,18 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { injectable, lazyInject } from '@flowgram.ai/free-layout-editor';
 
-import type { ToolCallResult } from './type';
-import { BaseTool } from './base-tool';
-import type { Tool } from '../types';
 import { WorkflowAgentToolRegistry } from '../services/tool-registry';
+import type { AgentToolDefinition, ToolCallResult } from './type';
+import { BaseTool } from './base-tool';
 
-interface ActivateToolArgs {
-  toolNames: string[];
-}
+const ActivateToolParamsSchema = z.object({
+  toolNames: z.array(z.string()).describe('要激活的工具名称列表'),
+});
+
+type ActivateToolParams = z.infer<typeof ActivateToolParamsSchema>;
 
 interface ActivateToolResult {
   activated: string[];
@@ -20,36 +22,20 @@ interface ActivateToolResult {
 }
 
 @injectable()
-export class ActivateToolTool extends BaseTool<ActivateToolArgs, ActivateToolResult> {
+export class ActivateToolTool extends BaseTool<ActivateToolParams, ActivateToolResult> {
   readonly activated = true;
 
   @lazyInject(WorkflowAgentToolRegistry)
   private toolRegistry: WorkflowAgentToolRegistry;
 
-  readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'ActivateTool',
-      intro: '批量激活指定的工具以便使用',
-      description: '批量激活多个当前未激活的工具，激活后这些工具将可以被调用',
-      parameters: {
-        type: 'object',
-        properties: {
-          toolNames: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            description: '要激活的工具名称列表',
-          },
-        },
-        required: ['toolNames'],
-      },
-    },
+  readonly definition: AgentToolDefinition<ActivateToolParams, ActivateToolResult> = {
+    name: 'ActivateTool',
+    description: '批量激活多个当前未激活的工具，激活后这些工具将可以被调用',
+    parameters: ActivateToolParamsSchema,
   };
 
-  async execute(args: ActivateToolArgs): Promise<ToolCallResult<ActivateToolResult>> {
-    const { toolNames } = args;
+  async execute(params: ActivateToolParams): Promise<ToolCallResult<ActivateToolResult>> {
+    const { toolNames } = params;
 
     if (!toolNames || toolNames.length === 0) {
       return {

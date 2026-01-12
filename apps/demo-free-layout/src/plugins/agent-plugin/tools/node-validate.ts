@@ -3,24 +3,24 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import {
   injectable,
   inject,
   WorkflowDocument,
   FormFeedback,
 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { ValidateService } from '@/services';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseTool } from './base-tool';
-import type { Tool } from '../types';
 
-interface NodeValidateParams {
-  nodeID: string;
-}
+const NodeValidateParamsSchema = z.object({
+  nodeID: z.string().describe('要验证的节点 ID'),
+});
 
+type NodeValidateParams = z.infer<typeof NodeValidateParamsSchema>;
 type NodeValidateResult = FormFeedback[];
 
 @injectable()
@@ -31,23 +31,10 @@ export class NodeValidateTool extends BaseTool<NodeValidateParams, NodeValidateR
   @inject(WorkflowDocument)
   private document: WorkflowDocument;
 
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'NodeValidate',
-      intro: '验证指定节点配置',
-      description: '验证指定节点的配置是否正确。',
-      parameters: {
-        type: 'object',
-        properties: {
-          nodeID: {
-            type: 'string',
-            description: '要验证的节点 ID。',
-          },
-        },
-        required: ['nodeID'],
-      } as IJsonSchema,
-    },
+  public readonly definition: AgentToolDefinition<NodeValidateParams, NodeValidateResult> = {
+    name: 'NodeValidate',
+    description: '验证指定节点的配置是否正确',
+    parameters: NodeValidateParamsSchema,
   };
 
   public async execute(params: NodeValidateParams): Promise<ToolCallResult<NodeValidateResult>> {

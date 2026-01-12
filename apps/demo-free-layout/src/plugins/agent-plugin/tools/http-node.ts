@@ -3,68 +3,74 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { IFlowConstantRefValue } from '@flowgram.ai/runtime-interface';
+import { z } from 'zod';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
 
-interface IFlowTemplateValue {
-  type: 'template';
-  content: string;
-}
+const FlowTemplateValueSchema = z.object({
+  type: z.literal('template'),
+  content: z.string().describe('可使用 {{nodeID.varKey}} 语法引用变量'),
+});
 
-interface APIConfig {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
-  url: IFlowTemplateValue;
-}
+const FlowConstantRefValueSchema = z.union([
+  z.object({
+    type: z.literal('constant'),
+    content: z.any(),
+  }),
+  z.object({
+    type: z.literal('ref'),
+    content: z.array(z.string()),
+  }),
+]);
 
-interface BodyConfig {
-  bodyType: 'none' | 'raw-text' | 'json' | 'form-data' | 'x-www-form-urlencoded';
-  json?: IFlowTemplateValue;
-  rawText?: IFlowTemplateValue;
-}
+const APIConfigSchema = z.object({
+  method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']),
+  url: FlowTemplateValueSchema,
+});
 
-interface TimeoutConfig {
-  timeout: number;
-  retryTimes: number;
-}
+const BodyConfigSchema = z.object({
+  bodyType: z.enum(['none', 'raw-text', 'json', 'form-data', 'x-www-form-urlencoded']),
+  json: FlowTemplateValueSchema.optional(),
+  rawText: FlowTemplateValueSchema.optional(),
+});
 
-interface ValuesItem {
-  [key: string]: IFlowConstantRefValue;
-}
+const TimeoutConfigSchema = z.object({
+  timeout: z.number().describe('超时时间（毫秒）'),
+  retryTimes: z.number().describe('重试次数'),
+});
 
-interface CreateHTTPNodeParams {
-  operation: 'create';
-  id: string;
-  title: string;
-  description?: string;
-  api: APIConfig;
-  body?: BodyConfig;
-  headersValues?: ValuesItem;
-  paramsValues?: ValuesItem;
-  timeout?: TimeoutConfig;
-  parentNodeID?: string;
-}
+const HTTPNodeParamsSchema = z.discriminatedUnion('operation', [
+  z.object({
+    operation: z.literal('create'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+    api: APIConfigSchema.describe('API 配置（method 和 url）'),
+    body: BodyConfigSchema.optional().describe('请求体配置'),
+    headersValues: z.record(FlowConstantRefValueSchema).optional().describe('请求头值映射'),
+    paramsValues: z.record(FlowConstantRefValueSchema).optional().describe('URL 参数值映射'),
+    timeout: TimeoutConfigSchema.optional().describe('超时和重试配置'),
+    parentNodeID: z.string().optional().describe('可选，指定父 Loop 节点 ID，将节点创建在 Loop 内'),
+  }),
+  z.object({
+    operation: z.literal('update'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().optional().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+    api: APIConfigSchema.optional().describe('API 配置（method 和 url）'),
+    body: BodyConfigSchema.optional().describe('请求体配置'),
+    headersValues: z.record(FlowConstantRefValueSchema).optional().describe('请求头值映射'),
+    paramsValues: z.record(FlowConstantRefValueSchema).optional().describe('URL 参数值映射'),
+    timeout: TimeoutConfigSchema.optional().describe('超时和重试配置'),
+  }),
+]);
 
-interface UpdateHTTPNodeParams {
-  operation: 'update';
-  id: string;
-  title?: string;
-  description?: string;
-  api?: APIConfig;
-  body?: BodyConfig;
-  headersValues?: ValuesItem;
-  paramsValues?: ValuesItem;
-  timeout?: TimeoutConfig;
-}
-
-type HTTPNodeParams = CreateHTTPNodeParams | UpdateHTTPNodeParams;
+type HTTPNodeParams = z.infer<typeof HTTPNodeParamsSchema>;
 
 interface HTTPNodeResult {
   nodeID: string;
@@ -72,12 +78,9 @@ interface HTTPNodeResult {
 
 @injectable()
 export class HTTPNodeTool extends BaseNodeTool<HTTPNodeParams, HTTPNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'HTTPNode',
-      intro: '创建或修改 HTTP 节点',
-      description: `在工作流中创建一个 HTTP 节点，或者修改一个 HTTP 节点的参数
+  public readonly definition: AgentToolDefinition<HTTPNodeParams, HTTPNodeResult> = {
+    name: 'HTTPNode',
+    description: `在工作流中创建一个 HTTP 节点，或者修改一个 HTTP 节点的参数
 
 ## 创建节点参数类型
 
@@ -189,21 +192,8 @@ interface TimeoutConfig {
   timeout: number; // 超时时间（毫秒）
   retryTimes: number; // 重试次数
 }
-\`\`\`
-`,
-      parameters: {
-        type: 'object',
-        properties: {
-          operation: {
-            type: 'string',
-            enum: ['create', 'update'],
-            description: '操作类型，必须是 "create" 或 "update"',
-          },
-          // ... 其他属性
-        },
-        required: ['operation', 'id'],
-      } as IJsonSchema,
-    },
+\`\`\``,
+    parameters: HTTPNodeParamsSchema,
     render: createNodeRender(WorkflowNodeType.HTTP),
   };
 
@@ -238,13 +228,13 @@ interface TimeoutConfig {
     }
     return {
       success: false,
-      error: `无效的操作类型 operation:${
-        (params as HTTPNodeParams).operation
-      }，operation 仅支持 create 和 update。`,
+      error: `无效的操作类型，仅支持 create 和 update。`,
     };
   }
 
-  private async createHTTPNode(params: CreateHTTPNodeParams): Promise<string> {
+  private async createHTTPNode(
+    params: Extract<HTTPNodeParams, { operation: 'create' }>
+  ): Promise<string> {
     const nodeConfig = {
       id: params.id,
       type: WorkflowNodeType.HTTP,
@@ -254,33 +244,18 @@ interface TimeoutConfig {
         api: params.api,
         body: params.body || {
           bodyType: 'none',
-          json: {
-            type: 'template',
-            content: '{}',
-          },
-          rawText: {
-            type: 'template',
-            content: '',
-          },
+          json: { type: 'template', content: '{}' },
+          rawText: { type: 'template', content: '' },
         },
         headersValues: params.headersValues || {},
         paramsValues: params.paramsValues || {},
-        timeout: params.timeout || {
-          timeout: 10000,
-          retryTimes: 1,
-        },
+        timeout: params.timeout || { timeout: 10000, retryTimes: 1 },
         outputs: {
           type: 'object',
           properties: {
-            body: {
-              type: 'string',
-            },
-            headers: {
-              type: 'object',
-            },
-            statusCode: {
-              type: 'integer',
-            },
+            body: { type: 'string' },
+            headers: { type: 'object' },
+            statusCode: { type: 'integer' },
           },
         },
       },
@@ -297,7 +272,9 @@ interface TimeoutConfig {
     return node.id;
   }
 
-  private async updateHTTPNode(params: UpdateHTTPNodeParams): Promise<string> {
+  private async updateHTTPNode(
+    params: Extract<HTTPNodeParams, { operation: 'update' }>
+  ): Promise<string> {
     const node = this.document.getNode(params.id)!;
 
     const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();

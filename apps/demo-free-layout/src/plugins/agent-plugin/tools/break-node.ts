@@ -3,30 +3,30 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
 
-interface CreateBreakNodeParams {
-  operation: 'create';
-  id: string;
-  title: string;
-  parentNodeID: string;
-}
+const BreakNodeParamsSchema = z.discriminatedUnion('operation', [
+  z.object({
+    operation: z.literal('create'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().describe('节点标题，根据用户可理解的语言生成'),
+    parentNodeID: z.string().describe('父 Loop 节点的 ID'),
+  }),
+  z.object({
+    operation: z.literal('update'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().optional().describe('节点标题，根据用户可理解的语言生成'),
+  }),
+]);
 
-interface UpdateBreakNodeParams {
-  operation: 'update';
-  id: string;
-  title?: string;
-}
-
-type BreakNodeParams = CreateBreakNodeParams | UpdateBreakNodeParams;
+type BreakNodeParams = z.infer<typeof BreakNodeParamsSchema>;
 
 interface BreakNodeResult {
   nodeID: string;
@@ -34,12 +34,9 @@ interface BreakNodeResult {
 
 @injectable()
 export class BreakNodeTool extends BaseNodeTool<BreakNodeParams, BreakNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'BreakNode',
-      intro: '创建或修改 Break 节点',
-      description: `在 Loop 节点内创建一个 Break 节点，或者修改一个 Break 节点的参数
+  public readonly definition: AgentToolDefinition<BreakNodeParams, BreakNodeResult> = {
+    name: 'BreakNode',
+    description: `在 Loop 节点内创建一个 Break 节点，或者修改一个 Break 节点的参数
 
 Break 节点用于跳出 Loop 循环，终止后续的迭代。
 
@@ -94,10 +91,7 @@ Break 节点通常与 Condition 节点配合使用，在满足特定条件时跳
 2. Break 节点执行后，Loop 将立即终止，不再执行后续迭代
 3. 通常与 Condition 节点配合使用，实现条件跳出
 `,
-      parameters: {
-        type: 'object',
-      } as IJsonSchema,
-    },
+    parameters: BreakNodeParamsSchema,
     render: createNodeRender(WorkflowNodeType.Break),
   };
 
@@ -148,11 +142,13 @@ Break 节点通常与 Condition 节点配合使用，在满足特定条件时跳
     }
     return {
       success: false,
-      error: `无效的操作类型 ${(params as BreakNodeParams).operation}，仅支持 create 和 update。`,
+      error: `无效的操作类型，仅支持 create 和 update。`,
     };
   }
 
-  private async createBreakNode(params: CreateBreakNodeParams): Promise<string> {
+  private async createBreakNode(
+    params: Extract<BreakNodeParams, { operation: 'create' }>
+  ): Promise<string> {
     const node = this.document.createWorkflowNode(
       {
         id: params.id,
@@ -172,7 +168,9 @@ Break 节点通常与 Condition 节点配合使用，在满足特定条件时跳
     return node.id;
   }
 
-  private async updateBreakNode(params: UpdateBreakNodeParams): Promise<string> {
+  private async updateBreakNode(
+    params: Extract<BreakNodeParams, { operation: 'update' }>
+  ): Promise<string> {
     const node = this.document.getNode(params.id)!;
 
     const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();

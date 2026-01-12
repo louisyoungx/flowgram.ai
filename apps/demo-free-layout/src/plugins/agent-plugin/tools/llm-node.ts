@@ -3,47 +3,51 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { IFlowConstantRefValue } from '@flowgram.ai/runtime-interface';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
 
 type RefPath = string[];
 
-interface CreateLLMNodeParams {
-  operation: 'create';
-  id: string;
-  title: string;
-  description: string;
-  modelName: string | RefPath;
-  apiKey: string | RefPath;
-  apiHost: string | RefPath;
-  temperature: number | RefPath;
-  systemPrompt: string;
-  prompt: string;
-  parentNodeID?: string;
-}
+const RefPathSchema = z.array(z.string());
+const StringOrRefSchema = z.union([z.string(), RefPathSchema]);
+const NumberOrRefSchema = z.union([z.number(), RefPathSchema]);
 
-interface UpdateLLMNodeParams {
-  operation: 'update';
-  id: string;
-  title?: string;
-  description?: string;
-  modelName?: string | RefPath;
-  apiKey?: string | RefPath;
-  apiHost?: string | RefPath;
-  temperature?: number | RefPath;
-  systemPrompt?: string;
-  prompt?: string;
-}
+const LLMNodeParamsSchema = z.discriminatedUnion('operation', [
+  z.object({
+    operation: z.literal('create'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().describe('节点描述，根据用户可理解的语言生成'),
+    modelName: StringOrRefSchema.describe('使用的模型名称'),
+    apiKey: StringOrRefSchema.describe('模型的 API Key'),
+    apiHost: StringOrRefSchema.describe('提供模型服务的 API Host'),
+    temperature: NumberOrRefSchema.describe('模型温度'),
+    systemPrompt: z.string().describe('系统提示词'),
+    prompt: z.string().describe('用户提示词'),
+    parentNodeID: z.string().optional().describe('可选，指定父 Loop 节点 ID，将节点创建在 Loop 内'),
+  }),
+  z.object({
+    operation: z.literal('update'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().optional().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+    modelName: StringOrRefSchema.optional().describe('使用的模型名称'),
+    apiKey: StringOrRefSchema.optional().describe('模型的 API Key'),
+    apiHost: StringOrRefSchema.optional().describe('提供模型服务的 API Host'),
+    temperature: NumberOrRefSchema.optional().describe('模型温度'),
+    systemPrompt: z.string().optional().describe('系统提示词'),
+    prompt: z.string().optional().describe('用户提示词'),
+  }),
+]);
 
-type LLMNodeParams = CreateLLMNodeParams | UpdateLLMNodeParams;
+type LLMNodeParams = z.infer<typeof LLMNodeParamsSchema>;
 
 interface LLMNodeResult {
   nodeID: string;
@@ -51,12 +55,9 @@ interface LLMNodeResult {
 
 @injectable()
 export class LLMNodeTool extends BaseNodeTool<LLMNodeParams, LLMNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'LLMNode',
-      intro: '创建或修改 LLM 节点',
-      description: `在工作流中创建一个 LLM 节点，或者修改一个 LLM 节点的参数
+  public readonly definition: AgentToolDefinition<LLMNodeParams, LLMNodeResult> = {
+    name: 'LLMNode',
+    description: `在工作流中创建一个 LLM 节点，或者修改一个 LLM 节点的参数
 
 ## 创建节点参数类型
 
@@ -105,12 +106,8 @@ RefPath 为引用其他前序节点输出变量的结构，例如 ['start_0', 'l
 type RefPath = string[]; // [节点ID, key1, key2, ...]
 \`\`\`
 
-2. systemPrompt 和 prompt 可通过双花括号语法引用前序节点输出变量，遵循 {{NodeID.VarKey1.xxx}} 规则，例如 "生成一个关于 {{start_0.user_input.theme}} 的故事"
-`,
-      parameters: {
-        type: 'object',
-      } as IJsonSchema,
-    },
+2. systemPrompt 和 prompt 可通过双花括号语法引用前序节点输出变量，遵循 {{NodeID.VarKey1.xxx}} 规则，例如 "生成一个关于 {{start_0.user_input.theme}} 的故事"`,
+    parameters: LLMNodeParamsSchema,
     render: createNodeRender(WorkflowNodeType.LLM),
   };
 
@@ -145,7 +142,7 @@ type RefPath = string[]; // [节点ID, key1, key2, ...]
     }
     return {
       success: false,
-      error: `无效的操作类型 ${(params as LLMNodeParams).operation}，仅支持 create 和 update。`,
+      error: `无效的操作类型，仅支持 create 和 update。`,
     };
   }
 
@@ -162,7 +159,9 @@ type RefPath = string[]; // [节点ID, key1, key2, ...]
     };
   }
 
-  private async createLLMNode(params: CreateLLMNodeParams): Promise<string> {
+  private async createLLMNode(
+    params: Extract<LLMNodeParams, { operation: 'create' }>
+  ): Promise<string> {
     const nodeConfig = {
       id: params.id,
       type: WorkflowNodeType.LLM,
@@ -187,38 +186,18 @@ type RefPath = string[]; // [节点ID, key1, key2, ...]
           type: 'object',
           required: ['modelName', 'apiKey', 'apiHost', 'temperature', 'prompt'],
           properties: {
-            modelName: {
-              type: 'string',
-            },
-            apiKey: {
-              type: 'string',
-            },
-            apiHost: {
-              type: 'string',
-            },
-            temperature: {
-              type: 'number',
-            },
-            systemPrompt: {
-              type: 'string',
-              extra: {
-                formComponent: 'prompt-editor',
-              },
-            },
-            prompt: {
-              type: 'string',
-              extra: {
-                formComponent: 'prompt-editor',
-              },
-            },
+            modelName: { type: 'string' },
+            apiKey: { type: 'string' },
+            apiHost: { type: 'string' },
+            temperature: { type: 'number' },
+            systemPrompt: { type: 'string', extra: { formComponent: 'prompt-editor' } },
+            prompt: { type: 'string', extra: { formComponent: 'prompt-editor' } },
           },
         },
         outputs: {
           type: 'object',
           properties: {
-            result: {
-              type: 'string',
-            },
+            result: { type: 'string' },
           },
         },
       },
@@ -235,7 +214,9 @@ type RefPath = string[]; // [节点ID, key1, key2, ...]
     return node.id;
   }
 
-  private async updateLLMNode(params: UpdateLLMNodeParams): Promise<string> {
+  private async updateLLMNode(
+    params: Extract<LLMNodeParams, { operation: 'update' }>
+  ): Promise<string> {
     const node = this.document.getNode(params.id)!;
 
     const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();

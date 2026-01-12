@@ -16,22 +16,21 @@ import {
   WorkflowSelectService,
 } from '@flowgram.ai/free-layout-editor';
 
-import type { Tool } from '../types';
-import type { ToolCallResult, IAgentTool } from './type';
+import type { AgentToolDefinition, ToolCallResult, IAgentTool } from './type';
 
-/**
- * 工具基类
- * 提供默认实现
- */
 @injectable()
-export abstract class BaseTool<TArgs = any, TData = any> implements IAgentTool<TArgs, TData> {
-  abstract readonly tool: Tool;
+export abstract class BaseTool<TParams = any, TResult = any>
+  implements IAgentTool<TParams, TResult>
+{
+  abstract readonly definition: AgentToolDefinition<TParams, TResult>;
 
-  abstract execute(args: TArgs): Promise<ToolCallResult<TData>>;
+  abstract execute(params: TParams): Promise<ToolCallResult<TResult>>;
 }
 
 @injectable()
-export abstract class BaseNodeTool<TArgs = any, TData = any> implements IAgentTool<TArgs, TData> {
+export abstract class BaseNodeTool<TParams = any, TResult = any>
+  implements IAgentTool<TParams, TResult>
+{
   @inject(WorkflowDocument)
   protected document: WorkflowDocument;
 
@@ -44,9 +43,9 @@ export abstract class BaseNodeTool<TArgs = any, TData = any> implements IAgentTo
   @inject(WorkflowSelectService)
   protected selectService: WorkflowSelectService;
 
-  abstract readonly tool: Tool;
+  abstract readonly definition: AgentToolDefinition<TParams, TResult>;
 
-  abstract execute(args: TArgs): Promise<ToolCallResult<TData>>;
+  abstract execute(params: TParams): Promise<ToolCallResult<TResult>>;
 
   protected async handleAutoLayout() {
     await delay(20);

@@ -3,35 +3,72 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { ConditionItem } from '@flowgram.ai/runtime-interface';
 import { injectable, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 import { createNodeRender } from '../renders';
 
-interface CreateConditionNodeParams {
-  operation: 'create';
-  id: string;
-  title: string;
-  description?: string;
-  conditions: ConditionItem[];
-  parentNodeID?: string;
-}
+const FlowConstantRefValueSchema = z.union([
+  z.object({
+    type: z.literal('constant'),
+    content: z.any(),
+  }),
+  z.object({
+    type: z.literal('ref'),
+    content: z.array(z.string()),
+  }),
+]);
 
-interface UpdateConditionNodeParams {
-  operation: 'update';
-  id: string;
-  title?: string;
-  description?: string;
-  conditions?: ConditionItem[];
-}
+const ConditionItemSchema = z.object({
+  key: z.string().describe('条件分支的唯一标识符，建议使用 if_xxxxx 格式'),
+  value: z.object({
+    left: FlowConstantRefValueSchema.describe('左值'),
+    operator: z
+      .enum([
+        'eq',
+        'neq',
+        'gt',
+        'gte',
+        'lt',
+        'lte',
+        'in',
+        'nin',
+        'contains',
+        'not_contains',
+        'is_empty',
+        'is_not_empty',
+        'is_true',
+        'is_false',
+      ])
+      .describe('比较运算符'),
+    right: FlowConstantRefValueSchema.optional().describe('右值（某些运算符不需要）'),
+  }),
+});
 
-type ConditionNodeParams = CreateConditionNodeParams | UpdateConditionNodeParams;
+const ConditionNodeParamsSchema = z.discriminatedUnion('operation', [
+  z.object({
+    operation: z.literal('create'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+    conditions: z.array(ConditionItemSchema).describe('条件列表'),
+    parentNodeID: z.string().optional().describe('可选，指定父 Loop 节点 ID，将节点创建在 Loop 内'),
+  }),
+  z.object({
+    operation: z.literal('update'),
+    id: z.string().describe('节点 ID，英文、数字、下划线组成'),
+    title: z.string().optional().describe('节点标题，根据用户可理解的语言生成'),
+    description: z.string().optional().describe('节点描述，根据用户可理解的语言生成'),
+    conditions: z.array(ConditionItemSchema).optional().describe('条件列表'),
+  }),
+]);
+
+type ConditionNodeParams = z.infer<typeof ConditionNodeParamsSchema>;
 
 interface ConditionNodeResult {
   nodeID: string;
@@ -39,12 +76,9 @@ interface ConditionNodeResult {
 
 @injectable()
 export class ConditionNodeTool extends BaseNodeTool<ConditionNodeParams, ConditionNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'ConditionNode',
-      intro: '创建或修改 Condition 节点',
-      description: `在工作流中创建一个 Condition 节点，或者修改一个 Condition 节点的参数
+  public readonly definition: AgentToolDefinition<ConditionNodeParams, ConditionNodeResult> = {
+    name: 'ConditionNode',
+    description: `在工作流中创建一个 Condition 节点，或者修改一个 Condition 节点的参数
 
 ## 创建节点参数类型
 
@@ -180,10 +214,7 @@ enum ConditionOperator {
 }
 \`\`\`
 `,
-      parameters: {
-        type: 'object',
-      } as IJsonSchema,
-    },
+    parameters: ConditionNodeParamsSchema,
     render: createNodeRender(WorkflowNodeType.Condition),
   };
 
@@ -218,25 +249,24 @@ enum ConditionOperator {
     }
     return {
       success: false,
-      error: `无效的操作类型 ${
-        (params as ConditionNodeParams).operation
-      }，仅支持 create 和 update。`,
+      error: `无效的操作类型，仅支持 create 和 update。`,
     };
   }
 
-  private convertConditionItem(item: ConditionItem) {
-    const result: ConditionItem = {
+  private convertConditionItem(item: z.infer<typeof ConditionItemSchema>): ConditionItem {
+    return {
       key: item.key,
       value: {
         left: item.value.left,
         operator: item.value.operator,
         right: item.value.right,
       },
-    };
-    return result;
+    } as ConditionItem;
   }
 
-  private async createConditionNode(params: CreateConditionNodeParams): Promise<string> {
+  private async createConditionNode(
+    params: Extract<ConditionNodeParams, { operation: 'create' }>
+  ): Promise<string> {
     const conditions = params.conditions.map((item) => this.convertConditionItem(item));
 
     const nodeConfig = {
@@ -260,7 +290,9 @@ enum ConditionOperator {
     return node.id;
   }
 
-  private async updateConditionNode(params: UpdateConditionNodeParams): Promise<string> {
+  private async updateConditionNode(
+    params: Extract<ConditionNodeParams, { operation: 'update' }>
+  ): Promise<string> {
     const node = this.document.getNode(params.id)!;
 
     const formModel = node?.getData(FlowNodeFormData).getFormModel<FormModelV2>();

@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { injectable, lazyInject } from '@flowgram.ai/free-layout-editor';
 
-import type { ToolCallResult } from './type';
-import { BaseTool } from './base-tool';
-import type { Tool } from '../types';
 import { WorkflowAgentToolRegistry } from '../services/tool-registry';
+import type { AgentToolDefinition, ToolCallResult } from './type';
+import { BaseTool } from './base-tool';
 
 interface ToolInfo {
   name: string;
-  intro: string;
+  description: string;
 }
 
 interface ListToolsResult {
@@ -27,17 +27,10 @@ export class ListToolsTool extends BaseTool<Record<string, never>, ListToolsResu
   @lazyInject(WorkflowAgentToolRegistry)
   private toolRegistry: WorkflowAgentToolRegistry;
 
-  readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'ListTools',
-      intro: '查看已激活和未激活的工具列表',
-      description: '获取当前已激活和未激活的工具列表，包括工具名称和简介',
-      parameters: {
-        type: 'object',
-        properties: {},
-      },
-    },
+  readonly definition: AgentToolDefinition<Record<string, never>, ListToolsResult> = {
+    name: 'ListTools',
+    description: '获取当前已激活和未激活的工具列表，包括工具名称和简介',
+    parameters: z.object({}),
   };
 
   async execute(): Promise<ToolCallResult<ListToolsResult>> {

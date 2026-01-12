@@ -3,20 +3,23 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { WorkflowInputs } from '@flowgram.ai/runtime-interface';
 import { injectable, inject } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
 import { ValidateService } from '@/services';
 import { TaskRunResult, WorkflowRuntimeService } from '@/plugins/runtime-plugin/runtime-service';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 
-interface WorkflowTestrunParams {
-  inputs: WorkflowInputs;
-}
+const WorkflowTestrunParamsSchema = z.object({
+  inputs: z
+    .record(z.any())
+    .describe('工作流试运行的输入参数。如果工作流无需入参，则传入空对象 {} 即可。'),
+});
+
+type WorkflowTestrunParams = z.infer<typeof WorkflowTestrunParamsSchema>;
 
 @injectable()
 export class WorkflowTestrunTool extends BaseNodeTool<WorkflowTestrunParams, TaskRunResult> {
@@ -26,24 +29,11 @@ export class WorkflowTestrunTool extends BaseNodeTool<WorkflowTestrunParams, Tas
   @inject(ValidateService)
   private validateService: ValidateService;
 
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'WorkflowTestrun',
-      intro: '执行工作流试运行',
-      description:
-        '工作流试运行\nIMPORTANT: 若不清楚入参格式，请先调用 GetWorkflowInputDefinition 工具获取工作流输入定义。',
-      parameters: {
-        type: 'object',
-        properties: {
-          inputs: {
-            type: 'object',
-            description: '工作流试运行的输入参数。如果工作流无需入参，则传入空对象 {} 即可。',
-          },
-        },
-        required: ['inputs'],
-      } as IJsonSchema,
-    },
+  public readonly definition: AgentToolDefinition<WorkflowTestrunParams, TaskRunResult> = {
+    name: 'WorkflowTestrun',
+    description:
+      '执行工作流试运行\nIMPORTANT: 若不清楚入参格式，请先调用 GetWorkflowInputDefinition 工具获取工作流输入定义。',
+    parameters: WorkflowTestrunParamsSchema,
   };
 
   public async execute(params: WorkflowTestrunParams): Promise<ToolCallResult<TaskRunResult>> {
@@ -66,7 +56,7 @@ export class WorkflowTestrunTool extends BaseNodeTool<WorkflowTestrunParams, Tas
       };
     }
 
-    const result = await this.workflowTestRun(params.inputs);
+    const result = await this.workflowTestRun(params.inputs as WorkflowInputs);
     if (result.errors) {
       return {
         success: false,

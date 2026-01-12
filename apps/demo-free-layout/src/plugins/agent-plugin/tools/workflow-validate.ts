@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import {
   injectable,
   inject,
@@ -13,9 +14,8 @@ import {
 import { ValidateService } from '@/services';
 import { WorkflowNodeType } from '@/nodes';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 
 interface WorkflowValidateResult {
   formFeedbacks: Record<string, FormFeedback[]>;
@@ -23,21 +23,17 @@ interface WorkflowValidateResult {
 }
 
 @injectable()
-export class WorkflowValidateTool extends BaseNodeTool<unknown, WorkflowValidateResult> {
+export class WorkflowValidateTool extends BaseNodeTool<
+  Record<string, never>,
+  WorkflowValidateResult
+> {
   @inject(ValidateService)
   private validateService: ValidateService;
 
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'WorkflowValidate',
-      intro: '验证工作流配置是否正确',
-      description: '验证工作流中所有节点的配置是否正确',
-      parameters: {
-        type: 'object',
-        properties: {},
-      },
-    },
+  public readonly definition: AgentToolDefinition<Record<string, never>, WorkflowValidateResult> = {
+    name: 'WorkflowValidate',
+    description: '验证工作流中所有节点的配置是否正确',
+    parameters: z.object({}),
   };
 
   public async execute(): Promise<ToolCallResult<WorkflowValidateResult>> {

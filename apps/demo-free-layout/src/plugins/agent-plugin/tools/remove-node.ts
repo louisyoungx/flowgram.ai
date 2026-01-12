@@ -3,43 +3,31 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { injectable } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 
-interface RemoveNodeToolParams {
-  nodeID: string;
-}
+const RemoveNodeParamsSchema = z.object({
+  nodeID: z.string().describe('要删除的节点 ID'),
+});
+
+type RemoveNodeParams = z.infer<typeof RemoveNodeParamsSchema>;
 
 interface RemoveNodeResult {
   nodeID: string;
 }
 
 @injectable()
-export class RemoveNodeTool extends BaseNodeTool<RemoveNodeToolParams, RemoveNodeResult> {
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'RemoveNode',
-      intro: '删除工作流节点',
-      description: '从工作流中删除节点。',
-      parameters: {
-        type: 'object',
-        properties: {
-          nodeID: {
-            type: 'string',
-            description: '要删除的节点 ID。',
-          },
-        },
-        required: ['nodeID'],
-      } as IJsonSchema,
-    },
+export class RemoveNodeTool extends BaseNodeTool<RemoveNodeParams, RemoveNodeResult> {
+  public readonly definition: AgentToolDefinition<RemoveNodeParams, RemoveNodeResult> = {
+    name: 'RemoveNode',
+    description: '从工作流中删除节点',
+    parameters: RemoveNodeParamsSchema,
   };
 
-  public async execute(params: RemoveNodeToolParams): Promise<ToolCallResult<RemoveNodeResult>> {
+  public async execute(params: RemoveNodeParams): Promise<ToolCallResult<RemoveNodeResult>> {
     if (!params.nodeID) {
       return {
         success: false,

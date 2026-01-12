@@ -3,19 +3,23 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { z } from 'zod';
 import { injectable, inject, WorkflowLinesManager } from '@flowgram.ai/free-layout-editor';
-import { IJsonSchema } from '@flowgram.ai/form-materials';
 
-import type { ToolCallResult } from './type';
+import type { AgentToolDefinition, ToolCallResult } from './type';
 import { BaseNodeTool } from './base-tool';
-import type { Tool } from '../types';
 
-interface RemoveEdgeToolParams {
-  sourceNodeID: string;
-  targetNodeID: string;
-  sourcePortID?: string;
-  targetPortID?: string;
-}
+const RemoveEdgeParamsSchema = z.object({
+  sourceNodeID: z.string().describe('起始节点 ID'),
+  targetNodeID: z.string().describe('目标节点 ID'),
+  sourcePortID: z
+    .string()
+    .optional()
+    .describe('起始节点的输出端口 ID（可选）。对于 Condition 节点，使用条件的 key 值或 "else"。'),
+  targetPortID: z.string().optional().describe('目标节点的输入端口 ID（可选）'),
+});
+
+type RemoveEdgeParams = z.infer<typeof RemoveEdgeParamsSchema>;
 
 interface RemoveEdgeResult {
   sourceNodeID: string;
@@ -23,43 +27,17 @@ interface RemoveEdgeResult {
 }
 
 @injectable()
-export class RemoveEdgeTool extends BaseNodeTool<RemoveEdgeToolParams, RemoveEdgeResult> {
+export class RemoveEdgeTool extends BaseNodeTool<RemoveEdgeParams, RemoveEdgeResult> {
   @inject(WorkflowLinesManager)
   private linesManager: WorkflowLinesManager;
 
-  public readonly tool: Tool = {
-    type: 'function',
-    function: {
-      name: 'RemoveEdge',
-      intro: '删除节点连接线',
-      description: '从工作流中删除连接线（边）。',
-      parameters: {
-        type: 'object',
-        properties: {
-          sourceNodeID: {
-            type: 'string',
-            description: '起始节点 ID。',
-          },
-          targetNodeID: {
-            type: 'string',
-            description: '目标节点 ID。',
-          },
-          sourcePortID: {
-            type: 'string',
-            description:
-              '起始节点的输出端口 ID（可选）。对于 Condition 节点，使用条件的 key 值或 "else"。',
-          },
-          targetPortID: {
-            type: 'string',
-            description: '目标节点的输入端口 ID（可选）。',
-          },
-        },
-        required: ['sourceNodeID', 'targetNodeID'],
-      } as IJsonSchema,
-    },
+  public readonly definition: AgentToolDefinition<RemoveEdgeParams, RemoveEdgeResult> = {
+    name: 'RemoveEdge',
+    description: '从工作流中删除连接线（边）',
+    parameters: RemoveEdgeParamsSchema,
   };
 
-  public async execute(params: RemoveEdgeToolParams): Promise<ToolCallResult<RemoveEdgeResult>> {
+  public async execute(params: RemoveEdgeParams): Promise<ToolCallResult<RemoveEdgeResult>> {
     if (!params.sourceNodeID || !params.targetNodeID) {
       return {
         success: false,
