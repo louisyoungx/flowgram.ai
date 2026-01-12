@@ -3,33 +3,30 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import { useAgentService } from '../../../plugins/agent-plugin';
+import { useChatMessages } from './use-chat-messages';
 
 export const useChatInput = () => {
   const agentService = useAgentService();
+  const messages = useChatMessages();
   const [value, setValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const send = async (inputValue: string) => {
+  const isLoading = useMemo(() => {
+    if (messages.length === 0) return false;
+    const lastMessage = messages[messages.length - 1];
+    return lastMessage.role === 'assistant' && lastMessage.status === 'sending';
+  }, [messages]);
+
+  const send = (inputValue: string) => {
     if (!inputValue.trim() || isLoading) return;
-
     setValue('');
-    setIsLoading(true);
-
-    try {
-      await agentService.sendMessage(inputValue);
-    } finally {
-      setIsLoading(false);
-    }
+    agentService.sendMessage(inputValue);
   };
 
   const cancel = () => {
-    if (isLoading) {
-      agentService.cancelCurrentRequest();
-      setIsLoading(false);
-    }
+    agentService.cancelCurrentRequest();
   };
 
   return {
