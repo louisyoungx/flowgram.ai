@@ -18,7 +18,7 @@ interface ToolCallCardProps {
   result?: unknown;
   state: ToolCallState;
   defaultOpen?: boolean;
-  customRender?: React.FC<{ args: unknown; result?: unknown }>;
+  customRender?: React.FC<{ args: any; result?: any }>;
 }
 
 export const ToolCallCard: React.FC<ToolCallCardProps> = ({
@@ -33,7 +33,6 @@ export const ToolCallCard: React.FC<ToolCallCardProps> = ({
   const isRunning = state === 'pending' || state === 'streaming';
   const isCancelled = state === 'cancelled';
   const isError = state === 'error';
-  const isSuccess = state === 'completed';
 
   const argsString = useMemo(() => {
     if (args === null || args === undefined) return '';

@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { tool } from 'ai';
+import type { Tool as AITool } from 'ai';
 import { injectable, multiInject } from '@flowgram.ai/free-layout-editor';
 
-import type { Tool, ToolCall, ToolResult } from '../types';
+import type { ToolCall, ToolResult } from '../types';
 import { IAgentTool } from '../tools/type';
 
 interface ToolInfo {
@@ -39,15 +41,15 @@ export class WorkflowAgentToolRegistry {
     });
   }
 
-  public getAllTools(): Record<string, Tool> {
-    const result: Record<string, Tool> = {};
+  public getAllTools(): Record<string, AITool> {
+    const result: Record<string, AITool> = {};
     for (const [name, state] of this.tools.entries()) {
       if (state.activated) {
         const toolDef = state.tool.definition;
-        result[name] = {
+        result[name] = tool({
           description: toolDef.description,
-          parameters: toolDef.parameters,
-        };
+          inputSchema: toolDef.parameters,
+        } as unknown as Parameters<typeof tool>[0]);
       }
     }
     return result;

@@ -3,18 +3,16 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { Tool } from 'ai';
+import type { Tool as AITool } from 'ai';
 import { streamText } from 'ai';
 import { injectable } from '@flowgram.ai/free-layout-editor';
 import { createOpenAI } from '@ai-sdk/openai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { createAnthropic } from '@ai-sdk/anthropic';
 
 import type { AgentConfig, ChatMessage, ToolCall } from '../types';
 
 export interface LLMStreamParams {
   messages: ChatMessage[];
-  tools: Record<string, Tool>;
+  tools: Record<string, AITool>;
   onChunk: (chunk: string) => void;
   onToolCallDetected: (toolCalls: ToolCall[]) => void;
   signal?: AbortSignal;
@@ -48,43 +46,14 @@ export class LLMClient {
     return this.config;
   }
 
-  private isClaudeModel(modelName?: string): boolean {
-    if (!modelName) {
-      return false;
-    }
-    return (
-      modelName.toLowerCase().includes('claude') || modelName.toLowerCase().includes('anthropic')
-    );
-  }
+  private createModel(config: AgentConfig) {
+    const modelName = config.model || 'gpt-4';
 
-  private isGeminiModel(modelName?: string): boolean {
-    if (!modelName) {
-      return false;
-    }
-    return modelName.toLowerCase().includes('gemini') || modelName.toLowerCase().includes('google');
-  }
-
-  private createProvider(config: AgentConfig) {
-    const modelName = config.model || '';
-
-    if (this.isClaudeModel(modelName)) {
-      return createAnthropic({
-        apiKey: config.apiKey,
-        baseURL: config.baseURL,
-      });
-    }
-
-    if (this.isGeminiModel(modelName)) {
-      return createGoogleGenerativeAI({
-        apiKey: config.apiKey,
-        baseURL: config.baseURL,
-      });
-    }
-
-    return createOpenAI({
+    const provider = createOpenAI({
       apiKey: config.apiKey,
       baseURL: config.baseURL,
     });
+    return provider.chat(modelName);
   }
 
   /**
@@ -104,24 +73,21 @@ export class LLMClient {
     }
 
     try {
-      const provider = this.createProvider(this.config);
+      const model = this.createModel(this.config);
       const modelName = this.config.model || 'gpt-4';
 
       console.log('[LLMClient] Provider info:', {
         modelName,
-        isClaudeModel: this.isClaudeModel(modelName),
-        isGeminiModel: this.isGeminiModel(modelName),
         baseURL: this.config.baseURL,
       });
 
-      const result = await streamText({
-        model: provider(modelName),
+      const result = streamText({
+        model,
         messages,
         tools,
         temperature: this.config.temperature,
-        maxTokens: this.config.maxTokens,
+        maxOutputTokens: this.config.maxTokens,
         abortSignal: signal,
-        toolCallStreaming: true,
       });
 
       console.log('[LLMClient] streamText initiated, starting to read stream');
@@ -136,24 +102,30 @@ export class LLMClient {
           console.log('[LLMClient] Received stream part:', part.type, part);
 
           if (part.type === 'text-delta') {
-            fullContent += part.textDelta;
-            onChunk(part.textDelta);
-          } else if (part.type === 'tool-call-streaming-start') {
+            fullContent += part.text;
+            onChunk(part.text);
+          } else if (part.type === 'tool-input-start') {
             const partialToolCall: ToolCall = {
               type: 'tool-call',
-              toolCallId: part.toolCallId,
+              toolCallId: part.id,
               toolName: part.toolName,
               args: {},
             };
             toolCalls.push(partialToolCall);
             onToolCallDetected([...toolCalls]);
-          } else if (part.type === 'tool-call-delta') {
+          } else if (part.type === 'tool-input-delta') {
           } else if (part.type === 'tool-call') {
+            const convertedToolCall: ToolCall = {
+              type: 'tool-call',
+              toolCallId: part.toolCallId,
+              toolName: part.toolName,
+              args: part.input,
+            };
             const existingIndex = toolCalls.findIndex((tc) => tc.toolCallId === part.toolCallId);
             if (existingIndex >= 0) {
-              toolCalls[existingIndex] = part;
+              toolCalls[existingIndex] = convertedToolCall;
             } else {
-              toolCalls.push(part);
+              toolCalls.push(convertedToolCall);
             }
           } else if (part.type === 'error') {
             console.error('[LLMClient] Stream error:', part.error);
@@ -172,7 +144,14 @@ export class LLMClient {
 
       if (resolvedToolCalls && resolvedToolCalls.length > 0) {
         toolCalls.length = 0;
-        toolCalls.push(...resolvedToolCalls);
+        for (const tc of resolvedToolCalls) {
+          toolCalls.push({
+            type: 'tool-call',
+            toolCallId: tc.toolCallId,
+            toolName: tc.toolName,
+            args: tc.input,
+          });
+        }
       }
 
       return {
@@ -208,17 +187,16 @@ export class LLMClient {
     }
 
     try {
-      const provider = this.createProvider(this.config);
-      const modelName = this.config.model || 'gpt-4';
+      const model = this.createModel(this.config);
 
       const DEFAULT_TEMPERATURE = 0.3;
       const DEFAULT_MAX_TOKENS = 2000;
 
-      const result = await streamText({
-        model: provider(modelName),
+      const result = streamText({
+        model,
         messages,
         temperature: options?.temperature ?? DEFAULT_TEMPERATURE,
-        maxTokens: options?.maxTokens ?? DEFAULT_MAX_TOKENS,
+        maxOutputTokens: options?.maxTokens ?? DEFAULT_MAX_TOKENS,
       });
 
       let content = '';

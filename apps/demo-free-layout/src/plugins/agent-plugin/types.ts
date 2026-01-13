@@ -6,10 +6,10 @@
 import type React from 'react';
 
 import z from 'zod';
-import type { CoreMessage, ToolCallPart } from 'ai';
+import type { ModelMessage } from 'ai';
 import type { Event, WorkflowJSON } from '@flowgram.ai/free-layout-editor';
 
-export type ChatMessage = CoreMessage;
+export type ChatMessage = ModelMessage;
 
 export type ToolCallState = 'streaming' | 'pending' | 'completed' | 'error' | 'cancelled';
 
@@ -61,9 +61,14 @@ export interface Tool<ARGS = any, RESULT = any> {
 }
 
 /**
- * Tool 调用（使用 AI SDK 的 ToolCallPart）
+ * Tool 调用
  */
-export type ToolCall = ToolCallPart;
+export interface ToolCall {
+  type: 'tool-call';
+  toolCallId: string;
+  toolName: string;
+  args: unknown;
+}
 
 /**
  * Tool 执行结果

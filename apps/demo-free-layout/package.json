@@ -58,10 +58,11 @@
     "@ant-design/x-markdown": "^2.1.1",
     "antd": "^6.1.1",
     "zod": "^3.24.4",
-    "@ai-sdk/anthropic": "^1.2.12",
-    "@ai-sdk/google": "^1.2.18",
-    "@ai-sdk/openai": "^1.3.22",
-    "ai": "^4.3.16"
+    "@ai-sdk/anthropic": "^3.0.0",
+    "@ai-sdk/google": "^3.0.0",
+    "@ai-sdk/openai": "^3.0.0",
+    "@ai-sdk/provider-utils": "^4.0.0",
+    "ai": "^6.0.12"
   },
   "devDependencies": {
     "@flowgram.ai/ts-config": "workspace:*",

@@ -121,7 +121,7 @@ export class ReActLoopExecutor {
               type: 'tool-call' as const,
               toolCallId: tc.toolCallId,
               toolName: tc.toolName,
-              args: tc.args,
+              input: tc.args,
             })),
           ],
         };
@@ -148,7 +148,7 @@ export class ReActLoopExecutor {
                 toolName:
                   response.toolCalls.find((tc) => tc.toolCallId === result.toolCallId)?.toolName ||
                   '',
-                result: result.result,
+                output: { type: 'text' as const, value: result.result },
               },
             ],
           };

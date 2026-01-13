@@ -314,7 +314,7 @@ export class MessageManager {
               type: 'tool-result' as const,
               toolCallId: '',
               toolName: '',
-              result: '[Old tool result content cleared]',
+              output: { type: 'text' as const, value: '[Old tool result content cleared]' },
             },
           ],
         };
