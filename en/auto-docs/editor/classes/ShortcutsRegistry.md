@@ -15,6 +15,7 @@
 * [addHandlers](/en/auto-docs/editor/classes/ShortcutsRegistry.md#addhandlers)
 * [addHandlersIfNotFound](/en/auto-docs/editor/classes/ShortcutsRegistry.md#addhandlersifnotfound)
 * [has](/en/auto-docs/editor/classes/ShortcutsRegistry.md#has)
+* [removeHandler](/en/auto-docs/editor/classes/ShortcutsRegistry.md#removehandler)
 
 ## Constructors
 
@@ -26,7 +27,7 @@
 
 ### shortcutsHandlers
 
-`Readonly` **shortcutsHandlers**: [`ShortcutsHandler`](/en/auto-docs/editor/interfaces/ShortcutsHandler.md)\[]
+**shortcutsHandlers**: [`ShortcutsHandler`](/en/auto-docs/editor/interfaces/ShortcutsHandler.md)\[]
 
 ## Methods
 
@@ -75,3 +76,19 @@
 #### Returns
 
 `boolean`
+
+***
+
+### removeHandler
+
+**removeHandler**(`commandId`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `commandId` | `string` |
+
+#### Returns
+
+`void`

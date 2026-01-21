@@ -20,6 +20,7 @@
 * [onFinishedEmitter](/en/auto-docs/test-run-plugin/classes/TestRunPipelineEntity.md#onfinishedemitter)
 * [onProgress](/en/auto-docs/test-run-plugin/classes/TestRunPipelineEntity.md#onprogress)
 * [onProgressEmitter](/en/auto-docs/test-run-plugin/classes/TestRunPipelineEntity.md#onprogressemitter)
+* [plugins](/en/auto-docs/test-run-plugin/classes/TestRunPipelineEntity.md#plugins)
 * [prepare](/en/auto-docs/test-run-plugin/classes/TestRunPipelineEntity.md#prepare)
 * [store](/en/auto-docs/test-run-plugin/classes/TestRunPipelineEntity.md#store)
 
@@ -87,6 +88,12 @@ StoreService\&lt;TestRunPipelineEntityState\&gt;.constructor
 
 ***
 
+### plugins
+
+**plugins**: [`TestRunPipelinePlugin`](/en/auto-docs/test-run-plugin/interfaces/TestRunPipelinePlugin.md)\[] = `[]`
+
+***
+
 ### prepare
 
 **prepare**: `Tap`<[`TestRunPipelineEntityCtx`](/en/auto-docs/test-run-plugin/interfaces/TestRunPipelineEntityCtx.md)<`any`>>
@@ -133,11 +140,11 @@ StoreService.setState
 
 ### status
 
-`get` **status**(): `"idle"` | `"preparing"` | `"executing"` | `"canceled"` | `"finished"`
+`get` **status**(): `"idle"` | `"preparing"` | `"executing"` | `"canceled"` | `"finished"` | `"disposed"`
 
 #### Returns
 
-`"idle"` | `"preparing"` | `"executing"` | `"canceled"` | `"finished"`
+`"idle"` | `"preparing"` | `"executing"` | `"canceled"` | `"finished"` | `"disposed"`
 
 `set` **status**(`next`): `void`
 
@@ -145,7 +152,7 @@ StoreService.setState
 
 | Name | Type |
 | :------ | :------ |
-| `next` | `"idle"` | `"preparing"` | `"executing"` | `"canceled"` | `"finished"` |
+| `next` | `"idle"` | `"preparing"` | `"executing"` | `"canceled"` | `"finished"` | `"disposed"` |
 
 #### Returns
 

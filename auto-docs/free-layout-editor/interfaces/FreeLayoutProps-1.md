@@ -24,6 +24,7 @@ Free layout configuration
 * [constants](/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#constants)
 * [containerModules](/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#containermodules)
 * [cursors](/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#cursors)
+* [enableReadonlyNodeDragging](/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#enablereadonlynodedragging)
 * [getNodeDefaultRegistry](/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#getnodedefaultregistry)
 * [history](/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#history)
 * [i18n](/auto-docs/free-layout-editor/interfaces/FreeLayoutProps-1.md#i18n)
@@ -270,6 +271,15 @@ IOC 模块，用于更底层的插件扩展
 | :------ | :------ |
 | `grab?` | `string` |
 | `grabbing?` | `string` |
+
+***
+
+### enableReadonlyNodeDragging
+
+`Optional` **enableReadonlyNodeDragging**: `boolean`
+
+Enable dragging of read-only nodes (default false)
+允许拖拽只读节点
 
 ***
 

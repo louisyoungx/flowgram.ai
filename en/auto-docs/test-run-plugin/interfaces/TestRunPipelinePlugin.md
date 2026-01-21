@@ -4,6 +4,7 @@
 
 ### Properties
 
+* [dispose](/en/auto-docs/test-run-plugin/interfaces/TestRunPipelinePlugin.md#dispose)
 * [name](/en/auto-docs/test-run-plugin/interfaces/TestRunPipelinePlugin.md#name)
 
 ### Methods
@@ -11,6 +12,20 @@
 * [apply](/en/auto-docs/test-run-plugin/interfaces/TestRunPipelinePlugin.md#apply)
 
 ## Properties
+
+### dispose
+
+`Optional` **dispose**: () => `void`
+
+#### Type declaration
+
+(): `void`
+
+##### Returns
+
+`void`
+
+***
 
 ### name
 

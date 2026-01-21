@@ -10,12 +10,26 @@
 
 ### Properties
 
+* [allowDuplicates](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#allowduplicates)
 * [defaultSize](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#defaultsize)
+* [fullscreen](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#fullscreen)
+* [keepDOM](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#keepdom)
 * [key](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#key)
+* [maxSize](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#maxsize)
+* [minSize](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#minsize)
 * [render](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#render)
+* [resize](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#resize)
 * [style](/en/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md#style)
 
 ## Properties
+
+### allowDuplicates
+
+`Optional` **allowDuplicates**: `boolean`
+
+Allows multiple panels with the same key to be rendered simultaneously
+
+***
 
 ### defaultSize
 
@@ -23,9 +37,33 @@
 
 ***
 
+### fullscreen
+
+`Optional` **fullscreen**: `boolean`
+
+***
+
+### keepDOM
+
+`Optional` **keepDOM**: `boolean`
+
+***
+
 ### key
 
 **key**: `string`
+
+***
+
+### maxSize
+
+`Optional` **maxSize**: `number`
+
+***
+
+### minSize
+
+`Optional` **minSize**: `number`
 
 ***
 
@@ -46,6 +84,12 @@
 ##### Returns
 
 `ReactNode`
+
+***
+
+### resize
+
+`Optional` **resize**: `boolean`
 
 ***
 

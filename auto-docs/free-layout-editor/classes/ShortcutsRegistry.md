@@ -15,6 +15,7 @@
 * [addHandlers](/auto-docs/free-layout-editor/classes/ShortcutsRegistry.md#addhandlers)
 * [addHandlersIfNotFound](/auto-docs/free-layout-editor/classes/ShortcutsRegistry.md#addhandlersifnotfound)
 * [has](/auto-docs/free-layout-editor/classes/ShortcutsRegistry.md#has)
+* [removeHandler](/auto-docs/free-layout-editor/classes/ShortcutsRegistry.md#removehandler)
 
 ## Constructors
 
@@ -26,7 +27,7 @@
 
 ### shortcutsHandlers
 
-`Readonly` **shortcutsHandlers**: [`ShortcutsHandler`](/auto-docs/free-layout-editor/interfaces/ShortcutsHandler.md)\[]
+**shortcutsHandlers**: [`ShortcutsHandler`](/auto-docs/free-layout-editor/interfaces/ShortcutsHandler.md)\[]
 
 ## Methods
 
@@ -75,3 +76,19 @@
 #### Returns
 
 `boolean`
+
+***
+
+### removeHandler
+
+**removeHandler**(`commandId`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `commandId` | `string` |
+
+#### Returns
+
+`void`

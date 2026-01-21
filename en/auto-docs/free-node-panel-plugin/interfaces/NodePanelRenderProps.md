@@ -2,7 +2,7 @@
 
 ## Hierarchy
 
-* `CallNodePanelParams`
+* [`CallNodePanelParams`](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md)
 
   ↳ **`NodePanelRenderProps`**
 
@@ -25,7 +25,7 @@
 
 #### Inherited from
 
-CallNodePanelParams.containerNode
+[CallNodePanelParams](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md).[containerNode](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md#containernode)
 
 ***
 
@@ -35,7 +35,7 @@ CallNodePanelParams.containerNode
 
 #### Inherited from
 
-CallNodePanelParams.enableMultiAdd
+[CallNodePanelParams](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md).[enableMultiAdd](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md#enablemultiadd)
 
 ***
 
@@ -53,7 +53,7 @@ CallNodePanelParams.enableMultiAdd
 
 #### Inherited from
 
-CallNodePanelParams.onClose
+[CallNodePanelParams](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md).[onClose](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md#onclose)
 
 ***
 
@@ -77,7 +77,7 @@ CallNodePanelParams.onClose
 
 #### Inherited from
 
-CallNodePanelParams.onSelect
+[CallNodePanelParams](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md).[onSelect](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md#onselect)
 
 ***
 
@@ -87,7 +87,7 @@ CallNodePanelParams.onSelect
 
 #### Inherited from
 
-CallNodePanelParams.panelProps
+[CallNodePanelParams](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md).[panelProps](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md#panelprops)
 
 ***
 
@@ -97,4 +97,4 @@ CallNodePanelParams.panelProps
 
 #### Inherited from
 
-CallNodePanelParams.position
+[CallNodePanelParams](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md).[position](/en/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md#position)

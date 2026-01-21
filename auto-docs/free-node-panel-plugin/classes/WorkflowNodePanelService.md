@@ -89,7 +89,7 @@
 
 | Name | Type |
 | :------ | :------ |
-| `params` | `Omit`<`CallNodePanelParams`, `"onSelect"` | `"onClose"` | `"enableMultiAdd"`> |
+| `params` | `Omit`<[`CallNodePanelParams`](/auto-docs/free-node-panel-plugin/interfaces/CallNodePanelParams.md), `"onSelect"` | `"onClose"` | `"enableMultiAdd"`> |
 
 #### Returns
 

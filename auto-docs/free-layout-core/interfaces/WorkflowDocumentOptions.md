@@ -21,6 +21,7 @@
 * [constants](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#constants)
 * [cursors](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#cursors)
 * [defaultLayout](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#defaultlayout)
+* [enableReadonlyNodeDragging](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#enablereadonlynodedragging)
 * [formatNodeLabels](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#formatnodelabels)
 * [formatNodeLines](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#formatnodelines)
 * [getNodeDefaultRegistry](/auto-docs/free-layout-core/interfaces/WorkflowDocumentOptions.md#getnodedefaultregistry)
@@ -210,6 +211,14 @@ FlowDocumentOptions.constants
 #### Inherited from
 
 FlowDocumentOptions.defaultLayout
+
+***
+
+### enableReadonlyNodeDragging
+
+`Optional` **enableReadonlyNodeDragging**: `boolean`
+
+允许拖拽只读节点
 
 ***
 

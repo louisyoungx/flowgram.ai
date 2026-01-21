@@ -8,16 +8,17 @@
 
 ### Properties
 
-* [bottom](/auto-docs/panel-manager-plugin/classes/PanelManager.md#bottom)
 * [config](/auto-docs/panel-manager-plugin/classes/PanelManager.md#config)
+* [createPanel](/auto-docs/panel-manager-plugin/classes/PanelManager.md#createpanel)
+* [onPanelsChange](/auto-docs/panel-manager-plugin/classes/PanelManager.md#onpanelschange)
 * [panelRegistry](/auto-docs/panel-manager-plugin/classes/PanelManager.md#panelregistry)
-* [right](/auto-docs/panel-manager-plugin/classes/PanelManager.md#right)
 
 ### Methods
 
 * [close](/auto-docs/panel-manager-plugin/classes/PanelManager.md#close)
 * [dispose](/auto-docs/panel-manager-plugin/classes/PanelManager.md#dispose)
-* [getPanel](/auto-docs/panel-manager-plugin/classes/PanelManager.md#getpanel)
+* [getAreaConfig](/auto-docs/panel-manager-plugin/classes/PanelManager.md#getareaconfig)
+* [getPanels](/auto-docs/panel-manager-plugin/classes/PanelManager.md#getpanels)
 * [init](/auto-docs/panel-manager-plugin/classes/PanelManager.md#init)
 * [open](/auto-docs/panel-manager-plugin/classes/PanelManager.md#open)
 * [register](/auto-docs/panel-manager-plugin/classes/PanelManager.md#register)
@@ -30,15 +31,21 @@
 
 ## Properties
 
-### bottom
-
-**bottom**: `FloatPanel`
-
-***
-
 ### config
 
 `Readonly` **config**: [`PanelManagerConfig`](/auto-docs/panel-manager-plugin/variables/PanelManagerConfig-1.md)
+
+***
+
+### createPanel
+
+`Readonly` **createPanel**: `PanelEntityFactory`
+
+***
+
+### onPanelsChange
+
+**onPanelsChange**: `Event`<`void`>
 
 ***
 
@@ -46,17 +53,13 @@
 
 `Readonly` **panelRegistry**: `Map`<`string`, [`PanelFactory`](/auto-docs/panel-manager-plugin/interfaces/PanelFactory.md)<`any`>>
 
-***
-
-### right
-
-**right**: `FloatPanel`
-
 ## Methods
 
 ### close
 
 **close**(`key?`): `void`
+
+close panel
 
 #### Parameters
 
@@ -80,9 +83,9 @@
 
 ***
 
-### getPanel
+### getAreaConfig
 
-**getPanel**(`area`): `FloatPanel`
+**getAreaConfig**(`area`): `PanelConfig`
 
 #### Parameters
 
@@ -92,7 +95,23 @@
 
 #### Returns
 
-`FloatPanel`
+`PanelConfig`
+
+***
+
+### getPanels
+
+**getPanels**(`area?`): `PanelEntity`\[]
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `area?` | [`Area`](/auto-docs/panel-manager-plugin/types/Area.md) |
+
+#### Returns
+
+`PanelEntity`\[]
 
 ***
 
@@ -110,13 +129,15 @@
 
 **open**(`key`, `area?`, `options?`): `void`
 
+open panel
+
 #### Parameters
 
 | Name | Type | Default value |
 | :------ | :------ | :------ |
 | `key` | `string` | `undefined` |
 | `area` | [`Area`](/auto-docs/panel-manager-plugin/types/Area.md) | `'right'` |
-| `options?` | `any` | `undefined` |
+| `options?` | `PanelEntityConfig`<`any`> | `undefined` |
 
 #### Returns
 
@@ -127,6 +148,8 @@
 ### register
 
 **register**<`T`>(`factory`): `void`
+
+registry panel factory
 
 #### Type parameters
 

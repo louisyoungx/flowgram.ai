@@ -12,10 +12,6 @@
 
 * [constructor](/en/auto-docs/playground-react/classes/Emitter.md#constructor)
 
-### Properties
-
-* [LEAK\_WARNING\_THRESHHOLD](/en/auto-docs/playground-react/classes/Emitter.md#leak_warning_threshhold)
-
 ### Accessors
 
 * [disposed](/en/auto-docs/playground-react/classes/Emitter.md#disposed)
@@ -37,12 +33,6 @@
 | Name | Type |
 | :------ | :------ |
 | `T` | `any` |
-
-## Properties
-
-### LEAK\_WARNING\_THRESHHOLD
-
-`Static` **LEAK\_WARNING\_THRESHHOLD**: `number`
 
 ## Accessors
 
