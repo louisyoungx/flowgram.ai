@@ -38,6 +38,7 @@
 * [getLine](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#getline)
 * [getLineById](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#getlinebyid)
 * [getLineColor](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#getlinecolor)
+* [getLinesByPortId](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#getlinesbyportid)
 * [getNodeFromMousePos](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#getnodefrommousepos)
 * [getPortById](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#getportbyid)
 * [getPortFromMousePos](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#getportfrommousepos)
@@ -48,6 +49,7 @@
 * [isFlowingLine](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#isflowingline)
 * [isHideArrowLine](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#ishidearrowline)
 * [isReverseLine](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#isreverseline)
+* [rebindLinePorts](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#rebindlineports)
 * [registerContribution](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#registercontribution)
 * [replaceLine](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#replaceline)
 * [setLineClassName](/auto-docs/free-layout-core/classes/WorkflowLinesManager.md#setlineclassname)
@@ -319,6 +321,22 @@
 
 ***
 
+### getLinesByPortId
+
+**getLinesByPortId**(`portId`): [`WorkflowLineEntity`](/auto-docs/free-layout-core/classes/WorkflowLineEntity.md)\[]
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `portId` | `string` |
+
+#### Returns
+
+[`WorkflowLineEntity`](/auto-docs/free-layout-core/classes/WorkflowLineEntity.md)\[]
+
+***
+
 ### getNodeFromMousePos
 
 **getNodeFromMousePos**(`pos`): `undefined` | `FlowNodeEntity`
@@ -487,6 +505,24 @@
 #### Returns
 
 `boolean`
+
+***
+
+### rebindLinePorts
+
+**rebindLinePorts**(`line`, `prevInfo?`, `nextInfo?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `line` | [`WorkflowLineEntity`](/auto-docs/free-layout-core/classes/WorkflowLineEntity.md) |
+| `prevInfo?` | [`WorkflowLineInfo`](/auto-docs/free-layout-core/interfaces/WorkflowLineInfo.md) |
+| `nextInfo?` | [`WorkflowLineInfo`](/auto-docs/free-layout-core/interfaces/WorkflowLineInfo.md) |
+
+#### Returns
+
+`void`
 
 ***
 

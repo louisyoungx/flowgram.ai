@@ -16,6 +16,7 @@
 
 * [onChange](/en/auto-docs/form-materials/interfaces/ConstantRendererProps.md#onchange)
 * [readonly](/en/auto-docs/form-materials/interfaces/ConstantRendererProps.md#readonly)
+* [schema](/en/auto-docs/form-materials/interfaces/ConstantRendererProps.md#schema)
 * [value](/en/auto-docs/form-materials/interfaces/ConstantRendererProps.md#value)
 
 ## Properties
@@ -43,6 +44,12 @@
 ### readonly
 
 `Optional` **readonly**: `boolean`
+
+***
+
+### schema
+
+`Optional` **schema**: [`IJsonSchema`](/en/auto-docs/form-materials/interfaces/IJsonSchema.md)<`string`>
 
 ***
 

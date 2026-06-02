@@ -13043,6 +13043,15 @@ const formMeta = {
           />
         )}
       </Field>
+      <Field<string> name="constant_enum" defaultValue="morning">
+        {({ field }) => (
+          <ConstantInput
+            value={field.value}
+            onChange={(value) => field.onChange(value)}
+            schema={{ type: 'string', enum: ['morning', 'afternoon'] }}
+          />
+        )}
+      </Field>
     </>
   ),
 }
@@ -14034,16 +14043,401 @@ url: /en/materials/components/batch-outputs.md
 ---
 
 import { SourceCode } from '@theme';
+import { BasicStory } from 'components/form-materials/components/batch-outputs';
+
+# BatchOutputs
+
+`BatchOutputs` is a key-value pair editor component for configuring loop outputs. In loop node scenarios, it allows users to define output values to be collected in each iteration, which will eventually be aggregated into arrays.
+
+**Core Features:**
+
+- ➕ **Dynamic Add/Remove**: Users can freely add or remove output key-value pairs
+- ✏️ **Key Name Editing**: Define a unique key name for each output
+- 🔗 **Variable Reference**: Reference variables available within the loop body through a variable selector
+- 👁️ **Readonly Mode**: Supports readonly display for viewing scenarios
 
 :::warning
-The material has been developed and the documentation is still being improved. Contributions are welcome.
+
+`BatchOutputs` must be used with [batchOutputsPlugin](../form-plugins/batch-outputs-plugin) to work properly. This is because:
+1. The component handles UI interaction, collecting output key-value pairs configured by the user
+2. The plugin is responsible for converting configurations into variable declarations and adjusting the scope chain
+
 :::
 
-# BatchOutputs (WIP)
+:::info{title="Complete Solution Overview"}
+
+Implementing a complete loop node requires the following three materials working together:
+
+| Material | Type | Responsibility |
+|------|------|------|
+| [BatchVariableSelector](./batch-variable-selector) | Component | Select the array data source for the loop |
+| [provideBatchInputEffect](../effects/provide-batch-input) | Effect | Generate `item` and `index` local variables |
+| **BatchOutputs** + [batchOutputsPlugin](../form-plugins/batch-outputs-plugin) | Component + Plugin | Configure loop outputs and generate array-type variables |
+
+:::
+
+## Demo
+
+### Basic Usage
+
+<BasicStory />
+
+```tsx pure title="form-meta.tsx"
+import { FormRenderProps, FlowNodeJSON, Field, FormMeta } from '@flowgram.ai/free-layout-editor';
+import {
+  BatchOutputs,
+  BatchVariableSelector,
+  createBatchOutputsFormPlugin,
+  IFlowRefValue,
+  provideBatchInputEffect,
+} from '@flowgram.ai/form-materials';
+
+interface LoopNodeJSON extends FlowNodeJSON {
+  data: {
+    loopFor: IFlowRefValue;
+  };
+}
+
+export const LoopFormRender = ({ form }: FormRenderProps<LoopNodeJSON>) => {
+  return (
+    <>
+      <FormHeader />
+      <FormContent>
+        <Field<IFlowRefValue> name="loopFor">
+          {({ field, fieldState }) => (
+            <FormItem name="loopFor" type="array" required>
+              <BatchVariableSelector
+                style={{ width: '100%' }}
+                value={field.value?.content}
+                onChange={(val) => field.onChange({ type: 'ref', content: val })}
+                hasError={Object.keys(fieldState?.errors || {}).length > 0}
+              />
+            </FormItem>
+          )}
+        </Field>
+        <Field<Record<string, IFlowRefValue | undefined> | undefined> name="loopOutputs">
+          {({ field, fieldState }) => (
+            <FormItem name="loopOutputs" type="object" vertical>
+              <BatchOutputs
+                style={{ width: '100%' }}
+                value={field.value}
+                onChange={(val) => field.onChange(val)}
+                hasError={Object.keys(fieldState?.errors || {}).length > 0}
+              />
+            </FormItem>
+          )}
+        </Field>
+      </FormContent>
+    </>
+  );
+};
+
+export const formMeta: FormMeta = {
+  render: LoopFormRender,
+  effect: {
+    loopFor: provideBatchInputEffect,
+  },
+  plugins: [createBatchOutputsFormPlugin({ outputKey: 'loopOutputs', inferTargetKey: 'outputs' })],
+};
+```
+
+:::info{title="About FormHeader, FormContent, FormItem"}
+
+The `FormHeader`, `FormContent`, and `FormItem` in the code above are user-defined layout components for unified form styling. You can implement them according to your project needs or replace them with other UI components.
+
+:::
+
+### Readonly Mode
+
+By setting the `readonly` property, you can disable editing functionality, suitable for viewing or preview scenarios:
+
+```tsx pure
+<BatchOutputs
+  readonly
+  value={{
+    names: { type: 'ref', content: ['item', 'name'] },
+    ages: { type: 'ref', content: ['item', 'age'] },
+  }}
+/>
+```
+
+## API Reference
+
+### BatchOutputs Props
+
+| Property | Type | Default | Description |
+|--------|------|--------|------|
+| `value` | `Record<string, IFlowRefValue \| undefined>` | - | Output key-value object, key is the output name, value is the variable reference |
+| `onChange` | `(value?: Record<string, IFlowRefValue \| undefined>) => void` | - | Callback function when value changes |
+| `readonly` | `boolean` | `false` | Whether in readonly mode |
+| `hasError` | `boolean` | `false` | Whether to show error state |
+| `style` | `React.CSSProperties` | - | Custom styles |
+
+### Value Type Description
+
+```typescript
+type ValueType = Record<string, IFlowRefValue | undefined>;
+
+interface IFlowRefValue {
+  type: 'ref';
+  content?: string[];
+}
+```
+
+#### Value Structure Example
+
+```typescript
+{
+  names: { type: 'ref', content: ['loop_1_locals', 'item', 'name'] },
+  ages: { type: 'ref', content: ['loop_1_locals', 'item', 'age'] },
+  scores: { type: 'ref', content: ['loop_1_locals', 'item', 'score'] },
+}
+```
+
+## Source Code Guide
 
 <SourceCode
   href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/components/batch-outputs"
 />
+
+Use the CLI command to copy the source code locally:
+
+```bash
+npx @flowgram.ai/cli@latest materials components/batch-outputs
+```
+
+### Directory Structure
+
+```
+batch-outputs/
+├── index.tsx          # Main component implementation
+├── types.ts           # Type definitions
+└── styles.css         # Style file
+```
+
+### Core Implementation
+
+#### Component Structure
+
+The BatchOutputs component is based on the `useObjectList` hook for dynamic list management, each row contains:
+- **Input**: For editing output key names
+- **InjectVariableSelector**: For selecting variable references
+- **Delete Button**: Delete the current row
+
+#### Data Flow
+
+```mermaid
+graph TD
+    A[BatchOutputs Component] --> B[useObjectList Hook]
+    B --> C[list state]
+    B --> D[add method]
+    B --> E[updateKey method]
+    B --> F[updateValue method]
+    B --> G[remove method]
+
+    C --> H[Render List]
+    H --> I[Input Key Name Editing]
+    H --> J[VariableSelector Variable Selection]
+    H --> K[Delete Button]
+
+    D --> L[Add Button]
+
+    I --> E
+    J --> F
+    K --> G
+    
+    E --> M[onChange Callback]
+    F --> M
+    G --> M
+    M --> N[Update External value]
+```
+
+#### useObjectList Hook
+
+`useObjectList` is a general-purpose dynamic object list management hook with core features:
+
+1. **List State Management**: Maintains list items with unique IDs
+2. **Bidirectional Sync**: Synchronizes and updates the list when the `value` property changes
+3. **CRUD Operations**: Provides `add`, `remove`, `updateKey`, `updateValue` methods
+
+```typescript
+interface UseObjectListOptions<T> {
+  value?: Record<string, T | undefined>;
+  onChange?: (value?: Record<string, T | undefined>) => void;
+}
+
+interface UseObjectListReturn<T> {
+  list: Array<{ id: string; key: string; value: T | undefined }>;
+  add: () => void;
+  remove: (id: string) => void;
+  updateKey: (id: string, newKey: string) => void;
+  updateValue: (id: string, newValue: T) => void;
+}
+
+const { list, add, updateKey, updateValue, remove } = useObjectList({
+  value,
+  onChange,
+});
+```
+
+#### Complete Data Flow Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant UI as BatchOutputs Component
+    participant Hook as useObjectList
+    participant Form as Form System
+    participant Plugin as batchOutputsPlugin
+
+    User->>UI: Click Add Button
+    UI->>Hook: Call add()
+    Hook->>Hook: Generate new list item (with unique ID)
+    Hook->>Form: Trigger onChange
+    Form->>Plugin: Form value changed
+    Plugin->>Plugin: Generate variable declaration
+
+    User->>UI: Edit key name
+    UI->>Hook: Call updateKey(id, newKey)
+    Hook->>Form: Trigger onChange
+    Form->>Plugin: Form value changed
+    Plugin->>Plugin: Update variable declaration
+
+    User->>UI: Select variable
+    UI->>Hook: Call updateValue(id, refValue)
+    Hook->>Form: Trigger onChange
+    Form->>Plugin: Form value changed
+    Plugin->>Plugin: Update variable declaration
+```
+
+### Dependencies
+
+#### flowgram API
+
+[**@flowgram.ai/editor**](https://github.com/bytedance/flowgram.ai/tree/main/packages/client/editor)
+- [`I18n`](https://flowgram.ai/auto-docs/editor/modules/I18n): Internationalization tool for button text
+
+#### Dependent Materials
+
+[**useObjectList**](https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/hooks/use-object-list)
+- Dynamic object list management hook, handles list CRUD operations
+
+[**InjectVariableSelector**](./variable-selector)
+- Injection-based variable selector for selecting variable references
+
+#### Third-party Dependencies
+
+- `@douyinfe/semi-ui`: UI component library, uses Button, Input components
+- `@douyinfe/semi-icons`: Icon library, uses IconDelete, IconPlus icons
+
+## FAQ
+
+### Why do I need to use both BatchOutputs component and batchOutputsPlugin?
+
+This is a separation of concerns design:
+
+| Role | Responsibility |
+|------|------|
+| `BatchOutputs` Component | Provides UI interaction, lets users configure output key names and variable references |
+| `batchOutputsPlugin` | Handles data logic, converts configurations to variable declarations and adjusts scope chain |
+
+Using the component alone only collects data and cannot generate valid output variables; using the plugin alone has no UI to configure data.
+
+### What's the difference between BatchOutputs and InputsValues?
+
+| Feature | BatchOutputs | InputsValues |
+|------|--------------|--------------|
+| Purpose | Loop output configuration | Node input configuration |
+| Value Type | `Record<string, IFlowRefValue>` | `IInputsValues` |
+| Variable Reference | Only supports variable references | Supports constants and variable references |
+| Use Case | Output aggregation for Loop nodes | Input parameters for general nodes |
+
+### How to customize the variable selector filter conditions?
+
+Currently, `BatchOutputs` internally uses `InjectVariableSelector` and does not support custom filter conditions. If customization is needed, you can refer to the source code to implement your own component:
+
+```tsx
+import { useObjectList } from '@flowgram.ai/form-materials';
+import { VariableSelector } from '@flowgram.ai/form-materials';
+
+function CustomBatchOutputs(props) {
+  const { list, add, updateKey, updateValue, remove } = useObjectList(props);
+  
+  return (
+    <div>
+      {list.map((item) => (
+        <div key={item.id}>
+          <Input value={item.key} onChange={(v) => updateKey(item.id, v)} />
+          <VariableSelector
+            value={item.value?.content}
+            onChange={(v) => updateValue(item.id, { type: 'ref', content: v })}
+            includeSchema={{ type: 'string' }}
+          />
+          <Button onClick={() => remove(item.id)}>Delete</Button>
+        </div>
+      ))}
+      <Button onClick={() => add()}>Add</Button>
+    </div>
+  );
+}
+```
+
+### How to get the generated output variable types?
+
+When used with `batchOutputsPlugin` and if `inferTargetKey` is configured, the JSON Schema of the output variables will be automatically written to the specified field when the form is submitted:
+
+```typescript
+plugins: [
+  createBatchOutputsFormPlugin({ 
+    outputKey: 'loopOutputs', 
+    inferTargetKey: 'outputs'
+  })
+]
+```
+
+Example of form data structure after submission:
+
+```typescript
+{
+  loopOutputs: {
+    names: { type: 'ref', content: ['item', 'name'] },
+    ages: { type: 'ref', content: ['item', 'age'] },
+  },
+  outputs: {
+    type: 'object',
+    properties: {
+      names: { type: 'array', items: { type: 'string' } },
+      ages: { type: 'array', items: { type: 'number' } },
+    }
+  }
+}
+```
+
+### How to handle duplicate key names?
+
+Currently, the component does not automatically detect duplicate key names. It is recommended to add validation logic at the form level:
+
+```typescript
+const formMeta: FormMeta = {
+  validate: {
+    loopOutputs: (value) => {
+      if (!value) return;
+      const keys = Object.keys(value);
+      const uniqueKeys = new Set(keys);
+      if (keys.length !== uniqueKeys.size) {
+        return 'Output key names cannot be duplicated';
+      }
+    },
+  },
+};
+```
+
+## Related Materials
+
+- [BatchVariableSelector](./batch-variable-selector): Array variable selector for selecting loop input
+- [provideBatchInputEffect](../effects/provide-batch-input): Loop input variable parsing effect
+- [batchOutputsPlugin](../form-plugins/batch-outputs-plugin): Loop output plugin, handles scope chain and type inference
+
 
 
 ---
@@ -14814,16 +15208,394 @@ url: /en/materials/effects/provide-batch-input.md
 ---
 
 import { SourceCode } from '@theme';
+import { BasicStory } from 'components/form-materials/effects/provide-batch-input';
 
-:::warning
-The material has been developed and the documentation is still being improved. Contributions are welcome.
+# provideBatchInputEffect
+
+`provideBatchInputEffect` is a form effect specifically designed for loop node scenarios. It parses the loop input array variable into two local variables:
+
+- **item**: The current iteration's array element, with type automatically inferred from the input array's element type
+- **index**: The current iteration's index, with type `number`
+
+**Core Features:**
+
+- 🔄 **Automatic Type Inference**: Automatically infers the `item` element type from the array type
+- 🔒 **Private Scope**: Generated variables are stored in the node's private scope, accessible only to the current node and its child nodes
+- 🎯 **Loop-specific**: Designed specifically for batch processing/loop scenarios
+
+This allows child nodes within the loop body to reference the `item` and `index` variables for processing array elements individually.
+
+:::info{title="Complete Solution Overview"}
+
+Implementing a complete loop node requires the following three materials working together:
+
+| Material | Type | Responsibility |
+|------|------|------|
+| [BatchVariableSelector](../components/batch-variable-selector) | Component | Select the array data source for the loop |
+| **provideBatchInputEffect** | Effect | Generate `item` and `index` local variables |
+| [BatchOutputs](../components/batch-outputs) + [batchOutputsPlugin](../form-plugins/batch-outputs-plugin) | Component + Plugin | Configure loop outputs and generate array-type variables |
+
 :::
 
-# provideBatchInput (WIP)
+## Demo
+
+### Basic Usage
+
+:::tip
+
+After selecting an array-type variable, `provideBatchInputEffect` will automatically generate `item` and `index` local variables, which can be seen in the variable selector below.
+
+:::
+
+<BasicStory />
+
+```tsx pure title="form-meta.tsx"
+import { FormRenderProps, FlowNodeJSON, Field, FormMeta } from '@flowgram.ai/free-layout-editor';
+import {
+  BatchOutputs,
+  BatchVariableSelector,
+  createBatchOutputsFormPlugin,
+  IFlowRefValue,
+  provideBatchInputEffect,
+} from '@flowgram.ai/form-materials';
+
+interface LoopNodeJSON extends FlowNodeJSON {
+  data: {
+    loopFor: IFlowRefValue;
+  };
+}
+
+export const LoopFormRender = ({ form }: FormRenderProps<LoopNodeJSON>) => {
+  return (
+    <>
+      <FormHeader />
+      <FormContent>
+        <Field<IFlowRefValue> name="loopFor">
+          {({ field, fieldState }) => (
+            <FormItem name="loopFor" type="array" required>
+              <BatchVariableSelector
+                style={{ width: '100%' }}
+                value={field.value?.content}
+                onChange={(val) => field.onChange({ type: 'ref', content: val })}
+                hasError={Object.keys(fieldState?.errors || {}).length > 0}
+              />
+            </FormItem>
+          )}
+        </Field>
+        <Field<Record<string, IFlowRefValue | undefined> | undefined> name="loopOutputs">
+          {({ field, fieldState }) => (
+            <FormItem name="loopOutputs" type="object" vertical>
+              <BatchOutputs
+                style={{ width: '100%' }}
+                value={field.value}
+                onChange={(val) => field.onChange(val)}
+                hasError={Object.keys(fieldState?.errors || {}).length > 0}
+              />
+            </FormItem>
+          )}
+        </Field>
+      </FormContent>
+    </>
+  );
+};
+
+export const formMeta: FormMeta = {
+  render: LoopFormRender,
+  effect: {
+    loopFor: provideBatchInputEffect,
+  },
+  plugins: [createBatchOutputsFormPlugin({ outputKey: 'loopOutputs', inferTargetKey: 'outputs' })],
+};
+```
+
+:::info{title="About FormHeader, FormContent, FormItem"}
+
+The `FormHeader`, `FormContent`, and `FormItem` in the code above are user-defined layout components for unified form styling. You can implement them according to your project needs or replace them with other UI components.
+
+:::
+
+## API Reference
+
+### provideBatchInputEffect
+
+Provides a form effect that parses the loop input array variable into `item` and `index` local variables.
+
+```typescript
+import { provideBatchInputEffect } from '@flowgram.ai/form-materials';
+
+const formMeta: FormMeta = {
+  effect: {
+    loopFor: provideBatchInputEffect,
+  },
+};
+```
+
+#### Parameters
+
+This effect is created internally using `createEffectFromVariableProvider` with the following configuration:
+
+| Property | Value | Description |
+|------|------|------|
+| `private` | `true` | Generated variables are stored in the node's private scope |
+
+:::tip{title="About the private parameter"}
+
+Setting `private: true` stores variables in `node.privateScope` instead of `node.scope`. This means:
+- Variables are only visible within the current node and its child nodes
+- They cannot be accessed by downstream nodes of the parent node
+- Suitable for temporary iteration variables in loop scenarios
+
+See: [Node Private Scope](../../guide/variable/concept#node-private-scope)
+
+:::
+
+#### Return Value
+
+- `EffectOptions[]`: Array of form effect options for `formMeta.effect` configuration
+
+#### Generated Variable Structure
+
+The effect creates a variable `${nodeId}_locals` in the current node's **private scope** with the following structure:
+
+| Field | Type | Description |
+|------|------|------|
+| `item` | Inferred from array element type | The current iteration's array element |
+| `index` | `number` | The current iteration's index |
+
+#### Generated AST Structure Example
+
+Assuming the loop input variable path is `['start_0', 'list']`, the generated AST structure is:
+
+```typescript
+{
+  kind: 'VariableDeclaration',
+  key: 'loop_1_locals',
+  meta: {
+    title: 'Loop Node',
+    icon: 'loop-icon'
+  },
+  type: {
+    kind: 'ObjectType',
+    properties: [
+      {
+        kind: 'Property',
+        key: 'item',
+        initializer: {
+          kind: 'EnumerateExpression',
+          enumerateFor: {
+            kind: 'KeyPathExpression',
+            keyPath: ['start_0', 'list']
+          }
+        }
+      },
+      {
+        kind: 'Property',
+        key: 'index',
+        type: { kind: 'NumberType' }
+      }
+    ]
+  }
+}
+```
+
+## Source Code Guide
 
 <SourceCode
-  href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/effects/provide-batch-input"
+  href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/effects/provide-batch-input/index.ts"
 />
+
+Use the CLI command to copy the source code locally:
+
+```bash
+npx @flowgram.ai/cli@latest materials effects/provide-batch-input
+```
+
+### Directory Structure
+
+```
+provide-batch-input/
+└── index.ts           # Main implementation file, exports provideBatchInputEffect form effect
+```
+
+### Core Implementation
+
+#### Variable Generation Logic
+
+`provideBatchInputEffect` uses the [`createEffectFromVariableProvider`](../../guide/variable/variable-output) factory function to create a variable provider. Key characteristics:
+
+1. **Private Variables**: Setting `private: true` makes generated variables visible only within the current node's scope
+2. **Element Type Inference**: Uses `ASTFactory.createEnumerateExpression` to infer element type from the array type
+3. **Index Variable**: Fixed as `number` type
+
+#### Type Inference Principle
+
+`EnumerateExpression` is an expression type provided by the variable engine for inferring element type from array type:
+
+```mermaid
+graph LR
+    A["Array&lt;string&gt;"] --> B[EnumerateExpression]
+    B --> C["string"]
+
+    D["Array&lt;object&gt;"] --> E[EnumerateExpression]
+    E --> F["object"]
+```
+
+When the upstream variable type changes, the `item` type will **automatically update accordingly**.
+
+#### Variable Generation Flow Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant Form as Form System
+    participant Parser as parse function
+    participant AST as ASTFactory
+    participant Node as Current Node
+
+    Form->>Parser: Provide IFlowRefValue value
+    Parser->>Node: Get node info
+    Node-->>Parser: Return node ID
+    Parser->>AST: Create variable declaration
+    Note over Parser: Key: ${nodeId}_locals
+    Parser->>AST: Create Object type
+    Parser->>AST: Create item property
+    Note over AST: Use createEnumerateExpression
+    Note over AST: Infer element type from array keyPath
+    Parser->>AST: Create index property
+    Note over AST: Fixed as number type
+    AST-->>Parser: Return created variable declaration
+    Parser-->>Form: Return variable declaration array
+```
+
+#### Key Code Analysis
+
+```typescript
+export const provideBatchInputEffect: EffectOptions[] = createEffectFromVariableProvider({
+  private: true,
+  parse: (value: IFlowRefValue, ctx) => [
+    ASTFactory.createVariableDeclaration({
+      key: `${ctx.node.id}_locals`,
+      meta: {
+        title: ctx.node.form?.getValueIn('title'),
+        icon: ctx.node.getNodeRegistry<FlowNodeRegistry>().info?.icon,
+      },
+      type: ASTFactory.createObject({
+        properties: [
+          ASTFactory.createProperty({
+            key: 'item',
+            initializer: ASTFactory.createEnumerateExpression({
+              enumerateFor: ASTFactory.createKeyPathExpression({
+                keyPath: value.content || [],
+              }),
+            }),
+          }),
+          ASTFactory.createProperty({
+            key: 'index',
+            type: ASTFactory.createNumber(),
+          }),
+        ],
+      }),
+    }),
+  ],
+});
+```
+
+### Dependencies
+
+#### flowgram API
+
+[**@flowgram.ai/editor**](https://github.com/bytedance/flowgram.ai/tree/main/packages/client/editor)
+- [`EffectOptions`](https://flowgram.ai/auto-docs/editor/types/EffectOptions): Form effect options type
+- [`FlowNodeRegistry`](https://flowgram.ai/auto-docs/document/interfaces/FlowNodeRegistry-1): Node registry type definition
+- [`createEffectFromVariableProvider`](../../guide/variable/variable-output): Factory function to create form effects from variable providers
+
+[**@flowgram.ai/variable-core**](https://github.com/bytedance/flowgram.ai/tree/main/packages/variable-engine/variable-core)
+- [`ASTFactory`](https://flowgram.ai/auto-docs/editor/modules/ASTFactory): AST creation factory for generating variable declarations
+- `ASTFactory.createEnumerateExpression`: Creates enumerate expression for inferring element type from array type
+- `ASTFactory.createKeyPathExpression`: Creates key path expression for referencing variable paths
+
+#### Dependent Materials
+
+[**BatchVariableSelector**](../components/batch-variable-selector)
+- Used to select array-type variables, works with `provideBatchInputEffect`
+
+## FAQ
+
+### Why can the item type be automatically inferred?
+
+`provideBatchInputEffect` uses `ASTFactory.createEnumerateExpression` to create the `item` variable. `EnumerateExpression` is a special expression that:
+
+1. Receives an array-type variable reference (via `KeyPathExpression`)
+2. Automatically infers the array's element type as its return type
+3. Automatically triggers type linkage updates when the upstream array type changes
+
+See: [Variable Concepts - Expressions](../../guide/variable/concept#expressions)
+
+### Why can't I see the generated variables in the variable selector?
+
+Check the following points:
+
+1. **Scope Issue**: Variables generated by `provideBatchInputEffect` are private (stored in `node.privateScope`), only accessible to the current node and its child nodes
+2. **Configuration Location**: Ensure `provideBatchInputEffect` is configured on the correct field path
+3. **Component Configuration**: If using `BatchVariableSelector`, it automatically provides `PrivateScopeProvider`; if using regular `VariableSelector`, you need to manually wrap it with `PrivateScopeProvider`
+
+### How to customize the variable names for item and index?
+
+Currently, `provideBatchInputEffect` does not support custom variable names. If customization is needed, you can refer to the source code and use `createEffectFromVariableProvider` to create your own effect:
+
+```typescript
+import { createEffectFromVariableProvider, ASTFactory } from '@flowgram.ai/editor';
+
+export const customBatchInputEffect = createEffectFromVariableProvider({
+  private: true,
+  parse: (value, ctx) => [
+    ASTFactory.createVariableDeclaration({
+      key: `${ctx.node.id}_locals`,
+      type: ASTFactory.createObject({
+        properties: [
+          ASTFactory.createProperty({
+            key: 'currentItem',
+            initializer: ASTFactory.createEnumerateExpression({
+              enumerateFor: ASTFactory.createKeyPathExpression({
+                keyPath: value.content || [],
+              }),
+            }),
+          }),
+          ASTFactory.createProperty({
+            key: 'currentIndex',
+            type: ASTFactory.createNumber(),
+          }),
+        ],
+      }),
+    }),
+  ],
+});
+```
+
+### What's the relationship with batchOutputsPlugin?
+
+| Material | Responsibility | Generated Variables |
+|------|------|------|
+| `provideBatchInputEffect` | Handles loop **input** | `item`, `index` (private variables) |
+| `batchOutputsPlugin` | Handles loop **output** | User-configured output keys (public variables, array type) |
+
+Both work together to form the complete loop node variable logic:
+
+```mermaid
+graph LR
+    A[Array Input] --> B[provideBatchInputEffect]
+    B --> C[item, index]
+    C --> D[Child Node Processing]
+    D --> E[BatchOutputs Configuration]
+    E --> F[batchOutputsPlugin]
+    F --> G[Array Output]
+```
+
+## Related Materials
+
+- [BatchVariableSelector](../components/batch-variable-selector): Array variable selector for selecting loop input
+- [BatchOutputs](../components/batch-outputs): Loop output configuration component
+- [batchOutputsPlugin](../form-plugins/batch-outputs-plugin): Loop output plugin, handles scope chain and type inference
+
 
 
 ---
@@ -15186,16 +15958,435 @@ url: /en/materials/form-plugins/batch-outputs-plugin.md
 ---
 
 import { SourceCode } from '@theme';
+import { BasicStory, WithInferSchemaStory } from 'components/form-materials/form-plugins/batch-outputs-plugin';
 
-:::warning
-The material has been developed and the documentation is still being improved. Contributions are welcome.
+# batchOutputsPlugin
+
+`batchOutputsPlugin` is a form plugin for loop nodes that implements two core functions:
+
+1. **Output Variable Generation**: Converts variable references collected within the loop body into array-type output variables
+2. **Scope Chain Transformation**: Adjusts the variable scope chain so that the loop node's outputs can correctly depend on child node outputs
+
+**Core Features:**
+
+- 🔄 **Array Wrapping**: Automatically wraps variables referenced within the loop body as array-type outputs
+- 🔗 **Scope Chain Adjustment**: Allows the loop node's output variables to correctly depend on child node outputs
+- 📊 **Schema Inference**: Optional configuration to automatically infer the JSON Schema of output variables
+
+:::tip{title="Use Cases"}
+
+- **Loop Nodes**: Need to collect data in each iteration and aggregate into arrays
+- **Batch Processing Nodes**: Need to summarize results from multiple subtasks
+- **Any Container Node with Child Nodes**: Need to collect output variables from child nodes
+
 :::
 
-# batchOutputsPlugin (WIP)
+:::warning
+
+`BatchOutputs` component must be used with `batchOutputsPlugin` to work properly. This is because:
+1. The component handles UI interaction, collecting output key-value pairs configured by the user
+2. The plugin is responsible for converting configurations into variable declarations and adjusting the scope chain
+
+:::
+
+:::info{title="Complete Solution Overview"}
+
+Implementing a complete loop node requires the following three materials working together:
+
+| Material | Type | Responsibility |
+|------|------|------|
+| [BatchVariableSelector](../components/batch-variable-selector) | Component | Select the array data source for the loop |
+| [provideBatchInputEffect](../effects/provide-batch-input) | Effect | Generate `item` and `index` local variables |
+| [BatchOutputs](../components/batch-outputs) + **batchOutputsPlugin** | Component + Plugin | Configure loop outputs and generate array-type variables |
+
+:::
+
+## Demo
+
+### Basic Usage
+
+:::tip
+
+Click the Debug panel in the upper right corner of the demo to view the generated output variables and JSON data sent to the backend
+
+:::
+
+<BasicStory />
+
+```tsx pure title="form-meta.tsx"
+import { FormRenderProps, FlowNodeJSON, Field, FormMeta } from '@flowgram.ai/free-layout-editor';
+import {
+  BatchOutputs,
+  BatchVariableSelector,
+  createBatchOutputsFormPlugin,
+  IFlowRefValue,
+  provideBatchInputEffect,
+} from '@flowgram.ai/form-materials';
+
+interface LoopNodeJSON extends FlowNodeJSON {
+  data: {
+    loopFor: IFlowRefValue;
+  };
+}
+
+export const LoopFormRender = ({ form }: FormRenderProps<LoopNodeJSON>) => {
+  return (
+    <>
+      <FormHeader />
+      <FormContent>
+        <Field<IFlowRefValue> name="loopFor">
+          {({ field, fieldState }) => (
+            <FormItem name="loopFor" type="array" required>
+              <BatchVariableSelector
+                style={{ width: '100%' }}
+                value={field.value?.content}
+                onChange={(val) => field.onChange({ type: 'ref', content: val })}
+                hasError={Object.keys(fieldState?.errors || {}).length > 0}
+              />
+            </FormItem>
+          )}
+        </Field>
+        <Field<Record<string, IFlowRefValue | undefined> | undefined> name="loopOutputs">
+          {({ field, fieldState }) => (
+            <FormItem name="loopOutputs" type="object" vertical>
+              <BatchOutputs
+                style={{ width: '100%' }}
+                value={field.value}
+                onChange={(val) => field.onChange(val)}
+                hasError={Object.keys(fieldState?.errors || {}).length > 0}
+              />
+            </FormItem>
+          )}
+        </Field>
+      </FormContent>
+    </>
+  );
+};
+
+export const formMeta: FormMeta = {
+  render: LoopFormRender,
+  effect: {
+    loopFor: provideBatchInputEffect,
+  },
+  plugins: [createBatchOutputsFormPlugin({ outputKey: 'loopOutputs', inferTargetKey: 'outputs' })],
+};
+```
+
+:::info{title="About FormHeader, FormContent, FormItem"}
+
+The `FormHeader`, `FormContent`, and `FormItem` in the code above are user-defined layout components for unified form styling. You can implement them according to your project needs or replace them with other UI components.
+
+:::
+
+### With Schema Inference
+
+<WithInferSchemaStory />
+
+When the `inferTargetKey` parameter is configured, the plugin will automatically infer the JSON Schema of output variables when the form is submitted and store it in the specified field.
+
+## API Reference
+
+### createBatchOutputsFormPlugin
+
+Factory function to create the batch outputs plugin.
+
+```typescript
+function createBatchOutputsFormPlugin(options: {
+  outputKey: string;
+  inferTargetKey?: string;
+}): FormPlugin;
+```
+
+| Property | Type | Default | Description |
+|--------|------|--------|------|
+| `outputKey` | `string` | - | The field path in the form where loop output configurations are stored |
+| `inferTargetKey` | `string` | - | Optional, the field path where the inferred JSON Schema will be stored |
+
+### provideBatchOutputsEffect
+
+Output variable generation effect that converts `Record<string, IFlowRefValue>` format configurations into array-type variable declarations.
+
+```typescript
+import { provideBatchOutputsEffect } from '@flowgram.ai/form-materials';
+
+const formMeta: FormMeta = {
+  effect: {
+    loopOutputs: provideBatchOutputsEffect,
+  },
+};
+```
+
+:::tip
+
+Typically, using `createBatchOutputsFormPlugin` is sufficient as it already includes `provideBatchOutputsEffect` internally. Only use this effect directly when you need the variable generation functionality without scope chain transformation.
+
+:::
+
+## Source Code Guide
 
 <SourceCode
-  href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/form-plugins/batch-outputs-plugin"
+  href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/form-plugins/batch-outputs-plugin/index.ts"
 />
+
+Use the CLI command to copy the source code locally:
+
+```bash
+npx @flowgram.ai/cli@latest materials form-plugins/batch-outputs-plugin
+```
+
+### Directory Structure
+
+```
+batch-outputs-plugin/
+└── index.ts           # Complete plugin implementation, includes variable generation and scope chain transformation logic
+```
+
+### Core Implementation
+
+#### Plugin Structure
+
+`createBatchOutputsFormPlugin` is created using `defineFormPluginCreator` and contains two core lifecycles:
+
+1. **onSetupFormMeta**: Configures form metadata, registers effects and submit formatting
+2. **onInit**: Registers scope chain transformer during initialization
+
+#### Output Variable Generation
+
+`provideBatchOutputsEffect` converts `Record<string, IFlowRefValue>` into variable declarations:
+
+```mermaid
+graph LR
+    A[loopOutputs Configuration] --> B[provideBatchOutputsEffect]
+    B --> C[Variable Declaration]
+
+    subgraph Transformation Process
+        D["{ names: { type: 'ref', content: ['item', 'name'] } }"]
+        E["names: WrapArray(item.name)"]
+        D --> E
+    end
+
+    C --> F[Output: names type is Array]
+```
+
+Key point: Uses `ASTFactory.createWrapArrayExpression` to wrap single value types as array types.
+
+#### Scope Chain Transformation
+
+This is the most core functionality of this plugin, solving the variable scope problem for loop nodes.
+
+:::info{title="Why is scope chain transformation needed?"}
+
+In the default scope chain logic (refer to [Scope Chain Concept](../../guide/variable/concept#scope-chain)):
+- Child node output variables **cannot** be accessed by downstream nodes of the parent node
+- Loop node output variables **cannot** depend on child node outputs
+
+However, in loop scenarios, we need:
+- The loop node's outputs (such as aggregated arrays) to depend on values produced by child nodes in each iteration
+- Child node variables to "cover" to the parent loop node's scope
+
+:::
+
+The following diagram illustrates how scope chain transformation works:
+
+```mermaid
+graph TB
+    subgraph Default Scope Chain
+        direction TB
+        A1[Upstream Node.scope] --> B1[Loop Node.scope]
+        B1 --> C1[Downstream Node.scope]
+        B1 --> D1[Child Node.scope]
+        D1 -.❌ Not Accessible.-> C1
+    end
+
+    subgraph Transformed Scope Chain
+        direction TB
+        A2[Upstream Node.scope] --> B2[Loop Node.scope]
+        B2 --> C2[Downstream Node.scope]
+        B2 --> D2[Child Node.scope]
+        D2 -.✅ Can Cover.-> B2
+        B2 -.Depends On.-> D2
+    end
+```
+
+Two core methods of the transformer:
+
+| Method | Purpose | Description |
+|------|------|------|
+| `transformCovers` | Extend cover scopes | Allows child node variables to "cover" to the parent loop node |
+| `transformDeps` | Adjust dependency scopes | Allows the loop node's public scope to depend on its child nodes' scopes |
+
+```mermaid
+sequenceDiagram
+    participant Loop as Loop Node
+    participant Child as Child Node
+    participant Transform as ScopeChainTransformService
+
+    Note over Loop,Child: Problem: Loop node output depends on child node output
+
+    Loop->>Transform: Register transformer
+
+    Note over Transform: transformCovers (Cover Relationship)
+    Child->>Transform: Child node queries cover scopes
+    Transform-->>Child: Return [Parent Loop Node Scope]
+    Note over Child: Child node variables can cover parent loop node
+
+    Note over Transform: transformDeps (Dependency Relationship)
+    Loop->>Transform: Loop node queries dependency scopes
+    Transform-->>Loop: Return [Private Scope, ...Child Node Scopes]
+    Note over Loop: Loop node output depends on child node output
+```
+
+#### Key Code Analysis
+
+**1. Variable Generation Logic**
+
+```typescript
+export const provideBatchOutputsEffect: EffectOptions[] = createEffectFromVariableProvider({
+  parse: (value: Record<string, IFlowRefValue>, ctx) => [
+    ASTFactory.createVariableDeclaration({
+      key: `${ctx.node.id}`,
+      type: ASTFactory.createObject({
+        properties: Object.entries(value).map(([_key, value]) =>
+          ASTFactory.createProperty({
+            key: _key,
+            initializer: ASTFactory.createWrapArrayExpression({
+              wrapFor: ASTFactory.createKeyPathExpression({
+                keyPath: value?.content || [],
+              }),
+            }),
+          })
+        ),
+      }),
+    }),
+  ],
+});
+```
+
+**2. Scope Chain Transformer**
+
+```typescript
+chainTransformService.registerTransformer(transformerId, {
+  transformCovers: (covers, ctx) => {
+    const node = ctx.scope.meta?.node;
+    if (node?.parent?.flowNodeType === batchNodeType) {
+      return [...covers, getNodeScope(node.parent)];
+    }
+    return covers;
+  },
+  transformDeps(scopes, ctx) {
+    const scopeMeta = ctx.scope.meta;
+    if (scopeMeta?.type === FlowNodeScopeType.private) {
+      return scopes;
+    }
+    const node = scopeMeta?.node;
+    if (node?.flowNodeType === batchNodeType) {
+      const childBlocks = node.blocks;
+      return [
+        getNodePrivateScope(node),
+        ...childBlocks.map((_childBlock) => getNodeScope(_childBlock)),
+      ];
+    }
+    return scopes;
+  },
+});
+```
+
+**3. Schema Inference (Optional)**
+
+```typescript
+if (inferTargetKey) {
+  addFormatOnSubmit((formData, ctx) => {
+    const outputVariable = getNodeScope(ctx.node).output.variables?.[0];
+    if (outputVariable?.type) {
+      set(formData, inferTargetKey, JsonSchemaUtils.astToSchema(outputVariable?.type));
+    }
+    return formData;
+  });
+}
+```
+
+### Dependencies
+
+#### flowgram API
+
+[**@flowgram.ai/editor**](https://github.com/bytedance/flowgram.ai/tree/main/packages/client/editor)
+- `defineFormPluginCreator`: Factory function to define form plugins
+- `EffectOptions`: Form effect options type
+- `createEffectFromVariableProvider`: Create form effects from variable providers
+- `FlowNodeRegistry`: Node registry type definition
+- `FlowNodeScopeType`: Node scope type enum
+- `getNodeScope`: Get the node's public scope
+- `getNodePrivateScope`: Get the node's private scope
+- `ScopeChainTransformService`: Scope chain transform service
+
+[**@flowgram.ai/variable-core**](https://github.com/bytedance/flowgram.ai/tree/main/packages/variable-engine/variable-core)
+- `ASTFactory`: AST creation factory
+- `ASTFactory.createWrapArrayExpression`: Create array wrapping expression
+
+[**@flowgram.ai/json-schema**](https://github.com/bytedance/flowgram.ai/tree/main/packages/variable-engine/json-schema)
+- `JsonSchemaUtils.astToSchema`: Convert AST to JSON Schema
+
+#### Dependent Materials
+
+[**BatchOutputs**](../components/batch-outputs)
+- Loop output configuration component for collecting output key-value pairs
+
+[**BatchVariableSelector**](../components/batch-variable-selector)
+- Array variable selector for selecting loop input
+
+[**provideBatchInputEffect**](../effects/provide-batch-input)
+- Loop input effect that generates item and index local variables
+
+## FAQ
+
+### Why do I need to use both BatchOutputs component and batchOutputsPlugin?
+
+This is a separation of concerns design:
+
+| Role | Responsibility |
+|------|------|
+| `BatchOutputs` Component | Provides UI interaction, lets users configure output key names and variable references |
+| `batchOutputsPlugin` | Handles data logic, converts configurations to variable declarations and adjusts scope chain |
+
+Using the component alone only collects data and cannot generate valid output variables; using the plugin alone has no UI to configure data.
+
+### When do I need to configure inferTargetKey?
+
+When you need to persist the output variable type information to form data (e.g., the backend needs to know the output JSON Schema), configuring `inferTargetKey` will automatically infer and store the Schema when the form is submitted.
+
+### How to use it with provideBatchInputEffect?
+
+A complete loop node is typically configured like this:
+
+```typescript
+export const formMeta: FormMeta = {
+  render: LoopFormRender,
+  effect: {
+    loopFor: provideBatchInputEffect,
+  },
+  plugins: [
+    createBatchOutputsFormPlugin({
+      outputKey: 'loopOutputs',
+      inferTargetKey: 'outputs'
+    })
+  ],
+};
+```
+
+- `provideBatchInputEffect` is responsible for generating `item` and `index` local variables from the loop input array
+- `batchOutputsPlugin` is responsible for aggregating variables collected within the loop body into array outputs
+
+### Will scope chain transformation affect other nodes?
+
+No. The transformer precisely matches the current node type through `batchNodeType` and only applies to that node type. The transformer ID also includes the node type to prevent duplicate registration.
+
+## Related Materials
+
+- [provideBatchInputEffect](../effects/provide-batch-input): Loop input variable parsing
+- [BatchOutputs](../components/batch-outputs): Loop output configuration component
+- [BatchVariableSelector](../components/batch-variable-selector): Array variable selector
+- [inferInputsPlugin](./infer-inputs-plugin): Input parameter Schema inference plugin
+
 
 
 ---
@@ -16047,6 +17238,8 @@ interface TypePresetRegistry {
   type: string;
   // Type icon
   icon?: React.ReactNode;
+  // Icon displayed when used as an array item
+  arrayIcon?: React.ReactNode;
   // Type label
   label?: string;
   // Constant renderer component
@@ -53094,6 +54287,7 @@ url: /en/auto-docs/free-layout-core/classes/WorkflowLinesManager.md
 - [getLine](./WorkflowLinesManager.md#getline)
 - [getLineById](./WorkflowLinesManager.md#getlinebyid)
 - [getLineColor](./WorkflowLinesManager.md#getlinecolor)
+- [getLinesByPortId](./WorkflowLinesManager.md#getlinesbyportid)
 - [getNodeFromMousePos](./WorkflowLinesManager.md#getnodefrommousepos)
 - [getPortById](./WorkflowLinesManager.md#getportbyid)
 - [getPortFromMousePos](./WorkflowLinesManager.md#getportfrommousepos)
@@ -53104,6 +54298,7 @@ url: /en/auto-docs/free-layout-core/classes/WorkflowLinesManager.md
 - [isFlowingLine](./WorkflowLinesManager.md#isflowingline)
 - [isHideArrowLine](./WorkflowLinesManager.md#ishidearrowline)
 - [isReverseLine](./WorkflowLinesManager.md#isreverseline)
+- [rebindLinePorts](./WorkflowLinesManager.md#rebindlineports)
 - [registerContribution](./WorkflowLinesManager.md#registercontribution)
 - [replaceLine](./WorkflowLinesManager.md#replaceline)
 - [setLineClassName](./WorkflowLinesManager.md#setlineclassname)
@@ -53375,6 +54570,22 @@ ___
 
 ___
 
+### getLinesByPortId
+
+**getLinesByPortId**(`portId`): [`WorkflowLineEntity`](./WorkflowLineEntity.md)[]
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `portId` | `string` |
+
+#### Returns
+
+[`WorkflowLineEntity`](./WorkflowLineEntity.md)[]
+
+___
+
 ### getNodeFromMousePos
 
 **getNodeFromMousePos**(`pos`): `undefined` \| `FlowNodeEntity`
@@ -53543,6 +54754,24 @@ ___
 #### Returns
 
 `boolean`
+
+___
+
+### rebindLinePorts
+
+**rebindLinePorts**(`line`, `prevInfo?`, `nextInfo?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `line` | [`WorkflowLineEntity`](./WorkflowLineEntity.md) |
+| `prevInfo?` | [`WorkflowLineInfo`](../interfaces/WorkflowLineInfo.md) |
+| `nextInfo?` | [`WorkflowLineInfo`](../interfaces/WorkflowLineInfo.md) |
+
+#### Returns
+
+`void`
 
 ___
 
@@ -56793,6 +58022,28 @@ url: /en/auto-docs/free-layout-core/functions/getPortEntityId.md
 | Name | Type | Default value |
 | :------ | :------ | :------ |
 | `node` | `FlowNodeEntity` | `undefined` |
+| `portType` | [`WorkflowPortType`](../types/WorkflowPortType.md) | `undefined` |
+| `portID` | `string` \| `number` | `''` |
+
+#### Returns
+
+`string`
+
+
+
+---
+url: /en/auto-docs/free-layout-core/functions/getPortEntityIdByNodeId.md
+---
+
+# Function: getPortEntityIdByNodeId
+
+**getPortEntityIdByNodeId**(`nodeId`, `portType`, `portID?`): `string`
+
+#### Parameters
+
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `nodeId` | `string` | `undefined` |
 | `portType` | [`WorkflowPortType`](../types/WorkflowPortType.md) | `undefined` |
 | `portID` | `string` \| `number` | `''` |
 
@@ -294388,6 +295639,7 @@ url: /en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md
 - [getLine](./WorkflowLinesManager.md#getline)
 - [getLineById](./WorkflowLinesManager.md#getlinebyid)
 - [getLineColor](./WorkflowLinesManager.md#getlinecolor)
+- [getLinesByPortId](./WorkflowLinesManager.md#getlinesbyportid)
 - [getNodeFromMousePos](./WorkflowLinesManager.md#getnodefrommousepos)
 - [getPortById](./WorkflowLinesManager.md#getportbyid)
 - [getPortFromMousePos](./WorkflowLinesManager.md#getportfrommousepos)
@@ -294398,6 +295650,7 @@ url: /en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md
 - [isFlowingLine](./WorkflowLinesManager.md#isflowingline)
 - [isHideArrowLine](./WorkflowLinesManager.md#ishidearrowline)
 - [isReverseLine](./WorkflowLinesManager.md#isreverseline)
+- [rebindLinePorts](./WorkflowLinesManager.md#rebindlineports)
 - [registerContribution](./WorkflowLinesManager.md#registercontribution)
 - [replaceLine](./WorkflowLinesManager.md#replaceline)
 - [setLineClassName](./WorkflowLinesManager.md#setlineclassname)
@@ -294669,6 +295922,22 @@ ___
 
 ___
 
+### getLinesByPortId
+
+**getLinesByPortId**(`portId`): [`WorkflowLineEntity`](./WorkflowLineEntity.md)[]
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `portId` | `string` |
+
+#### Returns
+
+[`WorkflowLineEntity`](./WorkflowLineEntity.md)[]
+
+___
+
 ### getNodeFromMousePos
 
 **getNodeFromMousePos**(`pos`): `undefined` \| [`FlowNodeEntity`](./FlowNodeEntity-1.md)
@@ -294837,6 +296106,24 @@ ___
 #### Returns
 
 `boolean`
+
+___
+
+### rebindLinePorts
+
+**rebindLinePorts**(`line`, `prevInfo?`, `nextInfo?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `line` | [`WorkflowLineEntity`](./WorkflowLineEntity.md) |
+| `prevInfo?` | [`WorkflowLineInfo`](../interfaces/WorkflowLineInfo.md) |
+| `nextInfo?` | [`WorkflowLineInfo`](../interfaces/WorkflowLineInfo.md) |
+
+#### Returns
+
+`void`
 
 ___
 
@@ -305375,6 +306662,28 @@ url: /en/auto-docs/free-layout-editor/functions/getPortEntityId.md
 | Name | Type |
 | :------ | :------ |
 | `node` | [`FlowNodeEntity`](../classes/FlowNodeEntity-1.md) |
+| `portType` | [`WorkflowPortType`](../types/WorkflowPortType.md) |
+| `portID?` | `string` \| `number` |
+
+#### Returns
+
+`string`
+
+
+
+---
+url: /en/auto-docs/free-layout-editor/functions/getPortEntityIdByNodeId.md
+---
+
+# Function: getPortEntityIdByNodeId
+
+**getPortEntityIdByNodeId**(`nodeId`, `portType`, `portID?`): `string`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `nodeId` | `string` |
 | `portType` | [`WorkflowPortType`](../types/WorkflowPortType.md) |
 | `portID?` | `string` \| `number` |
 
@@ -383217,6 +384526,7 @@ url: /en/auto-docs/form-materials/interfaces/ConstantRendererProps.md
 
 - [onChange](./ConstantRendererProps.md#onchange)
 - [readonly](./ConstantRendererProps.md#readonly)
+- [schema](./ConstantRendererProps.md#schema)
 - [value](./ConstantRendererProps.md#value)
 
 ## Properties
@@ -383244,6 +384554,12 @@ ___
 ### readonly
 
  `Optional` **readonly**: `boolean`
+
+___
+
+### schema
+
+ `Optional` **schema**: [`IJsonSchema`](./IJsonSchema.md)\<`string`\>
 
 ___
 
@@ -383846,6 +385162,7 @@ url: /en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md
 ### Properties
 
 - [ConstantRenderer](./JsonSchemaTypeRegistry.md#constantrenderer)
+- [arrayIcon](./JsonSchemaTypeRegistry.md#arrayicon)
 - [canAddField](./JsonSchemaTypeRegistry.md#canaddfield)
 - [conditionRule](./JsonSchemaTypeRegistry.md#conditionrule)
 - [container](./JsonSchemaTypeRegistry.md#container)
@@ -383877,6 +385194,18 @@ url: /en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md
  **ConstantRenderer**: `FC`\<[`ConstantRendererProps`](./ConstantRendererProps.md)\<`Value`\>\>
 
 Render Constant Input
+
+___
+
+### arrayIcon
+
+ `Optional` **arrayIcon**: `Element`
+
+The icon displayed when this type is used as an array item
+
+#### Overrides
+
+OriginJsonSchemaTypeRegistry.arrayIcon
 
 ___
 
@@ -406626,6 +407955,7 @@ url: /en/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md
 
 ### Properties
 
+- [alignTopEdge](./LayoutOptions.md#aligntopedge)
 - [animationDuration](./LayoutOptions.md#animationduration)
 - [containerNode](./LayoutOptions.md#containernode)
 - [disableFitView](./LayoutOptions.md#disablefitview)
@@ -406637,9 +407967,20 @@ url: /en/auto-docs/free-auto-layout-plugin/interfaces/LayoutOptions.md
 
 ## Properties
 
+### alignTopEdge
+
+ `Optional` **alignTopEdge**: `boolean`
+
+When true, aligns nodes by their top edge instead of their center point.
+Defaults to false (center-aligned). Set to true to place all nodes' top edges on the same horizontal line.
+
+___
+
 ### animationDuration
 
  `Optional` **animationDuration**: `number`
+
+Duration of the position animation in milliseconds. Only effective when `enableAnimation` is true.
 
 ___
 
@@ -406647,17 +407988,23 @@ ___
 
  `Optional` **containerNode**: `FlowNodeEntity`
 
+The container node entity used as the root for the layout.
+
 ___
 
 ### disableFitView
 
  `Optional` **disableFitView**: `boolean`
 
+When true, skips the fit-view step after layout is applied.
+
 ___
 
 ### enableAnimation
 
  `Optional` **enableAnimation**: `boolean`
+
+Whether to animate node movements during layout positioning.
 
 ___
 
@@ -406668,6 +408015,8 @@ ___
 #### Type declaration
 
 (`params`): `boolean`
+
+Filter function to exclude specific edges from the layout. Return false to skip an edge.
 
 ##### Parameters
 
@@ -406690,6 +408039,8 @@ ___
 
 (`params`): `boolean`
 
+Filter function to exclude specific nodes from the layout. Return false to skip a node.
+
 ##### Parameters
 
 | Name | Type |
@@ -406708,11 +408059,15 @@ ___
 
  `Optional` **getFollowNode**: [`GetFollowNode`](../types/GetFollowNode.md)
 
+Custom function to determine follow-node relationships between layout nodes.
+
 ___
 
 ### layoutConfig
 
  `Optional` **layoutConfig**: `Partial`\<`LayoutConfig`\>
+
+Custom layout configuration to override default dagre settings.
 
 
 
@@ -442252,6 +443607,7 @@ TypeRegistry based on IJsonSchema
 
 ### Properties
 
+- [arrayIcon](./JsonSchemaTypeRegistry.md#arrayicon)
 - [canAddField](./JsonSchemaTypeRegistry.md#canaddfield)
 - [container](./JsonSchemaTypeRegistry.md#container)
 - [customComplexText](./JsonSchemaTypeRegistry.md#customcomplextext)
@@ -442276,6 +443632,14 @@ TypeRegistry based on IJsonSchema
 - [type](./JsonSchemaTypeRegistry.md#type)
 
 ## Properties
+
+### arrayIcon
+
+ `Optional` **arrayIcon**: `Element`
+
+The icon displayed when this type is used as an array item
+
+___
 
 ### canAddField
 

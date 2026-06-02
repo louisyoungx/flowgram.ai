@@ -17,6 +17,7 @@
 ### Properties
 
 * [ConstantRenderer](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#constantrenderer)
+* [arrayIcon](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#arrayicon)
 * [canAddField](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#canaddfield)
 * [conditionRule](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#conditionrule)
 * [container](/en/auto-docs/form-materials/interfaces/JsonSchemaTypeRegistry.md#container)
@@ -48,6 +49,18 @@
 **ConstantRenderer**: `FC`<[`ConstantRendererProps`](/en/auto-docs/form-materials/interfaces/ConstantRendererProps.md)<`Value`>>
 
 Render Constant Input
+
+***
+
+### arrayIcon
+
+`Optional` **arrayIcon**: `Element`
+
+The icon displayed when this type is used as an array item
+
+#### Overrides
+
+OriginJsonSchemaTypeRegistry.arrayIcon
 
 ***
 

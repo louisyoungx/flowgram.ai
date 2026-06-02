@@ -18,6 +18,7 @@ TypeRegistry based on IJsonSchema
 
 ### Properties
 
+* [arrayIcon](/auto-docs/json-schema/interfaces/JsonSchemaTypeRegistry.md#arrayicon)
 * [canAddField](/auto-docs/json-schema/interfaces/JsonSchemaTypeRegistry.md#canaddfield)
 * [container](/auto-docs/json-schema/interfaces/JsonSchemaTypeRegistry.md#container)
 * [customComplexText](/auto-docs/json-schema/interfaces/JsonSchemaTypeRegistry.md#customcomplextext)
@@ -42,6 +43,14 @@ TypeRegistry based on IJsonSchema
 * [type](/auto-docs/json-schema/interfaces/JsonSchemaTypeRegistry.md#type)
 
 ## Properties
+
+### arrayIcon
+
+`Optional` **arrayIcon**: `Element`
+
+The icon displayed when this type is used as an array item
+
+***
 
 ### canAddField
 

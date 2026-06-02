@@ -38,6 +38,7 @@
 * [getLine](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getline)
 * [getLineById](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getlinebyid)
 * [getLineColor](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getlinecolor)
+* [getLinesByPortId](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getlinesbyportid)
 * [getNodeFromMousePos](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getnodefrommousepos)
 * [getPortById](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getportbyid)
 * [getPortFromMousePos](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#getportfrommousepos)
@@ -48,6 +49,7 @@
 * [isFlowingLine](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#isflowingline)
 * [isHideArrowLine](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#ishidearrowline)
 * [isReverseLine](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#isreverseline)
+* [rebindLinePorts](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#rebindlineports)
 * [registerContribution](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#registercontribution)
 * [replaceLine](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#replaceline)
 * [setLineClassName](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#setlineclassname)
@@ -319,6 +321,22 @@
 
 ***
 
+### getLinesByPortId
+
+**getLinesByPortId**(`portId`): [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)\[]
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `portId` | `string` |
+
+#### Returns
+
+[`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)\[]
+
+***
+
 ### getNodeFromMousePos
 
 **getNodeFromMousePos**(`pos`): `undefined` | [`FlowNodeEntity`](/en/auto-docs/free-layout-editor/classes/FlowNodeEntity-1.md)
@@ -487,6 +505,24 @@
 #### Returns
 
 `boolean`
+
+***
+
+### rebindLinePorts
+
+**rebindLinePorts**(`line`, `prevInfo?`, `nextInfo?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `line` | [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md) |
+| `prevInfo?` | [`WorkflowLineInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLineInfo.md) |
+| `nextInfo?` | [`WorkflowLineInfo`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLineInfo.md) |
+
+#### Returns
+
+`void`
 
 ***
 

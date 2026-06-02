@@ -104,23 +104,17 @@ If you want to add new variable types, please read Type Management
 - [DisplayOutputs](/materials/components/display-outputs.md): DisplayOutputs 是一个用于可视化展示节点输出变量的组件，支持从作用域自动获取输出变量或通过字段值手动指定输出模式。
 - [AssignRow](/materials/components/assign-row.md): AssignRow 是一个赋值行组件，支持两种操作模式：赋值模式 (assign) 和 声明模式 (declare)。 在赋值模式下：左侧是变量选择器，右侧是动态值输入；在声明模式下：左侧是文本输入框，右侧是动态值输入。
 - [AssignRows](/materials/components/assign-rows.md): AssignRows 是一个赋值行列表组件，基于 FieldArray 实现，支持动态添加和删除赋值行。 组件提供了两个操作按钮：赋值 和 声明，可以分别添加赋值模式和声明模式的赋值行。每个赋值行都可以独立配置和删除。 :::tip AssignRows 通常和 infer-assign-plugin 表单插件一起使用，用于将定义的声明转换为节点的输出变量，并实现类型的自动联动。 :::
-- [BatchOutputs (WIP)](/materials/components/batch-outputs.md): <SourceCode
-href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/components/batch-outputs"
-/>
+- [BatchOutputs](/materials/components/batch-outputs.md): BatchOutputs 是一个用于配置循环输出的键值对编辑器组件。在循环节点场景中，它允许用户定义每次迭代需要收集的输出值，这些值最终会被聚合成数组。 核心特性： ➕ 动态添加/删除：用户可以自由添加或删除输出键值对✏️ 键名编辑：为每个输出定义一个唯一的键名🔗 变量引用：通过变量选择器引用循环体内可用的变量👁️ 只读模式：支持只读展示，适用于查看场景 :::warning BatchOutputs 必须搭配 batchOutputsPlugin 使用才能正常工作。这是因为： 组件负责 UI 交互，收集用户配置的输出键值对插件负责将配置转换为变量声明，并调整作用域链 ::: :::info{title="完整方案概览"} 实现一个完整的循环节点需要以下三个物料配合使用： :::
 - [BatchVariableSelector](/materials/components/batch-variable-selector.md): BatchVariableSelector 是一个用于选择数组类型变量的组件，它是 VariableSelector 的封装版本。 该组件自动过滤变量树，只显示数组类型的变量，并自动设定私有作用域，常用于批处理场景（如 Loop 节点的循环数据源选择）。 核心特性： 🔍 自动过滤：只显示数组类型（type: 'array'）的变量。🔐 私有作用域：通过 PrivateScopeProvider 提供独立的变量作用域。🎯 专用场景：专为批处理、循环等需要数组数据源的场景设计。
 - [BlurInput](/materials/components/blur-input.md): BlurInput 是一个特殊的输入框组件，它只在输入框失焦时才会触发值的更新，适用于需要避免频繁触发更新操作的场景。
 - [autoRenameRef](/materials/effects/auto-rename-ref.md): autoRenameRef 是一个自动重命名引用效果，当表单字段的键名发生变化时，自动更新所有引用该字段的引用值和模板值。
 - [listenRefValueChange](/materials/effects/listen-ref-value-change.md): 监听引用变量定义的变化，并在变化时触发回调函数。
 - [listenRefSchemaChange](/materials/effects/listen-ref-schema-change.md): 监听引用变量类型的 json schema 变化，并在变化时触发回调函数。
-- [provideBatchInput (WIP)](/materials/effects/provide-batch-input.md): <SourceCode
-href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/effects/provide-batch-input"
-/>
+- [provideBatchInputEffect](/materials/effects/provide-batch-input.md): provideBatchInputEffect 是一个表单副作用，专门用于循环节点场景。它能够将循环输入的数组变量解析为两个局部变量： item：当前迭代的数组元素，类型会根据输入数组的元素类型自动推导index：当前迭代的索引，类型为 number 核心特性： 🔄 自动类型推导：从数组类型自动推导出 item 的元素类型🔒 私有作用域：生成的变量存储在节点私有作用域，仅当前节点及子节点可访问🎯 循环专用：专为批处理/循环场景设计 这使得循环体内的子节点可以引用 item 和 index 变量，实现对数组元素的逐个处理。 :::info{title="完整方案概览"} 实现一个完整的循环节点需要以下三个物料配合使用： :::
 - [provideJsonSchemaOutputs](/materials/effects/provide-json-schema-outputs.md): provideJsonSchemaOutputs 是一个表单副作用，用于将 JSON Schema 定义转换为 FlowGram 变量引擎中的输出变量。 它能够自动将表单中定义的 JSON Schema 结构解析为变量声明，使工作流中的其他节点可以引用这些输出。
 - [syncVariableTitle](/materials/effects/sync-variable-title.md): syncVariableTitle 是一个表单副作用（Effect），用于同步节点的标题到该节点输出变量的元数据中。 当节点标题发生变化时，会自动更新所有输出变量的 title 和 icon 元数据。
 - [validateWhenVariableSync](/materials/effects/validate-when-variable-sync.md): 当字段可访问的变量发生了变化时，则重新触发指定错误字段的校验。 :::note{title="为什么是错误字段？"} 错误字段的错误信息可能源于变量引用的有效性。 如果字段的可访问变量发生了变化，使得字段的变量引用从无效变为有效，就需要需要重新校验当前字段，清空之前的错误信息。 :::
-- [batchOutputsPlugin (WIP)](/materials/form-plugins/batch-outputs-plugin.md): <SourceCode
-href="https://github.com/bytedance/flowgram.ai/tree/main/packages/materials/form-materials/src/form-plugins/batch-outputs-plugin"
-/>
+- [batchOutputsPlugin](/materials/form-plugins/batch-outputs-plugin.md): batchOutputsPlugin 是一个用于循环节点的表单插件，它实现了两个核心功能： 输出变量生成：将循环体内收集的变量引用转换为数组类型的输出变量作用域链转换：调整变量作用域链，使循环节点的输出能正确依赖子节点的输出 核心特性： 🔄 数组包装：自动将循环体内引用的变量包装为数组类型输出🔗 作用域链调整：让循环节点的输出变量能正确依赖子节点的输出📊 Schema 推导：可选配置，自动推导输出变量的 JSON Schema :::tip{title="适用场景"} 循环节点：需要在每次迭代中收集数据并聚合成数组批处理节点：需要将多个子任务的结果汇总输出任何包含子节点的容器节点：需要从子节点收集输出变量 ::: :::warning BatchOutputs 组件必须搭配 batchOutputsPlugin 使用才能正常工作。这是因为： 组件负责 UI 交互，收集用户配置的输出键值对插件负责将配置转换为变量声明，并调整作用域链 ::: :::info{title="完整方案概览"} 实现一个完整的循环节点需要以下三个物料配合使用： :::
 - [inferInputsPlugin](/materials/form-plugins/infer-inputs-plugin.md): inferInputsPlugin是一个用于自动推断输入参数 JSON Schema 的表单插件，它能在数据传送到后端运行时前，根据 IFlowValue 类型 (常量或变量引用) 自动生成对应的 JSON Schema 结构，为后端的运行时类型验证和后端接口提供类型信息。 :::tip{title="适用场景"} HTTP 节点：推断请求头 (headers)、查询参数 (params) 的 Schema代码节点：推断代码输入参数的类型结构函数调用节点：推断函数参数的 Schema任何接受动态输入的节点：需要为后端提供输入类型信息 :::
 - [inferAssignPlugin](/materials/form-plugins/infer-assign-plugin.md): inferAssignPlugin 是用于变量赋值节点，进行输出变量自动推导的表单插件，通常和 AssignRows 物料配合使用。 插件针对 AssignRows 的 declare (声明新变量) 实现了以下能力： 自动生成节点输出变量，变量名即 declare 操作符中的左值，变量类型会自动根据 right 进行联动推导。当提交数据到后端时，自动根据输出变量的变量类型，联动生成对应的 JSON Schema。
 - [validateFlowValue](/materials/validate/validate-flow-value.md): validateFlowValue 是一个用于验证 FlowValue 必填性和变量引用有效性 的验证函数。
@@ -564,6 +558,7 @@ SPDX-License-Identifier: MIT
 距离很小时，xy 各偏移 30 Parameters Returns IPoint
 - [Function: getLineCenter](/auto-docs/free-layout-core/functions/getLineCenter.md): getLineCenter(from, to, bbox, linePadding): LineCenterPoint Parameters Returns LineCenterPoint
 - [Function: getPortEntityId](/auto-docs/free-layout-core/functions/getPortEntityId.md): getPortEntityId(node, portType, portID?): string Parameters Returns string
+- [Function: getPortEntityIdByNodeId](/auto-docs/free-layout-core/functions/getPortEntityIdByNodeId.md): getPortEntityIdByNodeId(nodeId, portType, portID?): string Parameters Returns string
 - [Function: nanoid](/auto-docs/free-layout-core/functions/nanoid.md): nanoid(n?): string Parameters Returns string
 - [Function: useConfigEntity](/auto-docs/free-layout-core/functions/useConfigEntity.md): useConfigEntity<T>(entityRegistry, listenChange?): T 获取 config entity Type parameters Parameters Returns T
 - [Function: useCurrentDomNode](/auto-docs/free-layout-core/functions/useCurrentDomNode.md): useCurrentDomNode(): HTMLDivElement 获取当前渲染的 dom 节点 Returns HTMLDivElement
@@ -3175,6 +3170,7 @@ SPDX-License-Identifier: MIT Parameters Returns LineCenterPoint
 - [Function: getNodePrivateScope](/auto-docs/free-layout-editor/functions/getNodePrivateScope.md): getNodePrivateScope(node): FlowNodeScope Use node.privateScope instead. Parameters Returns FlowNodeScope The private scope of the node. Deprecated
 - [Function: getNodeScope](/auto-docs/free-layout-editor/functions/getNodeScope.md): getNodeScope(node): FlowNodeScope Use node.scope instead. Parameters Returns FlowNodeScope The public scope of the node. Deprecated
 - [Function: getPortEntityId](/auto-docs/free-layout-editor/functions/getPortEntityId.md): getPortEntityId(node, portType, portID?): string Parameters Returns string
+- [Function: getPortEntityIdByNodeId](/auto-docs/free-layout-editor/functions/getPortEntityIdByNodeId.md): getPortEntityIdByNodeId(nodeId, portType, portID?): string Parameters Returns string
 - [Function: getRegistryMetadata](/auto-docs/free-layout-editor/functions/getRegistryMetadata.md): getRegistryMetadata(target, key): any[] Parameters Returns any[]
 - [Function: getTag](/auto-docs/free-layout-editor/functions/getTag.md): getTag(v): string Parameters Returns string
 - [Function: highlightFormItem](/auto-docs/free-layout-editor/functions/highlightFormItem.md): highlightFormItem(formItem, options?): HTMLDivElement | undefined Parameters Returns HTMLDivElement | undefined
