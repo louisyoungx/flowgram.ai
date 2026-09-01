@@ -54301,6 +54301,7 @@ url: /en/auto-docs/free-layout-core/classes/WorkflowLinesManager.md
 - [rebindLinePorts](./WorkflowLinesManager.md#rebindlineports)
 - [registerContribution](./WorkflowLinesManager.md#registercontribution)
 - [replaceLine](./WorkflowLinesManager.md#replaceline)
+- [setDefaultUIState](./WorkflowLinesManager.md#setdefaultuistate)
 - [setLineClassName](./WorkflowLinesManager.md#setlineclassname)
 - [setLineRenderType](./WorkflowLinesManager.md#setlinerendertype)
 - [switchLineType](./WorkflowLinesManager.md#switchlinetype)
@@ -54805,6 +54806,22 @@ ___
 #### Returns
 
 [`WorkflowLineEntity`](./WorkflowLineEntity.md)
+
+___
+
+### setDefaultUIState
+
+**setDefaultUIState**(`defaultUIState`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `defaultUIState` | `Partial`\<[`WorkflowLineUIState`](../interfaces/WorkflowLineUIState.md)\> |
+
+#### Returns
+
+`void`
 
 ___
 
@@ -60016,6 +60033,7 @@ url: /en/auto-docs/free-layout-core/interfaces/WorkflowLineEntityOpts.md
 - [savedInManager](./WorkflowLineEntityOpts.md#savedinmanager)
 - [to](./WorkflowLineEntityOpts.md#to)
 - [toPort](./WorkflowLineEntityOpts.md#toport)
+- [uiState](./WorkflowLineEntityOpts.md#uistate)
 
 ## Properties
 
@@ -60130,6 +60148,12 @@ ___
 #### Inherited from
 
 [WorkflowLinePortInfo](./WorkflowLinePortInfo.md).[toPort](./WorkflowLinePortInfo.md#toport)
+
+___
+
+### uiState
+
+ `Optional` **uiState**: `Partial`\<[`WorkflowLineUIState`](./WorkflowLineUIState.md)\>
 
 
 
@@ -295653,6 +295677,7 @@ url: /en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md
 - [rebindLinePorts](./WorkflowLinesManager.md#rebindlineports)
 - [registerContribution](./WorkflowLinesManager.md#registercontribution)
 - [replaceLine](./WorkflowLinesManager.md#replaceline)
+- [setDefaultUIState](./WorkflowLinesManager.md#setdefaultuistate)
 - [setLineClassName](./WorkflowLinesManager.md#setlineclassname)
 - [setLineRenderType](./WorkflowLinesManager.md#setlinerendertype)
 - [switchLineType](./WorkflowLinesManager.md#switchlinetype)
@@ -296157,6 +296182,22 @@ ___
 #### Returns
 
 [`WorkflowLineEntity`](./WorkflowLineEntity.md)
+
+___
+
+### setDefaultUIState
+
+**setDefaultUIState**(`defaultUIState`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `defaultUIState` | `Partial`\<[`WorkflowLineUIState`](../interfaces/WorkflowLineUIState.md)\> |
+
+#### Returns
+
+`void`
 
 ___
 
@@ -332216,6 +332257,7 @@ url: /en/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md
 - [savedInManager](./WorkflowLineEntityOpts.md#savedinmanager)
 - [to](./WorkflowLineEntityOpts.md#to)
 - [toPort](./WorkflowLineEntityOpts.md#toport)
+- [uiState](./WorkflowLineEntityOpts.md#uistate)
 
 ## Properties
 
@@ -332330,6 +332372,12 @@ ___
 #### Inherited from
 
 [WorkflowLinePortInfo](./WorkflowLinePortInfo.md).[toPort](./WorkflowLinePortInfo.md#toport)
+
+___
+
+### uiState
+
+ `Optional` **uiState**: `Partial`\<[`WorkflowLineUIState`](./WorkflowLineUIState.md)\>
 
 
 
@@ -415262,8 +415310,11 @@ url: /en/auto-docs/free-lines-plugin/interfaces/FreeLinesPluginOptions.md
 ### Properties
 
 - [contributions](./FreeLinesPluginOptions.md#contributions)
+- [customLineProps](./FreeLinesPluginOptions.md#customlineprops)
 - [defaultLineType](./FreeLinesPluginOptions.md#defaultlinetype)
+- [defaultLineUIState](./FreeLinesPluginOptions.md#defaultlineuistate)
 - [renderInsideLine](./FreeLinesPluginOptions.md#renderinsideline)
+- [renderLine](./FreeLinesPluginOptions.md#renderline)
 
 ## Properties
 
@@ -415273,9 +415324,40 @@ url: /en/auto-docs/free-lines-plugin/interfaces/FreeLinesPluginOptions.md
 
 ___
 
+### customLineProps
+
+ `Optional` **customLineProps**: (`line`: `WorkflowLineEntity`, `oldProps`: [`LineRenderProps`](./LineRenderProps.md)) => [`LineRenderProps`](./LineRenderProps.md)
+
+#### Type declaration
+
+(`line`, `oldProps`): [`LineRenderProps`](./LineRenderProps.md)
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `line` | `WorkflowLineEntity` |
+| `oldProps` | [`LineRenderProps`](./LineRenderProps.md) |
+
+##### Returns
+
+[`LineRenderProps`](./LineRenderProps.md)
+
+#### Inherited from
+
+[LinesLayerOptions](./LinesLayerOptions.md).[customLineProps](./LinesLayerOptions.md#customlineprops)
+
+___
+
 ### defaultLineType
 
  `Optional` **defaultLineType**: `LineRenderType`
+
+___
+
+### defaultLineUIState
+
+ `Optional` **defaultLineUIState**: `Partial`\<`WorkflowLineUIState`\>
 
 ___
 
@@ -415287,6 +415369,16 @@ ___
 
 [LinesLayerOptions](./LinesLayerOptions.md).[renderInsideLine](./LinesLayerOptions.md#renderinsideline)
 
+___
+
+### renderLine
+
+ `Optional` **renderLine**: `FC`\<[`LineRenderProps`](./LineRenderProps.md)\>
+
+#### Inherited from
+
+[LinesLayerOptions](./LinesLayerOptions.md).[renderLine](./LinesLayerOptions.md#renderline)
+
 
 
 ---
@@ -415294,6 +415386,10 @@ url: /en/auto-docs/free-lines-plugin/interfaces/LineRenderProps.md
 ---
 
 # Interface: LineRenderProps
+
+## Indexable
+
+▪ [key: `string`]: `any`
 
 ## Table of contents
 
@@ -415388,13 +415484,42 @@ url: /en/auto-docs/free-lines-plugin/interfaces/LinesLayerOptions.md
 
 ### Properties
 
+- [customLineProps](./LinesLayerOptions.md#customlineprops)
 - [renderInsideLine](./LinesLayerOptions.md#renderinsideline)
+- [renderLine](./LinesLayerOptions.md#renderline)
 
 ## Properties
+
+### customLineProps
+
+ `Optional` **customLineProps**: (`line`: `WorkflowLineEntity`, `oldProps`: [`LineRenderProps`](./LineRenderProps.md)) => [`LineRenderProps`](./LineRenderProps.md)
+
+#### Type declaration
+
+(`line`, `oldProps`): [`LineRenderProps`](./LineRenderProps.md)
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `line` | `WorkflowLineEntity` |
+| `oldProps` | [`LineRenderProps`](./LineRenderProps.md) |
+
+##### Returns
+
+[`LineRenderProps`](./LineRenderProps.md)
+
+___
 
 ### renderInsideLine
 
  `Optional` **renderInsideLine**: `FC`\<[`LineRenderProps`](./LineRenderProps.md)\>
+
+___
+
+### renderLine
+
+ `Optional` **renderLine**: `FC`\<[`LineRenderProps`](./LineRenderProps.md)\>
 
 
 

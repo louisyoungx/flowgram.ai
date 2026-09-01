@@ -25,6 +25,7 @@
 * [savedInManager](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#savedinmanager)
 * [to](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#to)
 * [toPort](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#toport)
+* [uiState](/auto-docs/free-layout-editor/interfaces/WorkflowLineEntityOpts.md#uistate)
 
 ## Properties
 
@@ -139,3 +140,9 @@
 #### Inherited from
 
 [WorkflowLinePortInfo](/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md).[toPort](/auto-docs/free-layout-editor/interfaces/WorkflowLinePortInfo.md#toport)
+
+***
+
+### uiState
+
+`Optional` **uiState**: `Partial`<[`WorkflowLineUIState`](/auto-docs/free-layout-editor/interfaces/WorkflowLineUIState.md)>

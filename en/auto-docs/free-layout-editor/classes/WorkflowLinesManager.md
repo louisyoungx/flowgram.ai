@@ -52,6 +52,7 @@
 * [rebindLinePorts](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#rebindlineports)
 * [registerContribution](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#registercontribution)
 * [replaceLine](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#replaceline)
+* [setDefaultUIState](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#setdefaultuistate)
 * [setLineClassName](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#setlineclassname)
 * [setLineRenderType](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#setlinerendertype)
 * [switchLineType](/en/auto-docs/free-layout-editor/classes/WorkflowLinesManager.md#switchlinetype)
@@ -556,6 +557,22 @@
 #### Returns
 
 [`WorkflowLineEntity`](/en/auto-docs/free-layout-editor/classes/WorkflowLineEntity.md)
+
+***
+
+### setDefaultUIState
+
+**setDefaultUIState**(`defaultUIState`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `defaultUIState` | `Partial`<[`WorkflowLineUIState`](/en/auto-docs/free-layout-editor/interfaces/WorkflowLineUIState.md)> |
+
+#### Returns
+
+`void`
 
 ***
 
