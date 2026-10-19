@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { useId, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 
 import { ChevronRight } from 'lucide-react';
 
+import { Collapse } from '../ui/presence';
 import { errorText } from '../../lib/i18n';
 
 export function FormField({
@@ -60,17 +61,27 @@ export function FormSection({
 }: {
   title: string;
   children: ReactNode;
-  summary?: string;
+  summary?: ReactNode;
 }) {
+  const [open, setOpen] = useState(false);
+  const id = useId();
   return (
-    <details className="nf-section">
-      <summary>
+    <div className="nf-section">
+      <button
+        type="button"
+        className="nf-section-trigger"
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => setOpen(!open)}
+      >
         <ChevronRight size={14} />
         <span>{title}</span>
         <span className="nf-section-summary">{summary}</span>
-      </summary>
-      <div className="nf-section-content">{children}</div>
-    </details>
+      </button>
+      <Collapse open={open} id={id}>
+        <div className="nf-section-content">{children}</div>
+      </Collapse>
+    </div>
   );
 }
 export { Select } from '../ui/select';

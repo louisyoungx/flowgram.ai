@@ -35,6 +35,7 @@ import { WorkspaceHeader } from './components/workspace-header';
 import { WorkflowPanel } from './components/workflow-panel';
 import { WorkbenchTabs } from './components/workbench-tabs';
 import { Select } from './components/ui/select';
+import { Presence, useContentTransition } from './components/ui/presence';
 import { Input } from './components/ui/input';
 import { Dialog } from './components/ui/dialog';
 import { Button } from './components/ui/button';
@@ -93,6 +94,8 @@ export function App() {
   const [publishIntent, setPublishIntent] = useState<PublishIntent | null>(null);
   const handlePublishIntent = useCallback(() => setPublishIntent(null), []);
   const view = bench.view;
+  const destinationSurface = useRef<HTMLDivElement>(null);
+  useContentTransition(destinationSurface, view.kind);
   const workspace = sessionWorkspace(bench);
   const showSession = !!project && view.kind === 'session';
   const paired = showSession && workspace.open;
@@ -437,8 +440,8 @@ export function App() {
                       return (
                         <div
                           key={scope}
-                          className="absolute inset-0"
-                          style={{ visibility: visible ? 'visible' : 'hidden' }}
+                          className="workspace-document absolute inset-0"
+                          data-active={visible}
                           inert={!visible || undefined}
                         >
                           <ProjectScope projectId={scope}>
@@ -506,12 +509,9 @@ export function App() {
                 </div>
               </ResizablePanel>
               <div
-                className="relative min-h-0 min-w-0 flex-1"
-                style={
-                  showSession && !paired
-                    ? { position: 'absolute', inset: 0, visibility: 'hidden' }
-                    : undefined
-                }
+                ref={destinationSurface}
+                className="workspace-workbench relative min-h-0 min-w-0 flex-1"
+                data-active={!showSession || paired}
                 inert={(showSession && !paired) || undefined}
               >
                 {Object.entries(workbenches).flatMap(([scope, state]) =>
@@ -525,8 +525,8 @@ export function App() {
                     return (
                       <div
                         key={`${scope}:${id}`}
-                        className="absolute inset-0 flex min-h-0"
-                        style={{ visibility: visible ? 'visible' : 'hidden' }}
+                        className="workspace-document absolute inset-0 flex min-h-0"
+                        data-active={visible}
                         inert={!visible || undefined}
                       >
                         <ProjectScope projectId={scope}>
@@ -1001,7 +1001,7 @@ export function App() {
         </div>
       </Dialog>
       {ready && (
-        <div hidden={!settings}>
+        <Presence open={settings} keepMounted className="settings-presence fixed inset-0 z-40">
           <SettingsPage
             visible={settings}
             close={() => setSettings(false)}
@@ -1021,7 +1021,7 @@ export function App() {
               setSettings(false);
             }}
           />
-        </div>
+        </Presence>
       )}
     </>
   );

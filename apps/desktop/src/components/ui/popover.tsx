@@ -17,6 +17,7 @@ import {
   type ReactNode,
 } from 'react';
 
+import { usePresence, useSurfaceTransition } from './presence';
 import { FloatingLayerOwners, ownsFloatingLayer } from './floating-layer';
 
 export function Popover({
@@ -36,6 +37,8 @@ export function Popover({
   const panel = useRef<HTMLDivElement>(null);
   const restore = useRef(false);
   const [open, setOpen] = useState(false);
+  const present = usePresence(open, 'control');
+  useSurfaceTransition(panel, open, 'control');
   const [position, setPosition] = useState({ left: 0, top: 0, width });
   const close = () => {
     restore.current = true;
@@ -121,12 +124,15 @@ export function Popover({
           },
         })}
       </div>
-      {open &&
+      {present &&
         createPortal(
           <div
             ref={panel}
             id={id}
             role="dialog"
+            data-state={open ? 'open' : 'closed'}
+            inert={!open || undefined}
+            aria-hidden={!open || undefined}
             aria-label={label}
             className="nf-popover"
             data-floating-layer-owners={owners.join(' ')}

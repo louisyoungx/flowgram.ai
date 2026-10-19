@@ -10,6 +10,7 @@ import { ArrowLeft, Plus, Search, Star, X } from 'lucide-react';
 import { nodeCatalog } from '../lib/node-catalog';
 import { tx, sourceText } from '../lib/i18n';
 import { Select } from './ui/select';
+import { usePresence, useSurfaceTransition } from './ui/presence';
 import { FloatingLayerOwners, ownsFloatingLayer } from './ui/floating-layer';
 import { Button } from './ui/button';
 import { OutputTree } from './node-inspector/node-form';
@@ -48,7 +49,9 @@ export function NodePalette({
   insideLoop: boolean;
 }) {
   const layerId = useId();
+  const present = usePresence(open, 'control');
   const panel = useRef<HTMLElement>(null);
+  useSurfaceTransition(panel, open, 'control');
   const [quickPosition, setQuickPosition] = useState({ left: 12, top: 12 });
   const [expandedLibrary, setExpandedLibrary] = useState(false);
   const quick = intent.mode === 'quick' && !expandedLibrary;
@@ -157,12 +160,15 @@ export function NodePalette({
       if (previous?.isConnected) previous.focus();
     };
   }, [open]);
-  if (!open) return null;
+  if (!present) return null;
   return (
     <FloatingLayerOwners.Provider value={[layerId]}>
       <section
         ref={panel}
         role="dialog"
+        data-state={open ? 'open' : 'closed'}
+        inert={!open || undefined}
+        aria-hidden={!open || undefined}
         className={`node-library ${quick ? 'node-library-quick' : ''}`}
         style={quick ? quickPosition : undefined}
         aria-label={tx('节点库')}

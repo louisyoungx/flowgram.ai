@@ -18,11 +18,12 @@ import {
   X,
 } from 'lucide-react';
 
+import { useContentTransition } from '../ui/presence';
 import { InlineRename } from '../ui/inline-rename';
 import { Button } from '../ui/button';
 import { useFormSession } from '../form/session';
 import { Select } from '../form/field';
-import { FormField, StatusLabel } from '../form/field';
+import { FormField, FormSection, StatusLabel } from '../form/field';
 import type { Run, RuntimeEvent, WorkflowNode } from '../../lib/types';
 import { useProjectApi } from '../../lib/project-context';
 import { nodeSpec } from '../../lib/node-catalog';
@@ -146,6 +147,7 @@ export function NodeInspector({
   }, [tabRequest]);
   const nodeId = node.id;
   const content = useRef<HTMLDivElement>(null);
+  useContentTransition(content, `${node.id}:${tab}`);
   const scrollPositions = useRef<Record<string, number>>({});
   const scrollKey = `${nodeId}:${tab}`;
   useLayoutEffect(() => {
@@ -514,12 +516,7 @@ export function NodeInspector({
                 spellCheck={false}
               />
             </FormField>
-            <details className="nf-section">
-              <summary>
-                <ChevronRight size={13} />
-                {tx('上游样本')}
-                <span className="nf-section-summary">{tx('不会执行上游节点')}</span>
-              </summary>
+            <FormSection title={tx('上游样本')} summary={tx('不会执行上游节点')}>
               <textarea
                 className="nf-textarea nf-code"
                 aria-label={tx('节点测试上游样本')}
@@ -530,7 +527,7 @@ export function NodeInspector({
               <p className="nf-hint">
                 {tx('条件和循环从这些样本解析变量。键是节点 ID，值是其输出。')}
               </p>
-            </details>
+            </FormSection>
             <div className="nf-section-heading">
               {tx('最近结果')}
               {run && (
@@ -565,14 +562,10 @@ export function NodeInspector({
                 ) : (
                   <ResultViewer value={run.outputs} />
                 )}
-                <details className="nf-section">
-                  <summary>
-                    <ChevronRight size={13} />
-                    {tx('执行过程')}
-                    <span className="nf-section-summary">
-                      {detail?.events.length || 0} {tx('条事件')}
-                    </span>
-                  </summary>
+                <FormSection
+                  title={tx('执行过程')}
+                  summary={`${detail?.events.length || 0} ${tx('条事件')}`}
+                >
                   {detail?.events.map((event) => (
                     <div className="nf-test-event" key={event.sequence}>
                       <span>
@@ -593,7 +586,7 @@ export function NodeInspector({
                       </details>
                     </div>
                   ))}
-                </details>
+                </FormSection>
               </>
             ) : (
               <p className="nf-empty">{tx('使用样本执行当前节点，结果会保留在运行记录中。')}</p>

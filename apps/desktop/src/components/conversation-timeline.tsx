@@ -29,6 +29,7 @@ import {
   toolCounts,
   type ProcessChoice,
 } from '../lib/conversation-presentation';
+import { Collapse, usePresence } from './ui/presence';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 
@@ -81,6 +82,7 @@ function Body({ text }: { text: string }) {
 function ToolRow({ item }: { item: ConversationItem }) {
   const [open, setOpen] = useState(false);
   const detailId = useId();
+  const detailPresent = usePresence(open, 'control');
   const bad = item.status === 'failed' || item.payload.isError;
   return (
     <div className={`conversation-tool ${bad ? 'conversation-tool-error' : ''}`}>
@@ -97,40 +99,42 @@ function ToolRow({ item }: { item: ConversationItem }) {
         <span className="conversation-tool-status">{toolStatus(item)}</span>
         <ChevronRight size={12} className={open ? 'rotate-90' : ''} />
       </button>
-      {open && (
-        <div className="conversation-tool-detail" id={detailId}>
-          <div className="mb-2 flex items-center justify-between">
-            <span>{tx('输入')}</span>
-            <span className="text-muted-foreground">{item.payload.name}</span>
+      <Collapse open={open} id={detailId}>
+        {detailPresent && (
+          <div className="conversation-tool-detail">
+            <div className="mb-2 flex items-center justify-between">
+              <span>{tx('输入')}</span>
+              <span className="text-muted-foreground">{item.payload.name}</span>
+            </div>
+            {item.status === 'drafting' ? (
+              <p>{tx('正在准备调用参数…')}</p>
+            ) : (
+              <pre>{JSON.stringify(item.payload.arguments ?? {}, null, 2)}</pre>
+            )}
+            <div className="mb-2 mt-4">
+              {item.status === 'running' ? tx('正在等待返回') : tx('结果')}
+            </div>
+            {item.payload.result ? (
+              <pre>{JSON.stringify(item.payload.result, null, 2)}</pre>
+            ) : (
+              <p className="text-muted-foreground">
+                {item.status === 'uncertain'
+                  ? tx('操作结果尚未确认，请先查询，避免重复执行。')
+                  : item.status === 'cancelled'
+                  ? tx('本次调用未开始执行。')
+                  : tx('暂无返回结果。')}
+              </p>
+            )}
+            {item.payload.endedAt && item.payload.startedAt && (
+              <p className="mt-3 text-muted-foreground">
+                {tx('耗时')}{' '}
+                {Math.max(0, Date.parse(item.payload.endedAt) - Date.parse(item.payload.startedAt))}{' '}
+                ms
+              </p>
+            )}
           </div>
-          {item.status === 'drafting' ? (
-            <p>{tx('正在准备调用参数…')}</p>
-          ) : (
-            <pre>{JSON.stringify(item.payload.arguments ?? {}, null, 2)}</pre>
-          )}
-          <div className="mb-2 mt-4">
-            {item.status === 'running' ? tx('正在等待返回') : tx('结果')}
-          </div>
-          {item.payload.result ? (
-            <pre>{JSON.stringify(item.payload.result, null, 2)}</pre>
-          ) : (
-            <p className="text-muted-foreground">
-              {item.status === 'uncertain'
-                ? tx('操作结果尚未确认，请先查询，避免重复执行。')
-                : item.status === 'cancelled'
-                ? tx('本次调用未开始执行。')
-                : tx('暂无返回结果。')}
-            </p>
-          )}
-          {item.payload.endedAt && item.payload.startedAt && (
-            <p className="mt-3 text-muted-foreground">
-              {tx('耗时')}{' '}
-              {Math.max(0, Date.parse(item.payload.endedAt) - Date.parse(item.payload.startedAt))}{' '}
-              ms
-            </p>
-          )}
-        </div>
-      )}
+        )}
+      </Collapse>
     </div>
   );
 }
@@ -167,11 +171,11 @@ function ToolGroup({ items }: { items: ConversationItem[] }) {
         {uncertain && <span className="shrink-0">{tx('结果待核实')}</span>}
         <ChevronDown size={12} className={open ? 'shrink-0' : 'shrink-0 -rotate-90'} />
       </button>
-      <div id={detailId} hidden={!open} className="conversation-tool-block">
+      <Collapse id={detailId} open={open} className="conversation-tool-block">
         {items.map((item) => (
           <ToolRow key={item.id} item={item} />
         ))}
-      </div>
+      </Collapse>
     </div>
   );
 }
@@ -294,9 +298,9 @@ export function ConversationTurn({
           const item = segment.kind === 'item' ? segment.item : undefined;
           const isSummary = !!item && !!summary && item.id === summary.id;
           return (
-            <div
+            <Collapse
               key={segment.id}
-              hidden={!active && !open && !isSummary}
+              open={active || open || isSummary}
               className={
                 segment.kind === 'tools'
                   ? 'conversation-process-segment'
@@ -315,7 +319,7 @@ export function ConversationTurn({
               {item?.kind === 'assistant' && item.status === 'interrupted' && item.content && (
                 <span className="text-xs text-muted-foreground">{tx('回复已中断')}</span>
               )}
-            </div>
+            </Collapse>
           );
         })}
       </div>

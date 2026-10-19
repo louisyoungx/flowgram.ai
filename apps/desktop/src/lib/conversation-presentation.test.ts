@@ -171,9 +171,9 @@ describe('turn render boundaries', () => {
   it('leaves final content visible while hiding completed process segments', () => {
     const html = render(turn, [user, commentary, tool, final]);
     expect(html).toContain('aria-expanded="false"');
-    expect(html).toContain('hidden="" class="conversation-process-segment"');
+    expect(html).toMatch(/data-open="false" inert="" aria-hidden="true" class="[^"]*conversation-process-segment/);
     expect(html).toContain(
-      '<div class="conversation-assistant"><div class="markdown-content"><p>The workflow is valid.</p>'
+      '<div data-open="true" class="motion-collapse conversation-assistant"><div class="motion-collapse-clip"><div class="markdown-content"><p>The workflow is valid.</p>'
     );
     expect(html.split(final.content)).toHaveLength(2);
   });

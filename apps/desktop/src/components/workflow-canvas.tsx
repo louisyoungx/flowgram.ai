@@ -610,7 +610,42 @@ export const WorkflowCanvas = memo(
           if (!ready.current) {
             ready.current = true;
             sync(latest.current);
-            fitCanvas(ctx);
+            // A newly opened split can start at zero width. Fit once at its
+            // settled size; subsequent panel changes preserve this viewport.
+            let fitted = false;
+            let frame = 0;
+            const fit = () => {
+              if (fitted || !root.current) return;
+              root.current.dataset.viewportPending = 'true';
+              if (!root.current.clientWidth || !root.current.clientHeight) return;
+              if (
+                document.querySelector('[data-layout-animating]') ||
+                document.documentElement.matches('.resizing-column, .resizing-row')
+              ) {
+                root.current.dataset.viewportPending = 'true';
+                return;
+              }
+              fitted = true;
+              observer.disconnect();
+              window.removeEventListener('flowgram:layout-settled', settled);
+              fitCanvas(ctx);
+              delete root.current.dataset.viewportPending;
+            };
+            const settled = () => {
+              cancelAnimationFrame(frame);
+              frame = requestAnimationFrame(fit);
+            };
+            const observer = new ResizeObserver(settled);
+            observer.observe(ctx.playground.node);
+            window.addEventListener('flowgram:layout-settled', settled);
+            disposables.current.push({
+              dispose() {
+                cancelAnimationFrame(frame);
+                observer.disconnect();
+                window.removeEventListener('flowgram:layout-settled', settled);
+              },
+            });
+            fit();
           }
         },
       }),

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ArrowLeft, ArrowRight, FileText, Loader2, Plus, RefreshCw } from 'lucide-react';
 
@@ -16,6 +16,7 @@ import {
 } from '../lib/deployment';
 import { api } from '../lib/api';
 import { Select } from './ui/select';
+import { useContentTransition } from './ui/presence';
 import { Button } from './ui/button';
 import { PublicationForm } from './publication-form';
 import { PublicationDetails } from './publication-detail';
@@ -42,6 +43,8 @@ export function DeploymentPage({
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<'publications' | 'credentials' | 'targets'>('publications');
   const [route, setRoute] = useState<'list' | 'choose' | 'detail' | 'configure'>('list');
+  const content = useRef<HTMLDivElement>(null);
+  useContentTransition(content, `${tab}:${route}`);
   const [detail, setDetail] = useState<PublicationDetail | null>(null);
   const [project, setProject] = useState('');
   const [workflowIntent, setWorkflowIntent] = useState<string | undefined>();
@@ -123,7 +126,7 @@ export function DeploymentPage({
   }
   const publication = inventory.publications.find((p) => p.id === detail?.id);
   return (
-    <div className="mt-6">
+    <div ref={content} className="mt-6">
       <nav aria-label={tx('部署模块')} className="mb-8 flex gap-6 border-b border-border">
         {(
           [

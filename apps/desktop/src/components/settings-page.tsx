@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
 import {
   ArrowLeft,
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 import { Select } from './ui/select';
+import { useContentTransition } from './ui/presence';
 import { cn } from '../lib/utils';
 import type { ModelSettings } from '../lib/types';
 import {
@@ -72,6 +73,8 @@ export function SettingsPage({
   openDeploymentRun: (project: string, id: string) => void;
 }) {
   const [section, setSection] = useState<string>(deploymentIntent ? 'deployment' : 'general');
+  const content = useRef<HTMLDivElement>(null);
+  useContentTransition(content, section);
   useEffect(() => {
     if (deploymentIntent) setSection('deployment');
   }, [deploymentIntent]);
@@ -165,6 +168,7 @@ export function SettingsPage({
       </ResizablePanel>
       <div className="min-w-0 flex-1 overflow-auto">
         <div
+          ref={content}
           className={cn(
             'mx-auto w-full px-10 pb-20 pt-12',
             section === 'deployment' ? 'max-w-[1120px]' : 'max-w-[840px]'

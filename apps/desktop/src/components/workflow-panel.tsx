@@ -919,135 +919,143 @@ export function WorkflowPanel({
             />
           </Suspense>
         </div>
-        {selectedNode && (
-          <ResizablePanel
-            storageKey="flowgram.layout.inspector"
-            label={tx('节点配置宽度')}
-            initial={400}
-            min={320}
-            max={520}
-            reserve={240}
-            edge="left"
-            fill={editorExpanded || hostWidth < 600}
-            className={`border-l border-border ${
-              editorExpanded || hostWidth < 600 ? 'nf-inspector-expanded' : ''
-            }`}
-          >
-            {multiple && (
-              <div className="workflow-selection-summary">
-                <strong>{tx('已选中 {0} 个节点', [selectedIds.length])}</strong>
-                <p>{tx('批量操作会保留控制流配对与循环结构。')}</p>
-                {(['copy', 'duplicate', 'delete'] as const).map((command) => (
-                  <Button
-                    key={command}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      void nodeCommand(command, selectedIds);
-                    }}
-                    disabled={command === 'delete' && !!deletionReason(schema, selectedIds)}
-                  >
-                    {tx(
-                      command === 'copy' ? '复制' : command === 'duplicate' ? '创建副本' : '删除'
-                    )}
+        <ResizablePanel
+          hidden={!selectedNode}
+          unmountOnExit
+          storageKey="flowgram.layout.inspector"
+          label={tx('节点配置宽度')}
+          initial={400}
+          min={320}
+          max={520}
+          reserve={240}
+          edge="left"
+          fill={editorExpanded || hostWidth < 600}
+          className={`border-l border-border ${
+            editorExpanded || hostWidth < 600 ? 'nf-inspector-expanded' : ''
+          }`}
+        >
+          {selectedNode && (
+            <>
+              {multiple && (
+                <div className="workflow-selection-summary">
+                  <strong>{tx('已选中 {0} 个节点', [selectedIds.length])}</strong>
+                  <p>{tx('批量操作会保留控制流配对与循环结构。')}</p>
+                  {(['copy', 'duplicate', 'delete'] as const).map((command) => (
+                    <Button
+                      key={command}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        void nodeCommand(command, selectedIds);
+                      }}
+                      disabled={command === 'delete' && !!deletionReason(schema, selectedIds)}
+                    >
+                      {tx(
+                        command === 'copy' ? '复制' : command === 'duplicate' ? '创建副本' : '删除'
+                      )}
+                    </Button>
+                  ))}
+                  <Button variant="ghost" size="sm" onClick={() => setInspector(null)}>
+                    {tx('关闭节点配置')}
                   </Button>
-                ))}
-                <Button variant="ghost" size="sm" onClick={() => setInspector(null)}>
-                  {tx('关闭节点配置')}
-                </Button>
-              </div>
-            )}
-            <div
-              inert={paletteOpen ? true : undefined}
-              style={{ display: multiple ? 'none' : 'contents' }}
-            >
-              <FormSessionProvider
-                value={{
-                  node: selectedNode,
-                  schema,
-                  workflows: workflows.filter(
-                    (w) => w.projectId === workflow.projectId && w.id !== workflow.id
-                  ),
-                  model,
-                  bindings: {
-                    ...(run?.revision === workflow.revision && !dirty
-                      ? sampleBindings(events, selectedExecutions[selectedNode.id])
-                      : {}),
-                    ...Object.fromEntries(
-                      Object.entries(nodeSamples)
-                        .filter(([id, detail]) => {
-                          const current = findNode(schema.nodes, id);
-                          return (
-                            current &&
-                            detail.nodeTest &&
-                            executionSignature(current) === executionSignature(detail.nodeTest.node)
-                          );
-                        })
-                        .map(([id, detail]) => [id, detail.run.outputs])
-                    ),
-                  },
-                  buffers,
-                  setBuffer: (key, value) =>
-                    setBuffers((current) => ({ ...current, [key]: value })),
-                  openSettings: onOpenSettings,
-                }}
+                </div>
+              )}
+              <div
+                inert={paletteOpen ? true : undefined}
+                style={{ display: multiple ? 'none' : 'contents' }}
               >
-                <NodeInspector
-                  renaming={renaming?.id === selectedNode.id && renaming.location === 'inspector'}
-                  onRenameStart={() => setRenaming({ id: selectedNode.id, location: 'inspector' })}
-                  onRename={(title) => renameNode(selectedNode.id, title)}
-                  onRenameEnd={() => setRenaming(null)}
-                  onMenu={(point) =>
-                    setMenu({ point, ids: [selectedNode.id], origin: 'inspector' })
-                  }
-                  tabRequest={tabRequest}
-                  expanded={editorExpanded || hostWidth < 600}
-                  onExpand={() => {
-                    if (hostWidth < 600) setInspector(null);
-                    else setEditorExpanded((value) => !value);
+                <FormSessionProvider
+                  value={{
+                    node: selectedNode,
+                    schema,
+                    workflows: workflows.filter(
+                      (w) => w.projectId === workflow.projectId && w.id !== workflow.id
+                    ),
+                    model,
+                    bindings: {
+                      ...(run?.revision === workflow.revision && !dirty
+                        ? sampleBindings(events, selectedExecutions[selectedNode.id])
+                        : {}),
+                      ...Object.fromEntries(
+                        Object.entries(nodeSamples)
+                          .filter(([id, detail]) => {
+                            const current = findNode(schema.nodes, id);
+                            return (
+                              current &&
+                              detail.nodeTest &&
+                              executionSignature(current) ===
+                                executionSignature(detail.nodeTest.node)
+                            );
+                          })
+                          .map(([id, detail]) => [id, detail.run.outputs])
+                      ),
+                    },
+                    buffers,
+                    setBuffer: (key, value) =>
+                      setBuffers((current) => ({ ...current, [key]: value })),
+                    openSettings: onOpenSettings,
                   }}
-                  onClose={() => {
-                    if (!canLeaveRename()) return;
-                    setInspector(null);
-                    setEditorExpanded(false);
-                  }}
-                  executions={events.filter(
-                    (event) =>
-                      event.kind === 'node_finished' && eventData(event).nodeId === selectedNode.id
-                  )}
-                  selectedExecutionId={selectedExecutions[selectedNode.id]}
-                  onSelectExecution={(id) =>
-                    setSelectedExecutions((current) => ({ ...current, [selectedNode.id]: id }))
-                  }
-                  onEdit={(data) =>
-                    change(editControlConfiguration(draft.current, selectedNode.id, data))
-                  }
-                  onTest={testNode}
-                  runs={runs.filter((item) => item.workflowId === workflow.id)}
-                  selectedTestId={
-                    runs.find((item) => item.id === selectedRunId)?.testNodeId === selectedNode.id
-                      ? selectedRunId || undefined
-                      : undefined
-                  }
-                  saveStatus={
-                    saveError
-                      ? tx('保存失败 · 点击重试')
-                      : saving
-                      ? tx('正在保存')
-                      : dirty
-                      ? tx('等待保存')
-                      : tx('草稿已保存')
-                  }
-                  onSave={() => {
-                    void save().catch((e) => error(e.message));
-                  }}
-                  onSelectNode={selectNode}
-                  navigation={flattenNodes(schema.nodes)}
-                />
-              </FormSessionProvider>
-            </div>
-          </ResizablePanel>
-        )}
+                >
+                  <NodeInspector
+                    renaming={renaming?.id === selectedNode.id && renaming.location === 'inspector'}
+                    onRenameStart={() =>
+                      setRenaming({ id: selectedNode.id, location: 'inspector' })
+                    }
+                    onRename={(title) => renameNode(selectedNode.id, title)}
+                    onRenameEnd={() => setRenaming(null)}
+                    onMenu={(point) =>
+                      setMenu({ point, ids: [selectedNode.id], origin: 'inspector' })
+                    }
+                    tabRequest={tabRequest}
+                    expanded={editorExpanded || hostWidth < 600}
+                    onExpand={() => {
+                      if (hostWidth < 600) setInspector(null);
+                      else setEditorExpanded((value) => !value);
+                    }}
+                    onClose={() => {
+                      if (!canLeaveRename()) return;
+                      setInspector(null);
+                      setEditorExpanded(false);
+                    }}
+                    executions={events.filter(
+                      (event) =>
+                        event.kind === 'node_finished' &&
+                        eventData(event).nodeId === selectedNode.id
+                    )}
+                    selectedExecutionId={selectedExecutions[selectedNode.id]}
+                    onSelectExecution={(id) =>
+                      setSelectedExecutions((current) => ({ ...current, [selectedNode.id]: id }))
+                    }
+                    onEdit={(data) =>
+                      change(editControlConfiguration(draft.current, selectedNode.id, data))
+                    }
+                    onTest={testNode}
+                    runs={runs.filter((item) => item.workflowId === workflow.id)}
+                    selectedTestId={
+                      runs.find((item) => item.id === selectedRunId)?.testNodeId === selectedNode.id
+                        ? selectedRunId || undefined
+                        : undefined
+                    }
+                    saveStatus={
+                      saveError
+                        ? tx('保存失败 · 点击重试')
+                        : saving
+                        ? tx('正在保存')
+                        : dirty
+                        ? tx('等待保存')
+                        : tx('草稿已保存')
+                    }
+                    onSave={() => {
+                      void save().catch((e) => error(e.message));
+                    }}
+                    onSelectNode={selectNode}
+                    navigation={flattenNodes(schema.nodes)}
+                  />
+                </FormSessionProvider>
+              </div>
+            </>
+          )}
+        </ResizablePanel>
         <NodePalette
           open={paletteOpen}
           close={() => {

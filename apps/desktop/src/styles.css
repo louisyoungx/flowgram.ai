@@ -1058,3 +1058,49 @@ button:focus-visible,
   .conversation-composer { padding: 8px 12px 12px; }
   .composer-context.fg-select-trigger { max-width: 112px; }
 }
+
+/* Layout motion is explicit; pointer resizing never interpolates dimensions. */
+.resizable-panel[hidden], .motion-presence[hidden] { display: none !important; }
+.resizable-panel[data-layout-animating] { overflow: clip; }
+.resizable-panel-body { max-width: none; }
+.motion-surface[data-state='open'], .motion-page[data-state='open'] { opacity: 1; translate: 0 0; }
+.motion-surface[data-state='closed'], .motion-page[data-state='closed'] { opacity: 0; translate: 0 4px; pointer-events: none; }
+.settings-page { animation: none; }
+@keyframes presence-exit { from { opacity: 1; translate: 0 0; } to { opacity: 0; translate: 0 4px; } }
+.workspace-document, .workspace-workbench {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--motion-control) var(--ease-out), visibility 0s var(--motion-control);
+}
+.workspace-document[data-active='true'], .workspace-workbench[data-active='true'] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.node-library[data-state='open'] { opacity: 1; translate: 0 0; }
+.node-library[data-state='closed'] { opacity: 0; translate: 0 4px; pointer-events: none; }
+.motion-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition: grid-template-rows var(--motion-control) var(--ease-surface), opacity var(--motion-control) var(--ease-out), visibility 0s var(--motion-control), margin var(--motion-control) var(--ease-surface);
+}
+.motion-collapse[data-open='true'] { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition-delay: 0s; }
+.motion-collapse[data-open='false'] { margin-block: 0; }
+.motion-collapse-clip { min-height: 0; overflow: hidden; }
+.conversation-tool-row > svg:last-child, .conversation-tool-summary > svg:last-child, .conversation-process-toggle > svg { transition: transform var(--motion-control) var(--ease-surface), rotate var(--motion-control) var(--ease-surface); }
+[data-state='closed'].dialog-overlay { animation: overlay-enter var(--motion-snap) ease-in reverse both; }
+[data-state='closed'].dialog-content { animation: dialog-exit var(--motion-snap) var(--ease-out) both; }
+.workflow-canvas-interactions[data-viewport-pending] .gedit-playground { opacity: 0; }
+:root[data-motion='reduced'] *, :root[data-motion='reduced'] *::before, :root[data-motion='reduced'] *::after { animation-delay: 0s !important; transition-delay: 0s !important; }
+:root[data-motion='reduced'] .cds-button:active { transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='full']) *, :root:not([data-motion='full']) *::before, :root:not([data-motion='full']) *::after { animation-delay: 0s !important; transition-delay: 0s !important; }
+  :root:not([data-motion='full']) .cds-button:active { transform: none !important; }
+}
+.nf-popover[data-state='open'] { opacity: 1; translate: 0 0; }
+.nf-popover[data-state='closed'] { opacity: 0; translate: 0 4px; pointer-events: none; }
+.fg-select-content[data-state='closed'] { animation: presence-exit var(--motion-snap) var(--ease-out) both; pointer-events: none; }
+
+@keyframes dialog-exit { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(4px); } }
