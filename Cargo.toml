@@ -1,5 +1,5 @@
 [workspace]
-members = ["apps/desktop-backend"]
+members = ["apps/desktop-backend", "apps/desktop/src-tauri"]
 default-members = ["apps/desktop-backend"]
 resolver = "2"
 
