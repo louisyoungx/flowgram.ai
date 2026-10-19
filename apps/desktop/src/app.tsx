@@ -44,7 +44,8 @@ import { SessionPanel } from './components/session-panel';
 import { RunPage } from './components/run-page';
 import { ResourcesPage } from './components/resources-page';
 import { ResizablePanel } from './components/resizable-panel';
-import { ProjectMenu, ProjectSidebar } from './components/project-navigation';
+import { ProjectTransfer } from './components/project-transfer';
+import { ProjectMenu, ProjectSidebar, type ProjectAction } from './components/project-navigation';
 
 const empty: Snapshot = { projects: [], sessions: [], workflows: [], runs: [] };
 function readWorkbenches(): Record<string, Workbench> {
@@ -81,6 +82,7 @@ export function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [transfer, setTransfer] = useState<'import' | 'export' | null>(null);
   const [createKind, setCreateKind] = useState<'project' | 'workflow' | 'open' | null>(null);
   const [name, setName] = useState('');
   const [directory, setDirectory] = useState('');
@@ -257,8 +259,9 @@ export function App() {
     setCreateError('');
     setCreateKind(kind);
   }
-  function projectAction(action: 'project' | 'open' | 'details') {
+  function projectAction(action: ProjectAction) {
     if (action === 'details') setDetailsOpen(true);
+    else if (action === 'import' || action === 'export') setTransfer(action);
     else openCreate(action);
   }
   async function chooseDirectory() {
@@ -963,6 +966,23 @@ export function App() {
           </Button>
         </div>
       </Dialog>
+      {transfer && (
+        <ProjectTransfer
+          mode={transfer}
+          project={project}
+          close={() => setTransfer(null)}
+          imported={async (created) => {
+            setProjects((current) => [
+              created,
+              ...current.filter((item) => item.id !== created.id),
+            ]);
+            setProjectId(created.id);
+            dispatch({ type: 'view', view: { kind: 'workflows' } }, created.id);
+            setNotice(null);
+            void refresh(created.id).catch((cause) => report(cause.message, created.id));
+          }}
+        />
+      )}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen} title={tx('项目详情')}>
         <p className="mb-5 text-sm font-medium">{project?.name}</p>
         <p className="mb-2 text-xs text-muted-foreground">{tx('工程目录')}</p>

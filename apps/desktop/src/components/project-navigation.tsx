@@ -24,6 +24,8 @@ import logo from '../assets/flowgram-logo.svg';
 import { Select } from './ui/select';
 import { Button } from './ui/button';
 
+export type ProjectAction = 'project' | 'open' | 'details' | 'import' | 'export';
+
 export function ProjectMenu({
   projects,
   projectId,
@@ -34,7 +36,7 @@ export function ProjectMenu({
   projects: Project[];
   projectId: string;
   onSelect: (id: string) => void;
-  onAction: (action: 'project' | 'open' | 'details') => void;
+  onAction: (action: ProjectAction) => void;
   compact?: boolean;
 }) {
   return (
@@ -46,14 +48,14 @@ export function ProjectMenu({
       placeholder={tx('选择项目')}
       className={cn('project-menu', compact && 'max-w-44')}
       onValueChange={(value) =>
-        value.startsWith('project:')
-          ? onSelect(value.slice(8))
-          : onAction(value as 'project' | 'open' | 'details')
+        value.startsWith('project:') ? onSelect(value.slice(8)) : onAction(value as ProjectAction)
       }
       options={[
         ...projects.map((project) => ({ value: `project:${project.id}`, label: project.name })),
         { value: 'project', label: t('newProject'), separatorBefore: !!projects.length },
         { value: 'open', label: tx('打开项目') },
+        { value: 'import', label: tx('导入项目') },
+        ...(projectId ? [{ value: 'export', label: tx('导出项目') }] : []),
         ...(projectId ? [{ value: 'details', label: tx('项目详情'), separatorBefore: true }] : []),
       ]}
     />
@@ -82,7 +84,7 @@ export function ProjectSidebar({
   snapshot: Snapshot;
   bench: Workbench;
   onSelectProject: (id: string) => void;
-  onProjectAction: (action: 'project' | 'open' | 'details') => void;
+  onProjectAction: (action: ProjectAction) => void;
   onCollapse: () => void;
   onSearch: () => void;
   onNewSession: () => void;

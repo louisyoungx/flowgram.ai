@@ -20,6 +20,8 @@ cargo test -p flowgram-desktop-backend
 | GET | /api/bootstrap | 项目、会话、工作流和最近 100 次运行 |
 | POST | /api/projects | 创建工程，`{name,directory?}`；目录需为空 |
 | POST | /api/projects/open | 打开已有工程，`{directory}` |
+| POST | /api/projects/{id}/export | 导出项目包，`{includeHistory?:true,destination?}`；无保存路径返回包 JSON，有路径原子写入 `.flowgram.json` 并返回 `{saved:true}` |
+| POST | /api/projects/import | 校验并导入项目包，`{package,name?,directory?}`；`directory` 为保存位置，在其中新建独立项目文件夹，成功返回新项目 |
 | GET / POST | /api/resources | 列出 / 导入项目共享文件（每个文件最多 1 MB） |
 | POST | /api/sessions | 创建会话 |
 | GET | /api/sessions/{id}/references | 会话实际引用与工具操作关联的工作流 |

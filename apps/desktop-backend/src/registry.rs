@@ -147,7 +147,7 @@ impl Registry {
         self.register(read_project(Path::new(directory)).await?)
             .await
     }
-    async fn register(&self, project: Project) -> Result<Project> {
+    pub(crate) async fn register(&self, project: Project) -> Result<Project> {
         // Resolve and acquire the project before publishing it to recent projects.
         // A failed open must leave the current workspace and registry unchanged.
         let mut stores = self.stores.lock().await;
@@ -189,6 +189,7 @@ pub fn router(registry: Registry, token: String) -> Router {
     };
     Router::new()
         .merge(crate::deployment_api::routes())
+        .merge(crate::project_transfer::routes())
         .route(
             "/health",
             get(|| async { Json(json!({"status":"ready","service":"flowgram"})) }),
