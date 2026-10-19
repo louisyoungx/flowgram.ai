@@ -3,7 +3,7 @@
 独立的本机 HTTP 服务，实现项目、会话、工作流、Agent 模型循环、Workflow Runtime、共享工具和 MCP Server。该 crate 不依赖 Tauri、React、Node.js 或浏览器。
 
 ```sh
-cargo run -p flowgram-desktop-backend
+cargo run -p flowgram-desktop-backend --bin flowgram-server
 cargo test -p flowgram-desktop-backend
 ```
 
@@ -92,3 +92,9 @@ MCP 使用本机 HTTP 地址 `<endpoint>/mcp`，并在 HTTP Authorization 头中
 Loop 子图使用 `blocks`、`edges` 和一组 `block-start` / `block-end`。`data.loopFor` 解析为数组，局部变量位于 `<loopId>_locals.item` / `index`，`data.loopOutputs` 引用子图输出并逐项收集为数组。
 
 每次运行保存 revision 和输入、结果与事件。运行保存执行时的主流程定义，单节点测试保存该节点定义与绑定。子工作流传递依赖和外部资源尚未整体冻结，运行记录不能视为可复现的发布版本。重启后未完成的运行标记为 interrupted；不会自动重试或继续外部副作用。
+
+## Published business services
+
+The authoring API now publishes immutable service releases, pins transitive workflow dependencies, and manages local deployments and scoped consumer credentials. Business HTTP and MCP endpoints share invocation, idempotency, validation, cancellation and result semantics. The existing development MCP remains separate from the published business tools.
+
+`flowgram-service` is a second, standalone Rust binary for importing and serving bundles without the desktop app or source project. It also provides a stdio MCP bridge. See [service publishing and consumption](../../design/workflow-service-delivery.md) for routes, contracts, host configuration, live upgrades, callback signatures, Docker configuration and verified limitations.

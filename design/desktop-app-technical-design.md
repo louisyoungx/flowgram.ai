@@ -203,3 +203,16 @@ React 19 作为目标版本，在画布和表单兼容性验证通过后锁定�
 - [Axum](https://github.com/tokio-rs/axum)
 - [SQLx](https://github.com/transact-rs/sqlx)
 - [Tailwind 与 Vite](https://tailwindcss.com/docs/installation/using-vite)
+
+
+## Complex-project acceptance (2026-10-19)
+
+The desktop service now freezes the static transitive workflow dependency closure before execution. The root definition and every called workflow are persisted with each Run; node tests use the same rules. A manifest exposes workflow revisions and schema hashes. Dynamic targets and recursion fail before writes; model settings, credentials and external resources are not yet fully frozen by this manifest.
+
+Execution events carry workflowId in addition to execution, branch, iteration, parent and scope identities. Run details use bounded event pages; the canvas reads a separate latest-per-node state projection so high-volume child events cannot mask terminal state or overwrite identically named parent nodes. The six regression tests in `tests/complex_projects.rs` cover these boundaries, invalid input contracts, duplicate-ID validation safety and node contract discovery.
+
+See [complex-project acceptance](../apps/desktop-backend/validation/README.md) for the executable business harness and its scope. The application contains three registered business projects with real runtime, model and local business-service execution evidence. This acceptance does not add production connectors or cross-process workflow resume.
+
+## 服务交付
+
+已实现的发布、HTTP/MCP 业务消费、独立 Rust 宿主、部署与验收边界见 [工作流服务发布与消费](workflow-service-delivery.md)。运行时的工作流快照、发布快照和部署别名是不同对象；开发 MCP 的编辑权限不授予业务消费方。
