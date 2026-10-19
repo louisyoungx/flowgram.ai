@@ -1,0 +1,94 @@
+# FlowGram Rust Backend
+
+独立的本机 HTTP 服务，实现项目、会话、工作流、Agent 模型循环、Workflow Runtime、共享工具和 MCP Server。该 crate 不依赖 Tauri、React、Node.js 或浏览器。
+
+```sh
+cargo run -p flowgram-desktop-backend
+cargo test -p flowgram-desktop-backend
+```
+
+默认监听 `127.0.0.1:18789`。可配置 `FLOWGRAM_PORT`（设为 0 让系统分配端口）、`FLOWGRAM_DATA_DIR`、`FLOWGRAM_AUTH_TOKEN`。未指定令牌时，每次启动生成新的随机令牌。数据目录由文件锁保护，仅允许一个服务拥有。
+
+应用数据目录包含 `projects.json`（已打开工程目录）、`model.json` 和 `connection.json`；凭证与连接文件在 Unix 上以 0600 权限写入。每份工程包含 `flowgram.project.json`、`workflows/<workflowId>/workflow.json`、`assets/` 和 `.flowgram/state.sqlite`。工作流文件是定义源，SQLite 中的工作流记录用于索引和运行关联。不要将应用数据目录或工程 `.flowgram/` 提交到版本管理。服务启动移除旧原型 `flowgram.sqlite` / `flowgram.db`，保留模型配置。
+
+## API
+
+除 `GET /health` 外均要求 `Authorization: Bearer <token>`。真实地址和令牌从当前数据目录的 `connection.json` 读取。模型密钥不通过读取 API 返回。工程内接口必须显式发送 `X-FlowGram-Project: <projectId>`，不根据全局 UI 选择猜测范围。无该头的 bootstrap 只返回工程列表；带头时额外返回该工程的会话、流程与运行。模型设置、工程注册和 MCP 是应用级接口；MCP 工具参数必须显式携带 projectId。
+
+| 方法 | 路径 | 用途 |
+| --- | --- | --- |
+| GET | /api/bootstrap | 项目、会话、工作流和最近 100 次运行 |
+| POST | /api/projects | 创建工程，`{name,directory?}`；目录需为空 |
+| POST | /api/projects/open | 打开已有工程，`{directory}` |
+| GET / POST | /api/resources | 列出 / 导入项目共享文件（每个文件最多 1 MB） |
+| POST | /api/sessions | 创建会话 |
+| GET | /api/sessions/{id}/references | 会话实际引用与工具操作关联的工作流 |
+| GET | /api/sessions/{id}/conversation | 轮次、内容、待办与事件水位，before 分页 |
+| POST | /api/sessions/{id}/inputs | 幂等投递下一轮或补充本轮 |
+| PUT | /api/sessions/{id}/inputs/{input} | 按 revision 编辑未执行输入 |
+| POST | /api/sessions/{id}/inputs/{input}/cancel | 按 revision 移除未执行输入 |
+| POST | /api/sessions/{id}/inputs/{input}/steer | 按 revision 将待办补充给指定轮次 |
+| POST | /api/sessions/{id}/turns/{turn}/stop | 请求停止指定轮次及它发起的运行 |
+| POST | /api/sessions/{id}/queue/resume | 明确继续已暂停的待办 |
+| POST | /api/workflows | 创建工作流 |
+| GET / PUT | /api/workflows/{id} | 读取 / 按预期 revision 保存 |
+| POST | /api/workflows/{id}/validate | 结构与执行能力诊断 |
+| POST | /api/workflows/{id}/run | 试运行，输入 `{inputs,sessionId?}` |
+| GET | /api/runs/{id} | 运行结果与节点事件 |
+| POST | /api/runs/{id}/cancel | 请求取消运行 |
+| GET | /api/events | 有序 SSE，支持 after、objectId 与 Last-Event-ID |
+| GET | /api/events/history | 事件查询，支持 after、objectId；每页最多 500 项 |
+| GET / PUT | /api/settings/model | 连接状态 / 模型配置 |
+| GET | /api/tools | 工具定义 |
+| POST | /api/tools/call | 调用共享工具 |
+| POST | /mcp | MCP JSON-RPC |
+
+PUT 工作流输入 `{revision,name,schema}`。版本不匹配返回 HTTP 409。模型配置输入 `{baseUrl,model?,apiKey?}`；省略模型或密钥会保留已有值。
+
+## 对话与运行中输入
+
+对话只使用 Turn / Item / Input 一套存储和协议；原型阶段已移除旧消息表与旧消息接口，不保留旧测试数据的迁移或兼容展示。清理不兼容测试数据时保留模型连接配置。
+
+常规操作由工具状态表达进度，模型不逐次报幕；关键发现、阻塞、需要用户补充和最终结果才产生说明。跨轮上下文读取用户输入、最终答复与结构化工具事实，过程说明仅保留在所属轮次供回看，不作为后续对话的示范文本。
+
+`POST inputs` 使用 `{clientInputId,content,deliveryMode:"queue"|"steer",expectedTurnId?,references?}`。同一会话中，相同标识和内容重试返回原输入；改变内容或目标轮次返回 409。响应表示服务已保存输入，不表示执行完成。`references` 当前支持同项目的 `workflowId`。
+
+每个会话由 Rust 串行派发轮次；会话之间可以并行。`queue` 创建后续轮次；`steer` 必须指定仍在运行的目标，不会在目标结束后自动改成下一轮。补充输入先为 pending，在模型返回或下一次工具执行前的安全边界转为 accepted；尚未开始的旧工具调用会取消，由模型按新要求重新规划。已经开始的操作不会回滚。
+
+Turn 状态为 running → stopping → interrupted，或 running → completed / failed。Tool Item 在同一 ID 上依次保存 drafting、pending、running 和 completed / failed / cancelled；服务重启时无法确认的执行中工具标为 uncertain。流式助手文本从追加到最终回复保持同一 ID。工具 `run_workflow` 完成仅表示已发起运行，运行本身另有持久化状态。
+
+SSE 的 `conversation_turn`、`conversation_item`、`conversation_input` 推送完整对象和递增 revision，`conversation_queue` 推送暂停状态。客户端先读取快照和 watermark，再订阅该会话在水位之后的事件，重连时重新读取快照。每页最近 10 轮，每轮最多 128 项；工具详情为脱敏、有长度上限的预览。
+
+停止由服务确认：只取消本轮和与本轮显式关联的运行，保留部分回复、工作流修改与运行记录。失败或中断暂停后续待办；用户明确继续后才派发。重启不会重放已开始的工具或外部副作用；未开始输入仍保留。询问、审批和检查点恢复尚未接入本轮协议。
+
+## 外部 Agent 接入
+
+MCP 使用本机 HTTP 地址 `<endpoint>/mcp`，并在 HTTP Authorization 头中设置连接令牌。支持初始化、工具发现与工具调用；当前实现为无状态 JSON-RPC，不提供 MCP 会话恢复、外部资源或提示词服务。
+
+`tools/list` 返回项目作用域包装后的工具参数。调用时显式传入项目 ID：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_workflows",
+    "arguments": { "projectId": "project-id", "arguments": {} }
+  }
+}
+```
+
+可用工具：`list_workflows`、`inspect_workflow`、`create_workflow`、`save_workflow`、`validate_workflow`、`run_workflow`、`get_run`、`list_node_types`。内部 Agent 和 MCP 调用相同的 Rust Registry；HTTP 手动操作复用同一业务服务。
+
+模型连接目前实现 Responses API 流式适配。模型必须支持函数调用；LLM 节点使用同一连接执行无工具的模型请求。
+
+工作流内 Agent 节点使用相同模型连接和工具定义，以 1–8 步完成目标；允许列出、读取、校验工作流、读取运行与节点目录。该节点不暴露创建、保存或执行工作流工具，避免修改正在运行的流程或形成递归副作用。
+
+## 执行语义
+
+工作流 JSON 使用 FlowGram 的 `nodes`、`edges`、`sourceNodeID`、`targetNodeID`；条件边通过 `sourcePortID` 选路。输入常量、变量引用、模板放在节点 `data.inputsValues` 中。Start 输出运行输入，Assign / End 输出解析后的字段。
+
+Loop 子图使用 `blocks`、`edges` 和一组 `block-start` / `block-end`。`data.loopFor` 解析为数组，局部变量位于 `<loopId>_locals.item` / `index`，`data.loopOutputs` 引用子图输出并逐项收集为数组。
+
+每次运行保存 revision 和输入、结果与事件。运行保存执行时的主流程定义，单节点测试保存该节点定义与绑定。子工作流传递依赖和外部资源尚未整体冻结，运行记录不能视为可复现的发布版本。重启后未完成的运行标记为 interrupted；不会自动重试或继续外部副作用。
