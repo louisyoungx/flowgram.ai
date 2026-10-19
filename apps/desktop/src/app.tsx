@@ -449,7 +449,6 @@ export function App() {
             onRuns={() => dispatch({ type: 'view', view: { kind: 'runs' } })}
             onResources={() => dispatch({ type: 'view', view: { kind: 'resources' } })}
             onSettings={() => setSettings(true)}
-            onHome={() => dispatch({ type: 'view', view: { kind: 'workflows' } })}
             onArchive={(kind, id) => void archiveObject(kind, id)}
           />
         </ResizablePanel>

@@ -1710,5 +1710,7 @@
   "工作流被「{0}」引用，请先移除引用再彻底删除": "Workflow is referenced by \"{0}\". Remove that reference before permanently deleting it",
   "此工作流属于已发布版本，无法彻底删除": "Workflow belongs to a published release and cannot be permanently deleted",
   "请先从发布草稿中移除此工作流，再彻底删除": "Remove this workflow from its publication draft before permanently deleting it",
-  "项目包包含无效的归档信息": "Project package contains invalid archive metadata"
+  "项目包包含无效的归档信息": "Project package contains invalid archive metadata",
+  "新聊天": "New chat",
+  "工作流列表更多操作": "Workflow list actions"
 }

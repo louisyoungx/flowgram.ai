@@ -5,8 +5,6 @@
 
 import {
   Boxes,
-  History,
-  House,
   Loader2,
   MessageCircle,
   MoreHorizontal,
@@ -79,7 +77,6 @@ export function ProjectSidebar({
   onRuns,
   onResources,
   onSettings,
-  onHome,
   onArchive,
 }: {
   projectId: string;
@@ -97,7 +94,6 @@ export function ProjectSidebar({
   onRuns: () => void;
   onResources: () => void;
   onSettings: () => void;
-  onHome: () => void;
   onArchive: (kind: 'session' | 'workflow', id: string) => void;
 }) {
   return (
@@ -138,21 +134,8 @@ export function ProjectSidebar({
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">
         <nav className="mb-5 mt-3" aria-label={tx('项目操作')}>
           {[
-            {
-              label: tx('主页'),
-              icon: House,
-              action: onHome,
-              selected: bench.view.kind === 'workflows',
-            },
-            { label: tx('新建会话'), icon: MessageCircle, action: onNewSession },
-            { label: t('newWorkflow'), icon: WorkflowIcon, action: onNewWorkflow },
+            { label: t('newSession'), icon: MessageCircle, action: onNewSession },
             { label: tx('搜索'), icon: Search, action: onSearch },
-            {
-              label: tx('运行记录'),
-              icon: History,
-              action: onRuns,
-              selected: bench.view.kind === 'runs' || bench.view.kind === 'run',
-            },
             {
               label: tx('项目资源'),
               icon: Boxes,
@@ -180,15 +163,24 @@ export function ProjectSidebar({
                   <WorkflowIcon size={15} strokeWidth={1.6} aria-hidden="true" />
                   {tx('工作流')}
                 </h2>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t('newWorkflow')}
-                  title={t('newWorkflow')}
-                  onClick={onNewWorkflow}
-                >
-                  <Plus size={14} />
-                </Button>
+                <div className="flex items-center gap-0.5">
+                  <MenuButton
+                    label={tx('工作流列表更多操作')}
+                    commands={[{ id: 'runs', label: tx('运行记录') }]}
+                    onCommand={onRuns}
+                  >
+                    <MoreHorizontal size={14} />
+                  </MenuButton>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('newWorkflow')}
+                    title={t('newWorkflow')}
+                    onClick={onNewWorkflow}
+                  >
+                    <Plus size={14} />
+                  </Button>
+                </div>
               </div>
               {snapshot.workflows.map((workflow) => {
                 const selected = bench.view.kind === 'workflow' && bench.view.id === workflow.id;
@@ -232,8 +224,8 @@ export function ProjectSidebar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={tx('新建会话')}
-                  title={tx('新建会话')}
+                  aria-label={t('newSession')}
+                  title={t('newSession')}
                   onClick={onNewSession}
                 >
                   <Plus size={14} />

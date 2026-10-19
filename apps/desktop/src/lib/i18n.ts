@@ -84,7 +84,7 @@ export function localized<T extends object>(value: T, mode: MetadataMode = 'meta
 }
 const sourceMessages = {
   remoteConflict: '工作流已有更新，本地草稿已保留。请复制草稿后重新打开最新版本。', assignNode: '数据处理', llmNode: '模型处理',
-  newSession: '新会话', search: '搜索会话与工作流', projects: '项目', workflows: '工作流', settings: '设置',
+  newSession: '新聊天', search: '搜索会话与工作流', projects: '项目', workflows: '工作流', settings: '设置',
   newProject: '新建项目', projectName: '项目名称', workflowName: '工作流名称', create: '创建', cancel: '取消',
   newWorkflow: '新建工作流', emptyWorkflows: '还没有工作流', workflowHint: '从空白流程开始，或让助手帮你搭建。',
   welcome: '想完成什么？', welcomeHint: '描述目标，和助手一起把工作流搭建、运行起来。',
