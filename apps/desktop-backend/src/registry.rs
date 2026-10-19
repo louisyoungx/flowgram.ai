@@ -28,8 +28,9 @@ pub struct Registry {
     pub deployment_settings: crate::deployment_settings::Catalog,
     pub directory: PathBuf,
     pub model: Arc<Mutex<ModelConfig>>,
-    records: Arc<Mutex<Vec<Project>>>,
-    stores: Arc<Mutex<HashMap<String, (Store, std::fs::File)>>>,
+    pub(crate) records: Arc<Mutex<Vec<Project>>>,
+    pub(crate) stores: Arc<Mutex<HashMap<String, (Store, std::fs::File)>>>,
+    pub(crate) mutations: Arc<Mutex<()>>,
 }
 impl Registry {
     pub async fn open(directory: &Path) -> Result<Self> {
@@ -50,6 +51,7 @@ impl Registry {
                 Err(e) => return Err(e.into()),
             }
         }
+        crate::project_management::recover(directory).await?;
         let records = match tokio::fs::read(directory.join("projects.json")).await {
             Ok(data) => serde_json::from_slice(&data)?,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Vec::new(),
@@ -66,6 +68,7 @@ impl Registry {
             model: Arc::new(Mutex::new(model)),
             records: Arc::new(Mutex::new(records)),
             stores: Arc::default(),
+            mutations: Arc::default(),
         };
         for project in registry.projects().await {
             if let Err(error) = registry.resolve(&project.id).await {
@@ -132,6 +135,7 @@ impl Registry {
         Ok((store, lock))
     }
     pub async fn create(&self, name: &str, directory: Option<&str>) -> Result<Project> {
+        let _mutation = self.mutations.lock().await;
         let root = directory
             .map(PathBuf::from)
             .unwrap_or_else(|| self.directory.join("projects").join(crate::store::id()));
@@ -141,13 +145,18 @@ impl Registry {
             ));
         }
         let project = write_project(&root, name).await?;
-        self.register(project).await
+        self.register_locked(project).await
     }
     pub async fn open_project(&self, directory: &str) -> Result<Project> {
-        self.register(read_project(Path::new(directory)).await?)
+        let _mutation = self.mutations.lock().await;
+        self.register_locked(read_project(Path::new(directory)).await?)
             .await
     }
     pub(crate) async fn register(&self, project: Project) -> Result<Project> {
+        let _mutation = self.mutations.lock().await;
+        self.register_locked(project).await
+    }
+    async fn register_locked(&self, project: Project) -> Result<Project> {
         // Resolve and acquire the project before publishing it to recent projects.
         // A failed open must leave the current workspace and registry unchanged.
         let mut stores = self.stores.lock().await;
@@ -191,6 +200,7 @@ pub fn router(registry: Registry, token: String) -> Router {
         .merge(crate::deployment_api::routes())
         .merge(crate::project_transfer::routes())
         .merge(crate::archive::global_routes())
+        .merge(crate::project_management::routes())
         .route(
             "/health",
             get(|| async { Json(json!({"status":"ready","service":"flowgram"})) }),

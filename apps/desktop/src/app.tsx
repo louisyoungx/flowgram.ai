@@ -6,7 +6,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import {
-  Copy,
   FolderOpen,
   Loader2,
   MessageCircle,
@@ -46,6 +45,7 @@ import { ResourcesPage } from './components/resources-page';
 import { ResizablePanel } from './components/resizable-panel';
 import { ProjectTransfer } from './components/project-transfer';
 import { ProjectMenu, ProjectSidebar, type ProjectAction } from './components/project-navigation';
+import { ProjectManagement, type ProjectManagementAction } from './components/project-management';
 
 const empty: Snapshot = { projects: [], sessions: [], workflows: [], runs: [] };
 function readWorkbenches(): Record<string, Workbench> {
@@ -81,7 +81,10 @@ export function App() {
   const [notice, setNotice] = useState<{ message: string; projectId: string | null } | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [projectManagement, setProjectManagement] = useState<{
+    action: ProjectManagementAction;
+    project: Project;
+  } | null>(null);
   const [transfer, setTransfer] = useState<'import' | 'export' | null>(null);
   const editors = useRef(new Map<string, WorkflowPanelHandle>());
   const archiving = useRef(new Set<string>());
@@ -180,11 +183,35 @@ export function App() {
     void subscribeEvents(
       controller.signal,
       (event) => {
+        if (event.kind === 'project_deleted') {
+          forgetProjectDrafts(projectId);
+          setSnapshots((current) => {
+            const next = { ...current };
+            delete next[projectId];
+            return next;
+          });
+          setWorkbenches((current) => {
+            const next = { ...current };
+            delete next[projectId];
+            return next;
+          });
+          void refresh('')
+            .then((next) =>
+              setProjectId((current) =>
+                next.projects.some((item) => item.id === current)
+                  ? current
+                  : next.projects[0]?.id || ''
+              )
+            )
+            .catch((cause) => report(cause.message, null));
+          return;
+        }
         if (
           [
             'object_archived',
             'object_restored',
             'object_deleted',
+            'project_changed',
             'workflow_changed',
             'session_status',
             'run_started',
@@ -286,9 +313,11 @@ export function App() {
     setCreateError('');
     setCreateKind(kind);
   }
-  function projectAction(action: ProjectAction) {
-    if (action === 'details') setDetailsOpen(true);
-    else if (action === 'import' || action === 'export') setTransfer(action);
+  function projectAction(action: ProjectAction, targetId = projectId) {
+    if (action === 'details' || action === 'rename' || action === 'delete') {
+      const target = projects.find((item) => item.id === targetId);
+      if (target) setProjectManagement({ action, project: target });
+    } else if (action === 'import' || action === 'export') setTransfer(action);
     else openCreate(action);
   }
   async function chooseDirectory() {
@@ -1053,43 +1082,39 @@ export function App() {
           }}
         />
       )}
-      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen} title={tx('项目详情')}>
-        <p className="mb-5 text-sm font-medium">{project?.name}</p>
-        <p className="mb-2 text-xs text-muted-foreground">{tx('工程目录')}</p>
-        <p className="rounded-lg bg-secondary p-3 text-xs leading-6 break-all select-text">
-          {project?.directory}
-        </p>
-        <div className="mt-5 flex flex-wrap justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (project)
-                void navigator.clipboard
-                  .writeText(project.directory)
-                  .catch((cause) => report(cause.message));
-            }}
-          >
-            <Copy />
-            {tx('复制路径')}
-          </Button>
-          {'__TAURI_INTERNALS__' in window && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (project)
-                  void import('@tauri-apps/plugin-opener')
-                    .then(({ revealItemInDir }) => revealItemInDir(project.directory))
-                    .catch((cause) => report(cause.message));
-              }}
-            >
-              <FolderOpen />
-              {tx('在文件管理器中显示')}
-            </Button>
-          )}
-        </div>
-      </Dialog>
+      {projectManagement && (
+        <ProjectManagement
+          key={`${projectManagement.action}:${projectManagement.project.id}`}
+          action={projectManagement.action}
+          project={projectManagement.project}
+          close={() => setProjectManagement(null)}
+          renamed={(updated) => {
+            setProjects((current) =>
+              current.map((item) => (item.id === updated.id ? updated : item))
+            );
+          }}
+          deleted={async (id) => {
+            setSnapshots((current) => {
+              const next = { ...current };
+              delete next[id];
+              return next;
+            });
+            setWorkbenches((current) => {
+              const next = { ...current };
+              delete next[id];
+              return next;
+            });
+            forgetProjectDrafts(id);
+            const next = await refresh('');
+            setProjectId((current) =>
+              current === id || !next.projects.some((item) => item.id === current)
+                ? next.projects[0]?.id || ''
+                : current
+            );
+            setNotice(null);
+          }}
+        />
+      )}
       {ready && (
         <Presence open={settings} keepMounted className="settings-presence fixed inset-0 z-40">
           <SettingsPage
@@ -1144,5 +1169,19 @@ function forgetDeletedDraft(projectId: string, kind: 'session' | 'workflow', id:
     window.dispatchEvent(
       new CustomEvent('flowgram:session-deleted', { detail: { projectId, id } })
     );
+  }
+}
+
+function forgetProjectDrafts(projectId: string) {
+  for (const key of Object.keys(sessionStorage)) {
+    if (
+      key === `flowgram.compose.v2.${projectId}` ||
+      [
+        `flowgram.pending.v2.${projectId}.`,
+        `flowgram.draft.${projectId}.`,
+        `flowgram.node-editors.${projectId}.`,
+      ].some((prefix) => key.startsWith(prefix))
+    )
+      sessionStorage.removeItem(key);
   }
 }

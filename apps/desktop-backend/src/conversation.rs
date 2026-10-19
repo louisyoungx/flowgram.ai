@@ -449,7 +449,7 @@ impl Store {
     }
     async fn claim_next(&self, session: &str) -> Result<Option<(Turn, CancellationToken)>> {
         let _guard = self.conversation_lock.lock().await;
-        if self.is_archived("session", session).await? {
+        if self.closed.is_cancelled() || self.is_archived("session", session).await? {
             self.conversation_workers.lock().await.remove(session);
             return Ok(None);
         }

@@ -469,6 +469,7 @@ impl Store {
     pub async fn import_service(&self, bundle: Bundle) -> Result<Bundle> {
         bundle.verify()?;
         let _guard = self.service_lock.lock().await;
+        self.ensure_open()?;
         // A dedicated runtime project owns only service data. Never overwrite editable workflow files.
         let project = self.projects().await?.remove(0);
         let mut tx = self.db.begin().await?;
@@ -575,6 +576,7 @@ impl Store {
             }
         }
         let _guard = self.service_lock.lock().await;
+        self.ensure_open()?;
         sqlx::query("INSERT INTO service_deployments VALUES(?,?,?) ON CONFLICT(service,environment) DO UPDATE SET definition=excluded.definition").bind(&definition.service).bind(&definition.environment).bind(serde_json::to_string(&definition)?).execute(&self.db).await?;
         self.emit(
             "service_changed",
@@ -727,6 +729,7 @@ impl Store {
             ));
         }
         let _guard = self.service_lock.lock().await;
+        self.ensure_open()?;
         let request_hash = hash(&serde_json::to_vec(&inputs)?);
         let old=sqlx::query("SELECT run_id,request_hash FROM service_runs WHERE service=? AND environment=? AND operation=? AND caller_id=? AND idempotency_key=?").bind(&caller.deployment.service).bind(&caller.deployment.environment).bind(operation).bind(&caller.consumer.id).bind(key).fetch_optional(&self.db).await?;
         if let Some(old) = old {

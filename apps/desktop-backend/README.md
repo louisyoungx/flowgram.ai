@@ -19,6 +19,9 @@ cargo test -p flowgram-desktop-backend
 | --- | --- | --- |
 | GET | /api/bootstrap | 项目、会话、工作流和最近 100 次运行 |
 | POST | /api/projects | 创建工程，`{name,directory?}`；目录需为空 |
+| GET | /api/projects/{id} | 查看项目元数据与对象数量，无需切换当前项目 |
+| PUT | /api/projects/{id} | 重命名，`{name,expectedName}`；保留身份和目录，拒绝过期名称 |
+| DELETE | /api/projects/{id} | 永久删除整个项目目录，`{confirmationName}` 必须精确匹配完整名称 |
 | POST | /api/projects/open | 打开已有工程，`{directory}` |
 | POST | /api/projects/{id}/export | 导出项目包，`{includeHistory?:true,destination?}`；无保存路径返回包 JSON，有路径原子写入 `.flowgram.json` 并返回 `{saved:true}` |
 | POST | /api/projects/import | 校验并导入项目包，`{package,name?,directory?}`；`directory` 为保存位置，在其中新建独立项目文件夹，成功返回新项目 |
@@ -51,6 +54,8 @@ cargo test -p flowgram-desktop-backend
 | POST | /mcp | MCP JSON-RPC |
 
 PUT 工作流输入 `{revision,name,schema}`。版本不匹配返回 HTTP 409。模型配置输入 `{baseUrl,model?,apiKey?}`；省略模型或密钥会保留已有值。
+
+项目删除使用应用级变更锁及项目执行锁，阻止执行中任务、启用部署及包含应用数据或其他已登记项目的目录被删除。删除前关闭项目写入与投递 worker，旧请求不能重新创建目录。工程先移入同级临时目录，再更新注册表；持久化失败恢复原目录及可用 Store，进程中断则在下次启动任何项目 worker 前根据删除日志恢复或清理。项目发布记录与凭证的项目授权一并清理，保留其他项目、全局凭证和模型连接。
 
 ## 对话与运行中输入
 

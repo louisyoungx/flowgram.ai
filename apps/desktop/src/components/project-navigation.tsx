@@ -20,11 +20,18 @@ import { cn } from '../lib/utils';
 import type { Project, Snapshot } from '../lib/types';
 import { t, tx } from '../lib/i18n';
 import logo from '../assets/flowgram-logo.svg';
-import { Select } from './ui/select';
+import { EntitySelect } from './ui/select';
 import { MenuButton } from './ui/menu-button';
 import { Button } from './ui/button';
 
-export type ProjectAction = 'project' | 'open' | 'details' | 'import' | 'export';
+export type ProjectAction =
+  | 'project'
+  | 'open'
+  | 'details'
+  | 'import'
+  | 'export'
+  | 'rename'
+  | 'delete';
 
 export function ProjectMenu({
   projects,
@@ -36,27 +43,30 @@ export function ProjectMenu({
   projects: Project[];
   projectId: string;
   onSelect: (id: string) => void;
-  onAction: (action: ProjectAction) => void;
+  onAction: (action: ProjectAction, projectId?: string) => void;
   compact?: boolean;
 }) {
   return (
-    <Select
-      variant="ghost"
-      aria-label={tx('项目菜单')}
-      title={projects.find((item) => item.id === projectId)?.name || tx('项目')}
-      value={projectId ? `project:${projectId}` : ''}
+    <EntitySelect
+      label={tx('项目菜单')}
+      value={projectId}
       placeholder={tx('选择项目')}
       className={cn('project-menu', compact && 'max-w-44')}
-      onValueChange={(value) =>
-        value.startsWith('project:') ? onSelect(value.slice(8)) : onAction(value as ProjectAction)
-      }
-      options={[
-        ...projects.map((project) => ({ value: `project:${project.id}`, label: project.name })),
-        { value: 'project', label: t('newProject'), separatorBefore: !!projects.length },
-        { value: 'open', label: tx('打开项目') },
-        { value: 'import', label: tx('导入项目') },
-        ...(projectId ? [{ value: 'export', label: tx('导出项目') }] : []),
-        ...(projectId ? [{ value: 'details', label: tx('项目详情'), separatorBefore: true }] : []),
+      onValueChange={onSelect}
+      items={projects.map((project) => ({ value: project.id, label: project.name }))}
+      actions={[
+        { id: 'rename', label: tx('重命名项目') },
+        { id: 'details', label: tx('查看详情') },
+        { id: 'delete', label: tx('删除项目'), danger: true },
+      ]}
+      onAction={(action, id) => onAction(action as ProjectAction, id)}
+      actionLabel={(item) => tx('项目操作：{0}', [item.label])}
+      onCommand={(action) => onAction(action as ProjectAction)}
+      commands={[
+        { id: 'project', label: t('newProject') },
+        { id: 'open', label: tx('打开项目') },
+        { id: 'import', label: tx('导入项目') },
+        ...(projectId ? [{ id: 'export', label: tx('导出项目') }] : []),
       ]}
     />
   );
@@ -84,7 +94,7 @@ export function ProjectSidebar({
   snapshot: Snapshot;
   bench: Workbench;
   onSelectProject: (id: string) => void;
-  onProjectAction: (action: ProjectAction) => void;
+  onProjectAction: (action: ProjectAction, projectId?: string) => void;
   onCollapse: () => void;
   onSearch: () => void;
   onNewSession: () => void;

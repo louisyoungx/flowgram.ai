@@ -14,6 +14,7 @@ use tokio_util::sync::CancellationToken;
 
 #[derive(Clone)]
 pub struct Store {
+    pub closed: CancellationToken,
     pub deployment_settings: crate::deployment_settings::Catalog,
     pub db: SqlitePool,
     pub events: broadcast::Sender<Event>,
@@ -93,6 +94,7 @@ impl Store {
         };
         let (events, _) = broadcast::channel(512);
         let store = Self {
+            closed: CancellationToken::new(),
             deployment_settings: crate::deployment_settings::Catalog::open(settings).await?,
             db,
             events,
@@ -143,6 +145,7 @@ impl Store {
             .await?)
     }
     pub async fn require_project(&self, id: &str) -> Result<()> {
+        self.ensure_open()?;
         if sqlx::query("SELECT id FROM projects WHERE id=?")
             .bind(id)
             .fetch_optional(&self.db)
@@ -208,6 +211,7 @@ impl Store {
     ) -> Result<Workflow> {
         self.require_project(project).await?;
         let _guard = self.workflow_lock.lock().await;
+        self.ensure_open()?;
         let w = Workflow {
             id: id(),
             project_id: project.into(),
@@ -321,6 +325,16 @@ impl Store {
         tokio::fs::write(path, serde_json::to_vec(&config)?).await?;
         *self.model.lock().await = config;
         self.resume_conversations().await?;
+        Ok(())
+    }
+}
+impl Store {
+    pub fn ensure_open(&self) -> Result<()> {
+        if self.closed.is_cancelled() {
+            return Err(Error::NotFound(
+                "This project was deleted. Select another project".into(),
+            ));
+        }
         Ok(())
     }
 }

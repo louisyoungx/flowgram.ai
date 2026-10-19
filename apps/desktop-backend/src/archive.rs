@@ -44,6 +44,7 @@ impl Store {
             > 0)
     }
     pub async fn require_unarchived(&self, kind: &str, id: &str) -> Result<()> {
+        self.ensure_open()?;
         if self.is_archived(kind, id).await? {
             return Err(Error::Invalid(
                 "Restore this archived item in Settings before editing or running it".into(),

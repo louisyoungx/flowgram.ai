@@ -11,6 +11,7 @@ pub mod model;
 pub mod node_test;
 pub mod nodes;
 pub mod project;
+pub mod project_management;
 pub mod project_transfer;
 pub mod registry;
 mod run_snapshot;

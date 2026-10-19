@@ -4,7 +4,9 @@
  */
 
 import { createPortal } from 'react-dom';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useContext, useLayoutEffect, useRef, useState } from 'react';
+
+import { FloatingLayerOwners } from './floating-layer';
 
 export interface MenuCommand {
   id: string;
@@ -27,6 +29,7 @@ export function CommandMenu({
   onCommand: (id: string) => void;
   onClose: (restoreFocus?: boolean) => void;
 }) {
+  const owners = useContext(FloatingLayerOwners);
   const panel = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(point);
   useLayoutEffect(() => {
@@ -60,6 +63,7 @@ export function CommandMenu({
       role="menu"
       aria-label={label}
       className="workflow-command-menu"
+      data-floating-layer-owners={owners.join(' ')}
       style={{ left: position.x, top: position.y }}
       onContextMenu={(event) => event.preventDefault()}
       onKeyDown={(event) => {

@@ -5,11 +5,14 @@
 
 import { Fragment, useContext, type ButtonHTMLAttributes } from 'react';
 
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 
 import { cn } from '../../lib/utils';
+import { Popover } from './popover';
+import { MenuButton } from './menu-button';
 import { FloatingLayerOwners } from './floating-layer';
+import { Button } from './button';
 
 export interface SelectOption {
   value: string;
@@ -108,5 +111,108 @@ export function Select({
       </SelectPrimitive.Root>
       {name && <input type="hidden" name={name} value={value} />}
     </>
+  );
+}
+
+/** Composite entity picker: selection and row actions are sibling buttons, never nested options. */
+export function EntitySelect({
+  value,
+  items,
+  label,
+  placeholder,
+  onValueChange,
+  actions,
+  onAction,
+  actionLabel,
+  commands,
+  onCommand,
+  className,
+}: {
+  value: string;
+  items: readonly { value: string; label: string }[];
+  label: string;
+  placeholder: string;
+  onValueChange: (value: string) => void;
+  actions: readonly import('./command-menu').MenuCommand[];
+  onAction: (action: string, value: string) => void;
+  actionLabel: (item: { value: string; label: string }) => string;
+  commands: readonly import('./command-menu').MenuCommand[];
+  onCommand: (action: string) => void;
+  className?: string;
+}) {
+  const current = items.find((item) => item.value === value);
+  return (
+    <div className={cn('fg-entity-select', className)}>
+      <Popover
+        label={label}
+        width={320}
+        trigger={
+          <button
+            type="button"
+            role="combobox"
+            title={current?.label || placeholder}
+            aria-label={label}
+            className="fg-select-trigger fg-select-ghost"
+          >
+            <span className="fg-select-value">{current?.label || placeholder}</span>
+            <ChevronDown className="fg-select-chevron" size={14} />
+          </button>
+        }
+      >
+        {(close) => (
+          <>
+            <div role="list" aria-label={label} className="max-h-64 overflow-auto">
+              {items.map((item) => (
+                <div role="listitem" key={item.value} className="fg-entity-row">
+                  <button
+                    type="button"
+                    className="fg-entity-choice"
+                    aria-current={item.value === value ? 'true' : undefined}
+                    title={item.label}
+                    onClick={() => {
+                      close();
+                      onValueChange(item.value);
+                    }}
+                  >
+                    <Check
+                      size={14}
+                      aria-hidden="true"
+                      className={item.value === value ? 'shrink-0' : 'invisible shrink-0'}
+                    />
+                    <span className="truncate">{item.label}</span>
+                  </button>
+                  <MenuButton
+                    label={actionLabel(item)}
+                    commands={[...actions]}
+                    onCommand={(action) => {
+                      close();
+                      onAction(action, item.value);
+                    }}
+                  >
+                    <MoreHorizontal size={15} />
+                  </MenuButton>
+                </div>
+              ))}
+            </div>
+            {!!items.length && <div className="my-1 h-px bg-border" />}
+            {commands.map((command) => (
+              <Button
+                key={command.id}
+                type="button"
+                variant="ghost"
+                className="w-full justify-start"
+                disabled={!!command.disabled}
+                onClick={() => {
+                  close();
+                  onCommand(command.id);
+                }}
+              >
+                {command.label}
+              </Button>
+            ))}
+          </>
+        )}
+      </Popover>
+    </div>
   );
 }

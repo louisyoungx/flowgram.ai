@@ -12,10 +12,13 @@ use std::time::Duration;
 pub fn start(store: Store) {
     tokio::spawn(async move {
         loop {
-            if let Err(error) = deliver(&store).await {
-                eprintln!("Service completion delivery failed: {error}");
+            tokio::select! {
+                _ = store.closed.cancelled() => break,
+                _ = async {
+                    if let Err(error) = deliver(&store).await { eprintln!("Service completion delivery failed: {error}"); }
+                    tokio::time::sleep(Duration::from_secs(1)).await;
+                } => {}
             }
-            tokio::time::sleep(Duration::from_secs(1)).await;
         }
     });
 }

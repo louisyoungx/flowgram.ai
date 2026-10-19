@@ -87,6 +87,13 @@ pub async fn write_project(root: &Path, name: &str) -> Result<Project> {
     }
     read_project(root).await
 }
+pub async fn rename_project(root: &Path, name: &str) -> Result<Project> {
+    let mut file: ProjectFile =
+        serde_json::from_slice(&tokio::fs::read(root.join("flowgram.project.json")).await?)?;
+    file.name = nonempty(name, "Project name")?;
+    atomic_json(&root.join("flowgram.project.json"), &file).await?;
+    read_project(root).await
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -157,6 +164,7 @@ impl Store {
         Ok(())
     }
     pub async fn sync_workflow_index(&self) -> Result<Vec<Workflow>> {
+        self.ensure_open()?;
         let folder = self.project_root.join("workflows");
         tokio::fs::create_dir_all(&folder).await?;
         let mut entries = tokio::fs::read_dir(folder).await?;

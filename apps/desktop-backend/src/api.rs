@@ -75,6 +75,9 @@ async fn authorize(State(state): State<ApiState>, request: Request, next: Next) 
     if request.uri().path() == "/health" {
         return next.run(request).await;
     }
+    if let Err(error) = state.store.ensure_open() {
+        return error.into_response();
+    }
     let supplied = request
         .headers()
         .get("authorization")

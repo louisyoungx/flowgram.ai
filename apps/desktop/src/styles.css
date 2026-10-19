@@ -980,8 +980,13 @@ button:focus-visible,
   padding: 0 16px;
   border-bottom: 1px solid var(--border);
 }
-.project-menu.fg-select-trigger { min-width: 0; flex: 1 1 0%; width: auto; height: 32px; padding-inline: 8px; font-size: 13px; font-weight: 600; box-shadow: none; border-color: transparent; }
-.workspace-header .project-menu.fg-select-trigger { flex: 0 1 auto; min-width: 80px; }
+.project-menu.fg-entity-select { min-width: 0; flex: 1 1 0%; }
+.project-menu .fg-select-trigger { height: 32px; padding-inline: 8px; font-size: 13px; font-weight: 600; box-shadow: none; border-color: transparent; }
+.fg-entity-row { display: flex; align-items: center; gap: 4px; border-radius: 8px; }
+.fg-entity-row:hover, .fg-entity-row:focus-within { background: var(--accent); }
+.fg-entity-choice { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; padding: 9px 8px; text-align: left; border-radius: 8px; }
+.fg-entity-choice:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.workspace-header .project-menu.fg-entity-select { flex: 0 1 auto; min-width: 80px; }
 .app-notice { position: fixed; bottom: 20px; right: 20px; z-index: 45; display: flex; max-width: min(480px, calc(100vw - 40px)); align-items: center; gap: 12px; padding: 8px 8px 8px 16px; border-radius: var(--radius-card); background: var(--surface-panel); box-shadow: var(--shadow-surface); color: var(--destructive); }
 .workflow-editor-surface { container: workflow-editor / inline-size; }
 .workflow-canvas-region { container: workflow-canvas / inline-size; }
