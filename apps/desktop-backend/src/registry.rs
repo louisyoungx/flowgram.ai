@@ -11,7 +11,7 @@ use axum::{
     http::{HeaderMap, StatusCode},
     middleware::{self, Next},
     response::{IntoResponse, Response},
-    routing::{get, post},
+    routing::{any, get, post},
 };
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -125,6 +125,7 @@ impl Registry {
             Some(self.model.clone()),
         )
         .await?;
+        crate::service_delivery::start(store.clone());
         Ok((store, lock))
     }
     pub async fn create(&self, name: &str, directory: Option<&str>) -> Result<Project> {
@@ -197,6 +198,7 @@ pub fn router(registry: Registry, token: String) -> Router {
             get(|| async { Json(crate::tools::definitions()) }),
         )
         .route("/mcp", post(mcp))
+        .route("/v1/projects/{project}/{*path}", any(consumer_request))
         .fallback(project_request)
         .layer(axum::extract::DefaultBodyLimit::max(8_000_000))
         .layer(middleware::from_fn_with_state(state.clone(), authorize))
@@ -205,6 +207,7 @@ pub fn router(registry: Registry, token: String) -> Router {
 }
 async fn authorize(State(s): State<RegistryState>, request: Request, next: Next) -> Response {
     if request.uri().path() != "/health"
+        && !request.uri().path().starts_with("/v1/projects/")
         && request
             .headers()
             .get("authorization")
@@ -215,6 +218,41 @@ async fn authorize(State(s): State<RegistryState>, request: Request, next: Next)
         return (StatusCode::UNAUTHORIZED,Json(json!({"error":{"code":"unauthorized","message":"App connection expired. Reconnect"}}))).into_response();
     }
     next.run(request).await
+}
+async fn consumer_request(
+    State(s): State<RegistryState>,
+    axum::extract::Path((project, path)): axum::extract::Path<(String, String)>,
+    mut request: Request,
+) -> Response {
+    let result: Result<Response> = async {
+        let store = s.registry.resolve(&project).await?;
+        let query = request
+            .uri()
+            .query()
+            .map(|q| format!("?{q}"))
+            .unwrap_or_default();
+        *request.uri_mut() = format!("/v1/{path}{query}")
+            .parse()
+            .map_err(|_| Error::Invalid("Invalid consumer URL".into()))?;
+        // A second Router must not inherit the outer wildcard path captures.
+        let original = request
+            .extensions()
+            .get::<axum::extract::OriginalUri>()
+            .cloned();
+        request.extensions_mut().clear();
+        if let Some(original) = original {
+            request.extensions_mut().insert(original);
+        }
+        Ok(crate::service_api::public_router(store)
+            .oneshot(request)
+            .await
+            .unwrap())
+    }
+    .await;
+    match result {
+        Ok(response) => response,
+        Err(error) => error.into_response(),
+    }
 }
 fn scope(headers: &HeaderMap) -> Result<&str> {
     headers

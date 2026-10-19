@@ -32,6 +32,7 @@ pub fn router(store: Store, token: String) -> Router {
         token: Arc::new(token),
     };
     Router::new()
+        .merge(crate::service_api::admin_routes())
         .route(
             "/health",
             get(|| async { Json(json!({"status":"ready","service":"flowgram"})) }),

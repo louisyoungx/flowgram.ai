@@ -8,7 +8,12 @@ license.workspace = true
 name = "flowgram-server"
 path = "src/main.rs"
 
+[[bin]]
+name = "flowgram-service"
+path = "src/service_main.rs"
+
 [dependencies]
+hmac = "0.12"
 axum = "0.8"
 async-stream = "0.3"
 chrono = { version = "0.4", features = ["serde"] }

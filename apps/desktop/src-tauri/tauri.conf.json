@@ -29,7 +29,7 @@
     "active": true,
     "targets": ["app"],
     "icon": ["icons/icon.png", "icons/icon.icns", "icons/icon.ico"],
-    "externalBin": ["binaries/flowgram-server"],
+    "externalBin": ["binaries/flowgram-server", "binaries/flowgram-service"],
     "shortDescription": "Workflow desktop workbench"
   }
 }

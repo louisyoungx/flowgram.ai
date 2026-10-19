@@ -212,7 +212,19 @@ impl Store {
                     ))
                 } else {
                     match serde_json::from_str(call["arguments"].as_str().unwrap_or("{}")) {
-                        Ok(args) => self.tool(project, None, name, args).await,
+                        Ok(args) => {
+                            let published: bool = sqlx::query_scalar(
+                                "SELECT EXISTS(SELECT 1 FROM service_runs WHERE run_id=?)",
+                            )
+                            .bind(run)
+                            .fetch_one(&self.db)
+                            .await?;
+                            if published {
+                                self.published_agent_tool(run, name, args).await
+                            } else {
+                                self.tool(project, None, name, args).await
+                            }
+                        }
                         Err(error) => Err(error.into()),
                     }
                 };

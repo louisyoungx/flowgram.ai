@@ -386,7 +386,7 @@ impl Store {
             .prepare_run(&w, session, &input, &dependencies, &mut tx)
             .await?;
         tx.commit().await?;
-        self.launch_run(run.clone(), w, input).await?;
+        self.launch_run(run.clone(), w, input, None).await?;
         Ok(run)
     }
     pub(crate) async fn prepare_run(
@@ -434,6 +434,7 @@ impl Store {
         run: Run,
         workflow: crate::model::Workflow,
         input: Value,
+        policy: Option<crate::services::ExecutionPolicy>,
     ) -> Result<()> {
         let token = CancellationToken::new();
         self.active
@@ -453,7 +454,26 @@ impl Store {
                 &token,
                 0,
             );
-            let result = future.await;
+            let result = if let Some(policy) = policy {
+                match tokio::time::timeout(
+                    std::time::Duration::from_millis(policy.timeout_ms),
+                    future,
+                )
+                .await
+                {
+                    Ok(Ok(value)) => crate::services::check_contract(&policy.output_schema, &value)
+                        .map(|_| value),
+                    Ok(Err(error)) => Err(error),
+                    Err(_) => {
+                        token.cancel();
+                        Err(Error::Execution(
+                            "Service execution timed out; completed side effects may remain".into(),
+                        ))
+                    }
+                }
+            } else {
+                future.await
+            };
             let (status, output, error) = match result {
                 Ok(value) => ("succeeded", value, None),
                 Err(Error::Cancelled) => ("canceled", json!({}), Some("Run canceled".into())),
@@ -614,6 +634,32 @@ impl Store {
                         );
                     }
                 }
+                let mut credential_secret = None;
+                if let Some((name, header, prefix)) = crate::service_credentials::slot(node)? {
+                    let secret = self.run_connection_secret(run, &name).await?;
+                    let mut headers = reqwest::header::HeaderMap::new();
+                    if let Some(values) = incoming["headers"].as_object() {
+                        for (key, value) in values {
+                            let key = reqwest::header::HeaderName::from_bytes(key.as_bytes())
+                                .map_err(|_| Error::Invalid("Invalid HTTP header name".into()))?;
+                            let value = reqwest::header::HeaderValue::from_str(
+                                value.as_str().unwrap_or_default(),
+                            )
+                            .map_err(|_| Error::Invalid("Invalid HTTP header value".into()))?;
+                            headers.insert(key, value);
+                        }
+                    }
+                    headers.insert(
+                        reqwest::header::HeaderName::from_bytes(header.as_bytes())
+                            .expect("validated header"),
+                        reqwest::header::HeaderValue::from_str(&format!("{prefix}{secret}"))
+                            .map_err(|_| {
+                                Error::Execution("Invalid HTTP credential value".into())
+                            })?,
+                    );
+                    request = request.headers(headers);
+                    credential_secret = Some(secret);
+                }
                 if let Some(body) = incoming.get("body") {
                     if let Some(text) = body.as_str() {
                         request = request.body(text.to_owned());
@@ -635,7 +681,17 @@ impl Store {
                         {
                             return None;
                         }
-                        value.to_str().ok().map(|v| (key.to_string(), json!(v)))
+                        value.to_str().ok().map(|v| {
+                            (
+                                key.to_string(),
+                                json!(
+                                    credential_secret
+                                        .as_ref()
+                                        .map(|secret| v.replace(secret, "[redacted]"))
+                                        .unwrap_or_else(|| v.to_owned())
+                                ),
+                            )
+                        })
                     })
                     .collect();
                 let mut chunks = response.bytes_stream();
@@ -647,8 +703,12 @@ impl Store {
                     }
                     bytes.extend_from_slice(&chunk);
                 }
-                let body = serde_json::from_slice::<Value>(&bytes)
-                    .unwrap_or_else(|_| json!(String::from_utf8_lossy(&bytes)));
+                let safe = credential_secret
+                    .as_ref()
+                    .map(|secret| String::from_utf8_lossy(&bytes).replace(secret, "[redacted]"));
+                let bytes = safe.as_ref().map(|v| v.as_bytes()).unwrap_or(&bytes);
+                let body = serde_json::from_slice::<Value>(bytes)
+                    .unwrap_or_else(|_| json!(String::from_utf8_lossy(bytes)));
                 Ok((
                     json!({"statusCode":status,"headers":headers,"body":body}),
                     None,

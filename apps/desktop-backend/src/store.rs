@@ -21,6 +21,7 @@ pub struct Store {
     pub data_dir: PathBuf,
     pub project_root: PathBuf,
     pub workflow_lock: Arc<Mutex<()>>,
+    pub service_lock: Arc<Mutex<()>>,
     pub client: reqwest::Client,
     pub conversation_lock: Arc<Mutex<()>>,
     pub conversation_workers: Arc<Mutex<HashSet<String>>>,
@@ -77,6 +78,7 @@ impl Store {
             sqlx::query(statement).execute(&db).await?;
         }
         crate::conversation::initialize(&db).await?;
+        crate::services::initialize(&db).await?;
         // An interrupted process cannot safely replay external side effects.
         sqlx::query("UPDATE runs SET status='interrupted', error='The application service restarted and execution was interrupted. Completed steps remain in run history' WHERE status='running'").execute(&db).await?;
         sqlx::query("UPDATE sessions SET status='idle' WHERE status='running'")
@@ -96,6 +98,7 @@ impl Store {
             data_dir: settings.to_path_buf(),
             project_root: path.to_path_buf(),
             workflow_lock: Arc::default(),
+            service_lock: Arc::default(),
             client: reqwest::Client::builder()
                 .redirect(reqwest::redirect::Policy::none())
                 .timeout(std::time::Duration::from_secs(180))

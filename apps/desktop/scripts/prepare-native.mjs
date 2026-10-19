@@ -18,7 +18,7 @@ const target = spawnSync('rustc', ['-vV'], { encoding: 'utf8' }).stdout.match(/^
 const suffix = process.platform === 'win32' ? '.exe' : '';
 const binaries = resolve(root, 'apps/desktop/src-tauri/binaries');
 mkdirSync(binaries, { recursive: true });
-for (const binary of ['flowgram-server']) {
+for (const binary of ['flowgram-server', 'flowgram-service']) {
   copyFileSync(resolve(root, `target/${production ? 'release' : 'debug'}/${binary}${suffix}`), resolve(binaries, `${binary}-${target}${suffix}`));
 }
 if (production) run('node', ['../../common/scripts/install-run-rushx.js', 'build'], resolve(root, 'apps/desktop'));

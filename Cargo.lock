@@ -1290,6 +1290,7 @@ dependencies = [
  "fs2",
  "futures-util",
  "hex",
+ "hmac",
  "http-body-util",
  "jsonschema",
  "minijinja",
