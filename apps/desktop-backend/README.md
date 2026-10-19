@@ -18,6 +18,7 @@ cargo test -p flowgram-desktop-backend
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
 | GET | /api/bootstrap | 项目、会话、工作流和最近 100 次运行 |
+| POST | /api/projects/initialize | 首次空白工作区初始化普通示例项目，`{locale}`（`"en"` 或 `"zh-CN"`）；幂等，已登记过项目不再填充 |
 | POST | /api/projects | 创建工程，`{name,directory?}`；目录需为空 |
 | GET | /api/projects/{id} | 查看项目元数据与对象数量，无需切换当前项目 |
 | PUT | /api/projects/{id} | 重命名，`{name,expectedName}`；保留身份和目录，拒绝过期名称 |
@@ -56,6 +57,8 @@ cargo test -p flowgram-desktop-backend
 PUT 工作流输入 `{revision,name,schema}`。版本不匹配返回 HTTP 409。模型配置输入 `{baseUrl,model?,apiKey?}`；省略模型或密钥会保留已有值。
 
 项目删除使用应用级变更锁及项目执行锁，阻止执行中任务、启用部署及包含应用数据或其他已登记项目的目录被删除。删除前关闭项目写入与投递 worker，旧请求不能重新创建目录。工程先移入同级临时目录，再更新注册表；持久化失败恢复原目录及可用 Store，进程中断则在下次启动任何项目 worker 前根据删除日志恢复或清理。项目发布记录与凭证的项目授权一并清理，保留其他项目、全局凭证和模型连接。
+
+示例初始化由前端首次连接时显式请求，不由 `Registry::open` 或独立运行服务自动创建。检查从未写入的注册表与空工程目录，在应用变更锁内生成暂存工程，完成后移动并一次提交注册表；完成标记支持移动后的中断恢复，未完成的暂存内容可重建。普通服务端数据模型中不增加示例标识或只读规则。预置讲解写入现有 Turn / Item / Input，工具调用与运行通过共享 Workflow Tools 执行，结束后无运行中轮次、待办队列或自动模型请求。
 
 ## 对话与运行中输入
 

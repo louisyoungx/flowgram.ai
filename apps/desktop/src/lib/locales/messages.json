@@ -1730,5 +1730,10 @@
   "此工程目录包含应用数据或其他项目，无法删除": "This project directory contains application data or another project and cannot be deleted",
   "请先停止项目中正在执行的任务，再删除项目": "Stop all active project executions before deleting the project",
   "请先停用此项目的部署，再删除项目": "Disable this project's deployments before deleting it",
-  "无法删除文件系统根目录": "Cannot delete a filesystem root"
+  "无法删除文件系统根目录": "Cannot delete a filesystem root",
+  "不支持此示例项目语言": "Unsupported initial project language",
+  "示例项目目录无效": "Invalid initial project directory",
+  "示例运行超时，请重试初始化": "Initial example execution timed out",
+  "示例运行未返回标识": "Initial run did not return an identity",
+  "示例工作流校验失败：{0}": "Initial workflow validation failed: {0}"
 }

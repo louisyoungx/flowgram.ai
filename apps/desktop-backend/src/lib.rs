@@ -7,6 +7,7 @@ mod control_runtime;
 pub mod conversation;
 pub mod core_nodes;
 pub mod error;
+pub mod initial_projects;
 pub mod model;
 pub mod node_test;
 pub mod nodes;

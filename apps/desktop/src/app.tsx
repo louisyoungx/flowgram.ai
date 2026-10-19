@@ -27,7 +27,7 @@ import {
 import type { ModelSettings, Project, Snapshot, Workflow } from './lib/types';
 import { ProjectScope } from './lib/project-context';
 import { workflowTemplates } from './lib/node-catalog';
-import { errorText, t, tx, useLocale } from './lib/i18n';
+import { errorText, getLocale, t, tx, useLocale } from './lib/i18n';
 import type { PublishIntent } from './lib/deployment';
 import { api, connectDesktop, subscribeEvents } from './lib/api';
 import { WorkspaceHeader } from './components/workspace-header';
@@ -153,6 +153,7 @@ export function App() {
     let disposed = false;
     void connectDesktop()
       .then(async () => {
+        await api('/api/projects/initialize', 'POST', { locale: getLocale() });
         const next = await refresh('');
         if (disposed) return;
         setProjectId((id) =>

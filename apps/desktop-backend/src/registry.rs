@@ -201,6 +201,7 @@ pub fn router(registry: Registry, token: String) -> Router {
         .merge(crate::project_transfer::routes())
         .merge(crate::archive::global_routes())
         .merge(crate::project_management::routes())
+        .merge(crate::initial_projects::routes())
         .route(
             "/health",
             get(|| async { Json(json!({"status":"ready","service":"flowgram"})) }),
