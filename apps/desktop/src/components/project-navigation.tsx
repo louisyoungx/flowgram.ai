@@ -20,6 +20,7 @@ import type { Workbench } from '../lib/workbench';
 import { cn } from '../lib/utils';
 import type { Project, Snapshot } from '../lib/types';
 import { t, tx } from '../lib/i18n';
+import logo from '../assets/flowgram-logo.svg';
 import { Select } from './ui/select';
 import { Button } from './ui/button';
 
@@ -96,6 +97,12 @@ export function ProjectSidebar({
   return (
     <aside className="flex min-h-0 flex-1 flex-col bg-sidebar" aria-label={tx('项目导航')}>
       <header className="flex h-12 shrink-0 items-center gap-1 px-2" data-tauri-drag-region>
+        <img
+          src={logo}
+          alt="FlowGram"
+          className="h-8 w-8 shrink-0 object-contain"
+          draggable={false}
+        />
         <ProjectMenu
           projects={projects}
           projectId={projectId}
