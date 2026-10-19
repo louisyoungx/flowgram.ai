@@ -19,13 +19,6 @@ Follow conventional commits (`type(scope): subject`) as seen in history (`fix(au
 - Keep each commit focused on one functional change, including its necessary tests and documentation. Split shared files by feature when changes overlap; do not use broad staging to combine unrelated work.
 - Before committing, inspect the staged diff and exclude generated artifacts, local data, and credentials. After committing, check the worktree and clearly distinguish any pre-existing or unfinished changes. Do not push unless requested.
 
-## Desktop App Product Guidelines
-
-- Build the desktop experience around projects, tasks, and reusable workflows. The built-in agent, manual UI actions, and external MCP clients must share Rust Workflow Tools and their validation, authorization, revision, and execution semantics.
-- Use FlowGram-owned naming in product copy, documentation, package names, and runtime identifiers. Keep internal reference-product names, source paths, private packages, and private endpoints out of deliverables; cite public dependencies when needed.
-- Implement the application backend, Agent Runtime, Workflow Runtime, and shared Workflow Tools in standalone Rust. Keep backend domain code independent of React and Tauri; the frontend uses a public API, and Tauri only handles desktop integration. Preserve the existing Rush and pnpm setup, and verify framework compatibility before changing shared library requirements.
-- During prototype development, remove incompatible test data when replacing a data model. Do not add compatibility views, duplicate transcript storage, or migration paths solely to preserve obsolete test fixtures. Preserve model connection settings when cleaning test data.
-
 ## Desktop Design Standard
 
 - Follow the user-selected Claude design references: https://claude-storybook.bystanderss.chatgpt.site and https://www.figma.com/design/iAyueTdyOjxZZhNpRpbCQY/MCP-Apps-for-Claude--Community-. Keep implementation details and token mappings in `design/desktop-design-system.md`.
