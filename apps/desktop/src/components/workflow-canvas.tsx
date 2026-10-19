@@ -14,6 +14,7 @@ import {
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
+  type ReactNode,
 } from 'react';
 
 import { Check, Circle, Loader2, MoreHorizontal, Plus } from 'lucide-react';
@@ -40,6 +41,7 @@ import {
   type FreeLayoutPluginContext,
 } from '@flowgram.ai/free-layout-editor';
 
+import type { InsertionIntent, NodeCommand, Edge } from '../lib/workflow-editing';
 import type { WorkflowNode, WorkflowSchema } from '../lib/types';
 import { nodeCatalog, nodeSpec, nodeSummary } from '../lib/node-catalog';
 import { tx, useLocale } from '../lib/i18n';
@@ -50,8 +52,8 @@ import {
   scopeFor,
   staticPorts,
 } from '../lib/control-nodes';
+import { WorkflowCanvasToolbar } from './workflow-canvas-toolbar';
 import { InlineRename } from './ui/inline-rename';
-import type { InsertionIntent, NodeCommand, Edge } from '../lib/workflow-editing';
 import '@flowgram.ai/free-layout-editor/index.css';
 
 function fitCanvas(ctx: FreeLayoutPluginContext | null) {
@@ -295,6 +297,8 @@ export const WorkflowCanvas = memo(
       onRename: (id: string, title: string) => void;
       onEndRename: () => void;
       statuses?: Record<string, string>;
+      toolbarLeading?: ReactNode;
+      toolbarTrailing?: ReactNode;
     }
   >(function WorkflowCanvas(
     {
@@ -313,6 +317,8 @@ export const WorkflowCanvas = memo(
       onRename,
       onEndRename,
       statuses = {},
+      toolbarLeading,
+      toolbarTrailing,
     },
     ref
   ) {
@@ -904,6 +910,12 @@ export const WorkflowCanvas = memo(
                   </button>
                 )}
               </div>
+              <WorkflowCanvasToolbar
+                leading={toolbarLeading}
+                trailing={toolbarTrailing}
+                onHistory={runHistory}
+                onFit={() => fitCanvas(context.current)}
+              />
             </FreeLayoutEditorProvider>
           </ExecutionContext.Provider>
         </InteractionContext.Provider>

@@ -144,3 +144,6 @@ apps/desktop/src-tauri/gen/
 # Python validation artifacts
 __pycache__/
 *.py[cod]
+
+# Vite dependency cache
+.vite/

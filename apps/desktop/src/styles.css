@@ -980,6 +980,59 @@ button:focus-visible,
 .workspace-header .project-menu.fg-select-trigger { flex: 0 1 auto; min-width: 80px; }
 .app-notice { position: fixed; bottom: 20px; right: 20px; z-index: 45; display: flex; max-width: min(480px, calc(100vw - 40px)); align-items: center; gap: 12px; padding: 8px 8px 8px 16px; border-radius: var(--radius-card); background: var(--surface-panel); box-shadow: var(--shadow-surface); color: var(--destructive); }
 .workflow-editor-surface { container: workflow-editor / inline-size; }
+.workflow-canvas-region { container: workflow-canvas / inline-size; }
+.workflow-canvas-tools {
+  position: absolute;
+  z-index: 20;
+  left: 12px;
+  bottom: 12px;
+  max-width: calc(100% - 24px);
+  pointer-events: none;
+}
+.workflow-canvas-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface-panel);
+  color: var(--muted-foreground);
+  box-shadow: var(--shadow-surface);
+  pointer-events: auto;
+}
+.workflow-canvas-tool-group { display: flex; align-items: center; gap: 2px; }
+.workflow-canvas-tool-group + .workflow-canvas-tool-group {
+  border-left: 1px solid var(--border);
+  padding-left: 4px;
+}
+.workflow-canvas-zoom.fg-select-trigger {
+  width: 72px;
+  min-width: 72px;
+  height: 32px;
+  padding-inline: 6px;
+  gap: 4px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  box-shadow: none;
+}
+.workflow-canvas-toolbar button[aria-expanded='true'] { color: var(--foreground); }
+@container workflow-canvas (max-width: 620px) {
+  .workflow-canvas-tool-label { display: none; }
+  .workflow-canvas-toolbar .cds-button { width: 30px; height: 30px; padding-inline: 0; }
+}
+@container workflow-canvas (max-width: 360px) {
+  .workflow-canvas-toolbar { justify-content: space-between; }
+  .workflow-canvas-tool-group.workflow-canvas-viewport-tools {
+    order: 1;
+    flex-basis: 100%;
+    justify-content: center;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding: 4px 0 0;
+  }
+}
 @container workflow-editor (max-width: 600px) {
   .workflow-toolbar { min-height: 44px; padding: 8px; gap: 4px; }
   .workflow-toolbar .workflow-toolbar-label { display: none; }

@@ -16,7 +16,6 @@ import {
   Save,
   Send,
   X,
-  Scan,
 } from 'lucide-react';
 
 import {
@@ -751,51 +750,7 @@ export function WorkflowPanel({
           </Button>
         )}
       </WorkspaceHeader>
-      <div className="workflow-toolbar flex min-h-12 shrink-0 flex-wrap items-center justify-between gap-2 px-4 py-2">
-        <div className="flex flex-wrap gap-1">
-          <Button
-            size="sm"
-            variant="ghost"
-            aria-label={t('addNode')}
-            title={t('addNode')}
-            onClick={() => openPalette()}
-          >
-            <Plus />
-            <span className="workflow-toolbar-label">{t('addNode')}</span>
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            aria-label={tx('适应画布')}
-            onClick={() => canvas.current?.fit()}
-          >
-            <Scan />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            aria-label={t('validate')}
-            title={t('validate')}
-            onClick={validate}
-          >
-            <Check />
-            <span className="workflow-toolbar-label">{t('validate')}</span>
-          </Button>
-          <Button
-            ref={resultsToggle}
-            size="sm"
-            variant="ghost"
-            aria-label={resultsVisible ? tx('隐藏运行结果') : tx('显示运行结果')}
-            title={resultsVisible ? tx('隐藏运行结果') : tx('显示运行结果')}
-            aria-expanded={resultsVisible}
-            aria-controls={resultsId}
-            className={resultsVisible ? 'bg-secondary' : undefined}
-            onClick={() => setResultsVisible((visible) => !visible)}
-          >
-            <PanelBottom />
-            <span className="workflow-toolbar-label">{tx('运行结果')}</span>
-          </Button>
-        </div>
+      <div className="workflow-toolbar flex min-h-12 shrink-0 flex-wrap items-center justify-end gap-2 px-4 py-2">
         <div className="flex flex-wrap items-center gap-2">
           <Button
             size="sm"
@@ -875,12 +830,52 @@ export function WorkflowPanel({
           inert={
             paletteOpen || (inspector && (editorExpanded || hostWidth < 600)) ? true : undefined
           }
-          className="relative min-w-0 flex-1 bg-[var(--surface-canvas)]"
+          className="workflow-canvas-region relative min-w-0 flex-1 bg-[var(--surface-canvas)]"
         >
           <Suspense fallback={<p className="p-4 text-xs text-muted-foreground">{t('loading')}</p>}>
             <WorkflowCanvas
               ref={canvas}
               statuses={statuses}
+              toolbarLeading={
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  aria-label={t('addNode')}
+                  title={t('addNode')}
+                  onClick={() => openPalette()}
+                >
+                  <Plus />
+                  <span className="workflow-canvas-tool-label">{t('addNode')}</span>
+                </Button>
+              }
+              toolbarTrailing={
+                <>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    aria-label={t('validate')}
+                    title={t('validate')}
+                    onClick={validate}
+                  >
+                    <Check />
+                    <span className="workflow-canvas-tool-label">{t('validate')}</span>
+                  </Button>
+                  <Button
+                    ref={resultsToggle}
+                    size="sm"
+                    variant="ghost"
+                    aria-label={resultsVisible ? tx('隐藏运行结果') : tx('显示运行结果')}
+                    title={resultsVisible ? tx('隐藏运行结果') : tx('显示运行结果')}
+                    aria-expanded={resultsVisible}
+                    aria-controls={resultsId}
+                    className={resultsVisible ? 'bg-secondary' : undefined}
+                    onClick={() => setResultsVisible((visible) => !visible)}
+                  >
+                    <PanelBottom />
+                    <span className="workflow-canvas-tool-label">{tx('运行结果')}</span>
+                  </Button>
+                </>
+              }
               schema={schema}
               onChange={change}
               onOpen={selectNode}

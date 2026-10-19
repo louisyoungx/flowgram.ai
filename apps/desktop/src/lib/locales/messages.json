@@ -1617,5 +1617,11 @@
   "调用名称必须唯一，工具说明必须使用英文": "Operation names must be unique and tool descriptions must be English",
   "公开输入必须声明 additionalProperties: false": "Public inputs must declare additionalProperties: false",
   "部署配置必须为 JSON 对象": "Deployment bindings must be a JSON object",
-  "凭证槽位不可用：{0}": "Credential slot is unavailable: {0}"
+  "凭证槽位不可用：{0}": "Credential slot is unavailable: {0}",
+  "画布工具栏": "Canvas tools",
+  "撤销更改": "Undo changes",
+  "重做更改": "Redo changes",
+  "缩小画布": "Zoom out",
+  "放大画布": "Zoom in",
+  "画布缩放": "Canvas zoom"
 }
