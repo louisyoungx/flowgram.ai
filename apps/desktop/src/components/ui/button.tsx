@@ -18,6 +18,7 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/70',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         outline: 'border border-input bg-background hover:bg-accent',
+        destructive: 'bg-destructive text-white hover:bg-destructive/85',
       },
       size: { default: 'h-9 px-3', sm: 'h-8 px-2.5 text-xs', icon: 'size-8' },
     },

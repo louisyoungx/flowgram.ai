@@ -22,6 +22,11 @@ cargo test -p flowgram-desktop-backend
 | POST | /api/projects/open | 打开已有工程，`{directory}` |
 | POST | /api/projects/{id}/export | 导出项目包，`{includeHistory?:true,destination?}`；无保存路径返回包 JSON，有路径原子写入 `.flowgram.json` 并返回 `{saved:true}` |
 | POST | /api/projects/import | 校验并导入项目包，`{package,name?,directory?}`；`directory` 为保存位置，在其中新建独立项目文件夹，成功返回新项目 |
+| GET | /api/archives | 跨项目归档清单，返回 `items`、项目列表与不可访问项目的错误 |
+| POST | /api/sessions/{id}/archive | 归档会话并暂停队列，要求显式项目范围 |
+| POST | /api/workflows/{id}/archive | 归档工作流，执行中的依赖不可归档 |
+| POST | /api/archives/{kind}/{id}/restore | 恢复 `session` / `workflow`，要求显式项目范围 |
+| DELETE | /api/archives/{kind}/{id} | 彻底删除已归档对象，执行范围、运行状态和引用约束由 Rust 校验 |
 | GET / POST | /api/resources | 列出 / 导入项目共享文件（每个文件最多 1 MB） |
 | POST | /api/sessions | 创建会话 |
 | GET | /api/sessions/{id}/references | 会话实际引用与工具操作关联的工作流 |

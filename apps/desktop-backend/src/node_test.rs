@@ -36,6 +36,7 @@ impl Store {
     ) -> BoxFuture<'a, Result<Run>> {
         Box::pin(async move {
             let _guard = self.workflow_lock.lock().await;
+            self.require_unarchived("workflow", workflow).await?;
             let workflow = self.workflow(workflow).await?;
             if workflow.revision != input.revision {
                 return Err(Error::Conflict);

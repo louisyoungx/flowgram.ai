@@ -54,6 +54,8 @@ pub struct Package {
     pub workflows: Vec<Workflow>,
     pub files: Vec<Resource>,
     pub history: Option<BTreeMap<String, Vec<Vec<Value>>>>,
+    #[serde(default)]
+    pub archives: Vec<crate::archive::ArchivedObject>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -151,6 +153,23 @@ impl Package {
                     }
                     validate_history_row(table, row)?;
                 }
+            }
+        }
+        let mut archived_ids = HashSet::new();
+        for archived in &self.archives {
+            let exists = if archived.kind == "workflow" {
+                ids.contains(archived.id.as_str())
+            } else if archived.kind == "session" {
+                self.history.as_ref().is_some_and(|h| {
+                    h["sessions"]
+                        .iter()
+                        .any(|row| row[0].as_str() == Some(&archived.id))
+                })
+            } else {
+                false
+            };
+            if !exists || !archived_ids.insert((&archived.kind, &archived.id)) {
+                return Err(invalid("Project package contains invalid archive metadata"));
             }
         }
         Ok(())
@@ -283,6 +302,12 @@ pub async fn export_project(store: &Store, include_history: bool) -> Result<Pack
         workflows: store.sync_workflow_index().await?,
         files,
         history,
+        archives: store
+            .archive_records()
+            .await?
+            .into_iter()
+            .filter(|a| include_history || a.kind == "workflow")
+            .collect(),
     };
     package.validate()?;
     if serde_json::to_vec_pretty(&package)?.len() > MAX_PACKAGE_BYTES {
@@ -364,6 +389,9 @@ pub async fn import_project(
                 sqlx::query("UPDATE sessions SET status='idle' WHERE status='running'").execute(&mut *transaction).await?;
                 transaction.commit().await?;
                 crate::conversation::initialize(&store.db).await?;
+            }
+            for archived in package.archives {
+                sqlx::query("INSERT INTO archived_objects VALUES(?,?,?)").bind(archived.kind).bind(archived.id).bind(archived.archived_at).execute(&store.db).await?;
             }
             Ok::<_, Error>(())
         }.await;

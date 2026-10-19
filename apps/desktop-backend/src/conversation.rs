@@ -231,6 +231,7 @@ impl Store {
             return Err(Error::Invalid("Referenced content is too long".into()));
         }
         let guard = self.conversation_lock.lock().await;
+        self.require_unarchived("session", session).await?;
         if let Some(row) = sqlx::query(
             "SELECT data FROM conversation_inputs WHERE session_id=? AND client_input_id=?",
         )
@@ -390,6 +391,7 @@ impl Store {
         self.session(session).await?;
         {
             let _guard = self.conversation_lock.lock().await;
+            self.require_unarchived("session", session).await?;
             sqlx::query("INSERT INTO conversation_controls(session_id,paused) VALUES(?,0) ON CONFLICT(session_id) DO UPDATE SET paused=0").bind(session).execute(&self.db).await?;
             self.emit("conversation_queue", session, json!({"paused":false}))
                 .await?;
@@ -447,6 +449,10 @@ impl Store {
     }
     async fn claim_next(&self, session: &str) -> Result<Option<(Turn, CancellationToken)>> {
         let _guard = self.conversation_lock.lock().await;
+        if self.is_archived("session", session).await? {
+            self.conversation_workers.lock().await.remove(session);
+            return Ok(None);
+        }
         let paused: Option<i64> =
             sqlx::query_scalar("SELECT paused FROM conversation_controls WHERE session_id=?")
                 .bind(session)

@@ -113,9 +113,70 @@ export type WorkbenchAction =
       workflowId: string;
     }
   | { type: 'view'; view: DocumentView }
+  | { type: 'remove-object'; kind: 'session' | 'workflow'; id: string }
   | { type: 'close-document'; document: WorkspaceDocument };
 export function workbenchAction(state: Workbench, action: WorkbenchAction): Workbench {
   switch (action.type) {
+    case 'remove-object': {
+      if (action.kind === 'session') {
+        const workspaces = { ...state.sessionWorkspaces };
+        delete workspaces[action.id];
+        return {
+          ...state,
+          sessionWorkspaces: workspaces,
+          sessionId: state.sessionId === action.id ? null : state.sessionId,
+          sessionEpoch:
+            state.sessionId === action.id
+              ? state.sessionEpoch + 1
+              : state.sessionEpoch,
+          view:
+            state.view.kind === 'session' && state.sessionId === action.id
+              ? { kind: 'workflows' }
+              : state.view,
+        };
+      }
+      const workspaces = Object.fromEntries(
+        Object.entries(state.sessionWorkspaces).map(([key, workspace]) => {
+          const documents = workspace.documents.filter(
+            (doc) => !(doc.kind === 'workflow' && doc.id === action.id)
+          );
+          const active =
+            workspace.active?.kind === 'workflow' &&
+            workspace.active.id === action.id
+              ? documents.at(-1) || null
+              : workspace.active;
+          return [
+            key,
+            {
+              ...workspace,
+              documents,
+              active,
+              open: workspace.open && !!active,
+            },
+          ];
+        })
+      );
+      return {
+        ...state,
+        sessionWorkspaces: workspaces,
+        openedWorkflowIds: state.openedWorkflowIds.filter(
+          (id) => id !== action.id
+        ),
+        standaloneWorkflowId:
+          state.standaloneWorkflowId === action.id
+            ? null
+            : state.standaloneWorkflowId,
+        view:
+          state.view.kind === 'workflow' && state.view.id === action.id
+            ? { kind: 'workflows' }
+            : state.view,
+        referenceIntent:
+          state.referenceIntent?.workflowId === action.id
+            ? { workflowId: null, sequence: state.referenceSequence + 1 }
+            : state.referenceIntent,
+        referenceSequence: state.referenceSequence + 1,
+      };
+    }
     case 'navigate':
       return {
         ...state,

@@ -3,7 +3,18 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { lazy, Suspense, useEffect, useRef, useState, useMemo, useId, type ReactNode } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useId,
+  useImperativeHandle,
+  type ReactNode,
+  type Ref,
+} from 'react';
 
 import {
   Check,
@@ -70,7 +81,12 @@ function findNode(nodes: WorkflowNode[], id: string | null): WorkflowNode | unde
   }
 }
 
+export interface WorkflowPanelHandle {
+  flush: () => Promise<Workflow>;
+}
 export function WorkflowPanel({
+  ref,
+  onArchive,
   workflow,
   onSaved,
   onClose,
@@ -88,6 +104,8 @@ export function WorkflowPanel({
   model,
   onOpenSettings,
 }: {
+  ref?: Ref<WorkflowPanelHandle>;
+  onArchive: () => void;
   workflow: Workflow;
   model: ModelSettings | null;
   onOpenSettings: () => void;
@@ -333,6 +351,7 @@ export function WorkflowPanel({
     if (dirtyRef.current) throw new Error(tx('配置仍在变更，请稍后重试'));
     return saved;
   }
+  useImperativeHandle(ref, () => ({ flush }));
   async function testNode(nodeId: string, inputs: Data, bindings: Data) {
     const initial = signature(findNode(draft.current.nodes, nodeId));
     const saved = await flush();
@@ -714,9 +733,11 @@ export function WorkflowPanel({
           commands={[
             { id: 'json', label: t('schema') },
             { id: 'copy', label: tx('复制工作流名称') },
+            { id: 'archive', label: tx('归档工作流') },
           ]}
           onCommand={(command) => {
-            if (command === 'json') {
+            if (command === 'archive') onArchive();
+            else if (command === 'json') {
               setInspector(null);
               setJsonText(JSON.stringify(schema, null, 2));
               setJsonOpen(true);

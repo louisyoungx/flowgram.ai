@@ -32,7 +32,7 @@ import { errorText, t, tx, useLocale } from './lib/i18n';
 import type { PublishIntent } from './lib/deployment';
 import { api, connectDesktop, subscribeEvents } from './lib/api';
 import { WorkspaceHeader } from './components/workspace-header';
-import { WorkflowPanel } from './components/workflow-panel';
+import { WorkflowPanel, type WorkflowPanelHandle } from './components/workflow-panel';
 import { WorkbenchTabs } from './components/workbench-tabs';
 import { Select } from './components/ui/select';
 import { Presence, useContentTransition } from './components/ui/presence';
@@ -83,6 +83,8 @@ export function App() {
   const [search, setSearch] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [transfer, setTransfer] = useState<'import' | 'export' | null>(null);
+  const editors = useRef(new Map<string, WorkflowPanelHandle>());
+  const archiving = useRef(new Set<string>());
   const [createKind, setCreateKind] = useState<'project' | 'workflow' | 'open' | null>(null);
   const [name, setName] = useState('');
   const [directory, setDirectory] = useState('');
@@ -126,6 +128,22 @@ export function App() {
     );
     setProjects(next.projects);
     if (scope) setSnapshots((current) => ({ ...current, [scope]: next }));
+    if (scope)
+      setWorkbenches((current) => {
+        let state = current[scope];
+        if (!state) return current;
+        for (const id of state.openedWorkflowIds) {
+          if (!next.workflows.some((item) => item.id === id))
+            state = workbenchAction(state, { type: 'remove-object', kind: 'workflow', id });
+        }
+        if (state.sessionId && !next.sessions.some((item) => item.id === state.sessionId))
+          state = workbenchAction(state, {
+            type: 'remove-object',
+            kind: 'session',
+            id: state.sessionId,
+          });
+        return state === current[scope] ? current : { ...current, [scope]: state };
+      });
     return next;
   }, []);
   useEffect(() => {
@@ -164,6 +182,9 @@ export function App() {
       (event) => {
         if (
           [
+            'object_archived',
+            'object_restored',
+            'object_deleted',
             'workflow_changed',
             'session_status',
             'run_started',
@@ -171,6 +192,12 @@ export function App() {
             'conversation_turn',
           ].includes(event.kind)
         ) {
+          if (event.kind === 'object_archived' || event.kind === 'object_deleted') {
+            const object = JSON.parse(event.data) as { kind: 'session' | 'workflow'; id: string };
+            if (event.kind === 'object_deleted')
+              forgetDeletedDraft(projectId, object.kind, object.id);
+            dispatch({ type: 'remove-object', ...object }, projectId);
+          }
           clearTimeout(timer);
           timer = setTimeout(() => {
             void refresh(projectId).catch((cause) => {
@@ -320,7 +347,36 @@ export function App() {
     });
   }
   function sessionDocument(doc: WorkspaceDocument, scope = projectId) {
+    if (
+      doc.kind === 'workflow' &&
+      !snapshots[scope]?.workflows.some((item) => item.id === doc.id)
+    ) {
+      report(tx('此工作流已归档或删除，请先在设置中恢复。'), scope);
+      return;
+    }
     dispatch({ type: 'session-document', document: doc }, scope);
+  }
+  async function archiveObject(kind: 'session' | 'workflow', id: string, scope = projectId) {
+    const key = `${scope}:${kind}:${id}`;
+    if (archiving.current.has(key)) return;
+    archiving.current.add(key);
+    try {
+      if (kind === 'workflow') await editors.current.get(`${scope}:${id}`)?.flush();
+      await api(
+        `/api/${kind === 'session' ? 'sessions' : 'workflows'}/${id}/archive`,
+        'POST',
+        undefined,
+        undefined,
+        scope
+      );
+      dispatch({ type: 'remove-object', kind, id }, scope);
+      await refresh(scope);
+      report(tx('已归档，可在设置中恢复。'), scope);
+    } catch (cause) {
+      report((cause as Error).message, scope);
+    } finally {
+      archiving.current.delete(key);
+    }
   }
   function headerLeading(): ReactNode {
     return (
@@ -394,6 +450,7 @@ export function App() {
             onResources={() => dispatch({ type: 'view', view: { kind: 'resources' } })}
             onSettings={() => setSettings(true)}
             onHome={() => dispatch({ type: 'view', view: { kind: 'workflows' } })}
+            onArchive={(kind, id) => void archiveObject(kind, id)}
           />
         </ResizablePanel>
         <main className="relative flex min-h-0 min-w-0 flex-1">
@@ -465,6 +522,10 @@ export function App() {
                                 dispatch({ type: 'toggle-workbench', turnId }, scope)
                               }
                               onNewSession={() => dispatch({ type: 'session', id: null }, scope)}
+                              onArchive={() => {
+                                if (state.sessionId)
+                                  void archiveObject('session', state.sessionId, scope);
+                              }}
                               onCreated={(id, previous) => {
                                 dispatch(
                                   {
@@ -534,6 +595,11 @@ export function App() {
                       >
                         <ProjectScope projectId={scope}>
                           <WorkflowPanel
+                            ref={(handle) => {
+                              if (handle) editors.current.set(`${scope}:${id}`, handle);
+                              else editors.current.delete(`${scope}:${id}`);
+                            }}
+                            onArchive={() => void archiveObject('workflow', id, scope)}
                             workflow={workflow}
                             model={model}
                             onOpenSettings={() => setSettings(true)}
@@ -598,12 +664,17 @@ export function App() {
                       documentTabs={paired ? tabsFor(projectId, bench, document) : undefined}
                       onClose={() => dispatch({ type: 'close-document', document })}
                       onCollapse={paired ? () => dispatch({ type: 'toggle-workbench' }) : undefined}
-                      onWorkflow={(id) =>
-                        paired
-                          ? sessionDocument({ kind: 'workflow', id })
-                          : dispatch({ type: 'workflow', id })
-                      }
-                      onSession={(id) => dispatch({ type: 'session', id })}
+                      onWorkflow={(id) => {
+                        if (!data.workflows.some((item) => item.id === id))
+                          report(tx('此工作流已归档或删除，请先在设置中恢复。'));
+                        else if (paired) sessionDocument({ kind: 'workflow', id });
+                        else dispatch({ type: 'workflow', id });
+                      }}
+                      onSession={(id) => {
+                        if (data.sessions.some((item) => item.id === id))
+                          dispatch({ type: 'session', id });
+                        else report(tx('此会话已归档或删除，请先在设置中恢复。'));
+                      }}
                     />
                   </ProjectScope>
                 )}
@@ -1023,6 +1094,13 @@ export function App() {
       {ready && (
         <Presence open={settings} keepMounted className="settings-presence fixed inset-0 z-40">
           <SettingsPage
+            onArchiveChanged={(scope, kind, id, deleted) => {
+              if (deleted) {
+                forgetDeletedDraft(scope, kind, id);
+                dispatch({ type: 'remove-object', kind, id }, scope);
+              }
+              void refresh(scope).catch((cause) => report(cause.message, scope));
+            }}
             visible={settings}
             close={() => setSettings(false)}
             model={model}
@@ -1048,4 +1126,24 @@ export function App() {
 }
 function documentIsModal() {
   return !!window.document.querySelector('[role="dialog"],[role="menu"],[role="listbox"]');
+}
+function forgetDeletedDraft(projectId: string, kind: 'session' | 'workflow', id: string) {
+  if (kind === 'workflow') {
+    sessionStorage.removeItem(`flowgram.draft.${projectId}.${id}`);
+    sessionStorage.removeItem(`flowgram.node-editors.${projectId}.${id}`);
+  } else {
+    const key = `flowgram.compose.v2.${projectId}`;
+    let drafts: Record<string, unknown> = {};
+    try {
+      drafts = JSON.parse(sessionStorage.getItem(key) || '{}');
+    } catch {
+      /* Discard an invalid local cache. */
+    }
+    delete drafts[id];
+    sessionStorage.setItem(key, JSON.stringify(drafts));
+    sessionStorage.removeItem(`flowgram.pending.v2.${projectId}.${id}`);
+    window.dispatchEvent(
+      new CustomEvent('flowgram:session-deleted', { detail: { projectId, id } })
+    );
+  }
 }

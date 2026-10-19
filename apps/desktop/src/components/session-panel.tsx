@@ -57,6 +57,7 @@ export function SessionPanel({
   workbenchOpen,
   onToggleWorkbench,
   onNewSession,
+  onArchive,
   onActivity,
   onTurn,
 }: {
@@ -79,6 +80,7 @@ export function SessionPanel({
   workbenchOpen: boolean;
   onToggleWorkbench: (turnId: string | null) => void;
   onNewSession: () => void;
+  onArchive: () => void;
   onActivity: (activity: NonNullable<ReturnType<typeof workflowActivity>>) => void;
   onTurn: (turnId: string | null) => void;
 }) {
@@ -98,6 +100,20 @@ export function SessionPanel({
   });
   const draft = drafts[key] || { content: '', workflowId: '' };
   const draftsRef = useRef(drafts);
+  useEffect(() => {
+    const deleted = (event: Event) => {
+      const detail = (event as CustomEvent<{ projectId: string; id: string }>).detail;
+      if (detail.projectId !== project.id) return;
+      setDrafts((current) => {
+        if (!current[detail.id]) return current;
+        const next = { ...current };
+        delete next[detail.id];
+        return next;
+      });
+    };
+    window.addEventListener('flowgram:session-deleted', deleted);
+    return () => window.removeEventListener('flowgram:session-deleted', deleted);
+  }, [project.id]);
   draftsRef.current = drafts;
   const scope = useRef(sessionId);
   scope.current = sessionId;
@@ -228,9 +244,19 @@ export function SessionPanel({
           commands={[
             { id: 'copy', label: tx('复制会话名称') },
             { id: 'new', label: t('newSession') },
+            ...(sessionId
+              ? [
+                  {
+                    id: 'archive',
+                    label: tx('归档会话'),
+                    disabled: active ? tx('请先停止正在进行的执行') : undefined,
+                  },
+                ]
+              : []),
           ]}
           onCommand={(id) => {
             if (id === 'new') onNewSession();
+            else if (id === 'archive') onArchive();
             else
               void navigator.clipboard
                 .writeText(sessions.find((item) => item.id === sessionId)?.title || t('newSession'))

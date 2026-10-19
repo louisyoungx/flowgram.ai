@@ -79,6 +79,7 @@ impl Store {
             sqlx::query(statement).execute(&db).await?;
         }
         crate::conversation::initialize(&db).await?;
+        crate::archive::initialize(&db).await?;
         crate::services::initialize(&db).await?;
         // An interrupted process cannot safely replay external side effects.
         sqlx::query("UPDATE runs SET status='interrupted', error='The application service restarted and execution was interrupted. Completed steps remain in run history' WHERE status='running'").execute(&db).await?;
@@ -111,6 +112,7 @@ impl Store {
         };
         sqlx::query("INSERT INTO projects(id,name,created_at,directory) VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,directory=excluded.directory")
             .bind(&project.id).bind(&project.name).bind(&project.created_at).bind(&project.directory).execute(&store.db).await?;
+        store.recover_deleted_workflows().await?;
         store.sync_workflow_index().await?;
         store.resume_conversations().await?;
         Ok(store)
@@ -153,7 +155,7 @@ impl Store {
     }
     pub async fn sessions(&self) -> Result<Vec<Session>> {
         Ok(
-            sqlx::query_as("SELECT * FROM sessions ORDER BY created_at DESC")
+            sqlx::query_as("SELECT * FROM sessions WHERE id NOT IN (SELECT id FROM archived_objects WHERE kind='session') ORDER BY created_at DESC")
                 .fetch_all(&self.db)
                 .await?,
         )
@@ -186,7 +188,14 @@ impl Store {
     }
     pub async fn workflows(&self) -> Result<Vec<Workflow>> {
         let _guard = self.workflow_lock.lock().await;
-        self.sync_workflow_index().await
+        let mut workflows = self.sync_workflow_index().await?;
+        let archived = self.archive_records().await?;
+        workflows.retain(|w| {
+            !archived
+                .iter()
+                .any(|a| a.kind == "workflow" && a.id == w.id)
+        });
+        Ok(workflows)
     }
     pub async fn workflow(&self, id: &str) -> Result<Workflow> {
         self.read_workflow_file(id).await
@@ -222,6 +231,7 @@ impl Store {
     ) -> Result<Workflow> {
         let name = nonempty(name, "Workflow name")?;
         let _guard = self.workflow_lock.lock().await;
+        self.require_unarchived("workflow", id).await?;
         let mut w = self.workflow(id).await?;
         if w.revision != revision {
             return Err(Error::Conflict);

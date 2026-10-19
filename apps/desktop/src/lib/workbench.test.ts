@@ -196,3 +196,47 @@ describe('live workflow activity', () => {
     ).toBeNull();
   });
 });
+
+describe('archive workspace reconciliation', () => {
+  it('closes an archived workflow across session tabs while preserving other documents', () => {
+    let state = activity(session(), 'flow-a');
+    state = workbenchAction(state, {
+      type: 'session-document',
+      document: { kind: 'workflow', id: 'flow-b' },
+    });
+    state = workbenchAction(state, { type: 'workflow', id: 'flow-a' });
+    const next = workbenchAction(state, {
+      type: 'remove-object',
+      kind: 'workflow',
+      id: 'flow-a',
+    });
+    expect(next.view.kind).toBe('workflows');
+    expect(next.openedWorkflowIds).toEqual(['flow-b']);
+    expect(next.sessionWorkspaces['session-a'].documents).toEqual([
+      { kind: 'workflow', id: 'flow-b' },
+    ]);
+    expect(next.sessionWorkspaces['session-a'].active?.id).toBe('flow-b');
+    expect(next.sessionId).toBe('session-a');
+  });
+  it('closes an archived current session without discarding an unrelated standalone workflow', () => {
+    const state = workbenchAction(activity(session()), {
+      type: 'workflow',
+      id: 'flow-b',
+    });
+    const next = workbenchAction(state, {
+      type: 'remove-object',
+      kind: 'session',
+      id: 'session-a',
+    });
+    expect(next.view).toEqual({ kind: 'workflow', id: 'flow-b' });
+    expect(next.sessionId).toBeNull();
+    expect(next.sessionWorkspaces['session-a']).toBeUndefined();
+    const current = workbenchAction(activity(session()), {
+      type: 'remove-object',
+      kind: 'session',
+      id: 'session-a',
+    });
+    expect(current.view.kind).toBe('workflows');
+    expect(current.sessionId).toBeNull();
+  });
+});

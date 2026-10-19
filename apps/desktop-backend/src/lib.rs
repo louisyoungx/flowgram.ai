@@ -1,6 +1,7 @@
 pub mod agent;
 mod agent_stream;
 pub mod api;
+pub mod archive;
 pub mod control;
 mod control_runtime;
 pub mod conversation;

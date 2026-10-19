@@ -367,6 +367,10 @@ impl Store {
             return Err(Error::Invalid("Run inputs must be a JSON object".into()));
         }
         let _guard = self.workflow_lock.lock().await;
+        self.require_unarchived("workflow", workflow).await?;
+        if let Some(session) = &session {
+            self.require_unarchived("session", session).await?;
+        }
         let w = self.workflow(workflow).await?;
         let errors = validate(&w.schema)?;
         if !errors.is_empty() {

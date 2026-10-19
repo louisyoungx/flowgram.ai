@@ -965,6 +965,10 @@ button:focus-visible,
 .sidebar-row:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
 .sidebar-row > svg { flex-shrink: 0; }
 .sidebar-object-row { padding-left: 35px; }
+.sidebar-object-menu { opacity: 0; transition: opacity var(--motion-snap) var(--ease-surface); }
+.sidebar-object:hover .sidebar-object-menu,
+.sidebar-object:focus-within .sidebar-object-menu { opacity: 1; }
+@media (hover: none) { .sidebar-object-menu { opacity: 1; } }
 .workspace-header {
   display: flex;
   height: 48px;

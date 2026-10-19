@@ -15,6 +15,7 @@ import {
   Wrench,
   Info,
   Rocket,
+  Archive,
 } from 'lucide-react';
 
 import { Select } from './ui/select';
@@ -42,12 +43,16 @@ import { ResizablePanel } from './resizable-panel';
 const DeploymentPage = lazy(() =>
   import('./deployment-page').then((module) => ({ default: module.DeploymentPage }))
 );
+const ArchiveSettings = lazy(() =>
+  import('./archive-settings').then((module) => ({ default: module.ArchiveSettings }))
+);
 const sections = localized([
   { id: 'general', title: '通用', icon: Settings2 },
   { id: 'model', title: '模型与连接', icon: Plug },
   { id: 'appearance', title: '外观与动效', icon: Palette },
   { id: 'tools', title: '工具与 MCP', icon: Wrench },
   { id: 'deployment', title: '部署', icon: Rocket },
+  { id: 'archive', title: '归档', icon: Archive },
   { id: 'keyboard', title: '快捷键', icon: Keyboard },
   { id: 'about', title: '关于', icon: Info },
 ] as const);
@@ -61,6 +66,7 @@ export function SettingsPage({
   onDeploymentHandled,
   openDeploymentWorkflow,
   openDeploymentRun,
+  onArchiveChanged,
 }: {
   visible: boolean;
   close: () => void;
@@ -71,6 +77,12 @@ export function SettingsPage({
   onDeploymentHandled: () => void;
   openDeploymentWorkflow: (project: string, id: string) => void;
   openDeploymentRun: (project: string, id: string) => void;
+  onArchiveChanged: (
+    project: string,
+    kind: 'session' | 'workflow',
+    id: string,
+    deleted: boolean
+  ) => void;
 }) {
   const [section, setSection] = useState<string>(deploymentIntent ? 'deployment' : 'general');
   const content = useRef<HTMLDivElement>(null);
@@ -182,6 +194,7 @@ export function SettingsPage({
               (
                 {
                   deployment: tx('管理项目发布、全局凭证与运行服务。'),
+                  archive: tx('管理已归档的会话与工作流，可恢复到原项目或彻底删除。'),
                   general: tx('管理工作区与本机运行环境。'),
                   model: tx('为对话助手与工作流节点连接模型。'),
                   appearance: tx('选择舒适的外观与动态反馈。'),
@@ -218,6 +231,11 @@ export function SettingsPage({
               </Suspense>
             )}
           </div>
+          {section === 'archive' && (
+            <Suspense fallback={<p className="text-sm text-muted-foreground">{tx('正在加载')}</p>}>
+              <ArchiveSettings active={visible} onChanged={onArchiveChanged} />
+            </Suspense>
+          )}
           {section === 'general' && (
             <div className="settings-group">
               <div className="settings-row">

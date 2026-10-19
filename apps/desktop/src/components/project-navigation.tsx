@@ -9,6 +9,7 @@ import {
   House,
   Loader2,
   MessageCircle,
+  MoreHorizontal,
   PanelLeftClose,
   Plus,
   Search,
@@ -22,6 +23,7 @@ import type { Project, Snapshot } from '../lib/types';
 import { t, tx } from '../lib/i18n';
 import logo from '../assets/flowgram-logo.svg';
 import { Select } from './ui/select';
+import { MenuButton } from './ui/menu-button';
 import { Button } from './ui/button';
 
 export type ProjectAction = 'project' | 'open' | 'details' | 'import' | 'export';
@@ -78,6 +80,7 @@ export function ProjectSidebar({
   onResources,
   onSettings,
   onHome,
+  onArchive,
 }: {
   projectId: string;
   projects: Project[];
@@ -95,6 +98,7 @@ export function ProjectSidebar({
   onResources: () => void;
   onSettings: () => void;
   onHome: () => void;
+  onArchive: (kind: 'session' | 'workflow', id: string) => void;
 }) {
   return (
     <aside className="flex min-h-0 flex-1 flex-col bg-sidebar" aria-label={tx('项目导航')}>
@@ -189,15 +193,28 @@ export function ProjectSidebar({
               {snapshot.workflows.map((workflow) => {
                 const selected = bench.view.kind === 'workflow' && bench.view.id === workflow.id;
                 return (
-                  <button
-                    key={workflow.id}
-                    title={workflow.name}
-                    className={cn('sidebar-row sidebar-object-row', selected && 'sidebar-selected')}
-                    aria-current={selected ? 'page' : undefined}
-                    onClick={() => onWorkflow(workflow.id)}
-                  >
-                    <span className="truncate">{workflow.name}</span>
-                  </button>
+                  <div className="sidebar-object group relative" key={workflow.id}>
+                    <button
+                      title={workflow.name}
+                      className={cn(
+                        'sidebar-row sidebar-object-row pr-9',
+                        selected && 'sidebar-selected'
+                      )}
+                      aria-current={selected ? 'page' : undefined}
+                      onClick={() => onWorkflow(workflow.id)}
+                    >
+                      <span className="truncate">{workflow.name}</span>
+                    </button>
+                    <div className="sidebar-object-menu absolute right-0 top-0">
+                      <MenuButton
+                        label={tx('工作流操作：{0}', [workflow.name])}
+                        commands={[{ id: 'archive', label: tx('归档工作流') }]}
+                        onCommand={() => onArchive('workflow', workflow.id)}
+                      >
+                        <MoreHorizontal size={14} />
+                      </MenuButton>
+                    </div>
+                  </div>
                 );
               })}
               {!snapshot.workflows.length && (
@@ -225,18 +242,40 @@ export function ProjectSidebar({
               {snapshot.sessions.map((session) => {
                 const selected = bench.view.kind === 'session' && bench.sessionId === session.id;
                 return (
-                  <button
-                    key={session.id}
-                    title={session.title}
-                    className={cn('sidebar-row sidebar-object-row', selected && 'sidebar-selected')}
-                    aria-current={selected ? 'page' : undefined}
-                    onClick={() => onSession(session.id)}
-                  >
-                    <span className="truncate">{session.title}</span>
-                    {session.status === 'running' && (
-                      <Loader2 size={12} className="ml-auto shrink-0 animate-spin" />
-                    )}
-                  </button>
+                  <div className="sidebar-object group relative" key={session.id}>
+                    <button
+                      title={session.title}
+                      className={cn(
+                        'sidebar-row sidebar-object-row pr-9',
+                        selected && 'sidebar-selected'
+                      )}
+                      aria-current={selected ? 'page' : undefined}
+                      onClick={() => onSession(session.id)}
+                    >
+                      <span className="truncate">{session.title}</span>
+                      {session.status === 'running' && (
+                        <Loader2 size={12} className="ml-auto shrink-0 animate-spin" />
+                      )}
+                    </button>
+                    <div className="sidebar-object-menu absolute right-0 top-0">
+                      <MenuButton
+                        label={tx('会话操作：{0}', [session.title])}
+                        commands={[
+                          {
+                            id: 'archive',
+                            label: tx('归档会话'),
+                            disabled:
+                              session.status === 'running'
+                                ? tx('请先停止正在进行的执行')
+                                : undefined,
+                          },
+                        ]}
+                        onCommand={() => onArchive('session', session.id)}
+                      >
+                        <MoreHorizontal size={14} />
+                      </MenuButton>
+                    </div>
+                  </div>
                 );
               })}
               {!snapshot.sessions.length && (
