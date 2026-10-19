@@ -14,6 +14,7 @@ import {
   Play,
   Plus,
   Save,
+  Send,
   X,
   Scan,
 } from 'lucide-react';
@@ -76,6 +77,7 @@ export function WorkflowPanel({
   onClose,
   onRun,
   onAssist,
+  onPublish,
   onCollapse,
   headerLeading,
   documentTabs,
@@ -94,6 +96,7 @@ export function WorkflowPanel({
   onClose: () => void;
   onRun: (run: Run) => void;
   onAssist: () => void;
+  onPublish: (workflow: Workflow) => void;
   onCollapse?: () => void;
   headerLeading?: ReactNode;
   documentTabs?: ReactNode;
@@ -814,6 +817,19 @@ export function WorkflowPanel({
           >
             <Save />
             <span className="workflow-toolbar-label">{saving ? t('saving') : t('save')}</span>
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={saving}
+            onClick={() =>
+              void save()
+                .then(onPublish)
+                .catch((cause) => error(cause.message))
+            }
+          >
+            <Send />
+            <span className="workflow-toolbar-label">{tx('发布')}</span>
           </Button>
           <Button
             size="sm"

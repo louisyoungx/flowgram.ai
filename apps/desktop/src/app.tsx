@@ -29,6 +29,7 @@ import type { ModelSettings, Project, Snapshot, Workflow } from './lib/types';
 import { ProjectScope } from './lib/project-context';
 import { workflowTemplates } from './lib/node-catalog';
 import { errorText, t, tx, useLocale } from './lib/i18n';
+import type { PublishIntent } from './lib/deployment';
 import { api, connectDesktop, subscribeEvents } from './lib/api';
 import { WorkspaceHeader } from './components/workspace-header';
 import { WorkflowPanel } from './components/workflow-panel';
@@ -89,6 +90,8 @@ export function App() {
   const project = projects.find((item) => item.id === projectId);
   const data = snapshots[projectId] || empty;
   const bench = workbenches[projectId] || emptyWorkbench();
+  const [publishIntent, setPublishIntent] = useState<PublishIntent | null>(null);
+  const handlePublishIntent = useCallback(() => setPublishIntent(null), []);
   const view = bench.view;
   const workspace = sessionWorkspace(bench);
   const showSession = !!project && view.kind === 'session';
@@ -535,6 +538,10 @@ export function App() {
                             runs={snapshot.runs}
                             selectedRunId={null}
                             onSaved={saved}
+                            onPublish={(workflow) => {
+                              setPublishIntent({ projectId: scope, workflowId: workflow.id });
+                              setSettings(true);
+                            }}
                             onClose={() =>
                               dispatch(
                                 { type: 'close-document', document: { kind: 'workflow', id } },
@@ -996,10 +1003,23 @@ export function App() {
       {ready && (
         <div hidden={!settings}>
           <SettingsPage
+            visible={settings}
             close={() => setSettings(false)}
             model={model}
             saved={setModel}
             online={online}
+            deploymentIntent={publishIntent}
+            onDeploymentHandled={handlePublishIntent}
+            openDeploymentWorkflow={(scope, id) => {
+              setProjectId(scope);
+              dispatch({ type: 'workflow', id }, scope);
+              setSettings(false);
+            }}
+            openDeploymentRun={(scope, id) => {
+              setProjectId(scope);
+              dispatch({ type: 'view', view: { kind: 'run', id } }, scope);
+              setSettings(false);
+            }}
           />
         </div>
       )}

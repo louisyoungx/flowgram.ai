@@ -15,8 +15,8 @@ const ProjectContext = createContext<{
   projectId: string;
   request: ReturnType<typeof projectApi>;
 } | null>(null);
-export function ProjectScope({ projectId, children }: { projectId: string; children: ReactNode }) {
-  const value = useMemo(() => ({ projectId, request: projectApi(projectId) }), [projectId]);
+export function ProjectScope({ projectId, children, requestOverride }: { projectId: string; children: ReactNode; requestOverride?: ReturnType<typeof projectApi> }) {
+  const value = useMemo(() => ({ projectId, request: requestOverride || projectApi(projectId) }), [projectId, requestOverride]);
   return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>;
 }
 export function useProject() {

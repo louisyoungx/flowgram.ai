@@ -493,6 +493,30 @@ pub fn host_admin_router(store: Store, token: String) -> Router {
         }
     };
     Router::new()
+        .route("/admin/connections", post(provision_connections))
+        .route(
+            "/admin/services/{service}/{environment}/runs/{id}",
+            get(host_run_detail),
+        )
+        .route(
+            "/admin/services/{service}/{environment}/runs/{id}/cancel",
+            post(host_run_cancel),
+        )
+        .route(
+            "/admin/credentials/{id}",
+            axum::routing::put(
+                |State(s): State<Store>,
+                 Path(id): Path<String>,
+                 Json(input): Json<crate::deployment_settings::CredentialInput>| async move {
+                    s.deployment_settings.save_credential(&id, input).await?;
+                    Ok::<_, Error>(Json(json!({"saved":true})))
+                },
+            ),
+        )
+        .route(
+            "/admin/services/{service}/{environment}",
+            get(host_service_detail),
+        )
         .route(
             "/admin/status",
             get(|State(s): State<Store>| async move { s.service_inventory().await.map(Json) }),
@@ -535,4 +559,92 @@ pub fn host_admin_router(store: Store, token: String) -> Router {
         .layer(axum::extract::DefaultBodyLimit::max(8_000_000))
         .layer(axum::middleware::from_fn(auth))
         .with_state(store)
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct ProvisionConnections {
+    service: String,
+    environment: String,
+    project_id: String,
+    credentials: Vec<ProvisionCredential>,
+    bindings: std::collections::BTreeMap<String, String>,
+}
+#[derive(Deserialize)]
+struct ProvisionCredential {
+    id: String,
+    #[serde(flatten)]
+    input: crate::deployment_settings::CredentialInput,
+}
+async fn provision_connections(
+    State(s): State<Store>,
+    Json(input): Json<ProvisionConnections>,
+) -> Result<Json<Value>> {
+    let bytes: Option<String> = sqlx::query_scalar(
+        "SELECT bundle FROM service_releases WHERE service=? ORDER BY created_at DESC LIMIT 1",
+    )
+    .bind(&input.service)
+    .fetch_optional(&s.db)
+    .await?;
+    let bundle: Bundle =
+        serde_json::from_str(&bytes.ok_or_else(|| Error::NotFound("Release not found".into()))?)?;
+    if bundle.workflows[0].project_id != input.project_id {
+        return Err(Error::Invalid(
+            "Credential project does not match the release source".into(),
+        ));
+    }
+    for credential in input.credentials {
+        if credential.input.purpose != "connection"
+            || credential.input.project_ids.as_ref() != Some(&vec![input.project_id.clone()])
+        {
+            return Err(Error::Invalid(
+                "Published credentials must be restricted to their source project".into(),
+            ));
+        }
+        s.deployment_settings
+            .save_credential(&credential.id, credential.input)
+            .await?;
+    }
+    s.configure_service_connections(
+        &input.service,
+        &input.environment,
+        &input.bindings,
+        &input.project_id,
+    )
+    .await?;
+    Ok(Json(json!({"configured":true})))
+}
+async fn host_service_detail(
+    State(s): State<Store>,
+    Path((service, environment)): Path<(String, String)>,
+) -> Result<Json<Value>> {
+    Ok(Json(
+        json!({"deployment":s.deployment(&service,&environment).await?,"consumers":s.consumers(&service,&environment).await?,"runs":s.service_runs(&service,&environment).await?,"checkedAt":crate::store::now()}),
+    ))
+}
+
+#[derive(Deserialize)]
+struct HostRunQuery {
+    after: Option<i64>,
+}
+async fn host_run_detail(
+    State(s): State<Store>,
+    Path((service, environment, id)): Path<(String, String, String)>,
+    Query(q): Query<HostRunQuery>,
+) -> Result<Json<Value>> {
+    s.service_run(&service, &environment, &id, None).await?;
+    Ok(Json(s.inspect_run(&id, q.after.unwrap_or(0), None).await?))
+}
+async fn host_run_cancel(
+    State(s): State<Store>,
+    Path((service, environment, id)): Path<(String, String, String)>,
+) -> Result<Json<Value>> {
+    s.service_run(&service, &environment, &id, None).await?;
+    let canceled = if let Some(token) = s.active.lock().await.get(&id) {
+        token.cancel();
+        true
+    } else {
+        false
+    };
+    Ok(Json(json!({"canceled":canceled})))
 }

@@ -14,6 +14,7 @@ use tokio_util::sync::CancellationToken;
 
 #[derive(Clone)]
 pub struct Store {
+    pub deployment_settings: crate::deployment_settings::Catalog,
     pub db: SqlitePool,
     pub events: broadcast::Sender<Event>,
     pub active: Arc<Mutex<HashMap<String, CancellationToken>>>,
@@ -91,6 +92,7 @@ impl Store {
         };
         let (events, _) = broadcast::channel(512);
         let store = Self {
+            deployment_settings: crate::deployment_settings::Catalog::open(settings).await?,
             db,
             events,
             active: Arc::default(),

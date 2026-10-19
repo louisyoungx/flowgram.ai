@@ -3,9 +3,19 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
-import { ArrowLeft, Check, Keyboard, Palette, Plug, Settings2, Wrench, Info } from 'lucide-react';
+import {
+  ArrowLeft,
+  Check,
+  Keyboard,
+  Palette,
+  Plug,
+  Settings2,
+  Wrench,
+  Info,
+  Rocket,
+} from 'lucide-react';
 
 import { Select } from './ui/select';
 import { cn } from '../lib/utils';
@@ -18,6 +28,7 @@ import {
   setLanguagePreference,
   isLanguagePreference,
 } from '../lib/i18n';
+import type { PublishIntent } from '../lib/deployment';
 import { api } from '../lib/api';
 import logo from '../assets/flowgram-logo.svg';
 import copyIcon from '../assets/claude/copy.svg';
@@ -27,26 +38,47 @@ import { Button } from './ui/button';
 import { AssetIcon } from './ui/asset-icon';
 import { ThemeSettings } from './theme-settings';
 import { ResizablePanel } from './resizable-panel';
+const DeploymentPage = lazy(() =>
+  import('./deployment-page').then((module) => ({ default: module.DeploymentPage }))
+);
 const sections = localized([
   { id: 'general', title: '通用', icon: Settings2 },
   { id: 'model', title: '模型与连接', icon: Plug },
   { id: 'appearance', title: '外观与动效', icon: Palette },
   { id: 'tools', title: '工具与 MCP', icon: Wrench },
+  { id: 'deployment', title: '部署', icon: Rocket },
   { id: 'keyboard', title: '快捷键', icon: Keyboard },
   { id: 'about', title: '关于', icon: Info },
 ] as const);
 export function SettingsPage({
+  visible,
   close,
   model,
   saved,
   online,
+  deploymentIntent,
+  onDeploymentHandled,
+  openDeploymentWorkflow,
+  openDeploymentRun,
 }: {
+  visible: boolean;
   close: () => void;
   model: ModelSettings | null;
   saved: (value: ModelSettings) => void;
   online: boolean;
+  deploymentIntent: PublishIntent | null;
+  onDeploymentHandled: () => void;
+  openDeploymentWorkflow: (project: string, id: string) => void;
+  openDeploymentRun: (project: string, id: string) => void;
 }) {
-  const [section, setSection] = useState<string>('general');
+  const [section, setSection] = useState<string>(deploymentIntent ? 'deployment' : 'general');
+  useEffect(() => {
+    if (deploymentIntent) setSection('deployment');
+  }, [deploymentIntent]);
+  const [deploymentVisited, setDeploymentVisited] = useState(!!deploymentIntent);
+  useEffect(() => {
+    if (section === 'deployment') setDeploymentVisited(true);
+  }, [section]);
   const [url, setUrl] = useState(model?.baseUrl || '');
   const [id, setId] = useState('');
   const [key, setKey] = useState('');
@@ -132,7 +164,12 @@ export function SettingsPage({
         </div>
       </ResizablePanel>
       <div className="min-w-0 flex-1 overflow-auto">
-        <div className={cn('mx-auto w-full px-10 pb-20 pt-12', 'max-w-[840px]')}>
+        <div
+          className={cn(
+            'mx-auto w-full px-10 pb-20 pt-12',
+            section === 'deployment' ? 'max-w-[1120px]' : 'max-w-[840px]'
+          )}
+        >
           <h1 className="text-xl font-semibold tracking-tight">
             {sections.find((item) => item.id === section)?.title}
           </h1>
@@ -140,6 +177,7 @@ export function SettingsPage({
             {
               (
                 {
+                  deployment: tx('管理项目发布、全局凭证与运行服务。'),
                   general: tx('管理工作区与本机运行环境。'),
                   model: tx('为对话助手与工作流节点连接模型。'),
                   appearance: tx('选择舒适的外观与动态反馈。'),
@@ -161,6 +199,21 @@ export function SettingsPage({
               {errorText(error)}
             </p>
           )}
+          <div hidden={section !== 'deployment'}>
+            {deploymentVisited && (
+              <Suspense
+                fallback={<p className="text-sm text-muted-foreground">{tx('正在加载')}</p>}
+              >
+                <DeploymentPage
+                  active={visible && section === 'deployment'}
+                  intent={deploymentIntent}
+                  onHandled={onDeploymentHandled}
+                  openWorkflow={openDeploymentWorkflow}
+                  openRun={openDeploymentRun}
+                />
+              </Suspense>
+            )}
+          </div>
           {section === 'general' && (
             <div className="settings-group">
               <div className="settings-row">

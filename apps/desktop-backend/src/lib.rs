@@ -22,3 +22,8 @@ pub mod services;
 pub mod service_delivery;
 
 pub mod service_credentials;
+
+pub mod deployment_api;
+pub mod deployment_settings;
+
+mod deployment_sync;

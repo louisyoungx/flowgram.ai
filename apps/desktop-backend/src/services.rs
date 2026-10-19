@@ -373,6 +373,8 @@ pub async fn initialize(db: &SqlitePool) -> Result<()> {
         "CREATE TABLE IF NOT EXISTS service_deployments (service TEXT NOT NULL, environment TEXT NOT NULL, definition TEXT NOT NULL, PRIMARY KEY(service,environment))",
         "CREATE TABLE IF NOT EXISTS service_consumers (id TEXT PRIMARY KEY, service TEXT NOT NULL, environment TEXT NOT NULL, token_hash TEXT NOT NULL UNIQUE, definition TEXT NOT NULL)",
         "CREATE TABLE IF NOT EXISTS service_runs (run_id TEXT PRIMARY KEY REFERENCES runs(id), service TEXT NOT NULL, environment TEXT NOT NULL, operation TEXT NOT NULL, version TEXT NOT NULL, caller_id TEXT NOT NULL, idempotency_key TEXT NOT NULL, request_hash TEXT NOT NULL, callback TEXT, UNIQUE(service,environment,operation,caller_id,idempotency_key))",
+        "CREATE TABLE IF NOT EXISTS service_connections (service TEXT NOT NULL, environment TEXT NOT NULL, slot TEXT NOT NULL, credential_id TEXT NOT NULL, PRIMARY KEY(service,environment,slot))",
+        "CREATE TABLE IF NOT EXISTS service_run_connections (run_id TEXT NOT NULL REFERENCES runs(id), slot TEXT NOT NULL, credential_id TEXT NOT NULL, PRIMARY KEY(run_id,slot))",
         "CREATE INDEX IF NOT EXISTS service_runs_scope ON service_runs(service,environment,caller_id)",
         "CREATE TABLE IF NOT EXISTS service_deliveries (run_id TEXT PRIMARY KEY REFERENCES service_runs(run_id), attempts INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'pending', next_at INTEGER NOT NULL DEFAULT 0, last_error TEXT)",
     ] {
@@ -515,10 +517,14 @@ impl Store {
             .await?;
         for workflow in &release.workflows {
             for name in crate::service_credentials::required(&workflow.schema["nodes"])? {
-                if std::env::var(&name)
-                    .ok()
-                    .filter(|v| v.len() >= 8)
-                    .ok_or(())
+                if self
+                    .connection_secret(
+                        &definition.service,
+                        &definition.environment,
+                        &name,
+                        &release.workflows[0].project_id,
+                    )
+                    .await
                     .is_err()
                 {
                     return Err(Error::Invalid(format!(
@@ -541,7 +547,14 @@ impl Store {
                     "Callbacks require HTTPS (HTTP is allowed for loopback testing only)".into(),
                 ));
             }
-            if std::env::var(&callback.secret_env)
+            if self
+                .connection_secret(
+                    &definition.service,
+                    &definition.environment,
+                    &callback.secret_env,
+                    &release.workflows[0].project_id,
+                )
+                .await
                 .ok()
                 .filter(|v| v.len() >= 32)
                 .is_none()
@@ -806,6 +819,8 @@ impl Store {
             )
             .execute(&mut *tx)
             .await?;
+        sqlx::query("INSERT INTO service_run_connections SELECT ?,slot,credential_id FROM service_connections WHERE service=? AND environment=?")
+            .bind(&run.id).bind(&deployment.service).bind(&deployment.environment).execute(&mut *tx).await?;
         tx.commit().await?;
         self.launch_run(
             run.clone(),

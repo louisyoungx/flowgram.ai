@@ -25,6 +25,7 @@ use tower::ServiceExt;
 
 #[derive(Clone)]
 pub struct Registry {
+    pub deployment_settings: crate::deployment_settings::Catalog,
     pub directory: PathBuf,
     pub model: Arc<Mutex<ModelConfig>>,
     records: Arc<Mutex<Vec<Project>>>,
@@ -60,6 +61,7 @@ impl Registry {
             Err(e) => return Err(e.into()),
         };
         let registry = Self {
+            deployment_settings: crate::deployment_settings::Catalog::open(directory).await?,
             directory: directory.to_owned(),
             model: Arc::new(Mutex::new(model)),
             records: Arc::new(Mutex::new(records)),
@@ -70,6 +72,7 @@ impl Registry {
                 eprintln!("Project {} could not be opened: {error}", project.id);
             }
         }
+        crate::deployment_sync::start(registry.deployment_settings.clone());
         Ok(registry)
     }
     pub async fn projects(&self) -> Vec<Project> {
@@ -185,6 +188,7 @@ pub fn router(registry: Registry, token: String) -> Router {
         token: Arc::new(token),
     };
     Router::new()
+        .merge(crate::deployment_api::routes())
         .route(
             "/health",
             get(|| async { Json(json!({"status":"ready","service":"flowgram"})) }),
