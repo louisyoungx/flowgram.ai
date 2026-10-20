@@ -127,7 +127,15 @@ impl Store {
     }
     pub async fn emit(&self, kind: &str, object_id: &str, data: Value) -> Result<()> {
         let created_at = now();
-        let data = data.to_string();
+        let data = if ["node_", "model_", "tool_", "http_"]
+            .iter()
+            .any(|prefix| kind.starts_with(prefix))
+        {
+            crate::run_trace::safe_payload(data)
+        } else {
+            data
+        }
+        .to_string();
         let result =
             sqlx::query("INSERT INTO events(kind,object_id,data,created_at) VALUES(?,?,?,?)")
                 .bind(kind)

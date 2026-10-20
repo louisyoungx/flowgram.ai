@@ -143,13 +143,16 @@ impl Store {
             let workflow_id = run.workflow_id.clone();
             tokio::spawn(async move {
                 let execution_id = id();
+                let root =
+                    crate::control_runtime::ExecutionContext::root(0).with_workflow(workflow_id);
                 let _ = store
                     .emit(
                         "node_started",
                         &run_id,
-                        json!({"nodeId":node.id,"executionId":execution_id,"inputs":input.inputs}),
+                        root.trace(json!({"nodeId":node.id,"executionId":execution_id,"inputs":input.inputs})),
                     )
                     .await;
+                let context = root.with_parent(execution_id.clone());
                 let result = store
                     .execute_scoped_node(
                         &node,
@@ -157,17 +160,16 @@ impl Store {
                         &input.bindings,
                         &run_id,
                         &token,
-                        &crate::control_runtime::ExecutionContext::root(0)
-                            .with_workflow(workflow_id)
-                            .with_parent(execution_id.clone()),
+                        &context,
                     )
                     .await;
                 let (status, output, error) = match result {
                     Ok((output, branch)) => {
-                        let _ = store.emit("node_finished", &run_id, json!({"nodeId":node.id,"executionId":execution_id,"outputs":output,"branch":branch})).await;
+                        let _ = store.emit("node_finished", &run_id, root.trace(json!({"nodeId":node.id,"executionId":execution_id,"outputs":output,"branch":branch}))).await;
                         ("succeeded", output, None)
                     }
                     Err(error) => {
+                        let _ = store.cancel_scope(&run_id, &context, "parent_failed").await;
                         let status = if matches!(error, Error::Cancelled) {
                             "canceled"
                         } else {
@@ -176,9 +178,9 @@ impl Store {
                         let message = error.to_string();
                         let _ = store
                         .emit(
-                            "node_failed",
+                            if status=="canceled" {"node_canceled"} else {"node_failed"},
                             &run_id,
-                            json!({"nodeId":node.id,"executionId":execution_id,"error":message}),
+                            root.trace(json!({"nodeId":node.id,"executionId":execution_id,"error":message})),
                         )
                         .await;
                         (status, json!({}), Some(message))

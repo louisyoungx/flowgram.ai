@@ -381,18 +381,18 @@ async fn test(
     let cancel = CancellationToken::new();
     let mut streamed = None;
     let attempt=async {
-        let response=transport::request(catalog,&config,Query{input:json!([{"role":"user","content":format!("Reply with this exact value and nothing else: {nonce}")}]),tools:None,instructions:None,turn:None,force_tool:false},&cancel,None).await?;
+        let response=transport::request(catalog,&config,Query{trace:None,input:json!([{"role":"user","content":format!("Reply with this exact value and nothing else: {nonce}")}]),tools:None,instructions:None,turn:None,force_tool:false},&cancel,None).await?;
         streamed = Some(response.streamed);
         if !crate::agent::output_text(&response.value).contains(&nonce){return Err(Error::Execution("The model did not return the test value".into()));}
         if input.tools {
             let tools=json!([{"type":"function","name":"flowgram_echo","description":"Echo a test value without external effects.","parameters":{"type":"object","properties":{"value":{"type":"string"}},"required":["value"],"additionalProperties":false}}]);
             let mut history=vec![json!({"role":"user","content":format!("Call flowgram_echo with value {nonce}, then return the tool result exactly.")})];
-            let response=transport::request(catalog,&config,Query{input:json!(history),tools:Some(tools),instructions:None,turn:None,force_tool:true},&cancel,None).await?;
+            let response=transport::request(catalog,&config,Query{trace:None,input:json!(history),tools:Some(tools),instructions:None,turn:None,force_tool:true},&cancel,None).await?;
             let output=response.value["output"].as_array().ok_or_else(||Error::Execution("Invalid tool test response".into()))?;
             let calls=output.iter().filter(|v|v["type"]=="function_call").collect::<Vec<_>>();
             if calls.len()!=1||calls[0]["name"]!="flowgram_echo"||serde_json::from_str::<Value>(calls[0]["arguments"].as_str().unwrap_or("")).ok().and_then(|v|v["value"].as_str().map(str::to_owned)).as_deref()!=Some(&nonce) {return Err(Error::Execution("The model did not complete the expected tool call".into()));}
             history.extend(output.iter().cloned());history.push(json!({"type":"function_call_output","call_id":calls[0]["call_id"],"output":nonce}));
-            let final_response=transport::request(catalog,&config,Query{input:json!(history),tools:None,instructions:None,turn:None,force_tool:false},&cancel,None).await?;
+            let final_response=transport::request(catalog,&config,Query{trace:None,input:json!(history),tools:None,instructions:None,turn:None,force_tool:false},&cancel,None).await?;
             if !crate::agent::output_text(&final_response.value).contains(&nonce){return Err(Error::Execution("The model did not consume the tool result".into()));}
         }
         Ok::<_,Error>(())

@@ -294,6 +294,88 @@ fn failure_path(entries: &[Execution]) -> Vec<String> {
     path
 }
 
+impl Store {
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) async fn begin_trace_call(
+        &self,
+        run: &str,
+        node: &str,
+        kind: &str,
+        name: &str,
+        inputs: Value,
+        metadata: Value,
+        context: &crate::control_runtime::ExecutionContext,
+    ) -> Result<String> {
+        let id = crate::store::id();
+        let mut data = context.trace(
+            json!({"nodeId":node,"executionId":id,"callKind":kind,"name":name,"inputs":inputs}),
+        );
+        if let Some(metadata) = metadata.as_object() {
+            data.as_object_mut().unwrap().extend(metadata.clone());
+        }
+        context.register_call(data.clone());
+        self.emit(&format!("{kind}_started"), run, data).await?;
+        Ok(id)
+    }
+    pub(crate) async fn finish_trace_call(
+        &self,
+        run: &str,
+        node: &str,
+        kind: &str,
+        id: &str,
+        result: &Result<Value>,
+        context: &crate::control_runtime::ExecutionContext,
+    ) -> Result<()> {
+        context.finish_call(id);
+        let (status, value) = match result {
+            Ok(value) => ("finished", json!({"outputs":value})),
+            Err(Error::Cancelled) => ("canceled", json!({"error":"Execution canceled"})),
+            Err(error) => ("failed", json!({"error":error.to_string()})),
+        };
+        let mut data = context.trace(json!({"nodeId":node,"executionId":id,"callKind":kind}));
+        data.as_object_mut()
+            .unwrap()
+            .extend(value.as_object().unwrap().clone());
+        self.emit(&format!("{kind}_{status}"), run, data).await
+    }
+}
+
+/// Known credential fields are never included in observable call payloads.
+/// This operates on a copy; it cannot change the request sent to a provider.
+pub(crate) fn safe_payload(mut value: Value) -> Value {
+    match &mut value {
+        Value::Object(fields) => {
+            for (key, value) in fields {
+                let normalized = key.to_ascii_lowercase().replace('-', "_");
+                if matches!(
+                    normalized.as_str(),
+                    "authorization"
+                        | "proxy_authorization"
+                        | "cookie"
+                        | "set_cookie"
+                        | "api_key"
+                        | "x_api_key"
+                        | "password"
+                        | "access_token"
+                        | "refresh_token"
+                        | "secret"
+                ) {
+                    *value = json!("[redacted]");
+                } else {
+                    *value = safe_payload(value.take());
+                }
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                *value = safe_payload(value.take());
+            }
+        }
+        _ => {}
+    }
+    value
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -424,6 +506,116 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(at["executions"][0]["children"], 0);
+    }
+    #[tokio::test]
+    async fn call_lifecycles_keep_parent_scope_failures_and_redaction() {
+        let (_dir, store, run) = recording().await;
+        store
+            .emit(
+                "node_started",
+                &run.id,
+                json!({"nodeId":"agent","executionId":"parent","inputs":{}}),
+            )
+            .await
+            .unwrap();
+        let context = crate::control_runtime::ExecutionContext::root(0)
+            .with_workflow(run.workflow_id.clone())
+            .child(None, Some(36))
+            .with_parent("parent".into());
+        let model = store
+            .begin_trace_call(
+                &run.id,
+                "agent",
+                "model",
+                "Generate",
+                json!({"messages":[{"role":"user","content":"Classify order"}]}),
+                json!({}),
+                &context,
+            )
+            .await
+            .unwrap();
+        store
+            .finish_trace_call(
+                &run.id,
+                "agent",
+                "model",
+                &model,
+                &Ok(json!({"usage":{"input_tokens":12},"output":[]})),
+                &context,
+            )
+            .await
+            .unwrap();
+        let tool=store.begin_trace_call(&run.id,"agent","tool","Inspect",json!({"headers":{"Authorization":"private","X-Api-Key":"private"},"value":"visible"}),json!({"callId":"provider-call"}),&context).await.unwrap();
+        store
+            .finish_trace_call(
+                &run.id,
+                "agent",
+                "tool",
+                &tool,
+                &Err(Error::Execution("Tool unavailable".into())),
+                &context,
+            )
+            .await
+            .unwrap();
+        let children = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("executions".into()),
+                    parent: Some("parent".into()),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(children["executions"].as_array().unwrap().len(), 2);
+        assert_eq!(children["executions"][0]["iterationPath"], json!([36]));
+        assert_eq!(children["executions"][0]["kind"], "model");
+        assert_eq!(children["executions"][1]["status"], "failed");
+        let detail = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("execution".into()),
+                    execution: Some(tool),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        let event: Value =
+            serde_json::from_str(detail["events"][0]["data"].as_str().unwrap()).unwrap();
+        assert_eq!(event["inputs"]["headers"]["Authorization"], "[redacted]");
+        assert_eq!(event["inputs"]["headers"]["X-Api-Key"], "[redacted]");
+        assert_eq!(event["callId"], "provider-call");
+        let pending = store
+            .begin_trace_call(
+                &run.id,
+                "agent",
+                "http",
+                "Fetch",
+                json!({}),
+                json!({}),
+                &context,
+            )
+            .await
+            .unwrap();
+        store
+            .cancel_scope(&run.id, &context, "parent_failed")
+            .await
+            .unwrap();
+        let canceled = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("execution".into()),
+                    execution: Some(pending),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(canceled["events"][1]["kind"], "http_canceled");
     }
     #[tokio::test]
     async fn terminal_runs_preserve_unfinished_spans_and_snapshot_identity() {

@@ -486,7 +486,35 @@ async fn agent_node_uses_shared_read_only_tools_and_continues_from_tool_output()
             .await
             .unwrap()
             .iter()
-            .any(|event| event.kind == "agent_tool_finished")
+            .any(|event| event.kind == "tool_finished")
     );
+    let history = store.history(0, Some(&run.id)).await.unwrap();
+    let model_calls: Vec<_> = history
+        .iter()
+        .filter(|event| event.kind == "model_started")
+        .collect();
+    assert_eq!(model_calls.len(), 2);
+    let first: Value = serde_json::from_str(&model_calls[0].data).unwrap();
+    let second: Value = serde_json::from_str(&model_calls[1].data).unwrap();
+    assert_ne!(first["executionId"], second["executionId"]);
+    assert_eq!(first["parentExecutionId"], second["parentExecutionId"]);
+    assert!(first["inputs"]["input"].is_array());
+    assert_eq!(
+        history
+            .iter()
+            .filter(|event| event.kind == "model_finished")
+            .count(),
+        2
+    );
+    let tool_start: Value = serde_json::from_str(
+        &history
+            .iter()
+            .find(|event| event.kind == "tool_started")
+            .unwrap()
+            .data,
+    )
+    .unwrap();
+    assert_eq!(tool_start["parentExecutionId"], first["parentExecutionId"]);
+    assert!(!tool_start["callId"].is_null());
     server.abort();
 }

@@ -546,8 +546,32 @@ impl Store {
                         .map_err(|_| Error::Cancelled)?,
                 )
             };
-            self.execute_node(node, incoming, values, run, &token, context)
-                .await
+            if node.kind == "http" {
+                let call = self
+                    .begin_trace_call(
+                        run,
+                        &node.id,
+                        "http",
+                        "HTTP request",
+                        crate::run_trace::safe_payload(incoming.clone()),
+                        json!({}),
+                        context,
+                    )
+                    .await?;
+                let result = self
+                    .execute_node(node, incoming, values, run, &token, context)
+                    .await;
+                let payload = result
+                    .as_ref()
+                    .map(|(output, _)| output.clone())
+                    .map_err(|error| Error::Execution(error.to_string()));
+                self.finish_trace_call(run, &node.id, "http", &call, &payload, context)
+                    .await?;
+                result
+            } else {
+                self.execute_node(node, incoming, values, run, &token, context)
+                    .await
+            }
         };
         let result = tokio::select! {
             _ = cancel.cancelled() => Err(Error::Cancelled),
@@ -730,11 +754,8 @@ impl Store {
                         json!([{"role":"user","content":prompt}]),
                         cancel,
                         run,
-                        context
-                            .workflow_id
-                            .as_deref()
-                            .ok_or_else(|| Error::Invalid("Missing model workflow scope".into()))?,
                         &node.id,
+                        context,
                     )
                     .await?;
                 let text = crate::agent::output_text(&response);
@@ -904,6 +925,7 @@ impl Store {
                         run,
                         &node.id,
                         steps,
+                        context,
                         &self
                             .run_model(
                                 run,

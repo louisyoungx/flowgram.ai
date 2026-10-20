@@ -464,17 +464,60 @@ impl Catalog {
     }
 }
 impl crate::store::Store {
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) async fn request_workflow_model(
+        &self,
+        run: &str,
+        node: &str,
+        model: &Resolved,
+        query: transport::Query<'_>,
+        context: &crate::control_runtime::ExecutionContext,
+        cancel: &tokio_util::sync::CancellationToken,
+    ) -> Result<Value> {
+        let request_body = transport::body(model, &query);
+        let call = self
+            .begin_trace_call(
+                run,
+                node,
+                "model",
+                &model.model_name,
+                request_body,
+                json!({"model":Trace::from(model)}),
+                context,
+            )
+            .await?;
+        let query = transport::Query {
+            trace: Some(transport::CallTrace {
+                run,
+                node,
+                id: &call,
+                context,
+            }),
+            ..query
+        };
+        let result = request(&self.deployment_settings, model, query, cancel, Some(self))
+            .await
+            .map(|response| response.value);
+        self.finish_trace_call(run, node, "model", &call, &result, context)
+            .await?;
+        result
+    }
     pub(crate) async fn request_model_stream_for_node(
         &self,
         input: Value,
         cancel: &tokio_util::sync::CancellationToken,
         run: &str,
-        workflow: &str,
         node: &str,
+        context: &crate::control_runtime::ExecutionContext,
     ) -> Result<Value> {
+        let workflow = context
+            .workflow_id
+            .as_deref()
+            .ok_or_else(|| crate::error::Error::Invalid("Missing model workflow scope".into()))?;
         let model = self.run_model(run, workflow, node).await?;
-        let response = request(
-            &self.deployment_settings,
+        self.request_workflow_model(
+            run,
+            node,
             &model,
             transport::Query {
                 input,
@@ -482,12 +525,11 @@ impl crate::store::Store {
                 instructions: None,
                 turn: None,
                 force_tool: false,
+                trace: None,
             },
+            context,
             cancel,
-            Some(self),
         )
-        .await?;
-        self.emit("model_usage",run,json!({"nodeId":node,"workflowId":workflow,"model":Trace::from(&model),"usage":response.value["usage"]})).await?;
-        Ok(response.value)
+        .await
     }
 }

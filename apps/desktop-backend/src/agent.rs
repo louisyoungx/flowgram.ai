@@ -74,18 +74,21 @@ impl Store {
                 instructions,
                 turn,
                 force_tool: false,
+                trace: None,
             },
             cancel,
             Some(self),
         )
         .await
     }
-    pub async fn workflow_agent(
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) async fn workflow_agent(
         &self,
         prompt: &str,
         run: &str,
         node: &str,
         steps: usize,
+        context: &crate::control_runtime::ExecutionContext,
         model: &crate::models::Resolved,
         cancel: &CancellationToken,
     ) -> Result<Value> {
@@ -107,16 +110,22 @@ impl Store {
         let mut input = vec![json!({"role":"user","content":prompt})];
         for step in 0..steps {
             let response = self
-                .request_model_stream(
-                    json!(input),
-                    cancel,
-                    Some(json!(definitions)),
-                    Some(WORKFLOW_AGENT_INSTRUCTIONS),
-                    None,
+                .request_workflow_model(
+                    run,
+                    node,
                     model,
+                    crate::models::transport::Query {
+                        input: json!(input),
+                        tools: Some(json!(definitions)),
+                        instructions: Some(WORKFLOW_AGENT_INSTRUCTIONS),
+                        turn: None,
+                        force_tool: false,
+                        trace: None,
+                    },
+                    context,
+                    cancel,
                 )
-                .await?
-                .value;
+                .await?;
             let output = response["output"]
                 .as_array()
                 .ok_or_else(|| Error::Execution("Invalid agent output format".into()))?;
@@ -134,12 +143,24 @@ impl Store {
                 }
                 let name = call["name"].as_str().unwrap_or_default();
                 let call_id = call["call_id"].as_str().unwrap_or_default();
+                let args = parse_tool_arguments(call["arguments"].as_str().unwrap_or("{}"));
+                let span = self
+                    .begin_trace_call(
+                        run,
+                        node,
+                        "tool",
+                        name,
+                        args.as_ref().cloned().unwrap_or(Value::Null),
+                        json!({"callId":call_id}),
+                        context,
+                    )
+                    .await?;
                 let result = if !allowed.contains(&name) {
                     Err(Error::Invalid(
                         "This agent may only use read-only workflow tools".into(),
                     ))
                 } else {
-                    match serde_json::from_str(call["arguments"].as_str().unwrap_or("{}")) {
+                    match args {
                         Ok(args) => {
                             let published: bool = sqlx::query_scalar(
                                 "SELECT EXISTS(SELECT 1 FROM service_runs WHERE run_id=?)",
@@ -153,19 +174,15 @@ impl Store {
                                 self.tool(project, None, name, args).await
                             }
                         }
-                        Err(error) => Err(error.into()),
+                        Err(error) => Err(error),
                     }
                 };
+                self.finish_trace_call(run, node, "tool", &span, &result, context)
+                    .await?;
                 let value = match result {
                     Ok(value) => value,
                     Err(error) => json!({"error":error.to_string()}),
                 };
-                self.emit(
-                    "agent_tool_finished",
-                    run,
-                    json!({"nodeId":node,"name":name,"callId":call_id,"result":value}),
-                )
-                .await?;
                 input.push(json!({"type":"function_call_output","call_id":call_id,"output":value.to_string()}));
             }
         }

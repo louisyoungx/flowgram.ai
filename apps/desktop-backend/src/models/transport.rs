@@ -9,7 +9,14 @@ use futures_util::StreamExt;
 use serde_json::{Value, json};
 use tokio_util::sync::CancellationToken;
 
+pub(crate) struct CallTrace<'a> {
+    pub run: &'a str,
+    pub node: &'a str,
+    pub id: &'a str,
+    pub context: &'a crate::control_runtime::ExecutionContext,
+}
 pub(crate) struct Query<'a> {
+    pub trace: Option<CallTrace<'a>>,
     pub input: Value,
     pub tools: Option<Value>,
     pub instructions: Option<&'a str>,
@@ -78,7 +85,7 @@ fn messages(input: &Value, anthropic: bool) -> Vec<Value> {
     }
     merged
 }
-fn body(config: &Resolved, query: &Query<'_>) -> Value {
+pub(crate) fn body(config: &Resolved, query: &Query<'_>) -> Value {
     let streaming = config.capabilities.streaming == Some(true);
     let mut body = match config.protocol {
         Protocol::Responses => {
@@ -355,6 +362,8 @@ pub(crate) async fn request(
     store: Option<&Store>,
 ) -> Result<ModelResponse> {
     let mut projection = query.turn.map(TurnProjection::new);
+    let started = std::time::Instant::now();
+    let mut first_output = false;
     let execute = async {
         let suffix = match config.protocol {
             Protocol::Responses => "responses",
@@ -433,6 +442,18 @@ pub(crate) async fn request(
                     let event = serde_json::from_str(&text)
                         .map_err(|_| Error::Execution("Invalid model event JSON".into()))?;
                     let (events, complete) = adapter.event(config.protocol, event)?;
+                    if !first_output
+                        && events.iter().any(|event| {
+                            event["type"] == "response.output_text.delta"
+                                || event["type"] == "response.function_call_arguments.delta"
+                        })
+                    {
+                        first_output = true;
+                        if let (Some(trace), Some(store)) = (&query.trace, store) {
+                            store.emit("model_output_started",trace.run,trace.context.trace(json!({"nodeId":trace.node,"executionId":trace.id,"firstOutputMs":started.elapsed().as_millis() as u64}))).await?;
+                        }
+                    }
+
                     if let (Some(p), Some(store)) = (&mut projection, store) {
                         for event in events {
                             p.event(store, &event).await?;

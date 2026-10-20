@@ -64,7 +64,15 @@ impl ExecutionContext {
         c.parent = Some(parent);
         c
     }
-    fn trace(&self, mut data: Value) -> Value {
+    pub(crate) fn register_call(&self, data: Value) {
+        if let Some(id) = data["executionId"].as_str() {
+            self.active.lock().unwrap().insert(id.to_owned(), data);
+        }
+    }
+    pub(crate) fn finish_call(&self, id: &str) {
+        self.active.lock().unwrap().remove(id);
+    }
+    pub(crate) fn trace(&self, mut data: Value) -> Value {
         data["scopeId"] = json!(self.scope_id);
         data["workflowId"] = json!(self.workflow_id);
         data["parentExecutionId"] = json!(self.parent);
@@ -85,7 +93,7 @@ pub(crate) struct ScopeOutput {
     pub signal: Option<LoopSignal>,
 }
 impl Store {
-    async fn cancel_scope(
+    pub(crate) async fn cancel_scope(
         &self,
         run: &str,
         context: &ExecutionContext,
@@ -121,7 +129,8 @@ impl Store {
         };
         for mut event in canceled {
             event["reason"] = json!(reason);
-            self.emit("node_canceled", run, event).await?;
+            let kind = format!("{}_canceled", event["callKind"].as_str().unwrap_or("node"));
+            self.emit(&kind, run, event).await?;
         }
         Ok(())
     }
@@ -173,6 +182,7 @@ impl Store {
             }
             let mut output = input.clone();
             let mut seen = HashSet::new();
+            let mut previous_execution: Option<String> = None;
             loop {
                 if cancel.is_cancelled() {
                     return Err(Error::Cancelled);
@@ -210,7 +220,7 @@ impl Store {
                     }
                 };
                 let started = context
-                    .trace(json!({"nodeId":node.id,"executionId":execution,"inputs":incoming}));
+                    .trace(json!({"nodeId":node.id,"nodeType":node.kind,"executionId":execution,"inputs":incoming,"links":previous_execution.iter().map(|id|json!({"executionId":id,"type":"flow"})).collect::<Vec<_>>()}));
                 context
                     .active
                     .lock()
@@ -232,6 +242,7 @@ impl Store {
                     }
                 };
                 self.emit("node_finished",run,context.trace(json!({"nodeId":node.id,"nodeType":node.kind,"executionId":execution,"outputs":out,"branch":route}))).await?;
+                previous_execution = Some(execution.clone());
                 output = out.clone();
                 values.insert(node.id.clone(), out);
                 if matches!(node.kind.as_str(), "control.break" | "control.continue") {
@@ -400,11 +411,12 @@ impl Store {
             let mut pending = stream::iter(work).buffer_unordered(concurrency);
             let mut results = serde_json::Map::new();
             let mut successful = vec![];
+            let join_execution = id();
             self.emit(
                 "node_waiting",
                 run,
                 context
-                    .trace(json!({"nodeId":join.id,"activatedBranchIds":selected,"policy":policy})),
+                    .trace(json!({"nodeId":join.id,"executionId":join_execution,"activatedBranchIds":selected,"policy":policy})),
             )
             .await?;
             while let Some(result) = pending.next().await {
@@ -529,7 +541,7 @@ impl Store {
                 json!({"results":results,"completedBranchIds":selected.iter().filter(|id| results[*id]["status"] != "canceled").collect::<Vec<_>>(),"successfulBranchIds":successful})
             };
             crate::nodes::check_size(&output)?;
-            let execution = id();
+            let execution = join_execution;
             self.emit(
                 "node_started",
                 run,
