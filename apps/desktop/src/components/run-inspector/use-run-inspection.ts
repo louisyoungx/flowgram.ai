@@ -7,6 +7,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RuntimeEvent, Workflow } from '../../lib/types';
 import {
   mergeExecutions,
+  mergeExecutionPage,
+  mergeTraceDetail,
+  executionFromEvents,
+  type TraceUpdate,
   type Execution,
   type ExecutionPage,
   type TraceDetail,
@@ -32,6 +36,7 @@ export function useRunInspection(id: string, at?: number) {
   const [instanceError, setInstanceError] = useState('');
   const [selectionLoading, setSelectionLoading] = useState(false);
   const initialized = useRef(false);
+  const metadataReady = useRef(false);
   const eventSelection = useRef('');
   const nodeRequest = useRef(0);
   const session = useRef(0);
@@ -40,6 +45,7 @@ export function useRunInspection(id: string, at?: number) {
   useEffect(() => {
     session.current++;
     initialized.current = false;
+    metadataReady.current = false;
     setDetail(null);
     setError('');
     setPages({});
@@ -61,21 +67,7 @@ export function useRunInspection(id: string, at?: number) {
       if (generation !== session.current) return;
       setPages((previous) => ({
         ...previous,
-        [parent || 'root']:
-          cursor !== undefined && previous[parent || 'root']
-            ? {
-                ...page,
-                executions: mergeExecutions(previous[parent || 'root'].executions, page.executions),
-                nextCursor:
-                  cursor < (previous[parent || 'root'].executions[0]?.firstSequence || 0)
-                    ? previous[parent || 'root'].nextCursor
-                    : page.nextCursor,
-                previousCursor:
-                  cursor < (previous[parent || 'root'].executions[0]?.firstSequence || 0)
-                    ? page.previousCursor
-                    : previous[parent || 'root'].previousCursor,
-              }
-            : page,
+        [parent || 'root']: focus ? page : mergeExecutionPage(previous[parent || 'root'], page),
       }));
       return page;
     },
@@ -90,31 +82,24 @@ export function useRunInspection(id: string, at?: number) {
     let timer: ReturnType<typeof setTimeout>;
     async function load() {
       try {
-        const next = await api<TraceDetail>(
-          `${root}?view=overview${stamp}`,
+        const next = await api<TraceUpdate>(
+          `${root}?view=overview${stamp}${metadataReady.current ? '&light=true' : ''}`,
           'GET',
           undefined,
           controller.signal
         );
         if (controller.signal.aborted) return;
-        setDetail((previous) => ({
-          ...next,
-          snapshot: previous?.snapshot || next.snapshot,
-        }));
+        metadataReady.current = true;
+        setDetail((previous) => mergeTraceDetail(previous, next));
         setError('');
+        const page = {
+          executions: next.trace.executions,
+          nextCursor: next.trace.nextCursor,
+          total: next.trace.rootTotal,
+        };
         setPages((previous) => ({
           ...previous,
-          root: {
-            ...next.trace,
-            executions:
-              at === undefined
-                ? mergeExecutions(previous.root?.executions || [], next.trace.executions)
-                : next.trace.executions,
-            nextCursor:
-              previous.root?.executions.length > 100
-                ? previous.root.nextCursor
-                : next.trace.nextCursor,
-          },
+          root: at === undefined ? mergeExecutionPage(previous.root, page) : page,
         }));
         if (!initialized.current) {
           initialized.current = true;
@@ -313,20 +298,9 @@ export function useRunInspection(id: string, at?: number) {
     error,
     pages,
     expanded,
-    selected:
-      current && at !== undefined && current.firstSequence > at
-        ? {
-            ...current,
-            status: 'pending',
-            reason: null,
-            durationMs: null,
-            children: 0,
-            inputsAvailable: false,
-            outputsAvailable: false,
-          }
-        : current,
+    selected: executionFromEvents(current, events, at),
     nodeId,
-    events,
+    events: at === undefined ? events : events.filter((event) => event.sequence <= at),
     scopeEntries,
     eventError,
     snapshot,

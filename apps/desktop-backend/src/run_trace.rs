@@ -22,6 +22,7 @@ pub struct TraceQuery {
     pub at: Option<i64>,
     pub node_id: Option<String>,
     pub scope_id: Option<String>,
+    pub light: Option<bool>,
 }
 impl TraceQuery {
     pub fn query_string(&self) -> String {
@@ -476,7 +477,13 @@ impl Store {
             }
             _ => {
                 let mut detail = if query.view.as_deref() == Some("overview") {
-                    json!({"run":run,"models":self.run_model_traces(id).await?,"nodeTest":self.node_test_definition(id).await?,"manifest":self.run_manifest(id).await?})
+                    if query.light == Some(true) {
+                        let mut detail = json!({"run":run});
+                        detail["run"].as_object_mut().unwrap().remove("inputs");
+                        detail
+                    } else {
+                        json!({"run":run,"models":self.run_model_traces(id).await?,"nodeTest":self.node_test_definition(id).await?,"manifest":self.run_manifest(id).await?})
+                    }
                 } else {
                     self.inspect_run(id, query.after.unwrap_or(0), query.workflow_id.as_deref())
                         .await?
@@ -515,7 +522,11 @@ impl Store {
                     .take(PAGE_SIZE)
                     .collect();
                 let root_count = entries.iter().filter(|e| e.parent_id.is_none()).count();
-                let snapshot = self.pinned_workflow(id, &run.workflow_id).await.ok();
+                let snapshot = if query.light == Some(true) {
+                    None
+                } else {
+                    self.pinned_workflow(id, &run.workflow_id).await.ok()
+                };
                 let mut nodes = HashMap::<String, Value>::new();
                 for entry in entries.iter().filter(|e| e.kind == "node") {
                     let key = format!("{}:{}", entry.workflow_id, entry.node_id);
@@ -540,13 +551,15 @@ impl Store {
                 })).collect();
                 let origin:Option<String>=sqlx::query_scalar("SELECT data FROM events WHERE object_id=? AND kind='run_origin' ORDER BY sequence DESC LIMIT 1").bind(id).fetch_optional(&self.db).await?;
                 let runtime:Option<String>=sqlx::query_scalar("SELECT json_extract(data,'$.runtime') FROM events WHERE object_id=? AND kind='run_started' ORDER BY sequence LIMIT 1").bind(id).fetch_optional(&self.db).await?.flatten();
-                detail["snapshot"] = json!(snapshot);
+                if query.light != Some(true) {
+                    detail["snapshot"] = json!(snapshot);
+                }
                 detail["trace"] = json!({
                     "format":"flowgram.trace/v1", "runtime":runtime.unwrap_or_else(||"not_recorded".into()),
                     "origin":origin.map(|text|serde_json::from_str::<Value>(&text)).transpose()?,
                     "at":query.at,"observedAt":observed,"outputsAvailable":query.at.is_none() || ended.is_some(),
                     "source":source,"endedAt":ended,"durationMs":ended.as_ref().and_then(|end| milliseconds(&run.created_at,end)),
-                    "watermark":watermark,"total":entries.len(),"counts":counts,
+                    "watermark":watermark,"total":entries.len(),"rootTotal":root_count,"counts":counts,
                     "links":links,
                     "nodes":nodes.into_values().collect::<Vec<_>>(),
                     "focus":failure_path(&entries).iter().filter_map(|id|entries.iter().find(|entry|&entry.id==id)).collect::<Vec<_>>(),
@@ -721,6 +734,23 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(detail["trace"]["total"], 261);
+        assert_eq!(detail["trace"]["rootTotal"], 1);
+        let light = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("overview".into()),
+                    light: Some(true),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert!(light.get("snapshot").is_none());
+        assert!(light.get("manifest").is_none());
+        assert!(light["run"].get("inputs").is_none());
+        assert_eq!(light["trace"]["total"], 261);
+
         assert_eq!(detail["trace"]["counts"]["succeeded"], 259);
         assert_eq!(detail["trace"]["executions"][0]["children"], 260);
         assert_eq!(

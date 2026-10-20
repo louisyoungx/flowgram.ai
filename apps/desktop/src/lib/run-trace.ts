@@ -60,6 +60,7 @@ export interface TraceDetail {
     endedAt: string | null;
     durationMs: number | null;
     watermark: number;
+    rootTotal: number;
     total: number;
     counts: Record<string, number>;
     failureId: string | null;
@@ -217,4 +218,93 @@ export function instanceKey(entry: Execution) {
     entry.iterationPath,
     entry.attempt,
   ]);
+}
+
+export type TraceUpdate = Omit<Partial<TraceDetail>, 'run' | 'trace'> & {
+  run: Partial<Run>;
+  trace: TraceDetail['trace'];
+};
+export function mergeTraceDetail(
+  previous: TraceDetail | null,
+  next: TraceUpdate
+): TraceDetail {
+  return {
+    ...previous,
+    ...next,
+    run: { ...previous?.run, ...next.run },
+    snapshot: previous?.snapshot ?? next.snapshot ?? null,
+  } as TraceDetail;
+}
+export function mergeExecutionPage(
+  previous: ExecutionPage | undefined,
+  next: ExecutionPage
+): ExecutionPage {
+  if (!previous) return next;
+  const executions = mergeExecutions(previous.executions, next.executions);
+  const nextLast = next.executions.at(-1)?.firstSequence || 0;
+  const previousLast = previous.executions.at(-1)?.firstSequence || 0;
+  let cursor = nextLast < previousLast ? previous.nextCursor : next.nextCursor;
+  if (next.total !== undefined && executions.length >= next.total)
+    cursor = null;
+  else if (
+    next.total !== undefined &&
+    next.total > (previous.total || 0) &&
+    cursor === null
+  )
+    cursor = executions.at(-1)?.firstSequence || null;
+  return {
+    ...next,
+    executions,
+    nextCursor: cursor,
+    previousCursor:
+      (next.executions[0]?.firstSequence || Infinity) <
+      (previous.executions[0]?.firstSequence || Infinity)
+        ? next.previousCursor
+        : previous.previousCursor,
+  };
+}
+export function executionFromEvents(
+  entry: Execution | null,
+  events: RuntimeEvent[],
+  at?: number
+): Execution | null {
+  if (!entry) return null;
+  let current = entry;
+  if (at !== undefined && entry.lastSequence > at)
+    current = {
+      ...entry,
+      status: entry.firstSequence > at ? 'pending' : 'running',
+      reason: null,
+      durationMs: null,
+      endedAt: null,
+      outputsAvailable: false,
+      inputsAvailable: entry.firstSequence <= at && entry.inputsAvailable,
+      children: entry.firstSequence > at ? 0 : entry.children,
+    };
+  for (const event of events) {
+    if (
+      (at !== undefined && event.sequence > at) ||
+      (event.sequence < current.lastSequence && at === undefined)
+    )
+      continue;
+    const status = event.kind.endsWith('_finished')
+      ? 'succeeded'
+      : event.kind.endsWith('_failed')
+      ? 'failed'
+      : event.kind.endsWith('_canceled')
+      ? 'canceled'
+      : undefined;
+    if (status)
+      current = {
+        ...current,
+        status,
+        endedAt: event.createdAt,
+        durationMs: Math.max(
+          0,
+          Date.parse(event.createdAt) - Date.parse(entry.startedAt)
+        ),
+        lastSequence: event.sequence,
+      };
+  }
+  return current;
 }

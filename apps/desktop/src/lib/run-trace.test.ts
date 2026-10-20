@@ -6,6 +6,10 @@ import { describe, expect, it } from 'vitest';
 
 import {
   aggregateStatus,
+  mergeExecutionPage,
+  mergeTraceDetail,
+  executionFromEvents,
+  type TraceDetail,
   pairGroups,
   instanceKey,
   type ComparisonGroup,
@@ -100,5 +104,69 @@ describe('run inspection', () => {
     expect(instanceKey(entry)).not.toBe(
       instanceKey({ ...entry, iterationPath: [37] })
     );
+  });
+  it('keeps loaded pages and immutable metadata while live updates arrive', () => {
+    const previous = Array.from(
+      { length: 120 },
+      (_, index) =>
+        ({
+          id: String(index),
+          firstSequence: index + 1,
+          status: 'running',
+        } as Execution)
+    );
+    const next = previous
+      .slice(0, 100)
+      .map((entry) => ({ ...entry, status: 'succeeded' }));
+    const page = mergeExecutionPage(
+      { executions: previous, nextCursor: null, total: 120 },
+      { executions: next, nextCursor: 100, total: 150 }
+    );
+    expect(page.executions).toHaveLength(120);
+    expect(page.nextCursor).toBe(120);
+    expect(page.executions[0].status).toBe('succeeded');
+    const prior = {
+      snapshot: { id: 'frozen' },
+      manifest: { workflows: [] },
+      run: { id: 'run', inputs: { orderId: 37 } },
+      trace: {},
+    } as unknown as TraceDetail;
+    const merged = mergeTraceDetail(prior, {
+      run: { status: 'succeeded' },
+      trace: prior.trace,
+    });
+    expect(merged.snapshot).toBe(prior.snapshot);
+    expect(merged.run.inputs).toEqual({ orderId: 37 });
+    expect(merged.run.status).toBe('succeeded');
+  });
+  it('updates a selected terminal state without exposing events after the replay cursor', () => {
+    const entry = {
+      id: 'one',
+      startedAt: '2026-10-20T00:00:00Z',
+      firstSequence: 1,
+      lastSequence: 1,
+      status: 'running',
+      inputsAvailable: true,
+      children: 0,
+    } as Execution;
+    const finished = {
+      ...event(2, 'node_finished', { outputs: { result: 1 } }),
+      createdAt: '2026-10-20T00:00:01Z',
+    };
+    expect(executionFromEvents(entry, [finished])?.status).toBe('succeeded');
+    expect(
+      executionFromEvents(
+        { ...entry, lastSequence: 2, status: 'failed' },
+        [finished],
+        0
+      )?.status
+    ).toBe('pending');
+    expect(
+      executionFromEvents(
+        { ...entry, lastSequence: 2, status: 'failed' },
+        [finished],
+        0
+      )?.inputsAvailable
+    ).toBe(false);
   });
 });
