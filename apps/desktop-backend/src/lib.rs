@@ -18,6 +18,7 @@ pub mod project_management;
 pub mod project_transfer;
 pub mod registry;
 mod run_snapshot;
+pub mod run_trace;
 pub mod runtime;
 pub mod store;
 pub mod tools;

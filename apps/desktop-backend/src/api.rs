@@ -268,22 +268,12 @@ async fn run(
         s.store.start_run(&id, i.session_id, i.inputs).await?,
     )?))
 }
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct RunQuery {
-    after: Option<i64>,
-    workflow_id: Option<String>,
-}
 async fn run_detail(
     State(s): State<ApiState>,
     Path(id): Path<String>,
-    Query(query): Query<RunQuery>,
+    Query(query): Query<crate::run_trace::TraceQuery>,
 ) -> Result<Json<Value>> {
-    Ok(Json(
-        s.store
-            .inspect_run(&id, query.after.unwrap_or(0), query.workflow_id.as_deref())
-            .await?,
-    ))
+    Ok(Json(s.store.inspect_trace(&id, &query).await?))
 }
 async fn test_node(
     State(s): State<ApiState>,

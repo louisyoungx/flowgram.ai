@@ -76,6 +76,7 @@ impl Store {
             "CREATE TABLE IF NOT EXISTS node_tests (run_id TEXT PRIMARY KEY REFERENCES runs(id), node_id TEXT NOT NULL, definition TEXT NOT NULL, bindings TEXT NOT NULL)",
             "CREATE TABLE IF NOT EXISTS events (sequence INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, object_id TEXT NOT NULL, data TEXT NOT NULL, created_at TEXT NOT NULL)",
             "CREATE INDEX IF NOT EXISTS events_object_sequence ON events(object_id, sequence)",
+            "CREATE INDEX IF NOT EXISTS events_execution ON events(object_id, json_extract(data,'$.executionId'), sequence)",
         ] {
             sqlx::query(statement).execute(&db).await?;
         }

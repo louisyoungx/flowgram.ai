@@ -80,7 +80,7 @@ impl Store {
             let dependencies = self.capture_workflows(&snapshot_root).await?;
             let run = Run {
                 id: id(),
-                workflow_id: workflow.id,
+                workflow_id: workflow.id.clone(),
                 session_id: None,
                 status: "running".into(),
                 inputs: input.inputs.clone(),
@@ -110,9 +110,26 @@ impl Store {
                 .bind(serde_json::to_string(&input.bindings)?)
                 .execute(&mut *tx)
                 .await?;
-            crate::run_snapshot::persist(&mut tx, &run.id, &dependencies).await?;
             self.pin_models(&mut tx, &run.id, &dependencies, None)
                 .await?;
+            // Execution is scoped to the selected node, but inspection retains
+            // the complete source canvas, including untested surrounding nodes.
+            sqlx::query("INSERT INTO run_definitions VALUES(?,?)")
+                .bind(&run.id)
+                .bind(workflow.schema.to_string())
+                .execute(&mut *tx)
+                .await?;
+            let snapshots: Vec<_> = dependencies
+                .into_iter()
+                .map(|entry| {
+                    if entry.id == workflow.id {
+                        workflow.clone()
+                    } else {
+                        entry
+                    }
+                })
+                .collect();
+            crate::run_snapshot::persist(&mut tx, &run.id, &snapshots).await?;
             tx.commit().await?;
             let token = CancellationToken::new();
             self.active
@@ -246,6 +263,24 @@ mod tests {
             1
         );
         assert!(store.node_test_definition(&run.id).await.unwrap().is_some());
+        assert_eq!(
+            store.run_definition(&run.id).await.unwrap().unwrap()["nodes"]
+                .as_array()
+                .unwrap()
+                .len(),
+            4
+        );
+        assert_eq!(
+            store
+                .pinned_workflow(&run.id, &workflow.id)
+                .await
+                .unwrap()
+                .schema["nodes"]
+                .as_array()
+                .unwrap()
+                .len(),
+            4
+        );
         let tool_run = store.tool(&project.id,None,"test_node",json!({"workflowId":workflow.id,"nodeId":"trim","revision":1,"inputs":{"text":" hi ","operation":"trim"}})).await.unwrap();
         assert_eq!(
             settled(&store, tool_run["id"].as_str().unwrap())

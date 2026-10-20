@@ -1,0 +1,468 @@
+//! Transport-independent execution inspection. Payloads are loaded on selection;
+//! the execution index never reads large input/output bodies into the tree.
+use crate::{
+    error::{Error, Result},
+    model::Run,
+    store::Store,
+};
+use serde::{Deserialize, Serialize};
+use serde_json::{Value, json};
+use std::collections::HashMap;
+
+const PAGE_SIZE: usize = 100;
+#[derive(Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TraceQuery {
+    pub after: Option<i64>,
+    pub workflow_id: Option<String>,
+    pub view: Option<String>,
+    pub execution: Option<String>,
+    pub parent: Option<String>,
+    pub cursor: Option<i64>,
+    pub at: Option<i64>,
+}
+impl TraceQuery {
+    pub fn query_string(&self) -> String {
+        let mut url = reqwest::Url::parse("http://localhost/").expect("static URL");
+        let value = serde_json::to_value(self).expect("serializable query");
+        for (key, value) in value.as_object().expect("query object") {
+            if !value.is_null() {
+                url.query_pairs_mut().append_pair(
+                    key,
+                    &value
+                        .as_str()
+                        .map(str::to_owned)
+                        .unwrap_or_else(|| value.to_string()),
+                );
+            }
+        }
+        url.query().unwrap_or_default().to_owned()
+    }
+}
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct Execution {
+    id: String,
+    parent_id: Option<String>,
+    node_id: String,
+    workflow_id: String,
+    scope_id: String,
+    kind: String,
+    name: Option<String>,
+    status: String,
+    first_sequence: i64,
+    last_sequence: i64,
+    started_at: String,
+    ended_at: Option<String>,
+    duration_ms: Option<i64>,
+    branch_path: Value,
+    iteration_path: Value,
+    attempt: i64,
+    reason: Option<String>,
+    children: usize,
+    inputs_available: bool,
+    outputs_available: bool,
+    links: Value,
+}
+fn milliseconds(start: &str, end: &str) -> Option<i64> {
+    let start = chrono::DateTime::parse_from_rfc3339(start).ok()?;
+    let end = chrono::DateTime::parse_from_rfc3339(end).ok()?;
+    Some((end - start).num_milliseconds().max(0))
+}
+fn text(value: &Value, key: &str) -> Option<String> {
+    value[key].as_str().map(str::to_owned)
+}
+impl Store {
+    async fn execution_index(&self, run: &Run, at: Option<i64>) -> Result<Vec<Execution>> {
+        // Extract metadata in SQLite: do not deserialize every request/response
+        // merely to display a paged execution tree or timeline.
+        let rows: Vec<(i64, String, String, String)> = sqlx::query_as(
+            "SELECT sequence,kind,created_at,json_object('executionId',json_extract(data,'$.executionId'),'parentExecutionId',json_extract(data,'$.parentExecutionId'),'nodeId',json_extract(data,'$.nodeId'),'workflowId',json_extract(data,'$.workflowId'),'scopeId',json_extract(data,'$.scopeId'),'branchPath',json_extract(data,'$.branchPath'),'iterationPath',json_extract(data,'$.iterationPath'),'attempt',json_extract(data,'$.attempt'),'name',json_extract(data,'$.name'),'reason',json_extract(data,'$.reason'),'error',substr(json_extract(data,'$.error'),1,1000),'links',json_extract(data,'$.links'),'hasInputs',json_type(data,'$.inputs') IS NOT NULL,'hasOutputs',json_type(data,'$.outputs') IS NOT NULL) FROM events WHERE object_id=? AND (? IS NULL OR sequence<=?) AND (kind LIKE 'node_%' OR kind LIKE 'model_%' OR kind LIKE 'tool_%' OR kind LIKE 'http_%') ORDER BY sequence"
+        ).bind(&run.id).bind(at).bind(at).fetch_all(&self.db).await?;
+        let mut entries = Vec::<Execution>::new();
+        let mut lookup = HashMap::new();
+        for (sequence, kind, timestamp, data) in rows {
+            if kind == "model_usage" {
+                continue;
+            }
+            let data: Value = serde_json::from_str(&data)?;
+            let Some(node) = text(&data, "nodeId") else {
+                continue;
+            };
+            let id = text(&data, "executionId").unwrap_or_else(|| format!("event:{sequence}"));
+            let index = *lookup.entry(id.clone()).or_insert_with(|| {
+                let index = entries.len();
+                entries.push(Execution {
+                    id,
+                    parent_id: text(&data, "parentExecutionId"),
+                    node_id: node,
+                    workflow_id: text(&data, "workflowId")
+                        .unwrap_or_else(|| run.workflow_id.clone()),
+                    scope_id: text(&data, "scopeId").unwrap_or_default(),
+                    kind: kind.split('_').next().unwrap_or("node").into(),
+                    name: text(&data, "name"),
+                    status: "running".into(),
+                    first_sequence: sequence,
+                    last_sequence: sequence,
+                    started_at: timestamp.clone(),
+                    ended_at: None,
+                    duration_ms: None,
+                    branch_path: data["branchPath"]
+                        .as_array()
+                        .map(|v| json!(v))
+                        .unwrap_or(json!([])),
+                    iteration_path: data["iterationPath"]
+                        .as_array()
+                        .map(|v| json!(v))
+                        .unwrap_or(json!([])),
+                    attempt: data["attempt"].as_i64().unwrap_or(1),
+                    reason: None,
+                    children: 0,
+                    inputs_available: false,
+                    outputs_available: false,
+                    links: data["links"]
+                        .as_array()
+                        .map(|v| json!(v))
+                        .unwrap_or(json!([])),
+                });
+                index
+            });
+            let entry = &mut entries[index];
+            entry.last_sequence = sequence;
+            entry.inputs_available |= data["hasInputs"].as_i64() == Some(1);
+            entry.outputs_available |= data["hasOutputs"].as_i64() == Some(1);
+            let terminal = if kind.ends_with("_finished") {
+                Some("succeeded")
+            } else if kind.ends_with("_failed") {
+                Some("failed")
+            } else if kind.ends_with("_canceled") {
+                Some("canceled")
+            } else if kind.ends_with("_skipped") {
+                Some("skipped")
+            } else {
+                None
+            };
+            if let Some(status) = terminal {
+                entry.status = status.into();
+                entry.ended_at = Some(timestamp.clone());
+                entry.duration_ms = milliseconds(&entry.started_at, &timestamp);
+            } else if kind.ends_with("_waiting") {
+                entry.status = "waiting".into();
+            }
+            if let Some(reason) = text(&data, "error").or_else(|| text(&data, "reason")) {
+                entry.reason = Some(reason);
+            }
+        }
+        // Missing parents (old recordings) stay inspectable at the root.
+        let parents: Vec<_> = entries
+            .iter()
+            .map(|e| e.parent_id.as_ref().and_then(|p| lookup.get(p).copied()))
+            .collect();
+        for (index, parent) in parents.into_iter().enumerate() {
+            if let Some(parent) = parent {
+                entries[parent].children += 1;
+            } else {
+                entries[index].parent_id = None;
+            }
+            if at.is_none()
+                && run.status != "running"
+                && matches!(entries[index].status.as_str(), "running" | "waiting")
+            {
+                entries[index].status = "interrupted".into();
+                entries[index].reason =
+                    Some("No terminal event was recorded for this execution".into());
+            }
+        }
+        Ok(entries)
+    }
+    pub async fn inspect_trace(&self, id: &str, query: &TraceQuery) -> Result<Value> {
+        let run = self.run(id).await?;
+        match query.view.as_deref() {
+            Some("snapshot") => {
+                let workflow = query.workflow_id.as_deref().unwrap_or(&run.workflow_id);
+                Ok(json!({"snapshot":self.pinned_workflow(id, workflow).await?}))
+            }
+            Some("execution") => {
+                let execution = query
+                    .execution
+                    .as_deref()
+                    .ok_or_else(|| Error::Invalid("Execution ID is required".into()))?;
+                let events: Vec<crate::model::Event> = if let Some(sequence) = execution
+                    .strip_prefix("event:")
+                    .and_then(|s| s.parse::<i64>().ok())
+                {
+                    sqlx::query_as("SELECT * FROM events WHERE object_id=? AND sequence=?")
+                        .bind(id)
+                        .bind(sequence)
+                        .fetch_all(&self.db)
+                        .await?
+                } else {
+                    sqlx::query_as("SELECT * FROM events WHERE object_id=? AND json_extract(data,'$.executionId')=? AND sequence>? ORDER BY sequence LIMIT 100")
+                        .bind(id).bind(execution).bind(query.after.unwrap_or(0)).fetch_all(&self.db).await?
+                };
+                if events.is_empty() && query.after.unwrap_or(0) == 0 {
+                    return Err(Error::NotFound("Execution not found in this run".into()));
+                }
+                let next = (events.len() == PAGE_SIZE).then(|| events.last().unwrap().sequence);
+                Ok(json!({"events":events,"nextAfter":next}))
+            }
+            Some("executions") => {
+                let entries = self.execution_index(&run, query.at).await?;
+                let filtered: Vec<_> = entries
+                    .iter()
+                    .filter(|e| {
+                        e.parent_id.as_deref() == query.parent.as_deref()
+                            && e.first_sequence > query.cursor.unwrap_or(0)
+                    })
+                    .collect();
+                let more = filtered.len() > PAGE_SIZE;
+                let page: Vec<_> = filtered.into_iter().take(PAGE_SIZE).collect();
+                let cursor = more.then(|| page.last().unwrap().first_sequence);
+                Ok(json!({"executions":page,"nextCursor":cursor}))
+            }
+            Some(_) => Err(Error::Invalid("Unknown run inspection view".into())),
+            None => {
+                let mut detail = self
+                    .inspect_run(id, query.after.unwrap_or(0), query.workflow_id.as_deref())
+                    .await?;
+                let entries = self.execution_index(&run, None).await?;
+                let mut counts = HashMap::<String, usize>::new();
+                for entry in &entries {
+                    *counts.entry(entry.status.clone()).or_default() += 1;
+                }
+                let ended: Option<String> = sqlx::query_scalar("SELECT created_at FROM events WHERE object_id=? AND kind='run_finished' ORDER BY sequence DESC LIMIT 1").bind(id).fetch_optional(&self.db).await?;
+                let watermark: i64 = sqlx::query_scalar(
+                    "SELECT COALESCE(MAX(sequence),0) FROM events WHERE object_id=?",
+                )
+                .bind(id)
+                .fetch_one(&self.db)
+                .await?;
+                let published: Option<(String, String, String, String)> = sqlx::query_as(
+                    "SELECT service,environment,operation,version FROM service_runs WHERE run_id=?",
+                )
+                .bind(id)
+                .fetch_optional(&self.db)
+                .await?;
+                let source = if run.test_node_id.is_some() {
+                    "node_test"
+                } else if published.is_some() {
+                    "published"
+                } else if run.session_id.is_some() {
+                    "agent"
+                } else {
+                    "manual"
+                };
+                let roots: Vec<_> = entries
+                    .iter()
+                    .filter(|e| e.parent_id.is_none())
+                    .take(PAGE_SIZE)
+                    .collect();
+                let root_count = entries.iter().filter(|e| e.parent_id.is_none()).count();
+                let snapshot = self.pinned_workflow(id, &run.workflow_id).await.ok();
+                detail["snapshot"] = json!(snapshot);
+                detail["trace"] = json!({
+                    "format":"flowgram.trace/v1", "runtime":crate::services::RUNTIME,
+                    "source":source,"endedAt":ended,"durationMs":ended.as_ref().and_then(|end| milliseconds(&run.created_at,end)),
+                    "watermark":watermark,"total":entries.len(),"counts":counts,
+                    "executions":roots,"nextCursor":if root_count>PAGE_SIZE { roots.last().map(|e|e.first_sequence) } else { None },
+                    "failureId":entries.iter().rev().find(|e|e.status=="failed" && e.children==0).map(|e|&e.id),
+                    "failurePath":failure_path(&entries),
+                    "publication":published.map(|(service,environment,operation,version)|json!({"service":service,"environment":environment,"operation":operation,"version":version})),
+                });
+                Ok(detail)
+            }
+        }
+    }
+}
+fn failure_path(entries: &[Execution]) -> Vec<String> {
+    let mut path = vec![];
+    let mut cursor = entries
+        .iter()
+        .rev()
+        .find(|e| e.status == "failed" && e.children == 0);
+    while let Some(entry) = cursor {
+        path.push(entry.id.clone());
+        cursor = entry
+            .parent_id
+            .as_ref()
+            .and_then(|p| entries.iter().find(|e| &e.id == p));
+        if path.len() > 64 {
+            break;
+        }
+    }
+    path.reverse();
+    path
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    async fn recording() -> (tempfile::TempDir, Store, Run) {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::open(dir.path()).await.unwrap();
+        let project = store.projects().await.unwrap().remove(0);
+        let workflow = store.create_workflow(&project.id, "Original name", json!({"nodes":[{"id":"loop","type":"control.foreach","meta":{"position":{"x":123,"y":456}}}],"edges":[]})).await.unwrap();
+        let mut tx = store.db.begin().await.unwrap();
+        let run = store
+            .prepare_run(
+                &workflow,
+                None,
+                &json!({}),
+                std::slice::from_ref(&workflow),
+                &mut tx,
+            )
+            .await
+            .unwrap();
+        tx.commit().await.unwrap();
+        (dir, store, run)
+    }
+    #[tokio::test]
+    async fn pages_instances_without_truncating_totals_or_payloads() {
+        let (_dir, store, run) = recording().await;
+        store.emit("node_started", &run.id, json!({"nodeId":"loop","executionId":"outer","workflowId":run.workflow_id,"inputs":{"items":[1,2]}})).await.unwrap();
+        for i in 0..260 {
+            let data = json!({"nodeId":"same-node","executionId":format!("iteration-{i}"),"parentExecutionId":"outer","workflowId":run.workflow_id,"iterationPath":[i],"scopeId":format!("scope-{i}"),"inputs":{"value":i,"large":"x".repeat(1000)}});
+            store
+                .emit("node_started", &run.id, data.clone())
+                .await
+                .unwrap();
+            let mut done = data;
+            done["outputs"] = json!({"result":i});
+            store
+                .emit(
+                    if i == 259 {
+                        "node_failed"
+                    } else {
+                        "node_finished"
+                    },
+                    &run.id,
+                    done,
+                )
+                .await
+                .unwrap();
+        }
+        let detail = store
+            .inspect_trace(&run.id, &TraceQuery::default())
+            .await
+            .unwrap();
+        assert_eq!(detail["trace"]["total"], 261);
+        assert_eq!(detail["trace"]["counts"]["succeeded"], 259);
+        assert_eq!(detail["trace"]["executions"][0]["children"], 260);
+        assert_eq!(
+            detail["trace"]["failurePath"],
+            json!(["outer", "iteration-259"])
+        );
+        assert_eq!(detail["snapshot"]["name"], "Original name");
+        assert_eq!(
+            detail["snapshot"]["schema"]["nodes"][0]["meta"]["position"]["x"],
+            123
+        );
+        let page = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("executions".into()),
+                    parent: Some("outer".into()),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(page["executions"].as_array().unwrap().len(), 100);
+        assert!(page["executions"][0].get("inputs").is_none());
+        assert_eq!(page["executions"][0]["inputsAvailable"], true);
+        let cursor = page["nextCursor"].as_i64().unwrap();
+        let page2 = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("executions".into()),
+                    parent: Some("outer".into()),
+                    cursor: Some(cursor),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(page2["executions"][0]["iterationPath"], json!([100]));
+        let selected = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("execution".into()),
+                    execution: Some("iteration-259".into()),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        let data: Value =
+            serde_json::from_str(selected["events"][0]["data"].as_str().unwrap()).unwrap();
+        assert_eq!(data["inputs"]["value"], 259);
+        assert!(
+            store
+                .inspect_trace(
+                    &run.id,
+                    &TraceQuery {
+                        view: Some("execution".into()),
+                        execution: Some("another-run".into()),
+                        ..Default::default()
+                    }
+                )
+                .await
+                .is_err()
+        );
+        let at = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("executions".into()),
+                    at: detail["trace"]["executions"][0]["firstSequence"].as_i64(),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(at["executions"][0]["children"], 0);
+    }
+    #[tokio::test]
+    async fn terminal_runs_preserve_unfinished_spans_and_snapshot_identity() {
+        let (_dir, store, run) = recording().await;
+        store
+            .emit(
+                "model_started",
+                &run.id,
+                json!({"nodeId":"llm","executionId":"call","name":"Generate","inputs":[]}),
+            )
+            .await
+            .unwrap();
+        sqlx::query("UPDATE runs SET status='interrupted' WHERE id=?")
+            .bind(&run.id)
+            .execute(&store.db)
+            .await
+            .unwrap();
+        let workflow = store.workflow(&run.workflow_id).await.unwrap();
+        store
+            .save_workflow(
+                &workflow.id,
+                workflow.revision,
+                "Changed name",
+                json!({"nodes":[],"edges":[]}),
+            )
+            .await
+            .unwrap();
+        let detail = store
+            .inspect_trace(&run.id, &TraceQuery::default())
+            .await
+            .unwrap();
+        assert_eq!(detail["snapshot"]["name"], "Original name");
+        assert_eq!(detail["trace"]["executions"][0]["status"], "interrupted");
+        assert!(detail["trace"]["durationMs"].is_null());
+        let query = TraceQuery {
+            view: Some("execution".into()),
+            execution: Some("a&b=x".into()),
+            ..Default::default()
+        };
+        assert!(query.query_string().contains("execution=a%26b%3Dx"));
+    }
+}

@@ -675,14 +675,10 @@ async fn revoke_consumer(
     Ok(Json(json!({"revoked":true})))
 }
 
-#[derive(Deserialize)]
-struct RunQuery {
-    after: Option<i64>,
-}
 async fn run_detail(
     State(s): State<RegistryState>,
     Path((id, target, environment, run)): Path<(String, String, String, String)>,
-    Query(q): Query<RunQuery>,
+    Query(q): Query<crate::run_trace::TraceQuery>,
 ) -> Result<Json<Value>> {
     crate::services::identifier(&environment)?;
     uuid::Uuid::parse_str(&run).map_err(|_| Error::Invalid("Invalid run ID".into()))?;
@@ -693,7 +689,7 @@ async fn run_detail(
         store
             .service_run(&service, &environment, &run, None)
             .await?;
-        store.inspect_run(&run, q.after.unwrap_or(0), None).await?
+        store.inspect_trace(&run, &q).await?
     } else {
         remote(
             &s.registry,
@@ -701,8 +697,8 @@ async fn run_detail(
             Some(&project),
             reqwest::Method::GET,
             &format!(
-                "/admin/services/{service}/{environment}/runs/{run}?after={}",
-                q.after.unwrap_or(0)
+                "/admin/services/{service}/{environment}/runs/{run}?{}",
+                q.query_string()
             ),
             None,
         )

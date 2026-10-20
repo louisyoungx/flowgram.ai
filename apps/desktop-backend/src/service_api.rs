@@ -629,17 +629,13 @@ async fn host_service_detail(
     ))
 }
 
-#[derive(Deserialize)]
-struct HostRunQuery {
-    after: Option<i64>,
-}
 async fn host_run_detail(
     State(s): State<Store>,
     Path((service, environment, id)): Path<(String, String, String)>,
-    Query(q): Query<HostRunQuery>,
+    Query(q): Query<crate::run_trace::TraceQuery>,
 ) -> Result<Json<Value>> {
     s.service_run(&service, &environment, &id, None).await?;
-    Ok(Json(s.inspect_run(&id, q.after.unwrap_or(0), None).await?))
+    Ok(Json(s.inspect_trace(&id, &q).await?))
 }
 async fn host_run_cancel(
     State(s): State<Store>,
