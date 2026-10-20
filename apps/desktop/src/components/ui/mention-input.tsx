@@ -15,6 +15,8 @@ import {
 import { cn } from '../../lib/utils';
 import {
   mentionQuery,
+  createMention,
+  mentionDeletionRange,
   replaceMentionRange,
   validMentions,
   type MentionValue,
@@ -143,12 +145,18 @@ export const MentionInput = forwardRef<
     }
     function insertMention(item: { id: string; label: string }) {
       const selection = picker || mentionSelection(editor.current!) || caret.current;
-      const content = `@${item.label} `;
-      replace(selection.start, selection.end, {
-        content,
-        mentions: [{ ...item, start: 0, end: content.length - 1 }],
-      });
+      replace(selection.start, selection.end, createMention(item));
       closePicker();
+    }
+    function deleteMention(direction: 'backward' | 'forward') {
+      const root = editor.current;
+      const selection = root && mentionSelection(root);
+      if (!selection) return false;
+      const range = mentionDeletionRange(current.current, selection, direction);
+      if (!range) return false;
+      replace(range.start, range.end, { content: '', mentions: [] });
+      closePicker();
+      return true;
     }
     function updateQuery() {
       const root = editor.current;
@@ -315,7 +323,16 @@ export const MentionInput = forwardRef<
           }}
           onDrop={(event) => event.preventDefault()}
           onBeforeInput={(event) => {
-            const kind = (event.nativeEvent as InputEvent).inputType;
+            const native = event.nativeEvent as InputEvent;
+            if (native.isComposing || composing.current) return;
+            const kind = native.inputType;
+            if (
+              (kind === 'deleteContentBackward' || kind === 'deleteContentForward') &&
+              deleteMention(kind === 'deleteContentBackward' ? 'backward' : 'forward')
+            ) {
+              event.preventDefault();
+              return;
+            }
             if (kind === 'insertParagraph' || kind === 'insertLineBreak') {
               event.preventDefault();
               const selected = mentionSelection(editor.current!) || caret.current;
@@ -332,6 +349,16 @@ export const MentionInput = forwardRef<
               Date.now() - compositionEnded.current < 50
             )
               return;
+            if (
+              !event.metaKey &&
+              !event.ctrlKey &&
+              !event.altKey &&
+              (event.key === 'Backspace' || event.key === 'Delete') &&
+              deleteMention(event.key === 'Backspace' ? 'backward' : 'forward')
+            ) {
+              event.preventDefault();
+              return;
+            }
             if ((event.metaKey || event.ctrlKey) && ['z', 'y'].includes(event.key.toLowerCase())) {
               event.preventDefault();
               const redo = event.shiftKey || event.key.toLowerCase() === 'y';

@@ -23,6 +23,45 @@ export interface WorkflowReferences {
     end: number;
   }[];
 }
+/** Visual separation is CSS spacing, never an extra editable character. */
+export function createMention(
+  item: Pick<Mention, "id" | "label">
+): MentionValue {
+  const content = `@${item.label}`;
+  return { content, mentions: [{ ...item, start: 0, end: content.length }] };
+}
+/** Return an atomic deletion only when the selection touches a reference. */
+export function mentionDeletionRange(
+  value: MentionValue,
+  selection: { start: number; end: number },
+  direction: "backward" | "forward"
+): { start: number; end: number } | null {
+  const mentions = validMentions(value.content, value.mentions);
+  if (selection.start !== selection.end)
+    return mentions.some(
+      (mention) =>
+        mention.start < selection.end && mention.end > selection.start
+    )
+      ? selection
+      : null;
+  const caret = selection.start;
+  const mention = mentions.find((mention) =>
+    direction === "backward"
+      ? (caret > mention.start && caret <= mention.end) ||
+        // Older drafts inserted a separator after each token. Remove that one
+        // separator together with its reference, without swallowing arbitrary text.
+        (caret === mention.end + 1 &&
+          /^[ \u00a0]$/.test(value.content.slice(mention.end, caret)))
+      : caret >= mention.start && caret < mention.end
+  );
+  return mention
+    ? {
+        start: mention.start,
+        end:
+          direction === "backward" ? Math.max(mention.end, caret) : mention.end,
+      }
+    : null;
+}
 export function validMentions(
   content: string,
   mentions: readonly Mention[] = []
