@@ -32,6 +32,7 @@ impl<'a> Walkthrough<'a> {
             started_at: now(),
             ended_at: None,
             final_item_id: None,
+            model: None,
             error: None,
         };
         let input = ConversationInput {
@@ -39,6 +40,7 @@ impl<'a> Walkthrough<'a> {
             client_input_id: id(),
             session_id: session.into(),
             content: text.clone(),
+            model: None,
             references: workflow
                 .map(|w| json!({"workflowId":w}))
                 .unwrap_or(Value::Null),

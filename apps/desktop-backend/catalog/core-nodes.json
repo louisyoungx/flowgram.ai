@@ -287,7 +287,7 @@
         }
       }
     },
-    "configuration": "Fields under inputsValues use typed constant, ref, or template bindings. Nested objects must be passed as one typed binding; use data.map-fields to assemble dynamic objects. Runtime timeout is configured at data.runtime.timeoutMs (10..180000 ms)."
+    "configuration": "Fields under inputsValues use typed constant, ref, or template bindings. Nested objects must be passed as one typed binding; use data.map-fields to assemble dynamic objects. Runtime timeout is configured at data.runtime.timeoutMs (10..180000 ms). Model selection is stored at data.model = {modelId?: string, parameters?: {temperature?: number, topP?: number, maxOutputTokens?: integer, reasoningEffort?: string, outputSchema?: JSONSchema}}. Omit modelId to use the workflow default. Use list_models for project-available model entry IDs and explicit capabilities; never invent IDs or infer capabilities from model names. Agent nodes require tool calling. Each run freezes the resolved connection, model and parameters for all dependencies and loop iterations."
   },
   {
     "type": "agent",
@@ -343,7 +343,7 @@
         }
       }
     },
-    "configuration": "Fields under inputsValues use typed constant, ref, or template bindings. Nested objects must be passed as one typed binding; use data.map-fields to assemble dynamic objects. Runtime timeout is configured at data.runtime.timeoutMs (10..180000 ms)."
+    "configuration": "Fields under inputsValues use typed constant, ref, or template bindings. Nested objects must be passed as one typed binding; use data.map-fields to assemble dynamic objects. Runtime timeout is configured at data.runtime.timeoutMs (10..180000 ms). Model selection is stored at data.model = {modelId?: string, parameters?: {temperature?: number, topP?: number, maxOutputTokens?: integer, reasoningEffort?: string, outputSchema?: JSONSchema}}. Omit modelId to use the workflow default. Use list_models for project-available model entry IDs and explicit capabilities; never invent IDs or infer capabilities from model names. Agent nodes require tool calling. Each run freezes the resolved connection, model and parameters for all dependencies and loop iterations."
   },
   {
     "type": "subworkflow",

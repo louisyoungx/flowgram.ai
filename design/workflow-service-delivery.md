@@ -152,3 +152,12 @@ X-FlowGram-Timestamp = Unix seconds
 运行服务上的业务凭证按来源项目隔离命名，避免同一全局凭证用于多个项目时互相覆盖授权。轮换或修改项目范围会向所有已登记远程部署传播；持久队列在服务不可达时重试，界面明确显示待同步，不能把离线目标视为已完成撤权。运行时再次检查引用凭证的用途和项目范围；每次运行固定槽位引用，后续部署不改变已接受运行的映射。环境变量方式继续用于独立命令行部署。
 
 验证覆盖：跨项目全局列表、草稿和多版本保持单卡片、Rust 拒绝越权、密钥不进入 API/发布包、执行时注入及回显脱敏、范围收回、远程目标真实调用与消费凭证撤销、同一凭证跨项目远程隔离与范围同步、失败部署可重试。
+
+
+## Model bindings
+
+AI nodes use `data.model = {modelId?, parameters?}`. A release contains these non-secret requirements, not the device catalog or its credentials. Deployment `modelBindings` maps each required slot (the explicit source model entry ID, or `workflow-default`) to a model entry ID on the target runtime. Deployment validates project credential grants, tools for Agent nodes, and each node's parameter overrides. Every invocation pins the deployed connection and base model parameters, then applies that node's overrides. Desktop catalog edits and default changes do not modify existing deployments or active runs; redeploy explicitly to adopt changes.
+
+The desktop target-model inventory is `GET /api/deployment/targets/{id}/models?projectId=...`. Standalone hosts expose metadata at authenticated `GET /admin/models` only when administration is enabled. Configure host models through `flowgram-service model-connection <connection.json>`, `model <model.json>`, `model-defaults <defaults.json>` and inspect with `models`. Files use the same model DTOs as the desktop API. `FLOWGRAM_MODEL_BASE_URL`, `FLOWGRAM_MODEL`, and `FLOWGRAM_MODEL_API_KEY` provision a Responses connection into the host catalog; select the returned entry ID explicitly in deployments. Secrets stay on the target. Model snapshots in private runtime tables never enter release bundles, project export packages, tool results, or public run responses.
+
+Protocol references: [Responses streaming](https://developers.openai.com/api/docs/guides/streaming-responses), [function calling](https://developers.openai.com/api/docs/guides/function-calling), [Anthropic streaming](https://platform.claude.com/docs/en/build-with-claude/streaming), [structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs). These describe wire formats; capability declarations and invocation tests determine availability for a particular configured service.

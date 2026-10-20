@@ -75,6 +75,11 @@ export function App() {
   const [online, setOnline] = useState(false);
   const [model, setModel] = useState<ModelSettings | null>(null);
   const [settings, setSettings] = useState(false);
+  useEffect(() => {
+    const open = () => setSettings(true);
+    window.addEventListener('flowgram:open-model-settings', open);
+    return () => window.removeEventListener('flowgram:open-model-settings', open);
+  }, []);
   const [sidebar, setSidebar] = useState(
     () => localStorage.getItem('flowgram.layout.sidebar.visible') !== 'false'
   );

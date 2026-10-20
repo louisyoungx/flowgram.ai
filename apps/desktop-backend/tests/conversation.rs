@@ -21,6 +21,7 @@ fn input(client: &str, text: &str) -> SendInput {
         delivery_mode: "queue".into(),
         expected_turn_id: None,
         references: Value::Null,
+        model: None,
     }
 }
 fn response(output: Value) -> String {
@@ -284,6 +285,7 @@ async fn restart_keeps_unstarted_inputs_but_does_not_replay_unknown_tool_results
         started_at: now(),
         ended_at: None,
         final_item_id: None,
+        model: None,
         error: None,
     };
     sqlx::query("INSERT INTO conversation_turns(id,session_id,status,data) VALUES(?,?,?,?)")
@@ -322,6 +324,7 @@ async fn restart_keeps_unstarted_inputs_but_does_not_replay_unknown_tool_results
         session_id: session.clone(),
         content: "接着处理".into(),
         references: Value::Null,
+        model: None,
         delivery_mode: "queue".into(),
         turn_id: None,
         status: "queued".into(),

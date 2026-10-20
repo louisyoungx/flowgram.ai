@@ -5,15 +5,18 @@
 
 import type { ReactNode } from 'react';
 
-import { Check, ChevronDown, Plug, Settings2, Sparkles, Workflow } from 'lucide-react';
+import { Check, ChevronDown, Plug, Workflow } from 'lucide-react';
 
 import { Popover } from '../ui/popover';
+import { ModelPicker } from '../model-picker';
 import { BufferedInput, ValueEditor } from '../form/value-editor';
 import { FormSessionProvider, useFormSession } from '../form/session';
 import { FormField, FormSection, Select } from '../form/field';
 import { ConditionBuilder, MappingEditor, SchemaEditor } from '../form/editors';
 import { BranchEditor, BranchMappingsEditor, NodeLinkEditor } from '../form/control-editors';
 import { PathsEditor, PredicateEditor, RecordsEditor } from '../form/collection-editors';
+import { useProject } from '../../lib/project-context';
+import type { ModelSelection } from '../../lib/models';
 import { tx } from '../../lib/i18n';
 import type { Branch } from '../../lib/control-nodes';
 import {
@@ -38,24 +41,15 @@ function ResourcePicker({
   onChange: (value: unknown) => void;
 }) {
   const session = useFormSession();
-  const model = field.resource === 'model';
-  if (model)
+  const { projectId } = useProject();
+  if (field.resource === 'model')
     return (
-      <div className="nf-resource-row">
-        <span className="nf-resource">
-          <Sparkles size={15} />
-          <span>{session.model?.displayName || tx('尚未配置模型')}</span>
-          <small>{session.model?.configured ? tx('已连接') : tx('未连接')}</small>
-        </span>
-        <button
-          type="button"
-          className="nf-icon-button"
-          aria-label={tx('管理模型连接')}
-          onClick={session.openSettings}
-        >
-          <Settings2 size={15} />
-        </button>
-      </div>
+      <ModelPicker
+        value={(value || {}) as ModelSelection}
+        onChange={onChange}
+        projectId={projectId}
+        tools={session.node.type === 'agent'}
+      />
     );
   const current = asValue(value).content;
   const selected = session.workflows.find((w) => w.id === current);

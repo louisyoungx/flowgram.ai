@@ -24,6 +24,7 @@ import { Select } from './ui/select';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { DeploymentField, deploymentEditor } from './deployment-ui';
+import { DeploymentModels } from './deployment-models';
 
 export function publicOperation(workflow: Workflow) {
   return {
@@ -311,7 +312,7 @@ export function PublicationForm({
             <DeploymentField label={tx('运行服务')}>
               <Select
                 value={draft.targetId}
-                onValueChange={(targetId) => patch({ targetId })}
+                onValueChange={(targetId) => patch({ targetId, modelBindings: {} })}
                 options={[
                   { value: 'local', label: tx('本机运行服务') },
                   ...inventory.targets.map((t) => ({ value: t.id, label: t.name })),
@@ -328,6 +329,14 @@ export function PublicationForm({
               />
             </DeploymentField>
           </div>
+          <DeploymentModels
+            projectId={detail.projectId}
+            targetId={draft.targetId}
+            workflows={detail.workflows}
+            selected={draft.operations.map((op) => op.workflowId)}
+            value={draft.modelBindings || {}}
+            onChange={(modelBindings) => patch({ modelBindings })}
+          />
           {draft.targetId === 'local' && (
             <p className="text-xs leading-5 text-muted-foreground">
               {tx('本机发布用于联调。退出应用后，本机服务停止。')}

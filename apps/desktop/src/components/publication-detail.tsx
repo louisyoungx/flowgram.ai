@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { ArrowDownToLine, ArrowLeft, ArrowUpRight, Plus, RefreshCw, Settings2 } from 'lucide-react';
 
+import type { Workflow } from '../lib/types';
 import { downloadJson, serviceExample } from '../lib/services';
 import { ProjectScope } from '../lib/project-context';
 import { tx, t, errorText } from '../lib/i18n';
@@ -25,6 +26,7 @@ import { Dialog } from './ui/dialog';
 import { Button } from './ui/button';
 import { RunPage } from './run-page';
 import { DeploymentCode, DeploymentEmpty, DeploymentField } from './deployment-ui';
+import { DeploymentModels } from './deployment-models';
 
 export function PublicationDetails({
   active,
@@ -47,6 +49,7 @@ export function PublicationDetails({
   openWorkflow: (project: string, id: string) => void;
   openRun: (project: string, id: string) => void;
 }) {
+  const [releaseWorkflows, setReleaseWorkflows] = useState<Workflow[]>([]);
   const [tab, setTab] = useState('overview');
   const [viewRun, setViewRun] = useState<string | null>(null);
   const [selection, setSelection] = useState(0);
@@ -109,6 +112,13 @@ export function PublicationDetails({
   }
   function beginDeploy(version: string) {
     setDeployVersion(version);
+    setReleaseWorkflows([]);
+    void act(async () => {
+      const bundle = await api<{ workflows: Workflow[] }>(
+        `${deploymentPath(detail.id)}/releases/${encodeURIComponent(version)}`
+      );
+      setReleaseWorkflows(bundle.workflows);
+    });
     const d = detail.draft;
     setActivation(
       deployed
@@ -121,6 +131,7 @@ export function PublicationDetails({
             maxConcurrency: d.maxConcurrency,
             bindings: d.bindings,
             credentialBindings: d.credentialBindings,
+            modelBindings: d.modelBindings || {},
             callback: d.callback,
           }
     );
@@ -645,7 +656,9 @@ export function PublicationDetails({
             <DeploymentField label={tx('运行服务')}>
               <Select
                 value={activation.targetId}
-                onValueChange={(targetId) => setActivation({ ...activation, targetId })}
+                onValueChange={(targetId) =>
+                  setActivation({ ...activation, targetId, modelBindings: {} })
+                }
                 options={[
                   { value: 'local', label: tx('本机运行服务') },
                   ...inventory.targets.map((t) => ({ value: t.id, label: t.name })),
@@ -670,6 +683,13 @@ export function PublicationDetails({
                 {errorText(error)}
               </p>
             )}
+            <DeploymentModels
+              projectId={detail.projectId}
+              targetId={activation.targetId}
+              workflows={releaseWorkflows}
+              value={activation.modelBindings || {}}
+              onChange={(modelBindings) => setActivation({ ...activation, modelBindings })}
+            />
             <div className="flex gap-3">
               <Button disabled={busy}>{tx('启用此版本')}</Button>
               {deployed && (

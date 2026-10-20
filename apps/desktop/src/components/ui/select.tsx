@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { Fragment, useContext, type ButtonHTMLAttributes } from 'react';
+import { Fragment, useContext, useState, type ReactNode, type ButtonHTMLAttributes } from 'react';
 
 import { Check, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
 import * as SelectPrimitive from '@radix-ui/react-select';
@@ -11,6 +11,7 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { cn } from '../../lib/utils';
 import { Popover } from './popover';
 import { MenuButton } from './menu-button';
+import { Input } from './input';
 import { FloatingLayerOwners } from './floating-layer';
 import { Button } from './button';
 
@@ -214,5 +215,128 @@ export function EntitySelect({
         )}
       </Popover>
     </div>
+  );
+}
+
+/** Searchable grouped choices with descriptive rows and a separate command footer. */
+export function GroupedSelect({
+  value,
+  label,
+  trigger,
+  searchLabel,
+  groups,
+  empty,
+  leading,
+  footer,
+  onValueChange,
+  disabled,
+  title,
+}: {
+  value: string;
+  label: string;
+  trigger: string;
+  searchLabel: string;
+  groups: {
+    id: string;
+    label: string;
+    items: { value: string; label: string; description?: string; disabled?: boolean }[];
+  }[];
+  empty: string;
+  leading?: (close: () => void) => ReactNode;
+  footer?: (close: () => void) => ReactNode;
+  onValueChange: (value: string) => void;
+  disabled?: boolean;
+  title?: string;
+}) {
+  const [query, setQuery] = useState('');
+  const visible = groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) =>
+        `${group.label} ${item.label} ${item.description || ''}`
+          .toLowerCase()
+          .includes(query.toLowerCase())
+      ),
+    }))
+    .filter((group) => group.items.length);
+  return (
+    <Popover
+      label={label}
+      width={340}
+      trigger={
+        <button
+          type="button"
+          disabled={disabled}
+          aria-label={`${label}: ${trigger}`}
+          title={title}
+          className="fg-select-trigger fg-select-ghost max-w-full text-xs"
+        >
+          <span className="truncate">{trigger}</span>
+          <ChevronDown size={13} />
+        </button>
+      }
+    >
+      {(close) => (
+        <div
+          className="space-y-2"
+          onKeyDown={(event) => {
+            if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+            const choices = [
+              ...event.currentTarget.querySelectorAll<HTMLButtonElement>(
+                'button[data-select-choice]:not(:disabled)'
+              ),
+            ];
+            if (!choices.length) return;
+            event.preventDefault();
+            const index = choices.indexOf(document.activeElement as HTMLButtonElement);
+            choices[
+              (index + (event.key === 'ArrowDown' ? 1 : choices.length - 1) + choices.length) %
+                choices.length
+            ].focus();
+          }}
+        >
+          <Input
+            aria-label={searchLabel}
+            placeholder={searchLabel}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+          <div className="max-h-72 overflow-auto" role="group" aria-label={label}>
+            {leading?.(close)}
+            {visible.map((group) => (
+              <div key={group.id} role="group" aria-label={group.label}>
+                <p className="px-2 pb-1 pt-3 text-xs font-medium text-muted-foreground">
+                  {group.label}
+                </p>
+                {group.items.map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    data-select-choice
+                    disabled={item.disabled}
+                    aria-pressed={item.value === value}
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left hover:bg-muted disabled:opacity-50"
+                    onClick={() => {
+                      onValueChange(item.value);
+                      close();
+                    }}
+                  >
+                    <Check size={13} className={item.value === value ? '' : 'invisible'} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm">{item.label}</span>
+                      <small className="block truncate text-muted-foreground">
+                        {item.description}
+                      </small>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ))}
+            {!visible.length && <p className="p-3 text-xs text-muted-foreground">{empty}</p>}
+          </div>
+          {footer?.(close)}
+        </div>
+      )}
+    </Popover>
   );
 }

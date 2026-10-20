@@ -68,6 +68,7 @@ impl Catalog {
         ] {
             sqlx::query(statement).execute(&db).await?;
         }
+        crate::models::initialize(&db).await?;
         Ok(Self { db })
     }
     pub async fn credentials(&self) -> Result<Value> {

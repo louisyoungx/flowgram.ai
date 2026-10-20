@@ -436,6 +436,14 @@ export function ConversationTurn({
           {tx(turn.status === 'completed' ? '已完成' : '已停止 / 中断')}
         </p>
       )}
+      {turn.model && (
+        <p
+          className="mt-2 text-[10px] text-muted-foreground"
+          title={`${turn.model.connectionName} · ${turn.model.upstreamModel}`}
+        >
+          {turn.model.modelName}
+        </p>
+      )}
     </article>
   );
 }

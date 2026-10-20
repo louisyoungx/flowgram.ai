@@ -22,7 +22,7 @@ pub(crate) struct ExecutionContext {
     pub depth: usize,
     pub permits: Arc<Semaphore>,
     scope_id: String,
-    workflow_id: Option<String>,
+    pub(crate) workflow_id: Option<String>,
     parent: Option<String>,
     branches: Vec<String>,
     iterations: Vec<usize>,

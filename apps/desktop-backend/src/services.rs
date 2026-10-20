@@ -65,6 +65,8 @@ pub struct Deployment {
     #[serde(default)]
     pub bindings: BTreeMap<String, Value>,
     #[serde(default)]
+    pub model_bindings: BTreeMap<String, String>,
+    #[serde(default)]
     pub callback: Option<Callback>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -575,9 +577,20 @@ impl Store {
                 }
             }
         }
+        let models = if definition.enabled {
+            self.deployment_models(&release, &definition.model_bindings)
+                .await?
+        } else {
+            Default::default()
+        };
         let _guard = self.service_lock.lock().await;
         self.ensure_open()?;
-        sqlx::query("INSERT INTO service_deployments VALUES(?,?,?) ON CONFLICT(service,environment) DO UPDATE SET definition=excluded.definition").bind(&definition.service).bind(&definition.environment).bind(serde_json::to_string(&definition)?).execute(&self.db).await?;
+        let mut tx = self.db.begin().await?;
+        for (slot, model) in models {
+            sqlx::query("INSERT INTO service_models VALUES(?,?,?,?,?) ON CONFLICT(service,environment,version,slot) DO UPDATE SET definition=excluded.definition").bind(&definition.service).bind(&definition.environment).bind(&definition.version).bind(slot).bind(serde_json::to_string(&model)?).execute(&mut *tx).await?;
+        }
+        sqlx::query("INSERT INTO service_deployments VALUES(?,?,?) ON CONFLICT(service,environment) DO UPDATE SET definition=excluded.definition").bind(&definition.service).bind(&definition.environment).bind(serde_json::to_string(&definition)?).execute(&mut *tx).await?;
+        tx.commit().await?;
         self.emit(
             "service_changed",
             &definition.service,
@@ -803,6 +816,8 @@ impl Store {
         let mut tx = self.db.begin().await?;
         let run = self
             .prepare_run(workflow, None, &effective, &release.workflows, &mut tx)
+            .await?;
+        self.pin_models(&mut tx, &run.id, &release.workflows, Some(&deployment))
             .await?;
         sqlx::query("INSERT INTO service_runs VALUES(?,?,?,?,?,?,?,?,?)")
             .bind(&run.id)

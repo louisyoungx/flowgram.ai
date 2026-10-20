@@ -154,7 +154,7 @@ impl crate::store::Store {
             .run_node_states(id, workflow.unwrap_or(&run.workflow_id))
             .await?;
         Ok(
-            serde_json::json!({"run":run,"events":events,"nextAfter":next,"nodeStates":states,"nodeTest":self.node_test_definition(id).await?,"schema":self.run_definition(id).await?,"manifest":self.run_manifest(id).await?}),
+            serde_json::json!({"models":self.run_model_traces(id).await?,"run":run,"events":events,"nextAfter":next,"nodeStates":states,"nodeTest":self.node_test_definition(id).await?,"schema":self.run_definition(id).await?,"manifest":self.run_manifest(id).await?}),
         )
     }
 }

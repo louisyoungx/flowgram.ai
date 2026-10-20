@@ -181,14 +181,14 @@ export const nodeDefinitions: Record<string, NodeDefinition> = localized({
   },
   llm: {
     fields: [
-      { key: '_model', label: '模型', editor: 'resource', resource: 'model' },
+      { key: 'model', label: '模型', editor: 'resource', resource: 'model' },
       value('prompt', '生成要求', 'string', { multiline: true, required: true }),
     ],
     output: () => result('string'),
   },
   agent: {
     fields: [
-      { key: '_model', label: '模型', editor: 'resource', resource: 'model' },
+      { key: 'model', label: '模型', editor: 'resource', resource: 'model' },
       value('prompt', '目标', 'string', { multiline: true, required: true }),
       {
         key: '_tools',

@@ -13,7 +13,7 @@ use axum::{
 };
 use base64::{Engine, engine::general_purpose::STANDARD};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Value, json};
 use sqlx::Row;
 use std::{
     collections::{BTreeMap, HashSet},
@@ -41,6 +41,8 @@ const TABLES: &[(&str, &str)] = &[
     ("conversation_items", "id,turn_id,ordinal,data"),
     ("conversation_controls", "session_id,paused"),
     ("conversation_runs", "turn_id,run_id"),
+    ("session_models", "session_id,selection"),
+    ("run_model_labels", "run_id,workflow_id,node_id,label"),
 ];
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -185,6 +187,14 @@ fn validate_history_row(table: &str, row: &[Value]) -> Result<()> {
         .map_err(|_| invalid("Invalid history document"))
     };
     match table {
+        "session_models" => {
+            serde_json::from_value::<crate::models::Selection>(data(1)?)
+                .map_err(|_| invalid("Invalid session model selection"))?;
+        }
+        "run_model_labels" => {
+            serde_json::from_value::<crate::models::Trace>(data(3)?)
+                .map_err(|_| invalid("Invalid model execution label"))?;
+        }
         "conversation_inputs" => {
             let value: crate::conversation::ConversationInput = serde_json::from_value(data(7)?)
                 .map_err(|_| invalid("Invalid conversation input in project package"))?;
@@ -424,6 +434,8 @@ fn yes() -> bool {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct Import {
     package: Package,
+    #[serde(default)]
+    model_bindings: BTreeMap<String, String>,
     name: Option<String>,
     directory: Option<String>,
 }
@@ -473,10 +485,61 @@ async fn import(
     State(state): State<RegistryState>,
     Json(input): Json<Import>,
 ) -> Result<Json<Project>> {
+    let mut package = input.package;
+    fn bind(nodes: &mut Value, mappings: &BTreeMap<String, String>) {
+        for node in nodes.as_array_mut().into_iter().flatten() {
+            if let Some(id) = node
+                .pointer("/data/model/modelId")
+                .and_then(Value::as_str)
+                .and_then(|id| mappings.get(id))
+                .cloned()
+            {
+                node["data"]["model"]["modelId"] = Value::String(id);
+            }
+            if let Some(blocks) = node.get_mut("blocks") {
+                bind(blocks, mappings);
+            }
+        }
+    }
+    for target in input.model_bindings.values() {
+        state
+            .registry
+            .deployment_settings
+            .model_entry(target)
+            .await?;
+    }
+    for workflow in &mut package.workflows {
+        bind(&mut workflow.schema["nodes"], &input.model_bindings);
+    }
+    if let Some(history) = &mut package.history {
+        for (table, index) in [("session_models", 1), ("conversation_inputs", 7)] {
+            if let Some(rows) = history.get_mut(table) {
+                for row in rows {
+                    let mut value: Value = serde_json::from_str(
+                        row[index]
+                            .as_str()
+                            .ok_or_else(|| invalid("Invalid imported model selection"))?,
+                    )?;
+                    let selection = if table == "session_models" {
+                        &mut value
+                    } else {
+                        &mut value["model"]
+                    };
+                    if let Some(target) = selection["modelId"]
+                        .as_str()
+                        .and_then(|id| input.model_bindings.get(id))
+                    {
+                        selection["modelId"] = json!(target);
+                    }
+                    row[index] = Value::String(serde_json::to_string(&value)?);
+                }
+            }
+        }
+    }
     Ok(Json(
         import_project(
             &state.registry,
-            input.package,
+            package,
             input.name.as_deref(),
             input.directory.as_deref(),
         )

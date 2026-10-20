@@ -33,6 +33,8 @@ pub struct Draft {
     #[serde(default)]
     pub credential_bindings: BTreeMap<String, String>,
     #[serde(default)]
+    pub model_bindings: BTreeMap<String, String>,
+    #[serde(default)]
     pub callback: Option<crate::services::Callback>,
 }
 #[derive(Clone, Serialize, Deserialize)]
@@ -48,6 +50,8 @@ pub struct Activation {
     #[serde(default)]
     pub credential_bindings: BTreeMap<String, String>,
     #[serde(default)]
+    pub model_bindings: BTreeMap<String, String>,
+    #[serde(default)]
     pub callback: Option<crate::services::Callback>,
 }
 pub(crate) fn routes() -> Router<RegistryState> {
@@ -58,6 +62,7 @@ pub(crate) fn routes() -> Router<RegistryState> {
         .route("/api/deployment/targets",post(create_target))
         .route("/api/deployment/targets/{id}",axum::routing::put(update_target).delete(delete_target))
         .route("/api/deployment/targets/{id}/probe",post(probe))
+        .route("/api/deployment/targets/{id}/models",get(target_models))
         .route("/api/deployment/publications",post(create_publication))
         .route("/api/deployment/publications/{id}",get(detail).put(save_draft).delete(delete_draft))
         .route("/api/deployment/publications/{id}/publish",post(publish))
@@ -128,6 +133,16 @@ async fn delete_credential(
     State(s): State<RegistryState>,
     Path(id): Path<String>,
 ) -> Result<Json<Value>> {
+    if catalog(&s)
+        .model_connections()
+        .await?
+        .iter()
+        .any(|c| c.credential_id.as_deref() == Some(&id))
+    {
+        return Err(Error::Invalid(
+            "Credential is referenced by a model connection".into(),
+        ));
+    }
     if catalog(&s)
         .targets()
         .await?
@@ -253,6 +268,32 @@ async fn remote(
     serde_json::from_slice(&bytes)
         .map_err(|_| Error::Execution("Runtime returned an invalid response".into()))
 }
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ModelScope {
+    project_id: String,
+}
+async fn target_models(
+    State(s): State<RegistryState>,
+    Path(id): Path<String>,
+    Query(scope): Query<ModelScope>,
+) -> Result<Json<Value>> {
+    s.registry.resolve(&scope.project_id).await?;
+    if id == "local" {
+        return Ok(Json(catalog(&s).models_inventory().await?));
+    }
+    Ok(Json(
+        remote(
+            &s.registry,
+            &id,
+            Some(&scope.project_id),
+            reqwest::Method::GET,
+            "/admin/models",
+            None,
+        )
+        .await?,
+    ))
+}
 async fn probe(State(s): State<RegistryState>, Path(id): Path<String>) -> Result<Json<Value>> {
     if id != "local" {
         remote(
@@ -301,6 +342,7 @@ async fn create_publication(
         max_concurrency: 8,
         bindings: BTreeMap::new(),
         credential_bindings: BTreeMap::new(),
+        model_bindings: BTreeMap::new(),
         callback: None,
     };
     let publication_id = id();
@@ -452,6 +494,7 @@ async fn publish(State(s): State<RegistryState>, Path(id): Path<String>) -> Resu
         max_concurrency: draft.max_concurrency,
         bindings: draft.bindings,
         credential_bindings: draft.credential_bindings,
+        model_bindings: draft.model_bindings,
         callback: draft.callback,
     };
     deploy(&s, &id, activation).await?;
@@ -470,6 +513,7 @@ async fn deploy(s: &RegistryState, id: &str, input: Activation) -> Result<()> {
     let store = s.registry.resolve(&project).await?;
     let bundle = store.release(&service_id(&project), &input.version).await?;
     let definition = Deployment {
+        model_bindings: input.model_bindings.clone(),
         service: bundle.service.clone(),
         environment: input.environment.clone(),
         version: input.version.clone(),

@@ -48,6 +48,7 @@ export function RunPage({
     run: Run;
     events: RuntimeEvent[];
     nextAfter?: number | null;
+    models?: { workflowId: string; nodeId: string; model: import('../lib/models').ModelTrace }[];
     manifest?: {
       workflows: { workflowId: string; name: string; revision: number; schemaHash: string }[];
     };
@@ -227,6 +228,28 @@ export function RunPage({
                 {JSON.stringify(run.inputs, null, 2)}
               </pre>
             </details>
+            {!!detail.models?.length && (
+              <details className="rounded-lg border border-border p-3 text-xs">
+                <summary className="cursor-pointer font-medium">
+                  {tx('模型执行快照')} · {detail.models.length}
+                </summary>
+                <div className="mt-3 space-y-3">
+                  {detail.models.map((entry) => (
+                    <div key={`${entry.workflowId}:${entry.nodeId}`}>
+                      <p>
+                        {entry.model.modelName} · {entry.model.connectionName}
+                      </p>
+                      <code className="block break-all text-muted-foreground">
+                        {entry.nodeId} · {entry.model.upstreamModel}
+                      </code>
+                      <pre className="mt-1 whitespace-pre-wrap text-muted-foreground">
+                        {JSON.stringify(entry.model.parameters, null, 2)}
+                      </pre>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
             {!!detail.manifest?.workflows.length && (
               <details className="mt-4 text-xs text-muted-foreground">
                 <summary>

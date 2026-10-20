@@ -75,6 +75,7 @@ export interface ModelSettings {
 
 export type DeliveryMode = 'queue' | 'steer';
 export interface ConversationInput {
+  model?: import('./models').ModelSelection | null;
   id: string;
   clientInputId: string;
   sessionId: string;
@@ -88,6 +89,7 @@ export interface ConversationInput {
   error: string | null;
 }
 export interface Turn {
+  model?: import('./models').ModelTrace | null;
   id: string;
   sessionId: string;
   initiatingInputId: string;
@@ -125,6 +127,7 @@ export interface ConversationItem {
   updatedAt: string;
 }
 export interface ConversationSnapshot {
+  modelSelection?: import('./models').ModelSelection;
   sessionId: string;
   turns: Turn[];
   items: ConversationItem[];

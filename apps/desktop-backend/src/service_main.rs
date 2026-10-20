@@ -36,13 +36,48 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|_| "Service runtime directory is already in use")?;
     let store = Store::open_configured(&root.join("runtime"), &root, None).await?;
     if let Ok(url) = env::var("FLOWGRAM_MODEL_BASE_URL") {
-        *store.model.lock().await = ModelConfig {
-            base_url: url,
-            model: env::var("FLOWGRAM_MODEL").unwrap_or_default(),
-            api_key: env::var("FLOWGRAM_MODEL_API_KEY").unwrap_or_default(),
-        };
+        store
+            .set_model(ModelConfig {
+                base_url: url,
+                model: env::var("FLOWGRAM_MODEL").unwrap_or_default(),
+                api_key: env::var("FLOWGRAM_MODEL_API_KEY").unwrap_or_default(),
+            })
+            .await?;
     }
     let output = match args.first().map(String::as_str) {
+        Some("models") => Some(store.deployment_settings.models_inventory().await?),
+        Some("model-connection") => {
+            let input: flowgram_desktop_backend::models::Connection = serde_json::from_slice(
+                &tokio::fs::read(
+                    args.get(1)
+                        .ok_or("Usage: model-connection <connection.json>")?,
+                )
+                .await?,
+            )?;
+            Some(serde_json::to_value(
+                store
+                    .deployment_settings
+                    .save_model_connection(input)
+                    .await?,
+            )?)
+        }
+        Some("model") => {
+            let input: flowgram_desktop_backend::models::Entry = serde_json::from_slice(
+                &tokio::fs::read(args.get(1).ok_or("Usage: model <model.json>")?).await?,
+            )?;
+            Some(serde_json::to_value(
+                store.deployment_settings.save_model_entry(input).await?,
+            )?)
+        }
+        Some("model-defaults") => {
+            let input: flowgram_desktop_backend::models::Defaults = serde_json::from_slice(
+                &tokio::fs::read(args.get(1).ok_or("Usage: model-defaults <defaults.json>")?)
+                    .await?,
+            )?;
+            Some(serde_json::to_value(
+                store.deployment_settings.save_model_defaults(input).await?,
+            )?)
+        }
         Some("import") => {
             let bytes = tokio::fs::read(args.get(1).ok_or("Usage: import <bundle.json>")?).await?;
             if bytes.len() > 8_000_000 {

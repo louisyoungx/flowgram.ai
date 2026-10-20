@@ -12,6 +12,7 @@ import type {
 } from './types';
 
 export interface ConversationState {
+  modelSelection?: import('./models').ModelSelection;
   sessionId: string | null;
   turns: Record<string, Turn>;
   items: Record<string, ConversationItem>;
@@ -78,6 +79,7 @@ export function conversationSnapshot(
   let next: ConversationState = {
     ...emptyConversation(snapshot.sessionId),
     ready: true,
+    modelSelection: snapshot.modelSelection,
     turns: Object.fromEntries([...earlier, ...snapshot.turns].map((x) => [x.id, x])),
     items: Object.fromEntries(
       [

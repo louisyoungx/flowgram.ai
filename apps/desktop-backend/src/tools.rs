@@ -8,6 +8,12 @@ use serde_json::{Value, json};
 pub fn definitions() -> Value {
     let specs = [
         (
+            "list_models",
+            "List model IDs, capabilities, defaults and availability for this project. Set data.model.modelId and optional data.model.parameters on llm/agent nodes. Never infer capabilities from names. Credentials are managed by the user in Settings.",
+            json!({}),
+            vec![],
+        ),
+        (
             "list_node_types",
             "Discover available nodes. Specify nodeType for the complete configuration contract, operation enums, defaults, and output schema. Use query to filter by name or capability.",
             json!({"nodeType":{"type":"string"},"query":{"type":"string"}}),
@@ -85,6 +91,28 @@ impl Store {
                 "The session does not belong to the current project".into(),
             ));
         }
+        if name == "list_models" {
+            let mut models = Vec::new();
+            for model in self.deployment_settings.model_entries().await? {
+                let available = self
+                    .deployment_settings
+                    .resolve_model(
+                        &crate::models::Selection {
+                            model_id: Some(model.id.clone()),
+                            parameters: Default::default(),
+                        },
+                        project,
+                        false,
+                        false,
+                    )
+                    .await
+                    .is_ok();
+                models.push(json!({"id":model.id,"name":model.name,"modelId":model.model_id,"capabilities":model.capabilities,"parameters":model.parameters,"available":available}));
+            }
+            return Ok(
+                json!({"models":models,"defaults":self.deployment_settings.model_defaults().await?}),
+            );
+        }
         if name == "list_node_types" {
             if let Some(kind) = args["nodeType"].as_str() {
                 return crate::nodes::definition(kind)
@@ -137,7 +165,7 @@ impl Store {
                 None
             };
             return Ok(
-                json!({"run":run,"events":events,"nextAfter":next,"nodeTest":self.node_test_definition(&run.id).await?,"manifest":self.run_manifest(&run.id).await?}),
+                json!({"models":self.run_model_traces(&run.id).await?,"run":run,"events":events,"nextAfter":next,"nodeTest":self.node_test_definition(&run.id).await?,"manifest":self.run_manifest(&run.id).await?}),
             );
         }
         let workflow = self.workflow(string(&args, "workflowId")?).await?;

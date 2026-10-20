@@ -30,6 +30,7 @@ export interface ServiceDeployment {
   enabled: boolean;
   maxConcurrency: number;
   bindings: Record<string, unknown>;
+  modelBindings: Record<string, string>;
   callback: { url: string; secretEnv: string } | null;
 }
 export interface ServiceInventory {

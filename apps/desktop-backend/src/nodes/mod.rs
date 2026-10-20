@@ -217,6 +217,25 @@ pub fn execute(node: &Node, input: Value, scope: &Values) -> Result<Value> {
 
 /// Static choices cannot be replaced by per-test input or a variable binding.
 pub fn check_static(node: &Node, input: Option<&Value>) -> Result<()> {
+    if matches!(node.kind.as_str(), "llm" | "agent") {
+        let selection: crate::models::Selection = serde_json::from_value(
+            node.data
+                .get("model")
+                .cloned()
+                .unwrap_or(serde_json::json!({})),
+        )
+        .map_err(|_| {
+            invalid("Invalid model selection; use data.model.modelId and data.model.parameters")
+        })?;
+        if selection
+            .model_id
+            .as_ref()
+            .is_some_and(|s| s.is_empty() || s.len() > 100)
+        {
+            return Err(invalid("Invalid model entry ID"));
+        }
+    }
+
     let Some(spec) = definition(&node.kind) else {
         return Ok(());
     };

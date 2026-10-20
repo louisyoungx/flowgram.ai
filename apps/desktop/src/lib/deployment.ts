@@ -36,6 +36,7 @@ export interface PublicationDraft {
   maxConcurrency: number;
   bindings: Record<string, unknown>;
   credentialBindings: Record<string, string>;
+  modelBindings: Record<string, string>;
   callback: { url: string; secretEnv: string } | null;
 }
 export interface PublicationActivation

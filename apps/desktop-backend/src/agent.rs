@@ -1,11 +1,10 @@
 use crate::{
-    agent_stream::{ModelResponse, TurnProjection},
+    agent_stream::ModelResponse,
     conversation::{ConversationItem, Turn, display_payload},
     error::{Error, Result},
     store::Store,
     tools,
 };
-use futures_util::StreamExt;
 use serde_json::{Value, json};
 use tokio_util::sync::CancellationToken;
 
@@ -39,11 +38,21 @@ impl Store {
         &self,
         input: Value,
         cancel: &CancellationToken,
-        toolset: Option<Value>,
+        tools: Option<Value>,
         instructions: Option<&str>,
     ) -> Result<Value> {
+        let project = self.projects().await?.remove(0).id;
+        let model = self
+            .deployment_settings
+            .resolve_model(
+                &crate::models::Selection::default(),
+                &project,
+                tools.is_some(),
+                false,
+            )
+            .await?;
         Ok(self
-            .request_model_stream(input, cancel, toolset, instructions, None)
+            .request_model_stream(input, cancel, tools, instructions, None, &model)
             .await?
             .value)
     }
@@ -51,120 +60,36 @@ impl Store {
         &self,
         input: Value,
         cancel: &CancellationToken,
-        toolset: Option<Value>,
+        tools: Option<Value>,
         instructions: Option<&str>,
         turn: Option<&str>,
+        model: &crate::models::Resolved,
     ) -> Result<ModelResponse> {
-        let mut projection = turn.map(TurnProjection::new);
-        let config = self.model.lock().await.clone();
-        if config.base_url.is_empty() || config.model.is_empty() {
-            return Err(Error::Invalid(
-                "Connect a model in settings before sending a message".into(),
-            ));
-        }
-        let mut body = json!({"model":config.model,"input":input,"stream":true,"store":false});
-        if config.model.contains("gpt-") {
-            body["reasoning"] = json!({"effort":"low"});
-        }
-        if let Some(instructions) = instructions {
-            body["instructions"] = json!(instructions);
-        }
-        if let Some(toolset) = toolset {
-            body["tools"] = toolset;
-            body["parallel_tool_calls"] = json!(false);
-        }
-        let url = format!("{}/responses", config.base_url.trim_end_matches('/'));
-        let mut request = self
-            .client
-            .post(url)
-            .header("X-Switch-Client", "1")
-            .json(&body);
-        if !config.api_key.is_empty() {
-            request = request.bearer_auth(&config.api_key);
-        }
-        let response = tokio::select! {_=cancel.cancelled()=>return Err(Error::Cancelled),response=request.send()=>response.map_err(|_|Error::Execution("Cannot connect to the model service. Check connection settings".into()))?};
-        if !response.status().is_success() {
-            return Err(Error::Execution(format!(
-                "Model service returned HTTP {}",
-                response.status().as_u16()
-            )));
-        }
-        let mut stream = response.bytes_stream();
-        let mut pending = Vec::new();
-        let mut size = 0usize;
-        loop {
-            let chunk = tokio::select! {_=cancel.cancelled()=>{if let Some(p)=&mut projection{p.flush(self).await?;}return Err(Error::Cancelled)},chunk=stream.next()=>chunk};
-            let Some(chunk) = chunk else {
-                break;
-            };
-            let chunk =
-                chunk.map_err(|_| Error::Execution("Model event stream disconnected".into()))?;
-            size += chunk.len();
-            if size > 8_000_000 {
-                return Err(Error::Execution(
-                    "Model output exceeded the size limit".into(),
-                ));
-            }
-            pending.extend_from_slice(&chunk);
-            while let Some(end) = pending.iter().position(|b| *b == b'\n') {
-                let bytes: Vec<_> = pending.drain(..=end).collect();
-                let line = std::str::from_utf8(&bytes)
-                    .map_err(|_| Error::Execution("Invalid model event encoding".into()))?
-                    .trim_end();
-                let Some(data) = line.strip_prefix("data:") else {
-                    continue;
-                };
-                let data = data.trim();
-                if data == "[DONE]" {
-                    continue;
-                }
-                let Ok(event) = serde_json::from_str::<Value>(data) else {
-                    continue;
-                };
-                if let Some(p) = &mut projection {
-                    p.event(self, &event).await?;
-                }
-                match event["type"].as_str() {
-                    Some("response.completed") => {
-                        let response = event["response"].clone();
-                        return if let Some(p) = projection {
-                            p.complete(self, response).await
-                        } else {
-                            Ok(ModelResponse {
-                                value: response,
-                                text: None,
-                                tools: Default::default(),
-                            })
-                        };
-                    }
-                    Some("response.failed" | "error") => {
-                        if let Some(p) = &mut projection {
-                            p.flush(self).await?;
-                        }
-                        return Err(Error::Execution(
-                            "The model could not complete the response. Try again later".into(),
-                        ));
-                    }
-                    _ => {}
-                }
-            }
-        }
-        if let Some(p) = &mut projection {
-            p.flush(self).await?;
-        }
-        Err(Error::Execution(
-            "The model did not return a completion event".into(),
-        ))
+        crate::models::request(
+            &self.deployment_settings,
+            model,
+            crate::models::transport::Query {
+                input,
+                tools,
+                instructions,
+                turn,
+                force_tool: false,
+            },
+            cancel,
+            Some(self),
+        )
+        .await
     }
     pub async fn workflow_agent(
         &self,
         prompt: &str,
-        project: &str,
         run: &str,
         node: &str,
         steps: usize,
+        model: &crate::models::Resolved,
         cancel: &CancellationToken,
     ) -> Result<Value> {
+        let project = model.project_id.as_str();
         let allowed = [
             "list_workflows",
             "inspect_workflow",
@@ -182,13 +107,16 @@ impl Store {
         let mut input = vec![json!({"role":"user","content":prompt})];
         for step in 0..steps {
             let response = self
-                .request_model(
+                .request_model_stream(
                     json!(input),
                     cancel,
                     Some(json!(definitions)),
                     Some(WORKFLOW_AGENT_INSTRUCTIONS),
+                    None,
+                    model,
                 )
-                .await?;
+                .await?
+                .value;
             let output = response["output"]
                 .as_array()
                 .ok_or_else(|| Error::Execution("Invalid agent output format".into()))?;
@@ -280,6 +208,7 @@ impl Store {
         if !facts.is_empty() {
             input.insert(0,json!({"role":"assistant","content":format!("Prior execution records (do not repeat external operations with unknown outcomes; inspect their status first if needed): {}",json!(facts))}));
         }
+        let pinned_model = self.turn_model(&turn.id).await?;
         for _ in 0..12 {
             if cancel.is_cancelled() {
                 return Err(Error::Cancelled);
@@ -296,6 +225,7 @@ impl Store {
                     Some(tools::definitions()),
                     Some(INSTRUCTIONS),
                     Some(&turn.id),
+                    &pinned_model,
                 )
                 .await?;
             let output = response.value["output"]

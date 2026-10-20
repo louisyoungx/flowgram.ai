@@ -493,6 +493,12 @@ pub fn host_admin_router(store: Store, token: String) -> Router {
         }
     };
     Router::new()
+        .route(
+            "/admin/models",
+            get(|State(store): State<Store>| async move {
+                store.deployment_settings.models_inventory().await.map(Json)
+            }),
+        )
         .route("/admin/connections", post(provision_connections))
         .route(
             "/admin/services/{service}/{environment}/runs/{id}",

@@ -82,6 +82,7 @@ impl Store {
         crate::conversation::initialize(&db).await?;
         crate::archive::initialize(&db).await?;
         crate::services::initialize(&db).await?;
+        crate::models::execution::initialize(&db).await?;
         // An interrupted process cannot safely replay external side effects.
         sqlx::query("UPDATE runs SET status='interrupted', error='The application service restarted and execution was interrupted. Completed steps remain in run history' WHERE status='running'").execute(&db).await?;
         sqlx::query("UPDATE sessions SET status='idle' WHERE status='running'")
@@ -114,6 +115,10 @@ impl Store {
         };
         sqlx::query("INSERT INTO projects(id,name,created_at,directory) VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,directory=excluded.directory")
             .bind(&project.id).bind(&project.name).bind(&project.created_at).bind(&project.directory).execute(&store.db).await?;
+        store
+            .deployment_settings
+            .import_device_model(settings)
+            .await?;
         store.recover_deleted_workflows().await?;
         store.sync_workflow_index().await?;
         store.resume_conversations().await?;
@@ -323,6 +328,9 @@ impl Store {
         }
         #[cfg(not(unix))]
         tokio::fs::write(path, serde_json::to_vec(&config)?).await?;
+        self.deployment_settings
+            .configure_model(config.clone())
+            .await?;
         *self.model.lock().await = config;
         self.resume_conversations().await?;
         Ok(())

@@ -15,6 +15,8 @@ pub struct ConversationInput {
     pub session_id: String,
     pub content: String,
     pub references: Value,
+    #[serde(default)]
+    pub model: Option<crate::models::Selection>,
     pub delivery_mode: String,
     pub turn_id: Option<String>,
     pub status: String,
@@ -35,6 +37,8 @@ pub struct Turn {
     pub started_at: String,
     pub ended_at: Option<String>,
     pub final_item_id: Option<String>,
+    #[serde(default)]
+    pub model: Option<crate::models::Trace>,
     pub error: Option<String>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -63,6 +67,8 @@ pub struct SendInput {
     pub expected_turn_id: Option<String>,
     #[serde(default)]
     pub references: Value,
+    #[serde(default)]
+    pub model: Option<crate::models::Selection>,
 }
 fn queue_mode() -> String {
     "queue".into()
@@ -204,7 +210,7 @@ impl Store {
             None
         };
         Ok(
-            json!({"sessionId":session,"turns":turns,"items":items,"inputs":inputs,"paused":paused.unwrap_or(0)!=0,"watermark":watermark,"nextBefore":next}),
+            json!({"sessionId":session,"modelSelection":self.session_model(session).await?,"turns":turns,"items":items,"inputs":inputs,"paused":paused.unwrap_or(0)!=0,"watermark":watermark,"nextBefore":next}),
         )
     }
     pub async fn submit_input(
@@ -243,6 +249,7 @@ impl Store {
             let previous: ConversationInput = serde_json::from_str(row.get("data"))?;
             if previous.content != content
                 || previous.references != request.references
+                || previous.model != request.model
                 || previous.delivery_mode != request.delivery_mode
                 || (request.delivery_mode == "steer"
                     && previous.turn_id != request.expected_turn_id)
@@ -253,11 +260,25 @@ impl Store {
             }
             return Ok(previous);
         }
-        let config = self.model.lock().await;
-        if config.base_url.is_empty() || config.model.is_empty() {
-            return Err(Error::Invalid("Connect a model in settings first".into()));
-        }
-        drop(config);
+        let selection = match &request.model {
+            Some(value) => value.clone(),
+            None => self.session_model(session).await?,
+        };
+        let frozen = if request.delivery_mode == "steer" {
+            self.turn_model(request.expected_turn_id.as_deref().ok_or_else(|| {
+                conflict("Adding instructions to a turn requires a target turn ID")
+            })?)
+            .await?
+        } else {
+            self.deployment_settings
+                .resolve_model(
+                    &selection,
+                    &self.session(session).await?.project_id,
+                    true,
+                    true,
+                )
+                .await?
+        };
         let pending: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM conversation_inputs WHERE session_id=? AND status IN ('queued','pending','rejected')").bind(session).fetch_one(&self.db).await?;
         if pending >= 32 {
             return Err(Error::Invalid(
@@ -299,6 +320,7 @@ impl Store {
             session_id: session.into(),
             content,
             references: request.references,
+            model: request.model,
             delivery_mode: request.delivery_mode,
             status: if turn_id.is_some() {
                 "pending"
@@ -311,13 +333,27 @@ impl Store {
             created_at: now(),
             error: None,
         };
+        let mut tx = self.db.begin().await?;
         sqlx::query(
             "INSERT INTO conversation_controls(session_id) VALUES(?) ON CONFLICT DO NOTHING",
         )
         .bind(session)
-        .execute(&self.db)
+        .execute(&mut *tx)
         .await?;
-        sqlx::query("INSERT INTO conversation_inputs(id,session_id,client_input_id,status,turn_id,delivery_mode,data) VALUES(?,?,?,?,?,?,?)").bind(&input.id).bind(session).bind(&input.client_input_id).bind(&input.status).bind(&input.turn_id).bind(&input.delivery_mode).bind(json_text(&input)?).execute(&self.db).await?;
+        sqlx::query("INSERT INTO conversation_inputs(id,session_id,client_input_id,status,turn_id,delivery_mode,data) VALUES(?,?,?,?,?,?,?)").bind(&input.id).bind(session).bind(&input.client_input_id).bind(&input.status).bind(&input.turn_id).bind(&input.delivery_mode).bind(json_text(&input)?).execute(&mut *tx).await?;
+        sqlx::query("INSERT INTO input_models VALUES(?,?)")
+            .bind(&input.id)
+            .bind(serde_json::to_string(&frozen)?)
+            .execute(&mut *tx)
+            .await?;
+        if input.delivery_mode == "queue" {
+            let selected = crate::models::Selection {
+                model_id: Some(frozen.model_id.clone()),
+                parameters: selection.parameters,
+            };
+            sqlx::query("INSERT INTO session_models VALUES(?,?) ON CONFLICT(session_id) DO UPDATE SET selection=excluded.selection").bind(session).bind(serde_json::to_string(&selected)?).execute(&mut *tx).await?;
+        }
+        tx.commit().await?;
         self.emit("conversation_input", session, serde_json::to_value(&input)?)
             .await?;
         drop(guard);
@@ -392,6 +428,31 @@ impl Store {
         {
             let _guard = self.conversation_lock.lock().await;
             self.require_unarchived("session", session).await?;
+            let rows = sqlx::query("SELECT i.data FROM conversation_inputs i LEFT JOIN input_models m ON m.input_id=i.id WHERE i.session_id=? AND i.status='queued' AND m.input_id IS NULL").bind(session).fetch_all(&self.db).await?;
+            let mut snapshots = Vec::new();
+            for row in rows {
+                let input: ConversationInput = serde_json::from_str(row.get("data"))?;
+                let selection = input.model.unwrap_or(self.session_model(session).await?);
+                let resolved = self
+                    .deployment_settings
+                    .resolve_model(
+                        &selection,
+                        &self.session(session).await?.project_id,
+                        true,
+                        true,
+                    )
+                    .await?;
+                snapshots.push((input.id, resolved));
+            }
+            let mut tx = self.db.begin().await?;
+            for (id, model) in snapshots {
+                sqlx::query("INSERT INTO input_models VALUES(?,?)")
+                    .bind(id)
+                    .bind(serde_json::to_string(&model)?)
+                    .execute(&mut *tx)
+                    .await?;
+            }
+            tx.commit().await?;
             sqlx::query("INSERT INTO conversation_controls(session_id,paused) VALUES(?,0) ON CONFLICT(session_id) DO UPDATE SET paused=0").bind(session).execute(&self.db).await?;
             self.emit("conversation_queue", session, json!({"paused":false}))
                 .await?;
@@ -400,6 +461,8 @@ impl Store {
         Ok(())
     }
     pub async fn resume_conversations(&self) -> Result<()> {
+        sqlx::query("INSERT INTO conversation_controls(session_id,paused) SELECT DISTINCT i.session_id,1 FROM conversation_inputs i LEFT JOIN input_models m ON m.input_id=i.id WHERE i.status='queued' AND m.input_id IS NULL ON CONFLICT(session_id) DO UPDATE SET paused=1").execute(&self.db).await?;
+
         let sessions: Vec<String> = sqlx::query_scalar(
             "SELECT DISTINCT session_id FROM conversation_inputs WHERE status='queued'",
         )
@@ -459,15 +522,14 @@ impl Store {
                 .fetch_optional(&self.db)
                 .await?;
         let active: i64=sqlx::query_scalar("SELECT COUNT(*) FROM conversation_turns WHERE session_id=? AND status IN ('running','stopping')").bind(session).fetch_one(&self.db).await?;
-        let model = self.model.lock().await;
-        let configured = !model.base_url.is_empty() && !model.model.is_empty();
-        drop(model);
+
         let row=sqlx::query("SELECT data FROM conversation_inputs WHERE session_id=? AND status='queued' ORDER BY ordinal LIMIT 1").bind(session).fetch_optional(&self.db).await?;
-        if paused == Some(1) || active > 0 || !configured || row.is_none() {
+        if paused == Some(1) || active > 0 || row.is_none() {
             self.conversation_workers.lock().await.remove(session);
             return Ok(None);
         }
         let mut input: ConversationInput = serde_json::from_str(row.unwrap().get("data"))?;
+        let frozen = self.input_model(&input.id).await?;
         let mut turn = Turn {
             id: id(),
             session_id: session.into(),
@@ -479,6 +541,7 @@ impl Store {
             started_at: now(),
             ended_at: None,
             final_item_id: None,
+            model: Some(crate::models::Trace::from(&frozen)),
             error: None,
         };
         input.status = "accepted".into();
@@ -527,6 +590,11 @@ impl Store {
             .bind(&turn.id)
             .bind(json_text(&input)?)
             .bind(&input.id)
+            .execute(&mut *tx)
+            .await?;
+        sqlx::query("INSERT INTO turn_models VALUES(?,?)")
+            .bind(&turn.id)
+            .bind(serde_json::to_string(&frozen)?)
             .execute(&mut *tx)
             .await?;
         sqlx::query("UPDATE sessions SET status='running' WHERE id=?")

@@ -70,6 +70,7 @@ async fn full_round_trip_preserves_project_content_and_history_without_replaying
         session_id: session.id.clone(),
         content: "Do not run automatically".into(),
         references: Value::Null,
+        model: None,
         delivery_mode: "queue".into(),
         turn_id: None,
         status: "queued".into(),

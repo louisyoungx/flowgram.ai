@@ -17,6 +17,7 @@ async fn setup(delay: u64) -> (tempfile::TempDir, Store, Value, Bundle) {
     let bundle=store.publish_service(Publish {service:"orders".into(),title:"Orders".into(),version:"1.0.0".into(),operations:vec![Operation {name:"fulfill".into(),description:"Fulfill a validated order.".into(),workflow_id:workflow.id,input_schema:json!({"type":"object","properties":{},"additionalProperties":false}),output_schema:json!({"type":"object","properties":{"value":{"type":"integer"}},"required":["value"],"additionalProperties":false}),bindings:Default::default(),timeout_ms:1000,read_only:false}]}).await.unwrap();
     store
         .deploy_service(Deployment {
+            model_bindings: Default::default(),
             service: "orders".into(),
             environment: "test".into(),
             version: "1.0.0".into(),
@@ -695,6 +696,7 @@ async fn project_business_routes_clear_outer_captures_and_preserve_openapi_paths
         .unwrap();
     store
         .deploy_service(Deployment {
+            model_bindings: Default::default(),
             service: "orders".into(),
             environment: "local".into(),
             version: "1".into(),

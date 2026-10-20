@@ -111,6 +111,8 @@ impl Store {
                 .execute(&mut *tx)
                 .await?;
             crate::run_snapshot::persist(&mut tx, &run.id, &dependencies).await?;
+            self.pin_models(&mut tx, &run.id, &dependencies, None)
+                .await?;
             tx.commit().await?;
             let token = CancellationToken::new();
             self.active

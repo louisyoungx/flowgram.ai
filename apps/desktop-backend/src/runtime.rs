@@ -389,6 +389,8 @@ impl Store {
         let run = self
             .prepare_run(&w, session, &input, &dependencies, &mut tx)
             .await?;
+        self.pin_models(&mut tx, &run.id, &dependencies, None)
+            .await?;
         tx.commit().await?;
         self.launch_run(run.clone(), w, input, None).await?;
         Ok(run)
@@ -724,7 +726,16 @@ impl Store {
                     .or_else(|| node.data["prompt"].as_str())
                     .ok_or_else(|| Error::Invalid("LLM node is missing prompt".into()))?;
                 let response = self
-                    .complete_model(json!([{"role":"user","content":prompt}]), cancel)
+                    .request_model_stream_for_node(
+                        json!([{"role":"user","content":prompt}]),
+                        cancel,
+                        run,
+                        context
+                            .workflow_id
+                            .as_deref()
+                            .ok_or_else(|| Error::Invalid("Missing model workflow scope".into()))?,
+                        &node.id,
+                    )
                     .await?;
                 let text = crate::agent::output_text(&response);
                 Ok((json!({"result":text}), None))
@@ -887,11 +898,23 @@ impl Store {
                     })
                     .transpose()?
                     .unwrap_or(6) as usize;
-                let parent = self
-                    .pinned_workflow(run, &self.run(run).await?.workflow_id)
-                    .await?;
                 let result = self
-                    .workflow_agent(prompt, &parent.project_id, run, &node.id, steps, cancel)
+                    .workflow_agent(
+                        prompt,
+                        run,
+                        &node.id,
+                        steps,
+                        &self
+                            .run_model(
+                                run,
+                                context.workflow_id.as_deref().ok_or_else(|| {
+                                    Error::Invalid("Missing model workflow scope".into())
+                                })?,
+                                &node.id,
+                            )
+                            .await?,
+                        cancel,
+                    )
                     .await?;
                 Ok((result, None))
             }

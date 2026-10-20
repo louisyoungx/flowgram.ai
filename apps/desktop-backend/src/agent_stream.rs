@@ -12,6 +12,7 @@ use std::{
 
 pub(crate) struct ModelResponse {
     pub value: Value,
+    pub streamed: bool,
     pub text: Option<ConversationItem>,
     pub tools: BTreeMap<usize, ConversationItem>,
 }
@@ -114,6 +115,7 @@ impl TurnProjection {
         }
         Ok(ModelResponse {
             value: response,
+            streamed: false,
             text: self.text,
             tools: self.tools,
         })

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ArrowLeft, ArrowRight, FileText, Loader2, Plus, RefreshCw } from 'lucide-react';
 
+import { refreshModels } from '../lib/models';
 import { tx, errorText } from '../lib/i18n';
 import {
   deploymentPath,
@@ -49,10 +50,10 @@ export function DeploymentPage({
   const [project, setProject] = useState('');
   const [workflowIntent, setWorkflowIntent] = useState<string | undefined>();
   const [formEpoch, setFormEpoch] = useState(0);
-  const reload = useCallback(
-    async () => setInventory(await api<DeploymentInventory>('/api/deployment')),
-    []
-  );
+  const reload = useCallback(async () => {
+    setInventory(await api<DeploymentInventory>('/api/deployment'));
+    await refreshModels(true);
+  }, []);
   useEffect(() => {
     if (!active) return;
     const controller = new AbortController();

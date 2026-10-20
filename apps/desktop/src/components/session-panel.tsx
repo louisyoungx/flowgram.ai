@@ -26,16 +26,19 @@ import type {
   Workflow,
 } from '../lib/types';
 import { useProjectApi } from '../lib/project-context';
+import { modelUnavailable, openModelSettings, useModels, type ModelSelection } from '../lib/models';
 import { errorText, t, tx } from '../lib/i18n';
 import { WorkspaceHeader } from './workspace-header';
 import { Select } from './ui/select';
 import { MenuButton } from './ui/menu-button';
 import { Button } from './ui/button';
+import { ModelPicker } from './model-picker';
 import { ConversationQueue, ConversationTimeline } from './conversation-timeline';
 
 interface Draft {
   content: string;
   workflowId: string;
+  model?: ModelSelection;
 }
 export function SessionPanel({
   project,
@@ -44,7 +47,6 @@ export function SessionPanel({
   sessions,
   workflows,
   runs,
-  model,
   online,
   ready,
   referenceIntent,
@@ -85,6 +87,7 @@ export function SessionPanel({
   onTurn: (turnId: string | null) => void;
 }) {
   const api = useProjectApi();
+  const catalog = useModels();
   const conversation = useConversation(sessionId, ready, (item) => {
     const activity = workflowActivity(item);
     if (activity) onActivity(activity);
@@ -99,6 +102,10 @@ export function SessionPanel({
     }
   });
   const draft = drafts[key] || { content: '', workflowId: '' };
+  const selectedModel = draft.model || conversation.state.modelSelection || {};
+  const chosenModel = catalog.models.find(
+    (m) => m.id === (selectedModel.modelId || catalog.defaults.chat)
+  );
   const draftsRef = useRef(drafts);
   useEffect(() => {
     const deleted = (event: Event) => {
@@ -168,11 +175,17 @@ export function SessionPanel({
   }, [sessionId, sessionEpoch]);
   async function send() {
     if (!draft.content.trim() || sending.has(key) || staleSteer) return;
-    if (!model?.configured) {
-      onSettings();
+    if (
+      delivery !== 'steer' &&
+      (!chosenModel || modelUnavailable(catalog, chosenModel, project.id, true, true))
+    ) {
+      openModelSettings();
       return;
     }
-    const submitted = { ...draft };
+    const submitted = {
+      ...draft,
+      model: delivery === 'steer' ? selectedModel : { ...selectedModel, modelId: chosenModel?.id },
+    };
     const previous = sessionId;
     setSending((values) => new Set(values).add(key));
     setError('');
@@ -190,6 +203,7 @@ export function SessionPanel({
       }
       const request = {
         content: submitted.content,
+        model: submitted.model,
         deliveryMode: delivery,
         expectedTurnId: delivery === 'steer' ? steerTarget : undefined,
         references: submitted.workflowId ? { workflowId: submitted.workflowId } : null,
@@ -211,7 +225,16 @@ export function SessionPanel({
       sessionStorage.removeItem(pendingKey);
       for (const target of new Set([key, current]))
         if ((draftsRef.current[target]?.content || submitted.content) === submitted.content)
-          updateDraft({ content: '' }, target);
+          updateDraft(
+            {
+              content: '',
+              model:
+                JSON.stringify(draftsRef.current[target]?.model) === JSON.stringify(draft.model)
+                  ? submitted.model
+                  : draftsRef.current[target]?.model,
+            },
+            target
+          );
       if (scope.current === current) {
         setDelivery('queue');
         setSteerTarget(null);
@@ -351,16 +374,19 @@ export function SessionPanel({
           />
           <div className="mt-1 flex min-w-0 items-center justify-between gap-1">
             <div className="flex min-w-0 flex-1 items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="max-w-32 min-w-0 shrink justify-start px-1.5 text-muted-foreground"
-                onClick={onSettings}
-              >
-                <span className="truncate">
-                  {model?.configured ? model.displayName : t('modelMissing')}
-                </span>
-              </Button>
+              <ModelPicker
+                value={
+                  delivery === 'steer' && active?.model
+                    ? { modelId: active.model.modelId }
+                    : selectedModel
+                }
+                onChange={(value) => updateDraft({ model: value })}
+                projectId={project.id}
+                kind="chat"
+                tools
+                disabled={delivery === 'steer'}
+                parameterPlacement="popover"
+              />
               <Select
                 variant="ghost"
                 className="composer-context"

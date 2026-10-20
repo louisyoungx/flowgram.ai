@@ -35,11 +35,11 @@ import { api } from '../lib/api';
 import logo from '../assets/flowgram-logo.svg';
 import copyIcon from '../assets/claude/copy.svg';
 import arrowOut from '../assets/claude/arrow-out.svg';
-import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { AssetIcon } from './ui/asset-icon';
 import { ThemeSettings } from './theme-settings';
 import { ResizablePanel } from './resizable-panel';
+import { ModelSettingsPage } from './model-settings';
 const DeploymentPage = lazy(() =>
   import('./deployment-page').then((module) => ({ default: module.DeploymentPage }))
 );
@@ -48,7 +48,7 @@ const ArchiveSettings = lazy(() =>
 );
 const sections = localized([
   { id: 'general', title: '通用', icon: Settings2 },
-  { id: 'model', title: '模型与连接', icon: Plug },
+  { id: 'model', title: '模型', icon: Plug },
   { id: 'appearance', title: '外观与动效', icon: Palette },
   { id: 'tools', title: '工具与 MCP', icon: Wrench },
   { id: 'deployment', title: '部署', icon: Rocket },
@@ -59,7 +59,6 @@ const sections = localized([
 export function SettingsPage({
   visible,
   close,
-  model,
   saved,
   online,
   deploymentIntent,
@@ -84,7 +83,13 @@ export function SettingsPage({
     deleted: boolean
   ) => void;
 }) {
-  const [section, setSection] = useState<string>(deploymentIntent ? 'deployment' : 'general');
+  const [section, setSection] = useState<string>(
+    deploymentIntent
+      ? 'deployment'
+      : sessionStorage.getItem('flowgram.settings.intent') === 'model'
+      ? 'model'
+      : 'general'
+  );
   const content = useRef<HTMLDivElement>(null);
   useContentTransition(content, section);
   useEffect(() => {
@@ -94,10 +99,6 @@ export function SettingsPage({
   useEffect(() => {
     if (section === 'deployment') setDeploymentVisited(true);
   }, [section]);
-  const [url, setUrl] = useState(model?.baseUrl || '');
-  const [id, setId] = useState('');
-  const [key, setKey] = useState('');
-  const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [tools, setTools] = useState<Array<{ name: string; description: string }>>([]);
@@ -107,26 +108,15 @@ export function SettingsPage({
       .then(setTools)
       .catch((e) => setError(e.message));
   }, []);
-  async function save() {
-    setSaving(true);
-    setError('');
-    setNotice('');
-    try {
-      const next = await api<ModelSettings>('/api/settings/model', 'PUT', {
-        baseUrl: url,
-        model: id || undefined,
-        apiKey: key || undefined,
-      });
-      saved(next);
-      setId('');
-      setKey('');
-      setNotice(tx('模型连接已保存'));
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setSaving(false);
-    }
-  }
+  useEffect(() => {
+    const open = () => {
+      setSection('model');
+      sessionStorage.removeItem('flowgram.settings.intent');
+    };
+    sessionStorage.removeItem('flowgram.settings.intent');
+    window.addEventListener('flowgram:open-model-settings', open);
+    return () => window.removeEventListener('flowgram:open-model-settings', open);
+  }, []);
   function appearance(value: string) {
     localStorage.setItem('flowgram.motion', value);
     document.documentElement.dataset.motion = value;
@@ -308,57 +298,13 @@ export function SettingsPage({
             </div>
           )}
           {section === 'model' && (
-            <form
-              className="settings-group"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void save();
+            <ModelSettingsPage
+              changed={() => {
+                void api<ModelSettings>('/api/settings/model')
+                  .then(saved)
+                  .catch((e) => setError(e.message));
               }}
-            >
-              <div className="settings-row">
-                <div>
-                  <h2>{tx('当前模型')}</h2>
-                  <p>{model?.configured ? model.displayName : tx('尚未连接模型')}</p>
-                </div>
-                <span className="status-pill">Responses API</span>
-              </div>
-              <div className="space-y-5 py-6">
-                <label className="settings-field">
-                  {tx('API 地址')}
-                  <Input
-                    required
-                    type="url"
-                    value={url}
-                    placeholder="https://api.example.com/v1"
-                    onChange={(e) => setUrl(e.target.value)}
-                  />
-                </label>
-                <label className="settings-field">
-                  {tx('模型 ID')}
-                  <Input
-                    value={id}
-                    placeholder={tx('留空保留当前模型')}
-                    onChange={(e) => setId(e.target.value)}
-                  />
-                </label>
-                <label className="settings-field">
-                  API Key
-                  <Input
-                    type="password"
-                    autoComplete="off"
-                    value={key}
-                    placeholder={tx('留空保留已保存凭证')}
-                    onChange={(e) => setKey(e.target.value)}
-                  />
-                </label>
-                <p className="text-xs leading-5 text-muted-foreground">
-                  {tx('凭证只保存在本机服务中，界面不会读取已保存的模型密钥。')}
-                </p>
-                <Button type="submit" disabled={saving}>
-                  {saving ? tx('保存中…') : tx('保存连接')}
-                </Button>
-              </div>
-            </form>
+            />
           )}
           {section === 'appearance' && (
             <div className="settings-group">

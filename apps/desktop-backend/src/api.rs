@@ -344,11 +344,8 @@ async fn events(
     };
     Sse::new(stream).keep_alive(KeepAlive::new().interval(Duration::from_secs(15)))
 }
-async fn model_config(State(s): State<ApiState>) -> Json<Value> {
-    let c = s.store.model.lock().await;
-    Json(
-        json!({"baseUrl":c.base_url,"displayName":c.model.split(" -> ").last().unwrap_or(""),"configured":!c.base_url.is_empty()&&!c.model.is_empty(),"hasApiKey":!c.api_key.is_empty()}),
-    )
+async fn model_config(State(s): State<ApiState>) -> Result<Json<Value>> {
+    Ok(Json(s.store.deployment_settings.model_summary().await?))
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -369,7 +366,7 @@ async fn save_model(State(s): State<ApiState>, Json(i): Json<UpdateModel>) -> Re
                 .unwrap_or(existing.api_key),
         })
         .await?;
-    Ok(model_config(State(s)).await)
+    model_config(State(s)).await
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

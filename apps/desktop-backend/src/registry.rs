@@ -70,6 +70,10 @@ impl Registry {
             stores: Arc::default(),
             mutations: Arc::default(),
         };
+        registry
+            .deployment_settings
+            .import_device_model(directory)
+            .await?;
         for project in registry.projects().await {
             if let Err(error) = registry.resolve(&project.id).await {
                 eprintln!("Project {} could not be opened: {error}", project.id);
@@ -202,6 +206,7 @@ pub fn router(registry: Registry, token: String) -> Router {
         .merge(crate::archive::global_routes())
         .merge(crate::project_management::routes())
         .merge(crate::initial_projects::routes())
+        .merge(crate::models::routes())
         .route(
             "/health",
             get(|| async { Json(json!({"status":"ready","service":"flowgram"})) }),
@@ -325,9 +330,14 @@ async fn open(State(s): State<RegistryState>, Json(input): Json<Open>) -> Result
     Ok(Json(s.registry.open_project(&input.directory).await?))
 }
 async fn model(State(s): State<RegistryState>) -> Json<Value> {
-    let c = s.registry.model.lock().await;
     Json(
-        json!({"baseUrl":c.base_url,"displayName":c.model.split(" -> ").last().unwrap_or(""),"configured":!c.base_url.is_empty()&&!c.model.is_empty(),"hasApiKey":!c.api_key.is_empty()}),
+        s.registry
+            .deployment_settings
+            .model_summary()
+            .await
+            .unwrap_or_else(
+                |_| json!({"configured":false,"displayName":"","hasApiKey":false,"baseUrl":""}),
+            ),
     )
 }
 #[derive(Deserialize)]
@@ -358,6 +368,10 @@ async fn save_model(
             .unwrap_or(old.api_key),
     };
     atomic_json(&s.registry.directory.join("model.json"), &config).await?;
+    s.registry
+        .deployment_settings
+        .configure_model(config.clone())
+        .await?;
     *s.registry.model.lock().await = config;
     for (store, _) in s.registry.stores.lock().await.values() {
         store.resume_conversations().await?;

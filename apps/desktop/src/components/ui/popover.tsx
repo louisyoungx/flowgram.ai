@@ -59,9 +59,12 @@ export function Popover({
       });
     };
     update();
+    const observer = new ResizeObserver(update);
+    if (panel.current) observer.observe(panel.current);
     window.addEventListener('resize', update);
     window.addEventListener('scroll', update, true);
     return () => {
+      observer.disconnect();
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
     };

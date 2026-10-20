@@ -25,7 +25,7 @@ cargo test -p flowgram-desktop-backend
 | DELETE | /api/projects/{id} | 永久删除整个项目目录，`{confirmationName}` 必须精确匹配完整名称 |
 | POST | /api/projects/open | 打开已有工程，`{directory}` |
 | POST | /api/projects/{id}/export | 导出项目包，`{includeHistory?:true,destination?}`；无保存路径返回包 JSON，有路径原子写入 `.flowgram.json` 并返回 `{saved:true}` |
-| POST | /api/projects/import | 校验并导入项目包，`{package,name?,directory?}`；`directory` 为保存位置，在其中新建独立项目文件夹，成功返回新项目 |
+| POST | /api/projects/import | 校验并导入项目包，`{package,name?,directory?,modelBindings?}`；`directory` 为保存位置，在其中新建独立项目文件夹，成功返回新项目 |
 | GET | /api/archives | 跨项目归档清单，返回 `items`、项目列表与不可访问项目的错误 |
 | POST | /api/sessions/{id}/archive | 归档会话并暂停队列，要求显式项目范围 |
 | POST | /api/workflows/{id}/archive | 归档工作流，执行中的依赖不可归档 |
@@ -94,11 +94,17 @@ MCP 使用本机 HTTP 地址 `<endpoint>/mcp`，并在 HTTP Authorization 头中
 }
 ```
 
-可用工具：`list_workflows`、`inspect_workflow`、`create_workflow`、`save_workflow`、`validate_workflow`、`run_workflow`、`get_run`、`list_node_types`。内部 Agent 和 MCP 调用相同的 Rust Registry；HTTP 手动操作复用同一业务服务。
+可用工具：`list_models`、`list_workflows`、`inspect_workflow`、`create_workflow`、`save_workflow`、`validate_workflow`、`run_workflow`、`get_run`、`list_node_types`。内部 Agent 和 MCP 调用相同的 Rust Registry；HTTP 手动操作复用同一业务服务。
 
-模型连接目前实现 Responses API 流式适配。模型必须支持函数调用；LLM 节点使用同一连接执行无工具的模型请求。
+模型目录位于全局 `deployment.sqlite`，支持多个连接及每连接多个模型。协议为 Responses、Chat Completions 和 Anthropic Messages；支持流式文本、工具调用和非流式工作流模型。读取 `/api/settings/models` 返回元数据、默认模型与当前版本的测试结果，不返回密钥。旧 `model.json` 只在首次初始化目录时导入，之后以目录为准。
 
-工作流内 Agent 节点使用相同模型连接和工具定义，以 1–8 步完成目标；允许列出、读取、校验工作流、读取运行与节点目录。该节点不暴露创建、保存或执行工作流工具，避免修改正在运行的流程或形成递归副作用。
+连接与模型分别通过 `/api/settings/models/connections`、`/api/settings/models/entries` 创建，按 ID 更新或删除，更新必须提供最新 revision。模型发现 `POST .../connections/{id}/discover` 只读取模型列表；`POST .../entries/{id}/test` 通过 `{tools:false|true,projectId?}` 执行文本或完整无副作用工具往返测试。实际观察到的流式与工具能力会更新到模型条目，模型、连接或凭证变化使旧测试记录失效。其他能力按服务文档显式声明，不能依据名称推断。
+
+`PUT /api/settings/models/defaults` 设置 `{chat,workflow,revision}`，值为模型条目 ID。节点的 `data.model` 和聊天输入的 `model` 使用 `{modelId?,parameters?}`；可覆盖 temperature、topP、maxOutputTokens、reasoningEffort、outputSchema，仅接受声明支持的参数。聊天要求流式和工具调用，LLM 节点只要求文本；Agent 节点额外要求工具调用。每次输入在提交时固定连接、模型、参数，整轮工具循环使用同一配置；整个工作流及依赖在运行创建时固定配置。
+
+连接引用全局 connection 凭证，项目授权在解析和每次请求时检查，撤销授权会阻止后续调用。删除前检查默认模型、会话、工作流、队列、活动执行和部署引用；历史记录独立保留安全标签。导出包含选择和执行标签，排除私有运行快照、连接地址和凭证。导入 `modelBindings` 将原模型条目 ID 映射到本机条目，未绑定项目可导入，但执行前必须选择有效模型。
+
+工作流内 Agent 节点使用指定的模型和相同工具定义，以 1–8 步完成目标；允许列出、读取、校验工作流、读取运行与节点目录。该节点不暴露创建、保存或执行工作流工具，避免修改正在运行的流程或形成递归副作用。
 
 ## 执行语义
 

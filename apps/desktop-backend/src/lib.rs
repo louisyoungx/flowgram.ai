@@ -9,6 +9,7 @@ pub mod core_nodes;
 pub mod error;
 pub mod initial_projects;
 pub mod model;
+pub mod models;
 pub mod node_test;
 pub mod nodes;
 pub mod project;

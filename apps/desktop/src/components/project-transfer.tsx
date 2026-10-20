@@ -7,19 +7,22 @@ import { useRef, useState } from 'react';
 
 import { Download, FileJson, FolderOpen, Loader2, Upload } from 'lucide-react';
 
+import type { Workflow } from '../lib/types';
 import type { Project } from '../lib/types';
 import { errorText, t, tx } from '../lib/i18n';
 import { api } from '../lib/api';
 import { Input } from './ui/input';
 import { Dialog } from './ui/dialog';
 import { Button } from './ui/button';
+import { ModelPicker } from './model-picker';
+import { modelRequirements } from './deployment-models';
 
 const MAX_PACKAGE_BYTES = 64 * 1024 * 1024;
 type Package = {
   format: string;
   formatVersion: number;
   name: string;
-  workflows: unknown[];
+  workflows: Workflow[];
   files: unknown[];
   history: Record<string, unknown[]> | null;
 };
@@ -37,6 +40,7 @@ export function ProjectTransfer({
   const input = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState('');
   const [source, setSource] = useState<Package | null>(null);
+  const [modelBindings, setModelBindings] = useState<Record<string, string>>({});
   const [name, setName] = useState('');
   const [directory, setDirectory] = useState('');
   const [history, setHistory] = useState(true);
@@ -63,6 +67,7 @@ export function ProjectTransfer({
         const created = await api<Project>('/api/projects/import', 'POST', {
           package: source,
           name: name.trim(),
+          modelBindings,
           directory: directory.trim() || undefined,
         });
         await imported(created);
@@ -203,6 +208,28 @@ export function ProjectTransfer({
                 </p>
               )}
             </div>
+            {source &&
+              modelRequirements(source.workflows)
+                .filter((r) => r.slot !== 'workflow-default')
+                .map(({ slot, tools }, index) => (
+                  <div key={slot} className="rounded-lg border border-border p-3">
+                    <p className="mb-2 text-xs">
+                      {tx('模型映射')} {index + 1}
+                    </p>
+                    <ModelPicker
+                      value={{ modelId: modelBindings[slot] || slot }}
+                      onChange={(v) =>
+                        setModelBindings({ ...modelBindings, [slot]: v.modelId || '' })
+                      }
+                      tools={tools}
+                      inherit={false}
+                      parameters={false}
+                    />
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {tx('未绑定的模型可在导入后重新配置，导入不会携带凭证。')}
+                    </p>
+                  </div>
+                ))}
             <label className="grid gap-2 text-xs">
               {t('projectName')}
               <Input
