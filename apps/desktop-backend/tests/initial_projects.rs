@@ -148,7 +148,7 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
         ),
         (18, 18, 24, 29, 6)
     );
-    assert_eq!(canvas_nodes, 290);
+    assert_eq!(canvas_nodes, 294);
     let actual: Value = serde_json::from_slice(
         &tokio::fs::read(dir.path().join("model.json"))
             .await
@@ -448,4 +448,52 @@ async fn verify_business_outcomes(store: &flowgram_desktop_backend::store::Store
         assert_eq!(output["evidence"]["scores"][0]["submitted"], 2);
         assert_eq!(output["evidence"]["missing"].as_array().unwrap().len(), 1);
     }
+}
+
+#[test]
+fn financial_reports_render_minor_units_and_exclude_money_from_model_context() {
+    use flowgram_desktop_backend::{model::Node, nodes};
+    let catalog: Value =
+        serde_json::from_str(include_str!("../catalog/examples/commerce.json")).unwrap();
+    let report = catalog["workflows"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|w| w["key"] == "order-report")
+        .unwrap();
+    let find = |id: &str| -> Node {
+        serde_json::from_value(
+            report["schema"]["nodes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|n| n["id"] == id)
+                .unwrap()
+                .clone(),
+        )
+        .unwrap()
+    };
+    let rows = json!([
+        {"key":{"currency":"CNY","status":"ready"},"count":1,"amountMinor":25800},
+        {"key":{"currency":"USD","status":"review"},"count":2,"amountMinor":150000}
+    ]);
+    let node = find("report");
+    let rendered = nodes::execute(&node,json!({"template":node.data["inputsValues"]["template"]["content"],"variables":{"rows":rows},"format":"text"}),&std::collections::HashMap::new()).unwrap();
+    let text = rendered["text"].as_str().unwrap();
+    assert!(text.contains("25800 minor units (CNY)"));
+    assert!(text.contains("150000 minor units (USD)"));
+    assert!(!text.contains("258.00"));
+    let facts = nodes::execute(
+        &find("model_facts"),
+        json!({"items":rows}),
+        &std::collections::HashMap::new(),
+    )
+    .unwrap();
+    assert_eq!(
+        facts["items"],
+        json!([
+            {"dimensions":{"currency":"CNY","status":"ready"},"count":1},
+            {"dimensions":{"currency":"USD","status":"review"},"count":2}
+        ])
+    );
 }

@@ -84,7 +84,7 @@ def validate_project(connection, project, models, http_endpoint, reuse_models=Fa
         assert client.call('/api/workflows/' + workflow['id'] + '/validate', {})['valid']
         model_nodes = [n for n in nodes(workflow['schema']) if n['type'] in ['agent', 'llm']]
         if model_nodes and not models: continue
-        candidates = [r for r in inventory['runs'] if r['workflowId'] == workflow['id'] and r['status'] == 'succeeded' and r['inputs'] == defaults(workflow)] if reuse_models and model_nodes else []
+        candidates = [r for r in inventory['runs'] if r['workflowId'] == workflow['id'] and r['revision'] == workflow['revision'] and r['status'] == 'succeeded' and r['inputs'] == defaults(workflow)] if reuse_models and model_nodes else []
         detail = client.call('/api/runs/' + candidates[0]['id']) if candidates else client.run(workflow, session=session)
         require(detail)
         record = evidence(client, detail)
@@ -128,10 +128,10 @@ def main():
     endpoint = json.loads(args.http_connection.read_text())['endpoint'] if args.http_connection else None
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
         results = list(pool.map(lambda p: validate_project(args.connection, p, args.models, endpoint, args.reuse_model_runs), projects))
-    assert sum(r['nodes'] for r in results) == 290
+    assert sum(r['nodes'] for r in results) == 294
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(results, ensure_ascii=False, indent=2))
-    print('Validated six projects, 18 workflows and 290 canvas nodes.', flush=True)
+    print('Validated six projects, 18 workflows and 294 canvas nodes.', flush=True)
 
 if __name__ == '__main__':
     main()

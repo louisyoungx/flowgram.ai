@@ -92,14 +92,14 @@ cargo test -p flowgram-desktop-backend --test initial_projects
 
 | Project | Workflows | Canvas nodes |
 | --- | --- | --- |
-| Commerce: fulfillment decisions, batch processing, exception report | 3 | 53 |
-| Manufacturing: invoice matching, reconciliation, exception analysis | 3 | 65 |
+| Commerce: fulfillment decisions, batch processing, exception report | 3 | 55 |
+| Manufacturing: invoice matching, reconciliation, exception analysis | 3 | 67 |
 | SaaS: guarded ticket routing, support Agent, queue trends | 3 | 47 |
 | Media: source preparation, parallel channel drafts, quality checks | 3 | 50 |
 | IT operations: alert triage and HTTP retry, diagnostic Agent, incident review | 3 | 38 |
 | Education: submission checks, grounded feedback, class weekly report | 3 | 37 |
 
-Initialization creates 18 ordinary workflows (290 nodes including loop bodies), 18 authored conversations, 24 turns and 29 actual runs. Six failed executions are retained beside corrected successful runs. All 11 model-free workflows rerun using visible defaults; the seven AI workflows require the configured provider. Initialization makes no model requests and does not fabricate replies or tools. Every generated dependency uses an ordinary stable workflow identity; branch values leave their scopes through the paired join.
+Initialization creates 18 ordinary workflows (294 nodes including loop bodies), 18 authored conversations, 24 turns and 29 actual runs. Six failed executions are retained beside corrected successful runs. All 11 model-free workflows rerun using visible defaults; the seven AI workflows require the configured provider. Initialization makes no model requests and does not fabricate replies or tools. Every generated dependency uses an ordinary stable workflow identity; branch values leave their scopes through the paired join.
 
 For HTTP acceptance, start the loopback fixture in a persistent terminal:
 
@@ -117,3 +117,5 @@ python3 apps/desktop-backend/validation/example_projects.py \
 ```
 
 `--models` makes real calls through the application's existing configured provider. Omit it for model-free checks. `--reuse-model-runs` is intended only for continuing an acceptance pass whose definitions have not changed; it reuses a successful model run with identical inputs. Execution evidence traverses and pages the real parent/child trace, including model, tool and HTTP spans. Sample health data is controlled; HTTP requests and retry attempts are real. Model outputs remain drafts, not publication or operational side effects.
+
+Financial example reports render amounts and currency deterministically from runtime aggregates. Models receive only grouped dimensions and record counts; their qualitative analysis is returned separately and cannot rewrite the displayed monetary facts.
