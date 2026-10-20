@@ -11,6 +11,7 @@ import { Button } from '../ui/button';
 import type { RuntimeEvent, WorkflowNode } from '../../lib/types';
 import {
   duration,
+  reasonLabel,
   executionData,
   executionPath,
   parseEvent,
@@ -41,6 +42,7 @@ export function ExecutionDetail({
   onSource,
   onDependency,
   onNodeTest,
+  compact = false,
 }: {
   detail: TraceDetail;
   entry: Execution | null;
@@ -52,8 +54,10 @@ export function ExecutionDetail({
   onSource: (nodeId: string) => void;
   onDependency?: () => void;
   onNodeTest?: () => void;
+  compact?: boolean;
 }) {
   const [tab, setTab] = useState('overview');
+  const [compactTab, setCompactTab] = useState('outputs');
   const data = executionData(events);
   const inputs = entry ? data.inputs : node ? undefined : detail.run.inputs;
   const outputs = entry
@@ -83,6 +87,58 @@ export function ExecutionDetail({
     ['logs', '日志'],
     ...(node ? [['configuration', '当时配置']] : []),
   ];
+  const activeTab = tabs.some(([key]) => key === tab) ? tab : 'overview';
+  if (compact)
+    return (
+      <section className="flex h-full min-h-0 flex-col" aria-label={tx('步骤详情')}>
+        <div className="flex shrink-0 items-center gap-2 border-b border-border px-3">
+          <span className="min-w-0 flex-1 truncate text-[10px] text-muted-foreground" title={name}>
+            {name}
+          </span>
+          <div
+            className="trace-tabs !gap-3 !border-0 !px-0"
+            role="tablist"
+            aria-label={tx('步骤数据')}
+          >
+            {[
+              ['inputs', '输入'],
+              ['outputs', '输出'],
+            ].map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                role="tab"
+                aria-selected={compactTab === value}
+                onClick={() => setCompactTab(value)}
+              >
+                {tx(label)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div
+          className="min-h-0 flex-1 overflow-auto px-3 py-2"
+          role="tabpanel"
+          aria-label={tx(compactTab === 'inputs' ? '输入' : '输出')}
+        >
+          {(error || errorMessage) && (
+            <p
+              className={`mb-2 whitespace-pre-wrap text-xs ${
+                status === 'failed' ? 'text-destructive' : 'text-muted-foreground'
+              }`}
+            >
+              {errorText(reasonLabel(String(error || errorMessage)))}
+            </p>
+          )}
+          <DataViewer
+            key={`${entry?.id || detail.run.id}:${compactTab}`}
+            compact
+            value={compactTab === 'inputs' ? inputs : outputs}
+            label={tx(compactTab === 'inputs' ? '输入' : '输出')}
+          />
+        </div>
+      </section>
+    );
   return (
     <section className="flex h-full min-h-0 flex-col" aria-label={tx('步骤详情')}>
       <header className="border-b border-border px-4 py-3">
@@ -105,7 +161,7 @@ export function ExecutionDetail({
             key={key}
             type="button"
             role="tab"
-            aria-selected={tab === key}
+            aria-selected={activeTab === key}
             onClick={() => setTab(key)}
           >
             {tx(label)}
@@ -115,7 +171,7 @@ export function ExecutionDetail({
       <div
         className="min-h-0 flex-1 overflow-auto p-4"
         role="tabpanel"
-        aria-label={tx(tabs.find(([key]) => key === tab)?.[1] || '概览')}
+        aria-label={tx(tabs.find(([key]) => key === activeTab)?.[1] || '概览')}
       >
         {error && (
           <p role="alert" className="mb-3 text-xs text-destructive">
@@ -124,21 +180,21 @@ export function ExecutionDetail({
         )}
         {loading && !events.length ? (
           <p className="text-xs text-muted-foreground">{tx('加载中…')}</p>
-        ) : tab === 'inputs' ? (
+        ) : activeTab === 'inputs' ? (
           <DataViewer
             key={`input:${entry?.id || node?.id || detail.run.id}`}
             value={inputs}
             label={tx('输入')}
           />
-        ) : tab === 'outputs' ? (
+        ) : activeTab === 'outputs' ? (
           <DataViewer
             key={`output:${entry?.id || node?.id || detail.run.id}`}
             value={outputs}
             label={tx('输出')}
           />
-        ) : tab === 'configuration' ? (
+        ) : activeTab === 'configuration' ? (
           <DataViewer key={node?.id} value={node?.data} label={tx('当时配置')} />
-        ) : tab === 'logs' ? (
+        ) : activeTab === 'logs' ? (
           <div className="space-y-3">
             {events.length ? (
               events.map((event) => (
@@ -175,7 +231,7 @@ export function ExecutionDetail({
                   {status === 'failed' ? tx('错误原因') : tx('状态说明')}
                 </p>
                 <p className="whitespace-pre-wrap break-words text-xs leading-relaxed">
-                  {errorText(String(errorMessage))}
+                  {errorText(reasonLabel(String(errorMessage)))}
                 </p>
               </div>
             )}

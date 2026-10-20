@@ -2014,5 +2014,13 @@
   "节点汇总": "Node summary",
   "模型服务响应": "Model service response",
   "此处保留中断前的部分输出，并非完整结果。": "This is partial output captured before interruption, not a complete result.",
-  "模型服务返回 HTTP {0}": "Model service returned HTTP {0}"
+  "模型服务返回 HTTP {0}": "Model service returned HTTP {0}",
+  "未命中此分支": "This branch was not selected",
+  "已满足汇合条件，取消剩余分支": "The join condition was met; remaining branches were canceled",
+  "上级步骤失败，已取消此调用": "The parent step failed; this call was canceled",
+  "执行范围失败，已取消此调用": "The execution scope failed; this call was canceled",
+  "此执行未记录结束事件": "No terminal event was recorded for this execution",
+  "手动或工具调用": "Manual / tool call",
+  "查看运行详情": "Open run details",
+  "查看全部执行实例": "View all execution instances"
 }

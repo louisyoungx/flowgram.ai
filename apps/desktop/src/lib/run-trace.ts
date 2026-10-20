@@ -108,7 +108,7 @@ export const sourceLabel = (source: string) =>
     (
       {
         node_test: '节点测试',
-        manual: '手动运行',
+        manual: '手动或工具调用',
         agent: '会话调用',
         published: '发布运行',
         debug: '调试运行',
@@ -307,4 +307,15 @@ export function executionFromEvents(
       };
   }
   return current;
+}
+
+export function reasonLabel(reason: string): string {
+  const labels: Record<string, string> = {
+    branch_not_selected: '未命中此分支',
+    join_satisfied: '已满足汇合条件，取消剩余分支',
+    parent_failed: '上级步骤失败，已取消此调用',
+    scope_failed: '执行范围失败，已取消此调用',
+    'No terminal event was recorded for this execution': '此执行未记录结束事件',
+  };
+  return labels[reason] ? tx(labels[reason]) : reason;
 }

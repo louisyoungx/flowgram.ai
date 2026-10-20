@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
  * SPDX-License-Identifier: MIT
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import {
   ArrowLeft,
@@ -10,6 +10,7 @@ import {
   Columns2,
   ListTree,
   MoreHorizontal,
+  FlaskConical,
   Loader2,
   PanelRightClose,
   Square,
@@ -30,18 +31,27 @@ import {
   sourceLabel,
   statusLabel,
   type Execution,
+  type TraceDetail,
 } from '../../lib/run-trace';
 import { nodeSpec } from '../../lib/node-catalog';
 import { errorText, tx } from '../../lib/i18n';
 import { scopeFor } from '../../lib/control-nodes';
 import { useRunInspection } from './use-run-inspection';
 import { TraceCanvas } from './trace-canvas';
-import { RunComparison, type RunRef } from './run-comparison';
+import type { RunRef } from './run-comparison';
 import { ExecutionTree, StatusIcon } from './execution-tree';
 import { ExecutionDetail } from './execution-detail';
-import { DebugDialog } from './debug-dialog';
-import { ComparePicker } from './compare-picker';
 import './trace.css';
+
+const RunComparison = lazy(() =>
+  import('./run-comparison').then((module) => ({ default: module.RunComparison }))
+);
+const ComparePicker = lazy(() =>
+  import('./compare-picker').then((module) => ({ default: module.ComparePicker }))
+);
+const DebugDialog = lazy(() =>
+  import('./debug-dialog').then((module) => ({ default: module.DebugDialog }))
+);
 
 export interface RunInspectorProps {
   id: string;
@@ -54,6 +64,9 @@ export interface RunInspectorProps {
   onClose?: () => void;
   onCollapse?: () => void;
   onExpand?: () => void;
+  onHide?: () => void;
+  onProjection?: (detail: TraceDetail) => void;
+  onSelectExecution?: (entry: Execution) => void;
   requestRoot?: string;
   onDebugPrepared?: (workflow: Workflow) => void | Promise<void>;
   compact?: boolean;
@@ -69,6 +82,9 @@ export function RunInspector({
   onClose,
   onCollapse,
   onExpand,
+  onHide,
+  onProjection,
+  onSelectExecution,
   requestRoot,
   onDebugPrepared,
   compact = false,
@@ -81,6 +97,11 @@ export function RunInspector({
   }, [position]);
   const inspection = useRunInspection(id, at);
   const { detail, selected, snapshot } = inspection;
+  const projectionCallback = useRef(onProjection);
+  projectionCallback.current = onProjection;
+  useEffect(() => {
+    if (detail) projectionCallback.current?.(detail);
+  }, [detail]);
   const [view, setView] = useState('canvas');
   const [treeVisible, setTreeVisible] = useState(true);
   const [inspectorVisible, setInspectorVisible] = useState(true);
@@ -175,6 +196,7 @@ export function RunInspector({
   // Nested invocations are separate rows even when they share a definition node.
   function select(entry: Execution | null) {
     inspection.select(entry);
+    if (entry) onSelectExecution?.(entry);
     setInspectorVisible(true);
     if (width < 950 && !compact) setTreeVisible(false);
   }
@@ -220,6 +242,7 @@ export function RunInspector({
       name={
         selected ? executionName(selected) : selectedNode ? names[selectedNode.id] : tx('运行概览')
       }
+      compact={compact}
       onSource={selectNode}
       onNodeTest={
         onDebugPrepared &&
@@ -289,7 +312,11 @@ export function RunInspector({
           </div>
         ) : (
           <>
-            <div className="trace-summary">
+            <div
+              className="trace-summary"
+              role="group"
+              aria-label={`${tx('运行状态')} · ${statusLabel(runStatus)}`}
+            >
               <Button
                 variant="ghost"
                 size="icon"
@@ -301,18 +328,44 @@ export function RunInspector({
                 <ListTree />
               </Button>
               <StatusIcon status={runStatus} />
-              <span className="shrink-0 text-xs">{sourceLabel(detail.trace.source)}</span>
-              <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                {duration(detail.trace.durationMs)}
-              </span>
-              <span className="truncate text-[10px] text-muted-foreground" title={id}>
-                {detail.trace.publication
-                  ? `${detail.trace.publication.environment} · ${detail.trace.publication.version}`
-                  : `v${detail.run.revision}`}{' '}
-                · {id.slice(0, 8)}
-              </span>
+              {width >= 480 && (
+                <span className="shrink-0 text-xs" title={sourceLabel(detail.trace.source)}>
+                  {statusLabel(runStatus)}
+                </span>
+              )}
+              {width >= 1150 && (
+                <span className="text-[10px] text-muted-foreground">
+                  {sourceLabel(detail.trace.source)}
+                </span>
+              )}
+              {width >= 560 && (
+                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                  {duration(detail.trace.durationMs)}
+                </span>
+              )}
+              {width >= 1000 && (
+                <span className="truncate text-[10px] text-muted-foreground" title={id}>
+                  {detail.trace.publication
+                    ? `${detail.trace.publication.environment} · ${detail.trace.publication.version}`
+                    : `v${detail.run.revision}`}{' '}
+                  · {id.slice(0, 8)}
+                </span>
+              )}
               <span className="ml-auto" />
-              {!compact && (
+              {!compact && width < 650 && (
+                <Select
+                  className="!w-28"
+                  variant="ghost"
+                  value={view}
+                  onValueChange={setView}
+                  aria-label={tx('运行视图')}
+                  options={[
+                    { value: 'canvas', label: tx('当时画布') },
+                    { value: 'timeline', label: tx('时间线') },
+                  ]}
+                />
+              )}
+              {!compact && width >= 650 && (
                 <div className="trace-tabs !border-0" role="tablist" aria-label={tx('运行视图')}>
                   {[
                     ['canvas', '当时画布'],
@@ -355,8 +408,14 @@ export function RunInspector({
                 </MenuButton>
               )}
               {!compact && onDebugPrepared && (
-                <Button variant="outline" size="sm" onClick={() => setDebug('run')}>
-                  {tx('用本次输入调试')}
+                <Button
+                  variant="outline"
+                  size={width < 760 ? 'icon' : 'sm'}
+                  aria-label={tx('用本次输入调试')}
+                  title={tx('用本次输入调试')}
+                  onClick={() => setDebug('run')}
+                >
+                  {width < 760 ? <FlaskConical /> : tx('用本次输入调试')}
                 </Button>
               )}
               {runStatus === 'running' && (
@@ -380,6 +439,16 @@ export function RunInspector({
                 <Button variant="ghost" size="sm" onClick={onExpand}>
                   {tx('展开运行详情')}
                   <ArrowUpRight />
+                </Button>
+              )}
+              {compact && onHide && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={tx('隐藏运行结果')}
+                  onClick={onHide}
+                >
+                  <X />
                 </Button>
               )}
               {!compact && (
@@ -561,7 +630,9 @@ export function RunInspector({
                     </div>
                     <div className="flex min-h-10 shrink-0 items-center gap-3 border-t border-border bg-background px-3 text-[10px] text-muted-foreground">
                       <span className="shrink-0">
-                        {at === undefined ? tx('完整运行') : tx('事件 {0}', [at])}
+                        {detail.trace.at == null
+                          ? tx('完整运行')
+                          : tx('事件 {0}', [detail.trace.at])}
                       </span>
                       <input
                         className="min-w-12 flex-1 accent-[var(--foreground)]"
@@ -671,33 +742,48 @@ export function RunInspector({
           </>
         )}
         {detail && debug && onDebugPrepared && (
-          <DebugDialog
-            detail={detail}
-            entry={debug === 'node' ? selected : null}
-            workflows={workflows}
-            requestRoot={requestRoot}
-            onClose={() => setDebug(null)}
-            onPrepared={onDebugPrepared}
-          />
+          <Suspense fallback={null}>
+            <DebugDialog
+              detail={detail}
+              entry={debug === 'node' ? selected : null}
+              workflows={workflows}
+              requestRoot={requestRoot}
+              onClose={() => setDebug(null)}
+              onPrepared={onDebugPrepared}
+            />
+          </Suspense>
         )}
         {detail && comparePicker && (
-          <ComparePicker
-            id={id}
-            onClose={() => setComparePicker(false)}
-            onPick={(other) => {
-              setComparePicker(false);
-              setComparison({ id: other, requestRoot });
-            }}
-          />
+          <Suspense fallback={null}>
+            <ComparePicker
+              id={id}
+              onClose={() => setComparePicker(false)}
+              onPick={(other) => {
+                setComparePicker(false);
+                setComparison({ id: other, requestRoot });
+              }}
+            />
+          </Suspense>
         )}
       </div>
       {comparison && (
         <div className="absolute inset-0 z-40 bg-background">
-          <RunComparison
-            left={comparison}
-            right={{ id, requestRoot }}
-            onBack={() => setComparison(null)}
-          />
+          <Suspense fallback={<p className="p-5 text-xs text-muted-foreground">{tx('加载中…')}</p>}>
+            <RunComparison
+              left={comparison}
+              right={{ id, requestRoot }}
+              onBack={() => {
+                setComparison(null);
+                requestAnimationFrame(() =>
+                  container.current
+                    ?.querySelector<HTMLButtonElement>(
+                      '.trace-summary button[aria-haspopup="menu"]'
+                    )
+                    ?.focus()
+                );
+              }}
+            />
+          </Suspense>
         </div>
       )}
     </section>

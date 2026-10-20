@@ -22,7 +22,7 @@ pub struct RunListQuery {
     pub before_id: Option<String>,
 }
 const BASE:&str="WITH inventory AS (SELECT r.id,r.workflow_id,r.revision,r.created_at,r.status,r.error,COALESCE(json_extract(w.definition,'$.name'),'') AS workflow_name,n.node_id AS test_node_id,s.service,s.environment,s.version AS release_version,s.operation,s.idempotency_key AS request_key,d.status AS callback_status,d.attempts AS callback_attempts,d.last_error AS callback_error,
-CASE WHEN n.node_id IS NOT NULL THEN 'node_test' WHEN EXISTS(SELECT 1 FROM events e WHERE e.object_id=r.id AND e.kind='run_origin') THEN 'debug' WHEN s.run_id IS NOT NULL THEN 'published' WHEN r.session_id IS NOT NULL THEN 'agent' ELSE 'manual' END AS source,
+CASE WHEN n.node_id IS NOT NULL THEN 'node_test' WHEN s.run_id IS NOT NULL THEN 'published' WHEN r.session_id IS NOT NULL THEN 'agent' WHEN EXISTS(SELECT 1 FROM events e WHERE e.object_id=r.id AND e.kind='run_origin') THEN 'debug' ELSE 'manual' END AS source,
 (SELECT created_at FROM events e WHERE e.object_id=r.id AND e.kind='run_finished' ORDER BY sequence DESC LIMIT 1) AS ended_at,
 CAST(COALESCE(json_extract(r.inputs,'$.requestId'),json_extract(r.inputs,'$.orderId'),json_extract(r.inputs,'$.invoiceId'),'') AS TEXT) AS business_id
 FROM runs r LEFT JOIN run_workflows w ON w.run_id=r.id AND w.workflow_id=r.workflow_id LEFT JOIN node_tests n ON n.run_id=r.id LEFT JOIN service_runs s ON s.run_id=r.id LEFT JOIN service_deliveries d ON d.run_id=r.id) ";

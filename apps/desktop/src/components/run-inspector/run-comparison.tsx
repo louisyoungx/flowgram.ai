@@ -252,6 +252,7 @@ export function RunComparison({
   const [error, setError] = useState('');
   const [tab, setTab] = useState('nodes');
   const [onlyChanges, setOnlyChanges] = useState(false);
+  const [groupLimit, setGroupLimit] = useState(100);
   const [selection, setSelection] = useState<ReturnType<typeof pairGroups>[number] | null>(null);
   const [match, setMatch] = useState<{ key: string; id: string } | null>(null);
   useEffect(() => {
@@ -294,7 +295,11 @@ export function RunComparison({
       <WorkspaceHeader
         title={tx('运行对比')}
         leading={
-          <Button variant="ghost" onClick={() => (selection ? setSelection(null) : onBack())}>
+          <Button
+            autoFocus
+            variant="ghost"
+            onClick={() => (selection ? setSelection(null) : onBack())}
+          >
             <ArrowLeft />
             {selection ? tx('返回节点汇总') : tx('返回运行详情')}
           </Button>
@@ -386,6 +391,7 @@ export function RunComparison({
                   </div>
                   {pairGroups(data[0].groups, data[1].groups)
                     .filter((pair) => !onlyChanges || changed(pair.left, pair.right))
+                    .slice(0, groupLimit)
                     .map((pair) => (
                       <button
                         type="button"
@@ -405,7 +411,10 @@ export function RunComparison({
                           </span>
                           {pair.left &&
                             pair.right &&
-                            pair.left.configHash !== pair.right.configHash && (
+                            (pair.left.configHash !== pair.right.configHash ||
+                              (pair.left.modelHash &&
+                                pair.right.modelHash &&
+                                pair.left.modelHash !== pair.right.modelHash)) && (
                               <small className="mt-1 block text-muted-foreground">
                                 {tx('配置变化')}
                               </small>
@@ -415,6 +424,17 @@ export function RunComparison({
                         <Metrics group={pair.right} nodeTest={!!data[1].nodeTest} />
                       </button>
                     ))}
+                  {pairGroups(data[0].groups, data[1].groups).filter(
+                    (pair) => !onlyChanges || changed(pair.left, pair.right)
+                  ).length > groupLimit && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setGroupLimit(groupLimit + 100)}
+                    >
+                      {tx('加载更多')}
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="grid min-h-0 flex-1 grid-cols-2 divide-x divide-border">

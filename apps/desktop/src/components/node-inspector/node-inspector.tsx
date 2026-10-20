@@ -94,6 +94,8 @@ export function NodeInspector({
   onClose,
   onEdit,
   onTest,
+  onInspectRun,
+  workflowRunId,
   runs,
   selectedTestId,
   saveStatus,
@@ -115,6 +117,8 @@ export function NodeInspector({
   onClose: () => void;
   onEdit: (data: Data) => void;
   onTest: (nodeId: string, inputs: Data, bindings: Data) => Promise<Run>;
+  onInspectRun?: (id: string) => void;
+  workflowRunId?: string;
   runs: Run[];
   selectedTestId?: string;
   saveStatus: string;
@@ -447,6 +451,16 @@ export function NodeInspector({
           role="tabpanel"
           aria-labelledby={`nf-${node.id}-${tab}`}
         >
+          {workflowRunId && onInspectRun && (
+            <Button
+              className="mb-3"
+              variant="ghost"
+              size="sm"
+              onClick={() => onInspectRun(workflowRunId)}
+            >
+              {tx('查看全部执行实例')}
+            </Button>
+          )}
           {executions.length > 0 && (
             <FormField
               label={tx('运行样本')}
@@ -562,31 +576,11 @@ export function NodeInspector({
                 ) : (
                   <ResultViewer value={run.outputs} />
                 )}
-                <FormSection
-                  title={tx('执行过程')}
-                  summary={`${detail?.events.length || 0} ${tx('条事件')}`}
-                >
-                  {detail?.events.map((event) => (
-                    <div className="nf-test-event" key={event.sequence}>
-                      <span>
-                        {(
-                          {
-                            node_started: tx('开始执行'),
-                            node_finished: tx('执行完成'),
-                            node_failed: tx('执行失败'),
-                            run_started: tx('测试开始'),
-                            run_finished: tx('测试结束'),
-                            agent_tool_finished: tx('Agent 工具调用'),
-                          } as Record<string, string>
-                        )[event.kind] || event.kind}
-                      </span>
-                      <details>
-                        <summary>{tx('详情')}</summary>
-                        <ResultViewer value={JSON.parse(event.data)} />
-                      </details>
-                    </div>
-                  ))}
-                </FormSection>
+                {onInspectRun && (
+                  <Button variant="outline" size="sm" onClick={() => onInspectRun(run.id)}>
+                    {tx('查看运行详情')}
+                  </Button>
+                )}
               </>
             ) : (
               <p className="nf-empty">{tx('使用样本执行当前节点，结果会保留在运行记录中。')}</p>

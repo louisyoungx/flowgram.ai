@@ -72,10 +72,12 @@ export function DataViewer({
   value,
   label,
   filename = 'data.json',
+  compact = false,
 }: {
   value: unknown;
   label: string;
   filename?: string;
+  compact?: boolean;
 }) {
   const [mode, setMode] = useState('tree');
   const [query, setQuery] = useState('');
@@ -99,6 +101,12 @@ export function DataViewer({
   }, [text, query]);
   if (value === undefined)
     return <p className="p-4 text-xs text-muted-foreground">{tx('未采集此数据')}</p>;
+  if (compact)
+    return (
+      <div className="trace-data text-xs leading-relaxed" aria-label={label}>
+        <ValueTree value={value} />
+      </div>
+    );
   return (
     <section className="trace-data" aria-label={label}>
       <div className="flex flex-wrap items-center gap-1 border-b border-border pb-2">

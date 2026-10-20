@@ -507,12 +507,15 @@ impl Store {
                 .bind(id)
                 .fetch_optional(&self.db)
                 .await?;
+                let origin:Option<String>=sqlx::query_scalar("SELECT data FROM events WHERE object_id=? AND kind='run_origin' ORDER BY sequence DESC LIMIT 1").bind(id).fetch_optional(&self.db).await?;
                 let source = if run.test_node_id.is_some() {
                     "node_test"
                 } else if published.is_some() {
                     "published"
                 } else if run.session_id.is_some() {
                     "agent"
+                } else if origin.is_some() {
+                    "debug"
                 } else {
                     "manual"
                 };
@@ -549,7 +552,6 @@ impl Store {
                     let source=lookup.get(link["executionId"].as_str()?)?;
                     (source.workflow_id==entry.workflow_id).then(||json!({"workflowId":entry.workflow_id,"scopeId":entry.scope_id,"sourceNodeId":source.node_id,"sourcePortId":link["sourcePortId"],"targetNodeId":entry.node_id}))
                 })).collect();
-                let origin:Option<String>=sqlx::query_scalar("SELECT data FROM events WHERE object_id=? AND kind='run_origin' ORDER BY sequence DESC LIMIT 1").bind(id).fetch_optional(&self.db).await?;
                 let runtime:Option<String>=sqlx::query_scalar("SELECT json_extract(data,'$.runtime') FROM events WHERE object_id=? AND kind='run_started' ORDER BY sequence LIMIT 1").bind(id).fetch_optional(&self.db).await?.flatten();
                 if query.light != Some(true) {
                     detail["snapshot"] = json!(snapshot);
@@ -564,7 +566,7 @@ impl Store {
                     "nodes":nodes.into_values().collect::<Vec<_>>(),
                     "focus":failure_path(&entries).iter().filter_map(|id|entries.iter().find(|entry|&entry.id==id)).collect::<Vec<_>>(),
                     "executions":roots,"nextCursor":if root_count>PAGE_SIZE { roots.last().map(|e|e.first_sequence) } else { None },
-                    "failureId":entries.iter().rev().find(|e|e.status=="failed" && e.children==0).map(|e|&e.id),
+                    "failureId":entries.iter().rev().find(|e|e.status=="failed").map(|e|&e.id),
                     "failurePath":failure_path(&entries),
                     "publication":published.map(|(service,environment,operation,version)|json!({"service":service,"environment":environment,"operation":operation,"version":version})),
                 });
@@ -575,10 +577,7 @@ impl Store {
 }
 fn failure_path(entries: &[Execution]) -> Vec<String> {
     let mut path = vec![];
-    let mut cursor = entries
-        .iter()
-        .rev()
-        .find(|e| e.status == "failed" && e.children == 0);
+    let mut cursor = entries.iter().rev().find(|e| e.status == "failed");
     while let Some(entry) = cursor {
         path.push(entry.id.clone());
         cursor = entry
@@ -1040,6 +1039,37 @@ mod tests {
         assert_eq!(second["groups"][0]["configHash"], group["configHash"]);
         assert_eq!(second["groups"][0]["executions"], 0);
         assert!(second["groups"][0]["inputTokens"].is_null());
+    }
+    #[tokio::test]
+    async fn failed_parent_remains_focusable_when_children_are_canceled() {
+        let (_dir, store, run) = recording().await;
+        for (kind, data) in [
+            (
+                "node_started",
+                json!({"nodeId":"loop","executionId":"outer","inputs":{}}),
+            ),
+            (
+                "model_started",
+                json!({"nodeId":"llm","executionId":"child","parentExecutionId":"outer","inputs":[]}),
+            ),
+            (
+                "model_canceled",
+                json!({"nodeId":"llm","executionId":"child","reason":"parent_failed"}),
+            ),
+            (
+                "node_failed",
+                json!({"nodeId":"loop","executionId":"outer","error":"Execution budget exceeded"}),
+            ),
+        ] {
+            store.emit(kind, &run.id, data).await.unwrap();
+        }
+        let detail = store
+            .inspect_trace(&run.id, &TraceQuery::default())
+            .await
+            .unwrap();
+        assert_eq!(detail["trace"]["failureId"], "outer");
+        assert_eq!(detail["trace"]["failurePath"], json!(["outer"]));
+        assert_eq!(detail["trace"]["focus"][0]["children"], 1);
     }
     #[tokio::test]
     async fn terminal_runs_preserve_unfinished_spans_and_snapshot_identity() {

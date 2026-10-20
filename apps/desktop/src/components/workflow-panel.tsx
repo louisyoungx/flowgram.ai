@@ -49,6 +49,7 @@ import type {
   WorkflowNode,
   WorkflowSchema,
 } from '../lib/types';
+import { aggregateStatus, type TraceDetail } from '../lib/run-trace';
 import { useProjectApi } from '../lib/project-context';
 import { tx, errorText } from '../lib/i18n';
 import { t } from '../lib/i18n';
@@ -329,7 +330,16 @@ export function WorkflowPanel({
       .then((detail) => {
         if (!disposed) {
           setEvents(detail.events);
-          setNodeStates(detail.nodeStates || {});
+          const projection = (detail as typeof detail & Pick<TraceDetail, 'trace'>).trace;
+          setNodeStates(
+            projection
+              ? Object.fromEntries(
+                  projection.nodes
+                    .filter((node) => node.workflowId === workflow.id)
+                    .map((node) => [node.nodeId, aggregateStatus(node.counts)])
+                )
+              : detail.nodeStates || {}
+          );
         }
       })
       .catch((e) => error(e.message));
@@ -641,7 +651,7 @@ export function WorkflowPanel({
             node_canceled: 'canceled',
             node_skipped: 'skipped',
           } as Record<string, string>
-        )[kind] || 'skipped';
+        )[kind] || kind;
     }
     return result;
   }, [events, nodeStates, dirty, run?.revision, workflow.revision]);
@@ -1092,6 +1102,8 @@ export function WorkflowPanel({
                       change(editControlConfiguration(draft.current, selectedNode.id, data))
                     }
                     onTest={testNode}
+                    onInspectRun={onInspectRun}
+                    workflowRunId={run?.id}
                     runs={runs.filter((item) => item.workflowId === workflow.id)}
                     selectedTestId={
                       runs.find((item) => item.id === selectedRunId)?.testNodeId === selectedNode.id
@@ -1166,32 +1178,56 @@ export function WorkflowPanel({
           aria-label={tx('运行结果')}
           className="min-h-0 flex-1 overflow-hidden"
         >
-          <div className="flex items-center justify-between px-4 py-3 text-xs">
-            <span className="font-medium">{t('output')}</span>
-            <div className="flex items-center gap-2">
-              {run && (
-                <span
-                  className={run.status === 'failed' ? 'text-destructive' : 'text-muted-foreground'}
-                >
-                  {t(run.status as 'running') || run.status}
-                </span>
-              )}
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={tx('隐藏运行结果')}
-                onClick={() => {
+          {!run && (
+            <>
+              <div className="flex items-center justify-between px-4 py-3 text-xs">
+                <span className="font-medium">{t('output')}</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={tx('隐藏运行结果')}
+                    onClick={() => {
+                      setResultsVisible(false);
+                      resultsToggle.current?.focus();
+                    }}
+                  >
+                    <X />
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+          {run ? (
+            <div className="h-full min-h-0">
+              <RunInspector
+                id={run.id}
+                compact
+                onProjection={(detail) =>
+                  setNodeStates(
+                    Object.fromEntries(
+                      detail.trace.nodes
+                        .filter((node) => node.workflowId === workflow.id)
+                        .map((node) => [node.nodeId, aggregateStatus(node.counts)])
+                    )
+                  )
+                }
+                onSelectExecution={(entry) => {
+                  if (
+                    entry.workflowId === workflow.id &&
+                    run.revision === workflow.revision &&
+                    !dirty
+                  ) {
+                    canvas.current?.select([entry.nodeId]);
+                    canvas.current?.reveal(entry.nodeId);
+                  }
+                }}
+                onExpand={() => onInspectRun(run.id)}
+                onHide={() => {
                   setResultsVisible(false);
                   resultsToggle.current?.focus();
                 }}
-              >
-                <X />
-              </Button>
-            </div>
-          </div>
-          {run ? (
-            <div className="h-[calc(100%-52px)] min-h-0">
-              <RunInspector id={run.id} compact onExpand={() => onInspectRun(run.id)} />
+              />
             </div>
           ) : (
             <p className="px-4 pb-5 text-xs text-muted-foreground">{t('runEmpty')}</p>
