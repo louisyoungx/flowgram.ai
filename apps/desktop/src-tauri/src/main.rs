@@ -1,7 +1,12 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+mod owned_process;
+
+use owned_process::OwnedProcess;
 use serde::Serialize;
 use std::{
     path::PathBuf,
-    process::{Child, Command, Stdio},
+    process::{Command, Stdio},
     sync::Mutex,
     time::Duration,
 };
@@ -13,16 +18,15 @@ struct Connection {
     token: String,
 }
 struct Backend {
-    child: Mutex<Option<Child>>,
+    child: Mutex<Option<OwnedProcess>>,
     connection: Connection,
 }
 impl Drop for Backend {
     fn drop(&mut self) {
         if let Ok(child) = self.child.get_mut()
-            && let Some(mut process) = child.take()
+            && let Some(process) = child.take()
         {
-            let _ = process.kill();
-            let _ = process.wait();
+            drop(process);
         }
     }
 }
@@ -36,29 +40,30 @@ fn start_backend(app: &tauri::App) -> Result<Backend, Box<dyn std::error::Error>
         .map(Ok)
         .unwrap_or_else(|| app.path().app_data_dir())?;
     std::fs::create_dir_all(&dir)?;
-    let executable: PathBuf = if cfg!(debug_assertions) {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../target/debug/flowgram-server")
-    } else {
-        std::env::current_exe()?
-            .parent()
-            .ok_or("Application executable directory is unavailable")?
-            .join(if cfg!(windows) {
-                "flowgram-server.exe"
-            } else {
-                "flowgram-server"
-            })
-    };
+    let executable = std::env::current_exe()?
+        .parent()
+        .ok_or("Application executable directory is unavailable")?
+        .join(if cfg!(windows) {
+            "flowgram-server.exe"
+        } else {
+            "flowgram-server"
+        });
     let connection_file = dir.join("connection.json");
     if connection_file.exists() {
         std::fs::remove_file(&connection_file)?;
     }
-    let mut child = Command::new(executable)
+    let log = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(dir.join("backend.log"))?;
+    let mut command = Command::new(executable);
+    command
         .env("FLOWGRAM_DATA_DIR", &dir)
         .env("FLOWGRAM_PORT", "0")
         .stdin(Stdio::null())
         .stdout(Stdio::null())
-        .stderr(Stdio::inherit())
-        .spawn()?;
+        .stderr(Stdio::from(log));
+    let mut child = OwnedProcess::spawn(&mut command)?;
     // Wait only for metadata written by this owned process.
     for _ in 0..100 {
         if let Some(status) = child.try_wait()? {
@@ -84,8 +89,6 @@ fn start_backend(app: &tauri::App) -> Result<Backend, Box<dyn std::error::Error>
         }
         std::thread::sleep(Duration::from_millis(100));
     }
-    let _ = child.kill();
-    let _ = child.wait();
     Err("FlowGram backend did not become ready".into())
 }
 fn main() {
@@ -100,6 +103,16 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
+            #[cfg(windows)]
+            if let Some(window) = app.get_webview_window("main")
+                && let Ok(Some(monitor)) = window.current_monitor()
+                && let Ok(size) = window.outer_size()
+                && (size.width > monitor.work_area().size.width
+                    || size.height > monitor.work_area().size.height)
+            {
+                // High-DPI or small displays must keep the footer and window controls reachable.
+                window.maximize()?;
+            }
             let backend = start_backend(app)?;
             app.manage(backend);
             Ok(())
@@ -111,10 +124,9 @@ fn main() {
             if matches!(event, tauri::RunEvent::Exit) {
                 let backend = app.state::<Backend>();
                 if let Ok(mut child) = backend.child.lock()
-                    && let Some(mut process) = child.take()
+                    && let Some(process) = child.take()
                 {
-                    let _ = process.kill();
-                    let _ = process.wait();
+                    drop(process);
                 }
             }
         });

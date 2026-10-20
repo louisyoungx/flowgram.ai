@@ -107,6 +107,35 @@ cargo clippy -p flowgram-desktop-backend --all-targets -- -D warnings
 
 macOS App 生成在 `target/release/bundle/macos/FlowGram.app`。当前包供本地开发验证，尚未配置发布签名、公证与自动更新。
 
+### Windows
+
+支持 Windows 10 / 11 x64，使用同一前端、独立 Rust 后端、工作流运行时和普通项目格式。Windows 安装包内含 `flowgram-server.exe` 与 `flowgram-service.exe`，使用 WebView2 渲染；安装和运行无需 Node.js、Rust 或 C++ 开发工具。安装器在缺少 WebView2 时通过内嵌的微软引导程序安装运行时，此步骤需要联网。
+
+Windows 开发环境需要 Node.js、Rust MSVC 工具链、Visual Studio C++ Build Tools 与 WebView2。仓库依赖安装完成后，在 `apps/desktop` 运行：
+
+```powershell
+node ../../common/scripts/install-run-rushx.js desktop
+node ../../common/scripts/install-run-rushx.js desktop:build
+```
+
+Windows 默认生成 NSIS 安装器，支持中英文安装界面，按当前用户安装，无需管理员权限。产物位于 `target/release/bundle/nsis/FlowGram_0.1.0_x64-setup.exe`。MSVC 运行库静态链接，无需单独安装 VC++ 运行库。界面与后端分别运行；后端无额外控制台窗口，窗口退出和进程异常终止均释放所属后台进程。应用数据位于 `%APPDATA%\ai.flowgram.desktop`，启动诊断写入其中的 `backend.log`，不会将模型凭证放进安装包。
+
+macOS / Linux 也可以使用配置好的 Linux 编译机生成 Windows 安装器：
+
+```sh
+FLOWGRAM_WINDOWS_BUILD_HOST=devbox node ../../common/scripts/install-run-rushx.js desktop:build:windows
+```
+
+编译机需要 Rust 的 `x86_64-pc-windows-msvc` 目标、cargo-xwin、Clang / LLVM（含 llvm-rc）、NSIS、Node.js 和 Corepack。脚本在独立缓存中编译，只传输源码、前端构建结果和静态示例，不传输项目或密钥，也不在编译机启动服务。安装包下载到 `.flowgram-local/packages/windows/`。该命令仅构建，不发布。
+
+当前安装包未配置 Windows 发布者签名和自动更新。跨平台编译不能替代实机验收；安装后应检查首次示例初始化、中文和空格路径、保存与重新打开、运行及历史画布、项目导入导出、归档恢复、单实例以及正常退出与异常退出的后台进程清理。
+
+2026-10-20 在 Windows 10 x64 开发机完成安装与升级、深浅主题、画布缩放、高 DPI 下窗口适配、单实例、正常退出和强制结束后的后台进程清理及重新启动验证。安装包解包后的三个可执行文件与实机安装内容逐一校验一致，无额外 VC++ DLL 依赖。
+
+Windows 共运行 118 项 Rust 测试；修复后复测受影响的导入、删除与示例测试。首次示例初始化涉及大量磁盘写入，该套测试在开发机串行执行，避免并行初始化多份工作区导致样例节点超时。本机 117 项 Rust 测试、Clippy 与桌面前端构建均通过。
+
+最终安装包的真实后端另通过 [Windows 验收脚本](../desktop-backend/validation/windows_desktop.py)：六个项目、18 个工作流、294 个节点、11 个离线流程重跑、中文与空格路径、工作流保存与历史图快照、归档恢复、带历史导入导出、项目重命名、重新打开与完整名称确认删除均通过。重新启动后保留 18 个会话和 40 次运行，MCP 初始化正常。Windows 本轮未配置真实模型连接；Windows 11 尚未单独实机验收。
+
 ## 当前可用范围
 
 - 新建 / 打开工程目录，切换项目恢复各自的工作区；工作流、会话、运行、资源分别导航，项目内搜索；独立设置页面，包含模型、外观、动效、MCP 和快捷键。
@@ -150,7 +179,6 @@ macOS App 生成在 `target/release/bundle/macos/FlowGram.app`。当前包供本
 界面与动效遵循 [桌面设计规范](../../design/desktop-design-system.md)，后续 UI 修改应一起维护该规范并完成截图验收。
 
 轮次交互遵循 [对话信息架构](../../design/conversation-information-architecture.md)。当前已实现基础生命周期和输入投递；询问、审批、工作流差异和检查点恢复仍待后续迭代。
-
 
 ## 复杂业务验证
 

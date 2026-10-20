@@ -7,16 +7,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let data_dir = env::var_os("FLOWGRAM_DATA_DIR")
         .map(PathBuf::from)
         .unwrap_or_else(|| {
-            let home = env::var_os("HOME")
-                .map(PathBuf::from)
-                .unwrap_or_else(env::temp_dir);
-            #[cfg(target_os = "macos")]
+            #[cfg(windows)]
             {
-                home.join("Library/Application Support/FlowGram")
+                env::var_os("APPDATA")
+                    .map(PathBuf::from)
+                    .unwrap_or_else(|| {
+                        env::var_os("USERPROFILE")
+                            .map(PathBuf::from)
+                            .unwrap_or_else(env::temp_dir)
+                            .join("AppData/Roaming")
+                    })
+                    .join("ai.flowgram.desktop")
             }
-            #[cfg(not(target_os = "macos"))]
+            #[cfg(not(windows))]
             {
-                home.join(".local/share/flowgram")
+                let home = env::var_os("HOME")
+                    .map(PathBuf::from)
+                    .unwrap_or_else(env::temp_dir);
+                #[cfg(target_os = "macos")]
+                {
+                    home.join("Library/Application Support/FlowGram")
+                }
+                #[cfg(not(target_os = "macos"))]
+                {
+                    home.join(".local/share/flowgram")
+                }
             }
         });
     std::fs::create_dir_all(&data_dir)?;

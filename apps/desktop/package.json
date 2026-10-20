@@ -11,7 +11,8 @@
     "lint:fix": "eslint src --fix",
     "test": "vitest run",
     "desktop": "tauri dev",
-    "desktop:build": "tauri build"
+    "desktop:build": "tauri build",
+    "desktop:build:windows": "bash scripts/package-windows.sh"
   },
   "dependencies": {
     "@flowgram.ai/free-layout-editor": "workspace:*",

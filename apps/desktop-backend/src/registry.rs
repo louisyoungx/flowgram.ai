@@ -108,7 +108,7 @@ impl Registry {
         stores.insert(id.into(), (store.clone(), lock));
         Ok(store)
     }
-    async fn open_store(&self, project: &Project) -> Result<(Store, std::fs::File)> {
+    pub(crate) async fn open_store(&self, project: &Project) -> Result<(Store, std::fs::File)> {
         tokio::fs::create_dir_all(Path::new(&project.directory).join(".flowgram")).await?;
         let state_directory =
             tokio::fs::canonicalize(Path::new(&project.directory).join(".flowgram")).await?;

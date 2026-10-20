@@ -407,14 +407,15 @@ pub async fn import_project(
         }.await;
         store.db.close().await;
         result?;
-        tokio::fs::rename(&stage, &destination).await?;
+        drop(store);
+        crate::project::rename_directory(&stage, &destination).await?;
         moved = true;
         registry.register(read_project(&destination).await?).await
     }.await;
     if result.is_err() {
-        let _ = tokio::fs::remove_dir_all(&stage).await;
+        let _ = crate::project::remove_directory(&stage).await;
         if moved {
-            let _ = tokio::fs::remove_dir_all(&destination).await;
+            let _ = crate::project::remove_directory(&destination).await;
         }
     }
     result

@@ -203,19 +203,19 @@ impl Store {
                 .project_root
                 .join(".flowgram")
                 .join(format!("delete-{id}"));
-            tokio::fs::rename(&source, &target).await?;
+            crate::project::rename_directory(&source, &target).await?;
             Some((source, target))
         } else {
             None
         };
         if let Err(error) = tx.commit().await {
             if let Some((source, target)) = &moved {
-                tokio::fs::rename(target, source).await?;
+                crate::project::rename_directory(target, source).await?;
             }
             return Err(error.into());
         }
         if let Some((_, target)) = moved {
-            tokio::fs::remove_dir_all(target).await?;
+            crate::project::remove_directory(&target).await?;
         }
         self.emit("object_deleted", id, json!({"kind":kind,"id":id}))
             .await?;
@@ -270,10 +270,13 @@ impl Store {
                 .fetch_one(&self.db)
                 .await?;
             if exists > 0 {
-                tokio::fs::rename(entry.path(), self.project_root.join("workflows").join(id))
-                    .await?;
+                crate::project::rename_directory(
+                    &entry.path(),
+                    &self.project_root.join("workflows").join(id),
+                )
+                .await?;
             } else {
-                tokio::fs::remove_dir_all(entry.path()).await?;
+                crate::project::remove_directory(&entry.path()).await?;
             }
         }
         Ok(())

@@ -120,7 +120,7 @@ impl<'a> Walkthrough<'a> {
             )
             .await?;
         let run_id = run["id"].as_str().unwrap();
-        tokio::time::timeout(std::time::Duration::from_secs(5), async {
+        tokio::time::timeout(std::time::Duration::from_secs(60), async {
             while self.store.run(run_id).await?.status == "running" {
                 tokio::time::sleep(std::time::Duration::from_millis(5)).await;
             }

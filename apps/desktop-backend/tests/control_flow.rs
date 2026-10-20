@@ -47,10 +47,18 @@ async fn execute(
     input: Value,
     run: &str,
 ) -> (Value, Vec<flowgram_desktop_backend::model::Event>) {
-    let errors = runtime::validate(&schema).unwrap();
-    assert!(errors.is_empty(), "{errors:?}");
     let dir = tempfile::tempdir().unwrap();
     let store = Store::open(dir.path()).await.unwrap();
+    execute_in_store(&store, schema, input, run).await
+}
+async fn execute_in_store(
+    store: &Store,
+    schema: Value,
+    input: Value,
+    run: &str,
+) -> (Value, Vec<flowgram_desktop_backend::model::Event>) {
+    let errors = runtime::validate(&schema).unwrap();
+    assert!(errors.is_empty(), "{errors:?}");
     let output = store
         .execute_graph(
             serde_json::from_value(schema).unwrap(),
@@ -135,8 +143,10 @@ async fn switches_choose_first_all_or_default_and_merge_only_the_selected_output
 async fn first_success_cancels_slow_work_and_does_not_treat_first_failure_as_winner() {
     let mut graph = fork_schema("control.parallel", "all", "first-success");
     graph["nodes"][3]["data"]["inputsValues"]["durationMs"] = c(json!(30000));
+    let dir = tempfile::tempdir().unwrap();
+    let store = Store::open(dir.path()).await.unwrap();
     let start = std::time::Instant::now();
-    let (out, events) = execute(graph, json!({}), "race").await;
+    let (out, events) = execute_in_store(&store, graph, json!({}), "race").await;
     assert!(start.elapsed() < std::time::Duration::from_secs(2));
     assert_eq!(out["result"]["results"]["b"]["status"], "canceled");
     assert!(events.iter().any(|e| e.kind == "branch_canceled"));

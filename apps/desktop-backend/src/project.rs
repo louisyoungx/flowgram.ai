@@ -17,6 +17,43 @@ struct ProjectFile {
     created_at: String,
 }
 
+/// Windows may briefly retain SQLite/WAL handles after the pool has closed.
+/// Retry only sharing/access errors, preserve the original failure, and never
+/// fall back to copying or removing a source directory.
+pub async fn rename_directory(source: &Path, destination: &Path) -> std::io::Result<()> {
+    retry_directory_operation(|| tokio::fs::rename(source, destination)).await
+}
+
+pub async fn remove_directory(path: &Path) -> std::io::Result<()> {
+    retry_directory_operation(|| tokio::fs::remove_dir_all(path)).await
+}
+
+async fn retry_directory_operation<F, Fut>(mut operation: F) -> std::io::Result<()>
+where
+    F: FnMut() -> Fut,
+    Fut: std::future::Future<Output = std::io::Result<()>>,
+{
+    #[cfg(windows)]
+    {
+        let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(2);
+        let mut delay = 10;
+        loop {
+            match operation().await {
+                Err(error)
+                    if matches!(error.raw_os_error(), Some(5 | 32 | 33))
+                        && tokio::time::Instant::now() < deadline =>
+                {
+                    tokio::time::sleep(std::time::Duration::from_millis(delay)).await;
+                    delay = (delay * 2).min(100);
+                }
+                result => return result,
+            }
+        }
+    }
+    #[cfg(not(windows))]
+    operation().await
+}
+
 pub async fn atomic_json(path: &Path, value: &impl Serialize) -> Result<()> {
     let parent = path
         .parent()
@@ -29,6 +66,7 @@ pub async fn atomic_json(path: &Path, value: &impl Serialize) -> Result<()> {
     let mut file = options.open(&temporary).await?;
     file.write_all(&serde_json::to_vec_pretty(value)?).await?;
     file.sync_all().await?;
+    drop(file);
     tokio::fs::rename(&temporary, path).await?;
     Ok(())
 }

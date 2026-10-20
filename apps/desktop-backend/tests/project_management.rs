@@ -335,14 +335,16 @@ async fn interrupted_project_deletion_recovers_before_any_project_workers_start(
         .unwrap();
         store.closed.cancel();
         store.db.close().await;
-        tokio::fs::rename(&root, &staged).await.unwrap();
+        drop(store);
+        drop(registry);
+        flowgram_desktop_backend::project::rename_directory(&root, &staged)
+            .await
+            .unwrap();
         if committed {
             atomic_json(&dir.path().join("projects.json"), &Vec::<Value>::new())
                 .await
                 .unwrap();
         }
-        drop(store);
-        drop(registry);
         let reopened = Registry::open(dir.path()).await.unwrap();
         assert!(!staged.exists());
         assert_eq!(root.exists(), !committed);

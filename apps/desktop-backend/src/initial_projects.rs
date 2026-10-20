@@ -66,7 +66,7 @@ impl Registry {
                 // Never recursively remove a user's unregistered projects.
                 tokio::fs::remove_dir(&destination).await?;
             }
-            tokio::fs::rename(&stage, &destination).await?;
+            crate::project::rename_directory(&stage, &destination).await?;
         }
         let directories: Vec<String> =
             serde_json::from_slice(&tokio::fs::read(destination.join(READY)).await?)?;

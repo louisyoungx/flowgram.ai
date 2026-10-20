@@ -4,7 +4,7 @@ use crate::{
     model::Project,
     project::{atomic_json, read_project, rename_project},
     registry::{Registry, RegistryState},
-    store::{Store, id, nonempty},
+    store::{id, nonempty},
 };
 use axum::{
     Json, Router,
@@ -85,12 +85,12 @@ pub(crate) async fn recover(directory: &FsPath) -> Result<()> {
         }
         if projects.iter().any(|p| p.id == record.project.id) {
             if record.staged.exists() {
-                tokio::fs::rename(&record.staged, &root).await?;
+                crate::project::rename_directory(&record.staged, &root).await?;
             }
         } else {
             cleanup_catalog(&catalog, &record.project.id).await?;
             if record.staged.exists() {
-                tokio::fs::remove_dir_all(&record.staged).await?;
+                crate::project::remove_directory(&record.staged).await?;
             }
         }
         tokio::fs::remove_file(entry.path()).await?;
@@ -217,23 +217,21 @@ impl Registry {
         atomic_json(&journal, &record).await?;
         store.closed.cancel();
         store.db.close().await;
+        // Windows must release the locked project.lock handle before moving the directory.
+        // The stores mutex stays held, so no new owner can open it during this transition.
+        stores.remove(project);
         let mut next = records.clone();
         next.retain(|p| p.id != project);
         let result = async {
-            tokio::fs::rename(root, &record.staged).await?;
+            crate::project::rename_directory(root, &record.staged).await?;
             atomic_json(&self.directory.join("projects.json"), &next).await
         }
         .await;
         if let Err(error) = result {
             if record.staged.exists() {
-                tokio::fs::rename(&record.staged, root).await?;
+                crate::project::rename_directory(&record.staged, root).await?;
             }
-            let reopened =
-                Store::open_configured(root, &self.directory, Some(self.model.clone())).await?;
-            crate::service_delivery::start(reopened.clone());
-            if let Some((cached, _)) = stores.get_mut(project) {
-                *cached = reopened;
-            }
+            stores.insert(project.into(), self.open_store(&current).await?);
             tokio::fs::remove_file(&journal).await?;
             return Err(error);
         }
@@ -245,9 +243,8 @@ impl Registry {
             data: json!({"projectId":project}).to_string(),
             created_at: crate::store::now(),
         });
-        stores.remove(project);
         cleanup_catalog(&self.deployment_settings, project).await?;
-        tokio::fs::remove_dir_all(&record.staged).await?;
+        crate::project::remove_directory(&record.staged).await?;
         tokio::fs::remove_file(journal).await?;
         Ok(())
     }
