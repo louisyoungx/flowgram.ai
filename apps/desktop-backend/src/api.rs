@@ -59,6 +59,7 @@ pub fn router(store: Store, token: String) -> Router {
         .route("/api/workflows/{id}/validate", post(validate))
         .route("/api/workflows/{id}/run", post(run))
         .route("/api/workflows/{id}/nodes/{node}/test", post(test_node))
+        .route("/api/runs",get(run_list))
         .route("/api/runs/{id}", get(run_detail))
         .route("/api/runs/{id}/cancel", post(cancel))
         .route("/api/events", get(events))
@@ -274,6 +275,12 @@ async fn run(
         s.store.link_debug_origin(&run.id, origin).await?;
     }
     Ok(Json(serde_json::to_value(run)?))
+}
+async fn run_list(
+    State(s): State<ApiState>,
+    Query(q): Query<crate::run_list::RunListQuery>,
+) -> Result<Json<Value>> {
+    Ok(Json(s.store.list_runs(&q, None).await?))
 }
 async fn run_detail(
     State(s): State<ApiState>,

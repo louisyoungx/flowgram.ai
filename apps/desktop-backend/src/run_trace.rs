@@ -66,7 +66,7 @@ struct Execution {
     outputs_available: bool,
     links: Value,
 }
-fn milliseconds(start: &str, end: &str) -> Option<i64> {
+pub(crate) fn milliseconds(start: &str, end: &str) -> Option<i64> {
     let start = chrono::DateTime::parse_from_rfc3339(start).ok()?;
     let end = chrono::DateTime::parse_from_rfc3339(end).ok()?;
     Some((end - start).num_milliseconds().max(0))

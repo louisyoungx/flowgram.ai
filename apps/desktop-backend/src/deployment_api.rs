@@ -66,6 +66,7 @@ pub(crate) fn routes() -> Router<RegistryState> {
         .route("/api/deployment/publications",post(create_publication))
         .route("/api/deployment/publications/{id}",get(detail).put(save_draft).delete(delete_draft))
         .route("/api/deployment/publications/{id}/publish",post(publish))
+        .route("/api/deployment/publications/{id}/targets/{target}/{environment}/runs",get(run_list))
         .route("/api/deployment/publications/{id}/targets/{target}/{environment}/runs/{run}",get(run_detail))
         .route("/api/deployment/publications/{id}/targets/{target}/{environment}/runs/{run}/cancel",post(run_cancel))
         .route("/api/deployment/publications/{id}/deploy",post(activate))
@@ -675,6 +676,36 @@ async fn revoke_consumer(
     Ok(Json(json!({"revoked":true})))
 }
 
+async fn run_list(
+    State(s): State<RegistryState>,
+    Path((id, target, environment)): Path<(String, String, String)>,
+    Query(q): Query<crate::run_list::RunListQuery>,
+) -> Result<Json<Value>> {
+    crate::services::identifier(&environment)?;
+    let (project, _) = publication(&s, &id).await?;
+    let service = service_id(&project);
+    let value = if target == "local" {
+        s.registry
+            .resolve(&project)
+            .await?
+            .list_runs(&q, Some((&service, &environment)))
+            .await?
+    } else {
+        remote(
+            &s.registry,
+            &target,
+            Some(&project),
+            reqwest::Method::GET,
+            &format!(
+                "/admin/services/{service}/{environment}/runs?{}",
+                q.query_string()
+            ),
+            None,
+        )
+        .await?
+    };
+    Ok(Json(value))
+}
 async fn run_detail(
     State(s): State<RegistryState>,
     Path((id, target, environment, run)): Path<(String, String, String, String)>,

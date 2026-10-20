@@ -25,6 +25,7 @@ import { Input } from './ui/input';
 import { Dialog } from './ui/dialog';
 import { Button } from './ui/button';
 import { RunPage } from './run-page';
+import { RunList } from './run-inspector/run-list';
 import { DeploymentCode, DeploymentEmpty, DeploymentField } from './deployment-ui';
 import { DeploymentModels } from './deployment-models';
 
@@ -307,52 +308,11 @@ export function PublicationDetails({
                 <h3 className="text-sm font-medium">{tx('最近运行')}</h3>
                 <span className="text-xs text-muted-foreground">{tx('当前发布目标')}</span>
               </div>
-              {!target.runs.length && (
-                <p className="py-4 text-sm text-muted-foreground">{tx('暂无调用记录')}</p>
-              )}
-              {target.runs.slice(0, 8).map((run) => (
-                <div
-                  key={run.runId}
-                  className="flex items-center gap-3 border-b border-border py-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm">
-                      {run.operation}
-                      <span className="ml-2 text-xs text-muted-foreground">{run.version}</span>
-                    </p>
-                    <p className="mt-1 truncate font-mono text-xs text-muted-foreground">
-                      {run.runId}
-                    </p>
-                    {run.callbackStatus && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {tx('回调')} ·{' '}
-                        {tx(
-                          (
-                            {
-                              delivered: '已送达',
-                              pending: '等待重投',
-                              failed: '投递失败',
-                            } as Record<string, string>
-                          )[run.callbackStatus] || run.callbackStatus
-                        )}{' '}
-                        · {run.callbackAttempts}
-                      </p>
-                    )}
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {t(run.status as 'running')}
-                  </span>
-                  {
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setViewRun({ id: run.runId, root: targetRoot })}
-                    >
-                      {tx('查看运行')}
-                    </Button>
-                  }
-                </div>
-              ))}
+              <div className="flex h-[420px] min-h-64 flex-col overflow-hidden rounded-xl border border-border">
+                <ProjectScope projectId={detail.projectId} requestOverride={runRequest}>
+                  <RunList deployment onOpen={(id) => setViewRun({ id, root: targetRoot })} />
+                </ProjectScope>
+              </div>
             </section>
           )}
         </div>

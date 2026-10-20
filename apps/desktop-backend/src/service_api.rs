@@ -501,6 +501,10 @@ pub fn host_admin_router(store: Store, token: String) -> Router {
         )
         .route("/admin/connections", post(provision_connections))
         .route(
+            "/admin/services/{service}/{environment}/runs",
+            get(host_run_list),
+        )
+        .route(
             "/admin/services/{service}/{environment}/runs/{id}",
             get(host_run_detail),
         )
@@ -629,6 +633,14 @@ async fn host_service_detail(
     ))
 }
 
+async fn host_run_list(
+    State(s): State<Store>,
+    Path((service, environment)): Path<(String, String)>,
+    Query(q): Query<crate::run_list::RunListQuery>,
+) -> Result<Json<Value>> {
+    s.deployment(&service, &environment).await?;
+    Ok(Json(s.list_runs(&q, Some((&service, &environment))).await?))
+}
 async fn host_run_detail(
     State(s): State<Store>,
     Path((service, environment, id)): Path<(String, String, String)>,

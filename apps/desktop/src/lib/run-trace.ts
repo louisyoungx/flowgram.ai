@@ -109,6 +109,7 @@ export const sourceLabel = (source: string) =>
         manual: '手动运行',
         agent: '会话调用',
         published: '发布运行',
+        debug: '调试运行',
       } as Record<string, string>
     )[source] || source
   );

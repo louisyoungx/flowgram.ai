@@ -41,6 +41,7 @@ import { Button } from './components/ui/button';
 import { SettingsPage } from './components/settings-page';
 import { SessionPanel } from './components/session-panel';
 import { RunPage } from './components/run-page';
+import { RunList } from './components/run-inspector/run-list';
 import { ResourcesPage } from './components/resources-page';
 import { ResizablePanel } from './components/resizable-panel';
 import { ProjectTransfer } from './components/project-transfer';
@@ -840,51 +841,11 @@ export function App() {
                 {view.kind === 'runs' && (
                   <div className="flex h-full flex-col">
                     <WorkspaceHeader title={tx('运行记录')} leading={headerLeading()} />
-                    <div className="min-h-0 flex-1 overflow-auto p-7">
-                      <p className="mb-6 text-sm text-muted-foreground">
-                        {tx('当前项目的全部工作流执行')}
-                      </p>
-                      {data.runs.map((run) => (
-                        <button
-                          key={run.id}
-                          className="flex w-full items-center justify-between gap-4 border-b border-border py-4 text-left hover:bg-secondary/40"
-                          onClick={() =>
-                            dispatch({ type: 'view', view: { kind: 'run', id: run.id } })
-                          }
-                        >
-                          <span>
-                            <span className="block text-sm">
-                              {data.workflows.find((item) => item.id === run.workflowId)?.name ||
-                                tx('工作流')}
-                              {run.testNodeId && (
-                                <span className="ml-2 text-xs text-muted-foreground">
-                                  {tx('节点测试')}
-                                </span>
-                              )}
-                            </span>
-                            <span className="mt-1 block text-xs text-muted-foreground">
-                              {run.sessionId
-                                ? data.sessions.find((item) => item.id === run.sessionId)?.title ||
-                                  tx('项目会话')
-                                : tx('手动或外部工具')}{' '}
-                              · {new Date(run.createdAt).toLocaleString()}
-                            </span>
-                          </span>
-                          <span
-                            className={
-                              run.status === 'failed'
-                                ? 'text-xs text-destructive'
-                                : 'text-xs text-muted-foreground'
-                            }
-                          >
-                            {t(run.status as 'running')}
-                          </span>
-                        </button>
-                      ))}
-                      {!data.runs.length && (
-                        <p className="py-10 text-sm text-muted-foreground">{t('noRun')}</p>
-                      )}
-                    </div>
+                    <ProjectScope projectId={projectId}>
+                      <RunList
+                        onOpen={(id) => dispatch({ type: 'view', view: { kind: 'run', id } })}
+                      />
+                    </ProjectScope>
                   </div>
                 )}
                 {view.kind === 'resources' && (
