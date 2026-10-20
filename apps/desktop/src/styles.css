@@ -981,7 +981,7 @@ button:focus-visible,
   border-bottom: 1px solid var(--border);
 }
 .project-menu.fg-entity-select { min-width: 0; flex: 1 1 0%; }
-.project-menu .fg-select-trigger { height: 32px; padding-inline: 8px; font-size: 13px; font-weight: 600; box-shadow: none; border-color: transparent; }
+.project-menu .fg-select-trigger { width: 100%; max-width: 100%; height: 32px; padding-inline: 8px; font-size: 13px; font-weight: 600; box-shadow: none; border-color: transparent; }
 .fg-entity-row { display: flex; align-items: center; gap: 4px; border-radius: 8px; }
 .fg-entity-row:hover, .fg-entity-row:focus-within { background: var(--accent); }
 .fg-entity-choice { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; padding: 9px 8px; text-align: left; border-radius: 8px; }
