@@ -350,3 +350,102 @@ async fn interrupted_project_deletion_recovers_before_any_project_workers_start(
         assert_eq!(std::fs::read_dir(journal).unwrap().count(), 0);
     }
 }
+
+#[tokio::test]
+async fn desktop_project_deletion_passes_preflight_but_still_requires_authorization() {
+    let dir = tempfile::tempdir().unwrap();
+    let registry = Registry::open(dir.path()).await.unwrap();
+    let keep = registry.create("Keep", None).await.unwrap();
+    let app = registry::router(registry.clone(), "test-token".into());
+    for origin in [
+        "tauri://localhost",
+        "http://tauri.localhost",
+        "https://tauri.localhost",
+        "http://127.0.0.1:1420",
+    ] {
+        let project = registry
+            .create("Disposable deletion test", None)
+            .await
+            .unwrap();
+        let path = format!("/api/projects/{}", project.id);
+        let preflight = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("OPTIONS")
+                    .uri(&path)
+                    .header("origin", origin)
+                    .header("access-control-request-method", "DELETE")
+                    .header(
+                        "access-control-request-headers",
+                        "authorization,content-type",
+                    )
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert!(preflight.status().is_success());
+        assert_eq!(preflight.headers()["access-control-allow-origin"], origin);
+        assert!(
+            preflight.headers()["access-control-allow-methods"]
+                .to_str()
+                .unwrap()
+                .split(',')
+                .any(|method| method.trim() == "DELETE"),
+            "Desktop DELETE is blocked by preflight: {:?}",
+            preflight.headers()
+        );
+        let unauthorized = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("DELETE")
+                    .uri(&path)
+                    .header("origin", origin)
+                    .header("content-type", "application/json")
+                    .body(Body::from(
+                        json!({"confirmationName":project.name}).to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(unauthorized.status(), StatusCode::UNAUTHORIZED);
+        assert!(std::path::Path::new(&project.directory).exists());
+        let deleted = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("DELETE")
+                    .uri(&path)
+                    .header("origin", origin)
+                    .header("authorization", "Bearer test-token")
+                    .header("content-type", "application/json")
+                    .body(Body::from(
+                        json!({"confirmationName":project.name}).to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(deleted.status(), StatusCode::OK);
+        assert_eq!(deleted.headers()["access-control-allow-origin"], origin);
+        assert!(!std::path::Path::new(&project.directory).exists());
+    }
+    let denied = app
+        .oneshot(
+            Request::builder()
+                .method("OPTIONS")
+                .uri(format!("/api/projects/{}", keep.id))
+                .header("origin", "https://untrusted.example")
+                .header("access-control-request-method", "DELETE")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert!(!denied.headers().contains_key("access-control-allow-origin"));
+    assert_eq!(registry.projects().await[0].id, keep.id);
+    assert!(std::path::Path::new(&keep.directory).exists());
+}

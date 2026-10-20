@@ -122,10 +122,21 @@ const diagnosticFormats = Object.entries(translations).flatMap(([zh, en]) => {
   const tokens = en.match(placeholders);
   if (!tokens || !zh.match(placeholders)) return [];
   const parts = en.split(placeholders);
-  return [{ pattern: new RegExp(`^${parts.map(escapePattern).join('(.+?)')}$`, 's'), zh, tokens }];
+  const anonymousPositions = [...zh.matchAll(/\{\}/g)].map((match) => match.index);
+  let anonymousIndex = 0;
+  const pattern = parts.map((part, index) => {
+    if (index === tokens.length) return escapePattern(part);
+    // Count labels such as "{0} failed" must never consume arbitrary diagnostic text.
+    const position = tokens[index] === '{}' ? anonymousPositions[anonymousIndex++] : zh.indexOf(tokens[index]);
+    const count = position >= 0 && /^\s*(?:次|个|条|项|秒|毫秒|分钟|小时|天)/.test(zh.slice(position + tokens[index].length));
+    return escapePattern(part) + (count ? '(-?\\d+(?:\\.\\d+)?)' : '(.+?)');
+  }).join('');
+  return [{ pattern: new RegExp(`^${pattern}$`, 's'), zh, tokens }];
 });
 export function errorText(value: string | null | undefined): string {
   if (!value) return '';
+  if (/^(?:Load failed|Failed to fetch|NetworkError when attempting to fetch resource\.?|Network request failed)$/i.test(value))
+    return tx('无法连接本地服务。请检查连接并刷新，以确认操作结果。');
   const direct = tx(value);
   if (direct !== value || getLocale() === 'en') return direct;
   for (const { pattern, zh, tokens } of diagnosticFormats) {

@@ -1881,5 +1881,6 @@
   "没有匹配的工作流": "No matching workflows",
   "当前项目还没有工作流": "No workflows in this project yet",
   "工作流引用或标签位置无效。": "Invalid workflow references or mention ranges",
-  "每条消息最多引用 32 个工作流标签。": "A message may reference at most 32 workflow mentions"
+  "每条消息最多引用 32 个工作流标签。": "A message may reference at most 32 workflow mentions",
+  "无法连接本地服务。请检查连接并刷新，以确认操作结果。": "Cannot reach the local service. Check the connection and refresh to confirm the operation result"
 }

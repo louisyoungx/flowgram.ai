@@ -92,3 +92,20 @@ it('resumes task events from the conversation snapshot watermark', async () => {
   );
   expect(fetcher.mock.calls[0][0]).toContain('after=42&objectId=task');
 });
+
+it('explains transport failures without claiming a mutation did not happen or retrying it', async () => {
+  const cause = new TypeError('Load failed');
+  const fetcher = vi.fn().mockRejectedValue(cause);
+  vi.stubGlobal('fetch', fetcher);
+  await expect(api('/api/projects/example', 'DELETE', { confirmationName: 'Example' })).rejects.toMatchObject({
+    message: 'Cannot reach the local service. Check the connection and refresh to confirm the operation result',
+    cause,
+  });
+  expect(fetcher).toHaveBeenCalledTimes(1);
+});
+
+it('preserves intentional request cancellation', async () => {
+  const cancelled = new DOMException('The operation was aborted', 'AbortError');
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(cancelled));
+  await expect(api('/api/bootstrap')).rejects.toBe(cancelled);
+});

@@ -91,4 +91,14 @@ describe('interface language and agent contract isolation', () => {
     language('en');
     expect(errorText('Node 我的节点: bad input')).toBe('Node 我的节点: bad input');
   });
+  it('explains browser transport failures without treating arbitrary text as a failure count', () => {
+    language('zh-CN');
+    for (const message of ['Load failed', 'Failed to fetch', 'NetworkError when attempting to fetch resource.'])
+      expect(errorText(message)).toBe('无法连接本地服务。请检查连接并刷新，以确认操作结果。');
+    expect(errorText('Custom failed')).toBe('Custom failed');
+    expect(errorText('3 failed')).toBe('3 次失败');
+    language('en');
+    expect(errorText('Load failed')).toBe('Cannot reach the local service. Check the connection and refresh to confirm the operation result');
+  });
+
 });

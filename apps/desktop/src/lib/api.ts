@@ -21,16 +21,27 @@ export async function api<T>(
   signal?: AbortSignal,
   projectId?: string
 ): Promise<T> {
-  const response = await fetch(`${endpoint}${path}`, {
-    method,
-    signal,
-    headers: {
-      ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(projectId ? { 'X-FlowGram-Project': projectId } : {}),
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  const payload = body === undefined ? undefined : JSON.stringify(body);
+  let response: Response;
+  try {
+    response = await fetch(`${endpoint}${path}`, {
+      method,
+      signal,
+      headers: {
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(projectId ? { 'X-FlowGram-Project': projectId } : {}),
+      },
+      body: payload,
+    });
+  } catch (cause) {
+    if (signal?.aborted || (cause instanceof Error && cause.name === 'AbortError')) throw cause;
+    // A lost response does not prove a mutation failed; never retry it automatically.
+    throw new Error(
+      'Cannot reach the local service. Check the connection and refresh to confirm the operation result',
+      { cause }
+    );
+  }
   if (!response.ok) {
     const data = await response.json().catch(() => null);
     throw new Error(data?.error?.message || `HTTP ${response.status}`);
