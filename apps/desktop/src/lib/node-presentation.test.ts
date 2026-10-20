@@ -8,6 +8,7 @@ import {
   presentNode,
   describePredicate,
   safeRequestAddress,
+  previewPredicate,
   type NodeResources,
 } from './node-presentation';
 import { nodeCatalog } from './node-catalog';
@@ -34,7 +35,10 @@ describe('canvas node presentation', () => {
         url: constant('https://alice:password@example.com/orders?apiKey=secret#private'),
       },
     });
-    expect(presentNode(request, resources).lines).toEqual(['POST  example.com/orders']);
+    expect(presentNode(request, resources).lines).toEqual([
+      tx('方法') + ' · POST',
+      tx('地址') + ' · example.com/orders',
+    ]);
     expect(safeRequestAddress(constant('javascript:secret'), resources)).toBe(tx('请求地址无效'));
     expect(
       safeRequestAddress({ type: 'ref', content: ['start', 'endpoint'] }, resources)
@@ -105,6 +109,114 @@ describe('canvas node presentation', () => {
       )
     ).toBe('false = false');
   });
+  it('renders referenced HTTP methods and addresses as distinct tokens', () => {
+    const request = node('http', {
+      inputsValues: {
+        method: { type: 'ref', content: ['start', 'method'] },
+        url: { type: 'ref', content: ['start', 'url'] },
+      },
+    });
+    const view = presentNode(request, resources);
+    expect(view.rows).toEqual([
+      { label: tx('方法'), tokens: [{ kind: 'reference', text: '采购单', detail: 'method' }] },
+      { label: tx('地址'), tokens: [{ kind: 'reference', text: '采购单', detail: 'url' }] },
+    ]);
+    expect(view.lines.join()).not.toContain('start,method');
+  });
+  it('includes units for waits, preserves zero and never treats references as numbers', () => {
+    for (const [amount, display] of [
+      [0, '0 ms'],
+      [40, '40 ms'],
+      [1500, '1.5 s'],
+    ] as const) {
+      const view = presentNode(
+        node('wait', { inputsValues: { durationMs: constant(amount) } }),
+        resources
+      );
+      expect(view.rows[0].tokens).toEqual([{ kind: 'code', text: display }]);
+    }
+    expect(
+      presentNode(
+        node('wait', {
+          inputsValues: {
+            durationMs: { type: 'ref', content: ['start', 'delay'] },
+          },
+        }),
+        resources
+      ).rows[0].tokens
+    ).toEqual([
+      { kind: 'reference', text: '采购单', detail: 'delay' },
+      { kind: 'text', text: 'ms' },
+    ]);
+  });
+  it('summarizes schemas as typed fields with an explicit remainder', () => {
+    const view = presentNode(
+      node('start', {
+        outputs: {
+          type: 'object',
+          properties: {
+            orderId: { type: 'string' },
+            amount: { type: 'number' },
+            currency: { type: 'string' },
+          },
+        },
+      }),
+      resources
+    );
+    expect(view.rows[0].tokens).toEqual([
+      { kind: 'field', text: 'orderId', detail: 'string' },
+      { kind: 'field', text: 'amount', detail: 'number' },
+      { kind: 'count', text: '+1', detail: 'currency: string' },
+    ]);
+  });
+  it('preserves grouping in nested condition previews', () => {
+    const comparison = (left: number) => ({
+      left: constant(left),
+      operator: 'eq',
+      right: constant(1),
+    });
+    const tokens = previewPredicate(
+      {
+        combinator: 'and',
+        rules: [{ combinator: 'or', rules: [comparison(1), comparison(2)] }, comparison(3)],
+      },
+      resources
+    );
+    expect(tokens.map((token) => token.text).join(' ')).toBe(
+      `( 1 = 1 ${tx('或')} 2 = 1 ) ${tx('且')} 3 = 1`
+    );
+  });
+  it('renders record fields through declared columns and bounds multiline previews', () => {
+    const aggregate = presentNode(
+      node('list.aggregate', {
+        keys: [],
+        metrics: [
+          { name: 'total', operation: 'sum', path: 'amountMinor' },
+          { name: 'orders', operation: 'count', path: '' },
+          { name: 'average', operation: 'avg', path: 'amountMinor' },
+        ],
+      }),
+      resources
+    );
+    expect(aggregate.rows[1].tokens[0]).toMatchObject({
+      kind: 'field',
+      text: 'total',
+      detail: 'sum',
+    });
+    expect(aggregate.rows[1].tokens[0].description).toContain('amountMinor');
+    expect(aggregate.rows[1].tokens[2]).toMatchObject({ kind: 'count', text: '+1' });
+    expect(aggregate.lines.join()).not.toContain('operation:');
+    const template = presentNode(
+      node('text.template', {
+        inputsValues: {
+          format: constant('text'),
+          template: constant('Daily report\n{% for row in rows %}secret body{% endfor %}'),
+        },
+      }),
+      resources
+    );
+    expect(template.rows[1].tokens[0].text).toBe('Daily report');
+  });
   it('keeps model snapshots independent of current model defaults', () => {
     const models = {
       models: [{ id: 'current', name: 'Current model', parameters: {} }],
@@ -145,16 +257,26 @@ describe('static canvas geometry', () => {
         .filter((port) => port.type === 'output')
         .map((port) => [port.portID, port.locationConfig.top])
     ).toEqual([
-      ['high', 106],
-      ['low', 150],
-      ['else', 194],
+      ['high', 102],
+      ['low', 146],
+      ['else', 190],
     ]);
-    expect(first.ports.find((port) => port.type === 'input')!.locationConfig.top).toBe(42);
+    expect(first.ports.find((port) => port.type === 'input')!.locationConfig.top).toBe(24);
     expect(
       second.ports.filter((port) => port.type === 'input').map((port) => port.locationConfig.top)
-    ).toEqual([106, 150, 194]);
-    expect(second.ports.find((port) => port.type === 'output')!.locationConfig.top).toBe(42);
+    ).toEqual([102, 146, 190]);
+    expect(second.ports.find((port) => port.type === 'output')!.locationConfig.top).toBe(24);
     expect(first.ports.every((port) => !('targetElement' in port))).toBe(true);
+  });
+  it('uses compact content slots and aligns step ports without measuring content', () => {
+    const graph = { nodes: [], edges: [] };
+    const wait = staticPorts(node('wait'), graph);
+    const http = staticPorts(node('http'), graph);
+    expect(wait.height).toBe(84);
+    expect(http.height).toBe(110);
+    expect(wait.ports.map((port) => port.locationConfig.top)).toEqual([24, 24]);
+    expect(http.ports.map((port) => port.locationConfig.top)).toEqual([24, 24]);
+    expect(staticPorts(node('wait', { title: 'Very long name '.repeat(20) }), graph)).toEqual(wait);
   });
   it('keeps terminal controls compact and never invents a forward output', () => {
     for (const type of ['end', 'block-end', 'control.break', 'control.continue'])
@@ -164,14 +286,14 @@ describe('static canvas geometry', () => {
         )
       ).toEqual([]);
     expect(staticPorts(node('block-start'), { nodes: [], edges: [] })).toMatchObject({
-      width: 208,
-      height: 64,
+      width: 168,
+      height: 36,
     });
     expect(staticPorts(node('http'), { nodes: [], edges: [] })).toMatchObject({
       width: 280,
-      height: 112,
+      height: 110,
     });
     const loop = staticPorts(node('loop'), { nodes: [], edges: [] });
-    expect(loop.ports.every((port) => port.locationConfig.top === 36)).toBe(true);
+    expect(loop.ports.every((port) => port.locationConfig.top === 24)).toBe(true);
   });
 });

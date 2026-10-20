@@ -3,15 +3,16 @@
  * SPDX-License-Identifier: MIT
  */
 import type { WorkflowNode } from './types';
+import { previewRowCount } from './node-preview';
 
 export const NODE_LAYOUT = {
   width: 280,
-  height: 112,
+  height: 110,
   boundaryWidth: 240,
-  boundaryHeight: 80,
-  controlWidth: 208,
-  controlHeight: 64,
-  rowTop: 84,
+  boundaryHeight: 84,
+  controlWidth: 168,
+  controlHeight: 36,
+  rowTop: 80,
   rowHeight: 44,
   rowBottom: 12,
   containerWidth: 720,
@@ -47,9 +48,11 @@ export function nodeLayout(node: Pick<WorkflowNode, 'type'>, inputs: number, out
       ? NODE_LAYOUT.boundaryHeight
       : family === 'container'
       ? NODE_LAYOUT.containerHeight
-      : NODE_LAYOUT.height;
+      : 48 + previewRowCount(node.type) * 26 + 10;
   const width =
-    family === 'control'
+    family === 'route'
+      ? 320
+      : family === 'control'
       ? NODE_LAYOUT.controlWidth
       : family === 'boundary'
       ? NODE_LAYOUT.boundaryWidth

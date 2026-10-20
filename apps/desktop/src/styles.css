@@ -383,22 +383,18 @@ button:focus-visible,
   visibility: hidden;
 }
 .workflow-node-heading {
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:10px 12px 6px;
-  height:56px;
-  min-width:0;
+  display:flex; align-items:center; gap:8px; padding:10px 12px; height:48px; min-width:0;
 }
 .node-heading-text { min-width:0; flex:1; }
-.node-display-title { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:14px; line-height:20px; font-weight:550; }
-.flowgram-node .node-icon { width:28px; height:28px; border-radius:7px; }
+.node-display-title { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; line-height:20px; font-weight:600; }
+.flowgram-node .inline-rename { font-size:13px; line-height:20px; font-weight:600; }
+.flowgram-node .node-icon { width:26px; height:26px; border-radius:7px; }
 .node-config-issue { flex-shrink:0; display:flex; color:var(--destructive); }
-[data-node-family='control'] .workflow-node-heading { height:38px; padding:7px 10px 3px; gap:7px; }
-[data-node-family='control'] .node-icon { width:24px; height:24px; }
-[data-node-family='control'] .node-type-label { display:none; }
-[data-node-family='boundary'] .workflow-node-heading { height:46px; padding-bottom:3px; }
-[data-node-family='route'] .workflow-node-heading { height:56px; }
+[data-node-family='control'] .workflow-node-heading { height:34px; padding:5px 8px; gap:6px; }
+[data-node-family='control'] .node-icon { width:22px; height:22px; background:transparent; color:var(--muted-foreground); }
+[data-node-family='control'] .node-display-title { font-size:11px; font-weight:500; }
+[data-node-family='control'] .node-config-button { width:20px; height:20px; }
+[data-node-family='container'] .workflow-node-heading { border-bottom:1px solid var(--border); }
 
 .node-icon {
   display: inline-flex;
@@ -478,20 +474,34 @@ button:focus-visible,
 .workflow-result-link { text-align:left; text-decoration:underline; text-underline-offset:3px; }
 .nl-port-choice { display:grid; gap:10px; margin-bottom:18px; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:12px; color:var(--muted-foreground); }
 .node-content-summary {
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-  margin:0 12px;
-  height:40px;
-  font-size:11px;
-  line-height:17px;
-  color:var(--muted-foreground);
-  min-width:0;
+  display:flex; flex-direction:column; padding:0 12px 10px; font-size:12px;
+  line-height:18px; color:var(--muted-foreground); min-width:0;
 }
-.node-content-summary > span { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-[data-node-family='boundary'] .node-content-summary { height:20px; }
-[data-node-family='control'] .node-content-summary { height:18px; margin:0 10px; font-size:10px; }
-[data-node-family='route'] .node-content-summary { height:20px; }
+.node-preview-row { display:flex; align-items:center; gap:8px; height:26px; min-width:0; }
+.node-preview-label { flex:0 0 auto; max-width:85px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; color:var(--muted-foreground); }
+.node-preview-values { display:flex; align-items:center; gap:5px; min-width:0; overflow:hidden; flex:1; }
+.node-preview-token { display:inline-flex; align-items:center; gap:4px; max-width:100%; min-width:0; white-space:nowrap; flex-shrink:1; }
+.node-token-text { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+.node-preview-token > svg { flex-shrink:0; opacity:.7; }
+.node-token-detail { min-width:0; overflow:hidden; text-overflow:ellipsis; color:var(--muted-foreground); }
+.node-preview-reference, .node-preview-field, .node-preview-resource {
+  padding:1px 5px; border-radius:4px; line-height:18px;
+  background:color-mix(in srgb, var(--foreground) 4%, var(--surface-node)); color:var(--foreground);
+}
+.node-preview-reference .node-token-text { flex-shrink:2; max-width:78px; }
+.node-preview-reference .node-token-detail { flex-shrink:1; max-width:120px; }
+.node-preview-field { max-width:110px; }
+.node-preview-count { flex-shrink:0; font-size:10px; color:var(--muted-foreground); }
+.node-preview-reference .node-token-detail::before { content:"/"; margin-right:4px; opacity:.55; }
+.node-preview-field .node-token-detail { font-size:10px; }
+.node-preview-code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--foreground); }
+.node-preview-values > .node-preview-text:last-child { flex-shrink:1; }
+.node-preview-values > .node-preview-text:only-child { flex-shrink:1; }
+[data-node-family='container'] > .flowgram-node > .node-content-summary { padding-top:6px; padding-inline:14px; max-width:640px; }
+[data-node-family='container'] > .flowgram-node { background:color-mix(in srgb, var(--surface-node) 68%, var(--surface-canvas)); box-shadow:none; }
+[data-node-family='control'] > .flowgram-node { border-radius:6px; background:var(--surface-canvas); box-shadow:none; }
+[data-node-family='route'] .node-content-summary { padding-bottom:0; }
+
 .node-run-badge {
   position:absolute; top:calc(100% + 6px); right:2px; z-index:2;
   display:flex; align-items:center; gap:5px; max-width:100%;
@@ -510,13 +520,8 @@ button:focus-visible,
 .workflow-canvas-interactions .node-config-button { opacity:0; pointer-events:none; }
 .workflow-canvas-interactions .flowgram-node:hover .node-config-button,
 .workflow-canvas-interactions [data-workflow-node-id]:focus-within .node-config-button { opacity:1; pointer-events:auto; }
-[data-node-density='compact'] .node-type-label,
-[data-node-density='overview'] .node-type-label,
-[data-node-density='overview'] .node-content-summary,
-[data-node-density='overview'] .node-route-condition { visibility:hidden; }
+/* Preserve card information and geometry while zooming; only peripheral controls simplify. */
 [data-node-density='overview'] .node-run-badge:not([data-status='failed']) span { display:none; }
-[data-node-density='overview'] [data-workflow-node-id]:hover .node-content-summary,
-[data-node-density='overview'] [data-workflow-node-id]:focus-within .node-content-summary { visibility:visible; }
 
 .node-palette-item {
   display: flex;
@@ -765,8 +770,11 @@ button:focus-visible,
 .node-port-row { display:flex; flex-direction:column; justify-content:center; gap:2px; min-width:0; border-top:1px solid var(--border); font-size:11px; line-height:16px; }
 .node-route-label, .node-route-condition { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .node-route-label { color:var(--foreground); font-weight:500; }
-.node-route-condition { color:var(--muted-foreground); font-size:10px; }
-.node-port-rows[data-side='output'] .node-port-row { text-align:right; }
+.node-route-condition { display:flex; align-items:center; gap:4px; color:var(--muted-foreground); font-size:10px; }
+.node-route-condition .node-preview-token { font-size:10px; line-height:14px; }
+.node-route-condition .node-preview-reference { padding:0 3px; }
+.node-port-rows[data-side='output'] .node-port-row { text-align:left; padding-right:4px; }
+.node-port-rows[data-side='input'] .node-port-row { padding-left:4px; }
 .node-port-row:has(.node-route-condition:empty) .node-route-condition { display:none; }
 .flowgram-node-control\.repeat { width:100%; height:100%; background:color-mix(in srgb, var(--surface-panel) 50%, transparent); }
 

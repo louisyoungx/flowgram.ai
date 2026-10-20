@@ -154,6 +154,17 @@ function NodeFields({ type }: { type: string }) {
         })}
       <CanvasNodeHeader
         title={title}
+        boundaryLabel={
+          !values.title ||
+          /^(in|out|input|output|entry|exit|start|end)$/i.test(title) ||
+          title === spec.title
+            ? type === 'block-start'
+              ? tx(resources.owners?.[node.id]?.type === 'control.repeat' ? '本轮输入' : '当前项')
+              : type === 'block-end'
+              ? tx('本轮结果')
+              : undefined
+            : undefined
+        }
         spec={spec}
         issue={resources.readOnly ? undefined : presentation.issue}
         readOnly={interaction.readOnly}
@@ -162,7 +173,7 @@ function NodeFields({ type }: { type: string }) {
         onEndRename={interaction.endRename}
         onMenu={(event) => interaction.menu(node.id, event)}
       />
-      <CanvasNodeSummary lines={presentation.lines} />
+      <CanvasNodeSummary rows={presentation.rows} />
       {layout.family === 'route' && (
         <CanvasNodeRoutes node={model} side={routeSide} ports={routePorts} resources={resources} />
       )}
@@ -266,7 +277,7 @@ function NodeCard(props: WorkflowNodeProps) {
               }
             : { width: layout.width, height: layout.height }
         }
-        portPrimaryColor="var(--foreground)"
+        portPrimaryColor="var(--canvas-line)"
         portSecondaryColor="var(--muted-foreground)"
         portBackgroundColor="var(--surface-node)"
         portErrorColor="var(--destructive)"
@@ -555,8 +566,7 @@ export const WorkflowCanvas = memo(
           context.current = ctx;
           const updateDensity = (zoom: number) => {
             if (root.current)
-              root.current.dataset.nodeDensity =
-                zoom < 0.32 ? 'overview' : zoom < 0.55 ? 'compact' : 'detail';
+              root.current.dataset.nodeDensity = zoom < 0.32 ? 'overview' : 'detail';
           };
           updateDensity(ctx.playground.config.zoom);
           disposables.current.push(ctx.playground.onZoom(updateDensity));
@@ -701,7 +711,7 @@ export const WorkflowCanvas = memo(
               size: isLoop(type)
                 ? { width: NODE_LAYOUT.containerWidth, height: NODE_LAYOUT.containerHeight }
                 : { width: NODE_LAYOUT.width, height: NODE_LAYOUT.height },
-              padding: isLoop(type) ? { top: 120, left: 40, right: 40, bottom: 50 } : undefined,
+              padding: isLoop(type) ? { top: 128, left: 28, right: 28, bottom: 36 } : undefined,
               defaultPorts: [],
               useDynamicPort: false,
             },

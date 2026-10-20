@@ -10,12 +10,15 @@ import {
   Clock3,
   Loader2,
   MoreHorizontal,
+  Link2,
+  Box,
 } from 'lucide-react';
 
 import type { WorkflowNode } from '../lib/types';
 import { duration, statusLabel } from '../lib/run-trace';
+import type { NodePreviewRow, NodePreviewToken } from '../lib/node-preview';
 import type { NodeResources } from '../lib/node-presentation';
-import { describePort } from '../lib/node-presentation';
+import { describePort, previewPredicate } from '../lib/node-presentation';
 import { NODE_LAYOUT } from '../lib/node-layout';
 import type { CanvasExecution } from '../lib/node-execution';
 import type { NodeCatalogEntry } from '../lib/node-catalog';
@@ -31,8 +34,10 @@ export function CanvasNodeHeader({
   onRename,
   onEndRename,
   onMenu,
+  boundaryLabel,
 }: {
   title: string;
+  boundaryLabel?: string;
   spec: NodeCatalogEntry;
   issue?: string;
   readOnly: boolean;
@@ -44,11 +49,15 @@ export function CanvasNodeHeader({
   const Icon = spec.icon;
   return (
     <div className="workflow-node-heading">
-      <span className={`node-icon node-tone-${spec.tone}`}>
+      <span className={`node-icon node-tone-${spec.tone}`} title={spec.title}>
         <Icon size={17} strokeWidth={1.7} />
       </span>
       <div className="node-heading-text">
-        {readOnly ? (
+        {boundaryLabel && !renaming ? (
+          <span className="node-display-title" title={`${boundaryLabel} · ${title}`}>
+            {boundaryLabel}
+          </span>
+        ) : readOnly ? (
           <span className="node-display-title" title={title}>
             {title}
           </span>
@@ -61,7 +70,6 @@ export function CanvasNodeHeader({
             onEnd={onEndRename}
           />
         )}
-        {title !== spec.title && <span className="node-type-label">{spec.title}</span>}
       </div>
       {issue && (
         <span
@@ -89,13 +97,51 @@ export function CanvasNodeHeader({
     </div>
   );
 }
-export function CanvasNodeSummary({ lines }: { lines: string[] }) {
+export function CanvasNodeToken({ token }: { token: NodePreviewToken }) {
+  const description =
+    token.description || (token.detail ? `${token.text} · ${token.detail}` : token.text);
+  return (
+    <span className={`node-preview-token node-preview-${token.kind}`} title={description}>
+      {token.kind === 'reference' && <Link2 size={11} aria-hidden="true" />}
+      {token.kind === 'resource' && <Box size={11} aria-hidden="true" />}
+      <span className="node-token-text">{token.text}</span>
+      {token.detail && !['text', 'count'].includes(token.kind) && (
+        <span className="node-token-detail">
+          {token.kind === 'reference' ? token.detail.split('.').at(-1) : token.detail}
+        </span>
+      )}
+    </span>
+  );
+}
+export function CanvasNodeSummary({ rows }: { rows: NodePreviewRow[] }) {
+  if (!rows.length) return null;
   return (
     <div className="node-content-summary">
-      {lines.slice(0, 2).map((line, index) => (
-        <span key={index} title={line}>
-          {line}
-        </span>
+      {rows.slice(0, 2).map((row, index) => (
+        <div
+          className="node-preview-row"
+          key={index}
+          title={[
+            row.label,
+            ...row.tokens.map(
+              (token) =>
+                token.description || token.text + (token.detail ? ` · ${token.detail}` : '')
+            ),
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+        >
+          {row.label && (
+            <span className="node-preview-label" title={row.label}>
+              {row.label}
+            </span>
+          )}
+          <div className="node-preview-values">
+            {row.tokens.map((token, index) => (
+              <CanvasNodeToken key={index} token={token} />
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   );
@@ -113,16 +159,37 @@ export function CanvasNodeRoutes({
 }) {
   return (
     <div className="node-port-rows" data-side={side} style={{ top: NODE_LAYOUT.rowTop }}>
-      {ports.map((port) => (
-        <div className="node-port-row" key={port.id} style={{ height: NODE_LAYOUT.rowHeight }}>
-          <span className="node-route-label" title={port.label}>
-            {port.label}
-          </span>
-          <span className="node-route-condition" title={describePort(node, port.id, resources)}>
-            {describePort(node, port.id, resources)}
-          </span>
-        </div>
-      ))}
+      {ports.map((port) => {
+        const condition =
+          node.type === 'control.switch'
+            ? ((node.data.branches as { id: string; predicate: unknown }[]) || []).find(
+                (branch) => branch.id === port.id
+              )?.predicate
+            : node.type === 'condition'
+            ? {
+                combinator: 'and',
+                rules: ((node.data.conditions as { key?: string; value: unknown }[]) || [])
+                  .filter((condition) => String(condition.key || 'true') === port.id)
+                  .map((condition) => condition.value),
+              }
+            : undefined;
+        return (
+          <div className="node-port-row" key={port.id} style={{ height: NODE_LAYOUT.rowHeight }}>
+            <span className="node-route-label" title={port.label}>
+              {port.label}
+            </span>
+            {condition && port.id !== 'else' ? (
+              <div className="node-route-condition" title={describePort(node, port.id, resources)}>
+                {previewPredicate(condition, resources).map((token, index) => (
+                  <CanvasNodeToken key={index} token={token} />
+                ))}
+              </div>
+            ) : port.id === 'else' && ['condition', 'control.switch'].includes(node.type) ? (
+              <span className="node-route-condition">{tx('未匹配其他条件')}</span>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }

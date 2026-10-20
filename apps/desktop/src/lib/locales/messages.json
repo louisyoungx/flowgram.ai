@@ -2075,5 +2075,11 @@
   "属于": "is in",
   "已设置": "is set",
   "未设置": "is not set",
-  "为空值": "is null"
+  "为空值": "is null",
+  "本轮输入": "Iteration input",
+  "本轮结果": "Iteration result",
+  "方法": "Method",
+  "地址": "URL",
+  "时长": "Duration",
+  "直到": "Until"
 }
