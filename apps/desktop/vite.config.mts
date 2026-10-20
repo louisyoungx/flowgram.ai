@@ -26,5 +26,17 @@ export default defineConfig(({ command, mode }) => ({
     },
   } : undefined,
   resolve: { dedupe: ['react', 'react-dom'] },
-  build: { target: 'es2022', chunkSizeWarningLimit: 800 },
+  build: {
+    target: 'es2022',
+    chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      output: {
+        // Keep shared runtimes out of the workbench entry and lazy canvas chunk.
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime'],
+          'vendor-markdown': ['react-markdown', 'remark-gfm'],
+        },
+      },
+    },
+  },
 }));
