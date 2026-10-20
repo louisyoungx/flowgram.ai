@@ -21,7 +21,9 @@
         "height": 940,
         "minWidth": 900,
         "minHeight": 640,
-        "resizable": true
+        "resizable": true,
+        "titleBarStyle": "Transparent",
+        "backgroundColor": "#fafafa"
       }
     ]
   },
