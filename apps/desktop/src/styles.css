@@ -496,7 +496,7 @@ button:focus-visible,
 .node-preview-code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--foreground); }
 .node-preview-values > .node-preview-text:last-child { flex-shrink:1; }
 .node-preview-values > .node-preview-text:only-child { flex-shrink:1; }
-[data-node-family='container'] > .flowgram-node > .node-content-summary { padding:6px 14px 12px; border-bottom:1px solid var(--border); }
+[data-node-family='container'] > .flowgram-node > .node-content-summary { padding:6px 14px 13px; }
 [data-node-family='container'] > .flowgram-node > .node-content-summary > .node-preview-row { max-width:612px; }
 [data-node-family='container'] > .flowgram-node { background:color-mix(in srgb, var(--surface-node) 68%, var(--surface-canvas)); box-shadow:none; }
 [data-node-family='control'] > .flowgram-node { border-radius:6px; background:var(--surface-canvas); box-shadow:none; }
