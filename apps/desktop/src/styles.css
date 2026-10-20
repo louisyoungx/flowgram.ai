@@ -339,6 +339,7 @@ button:focus-visible,
   --g-workflow-line-color-selected: var(--canvas-selection-stroke);
   --g-workflow-line-color-drawing: var(--canvas-selection-stroke);
   --g-workflow-line-color-flowing: var(--canvas-selection-stroke);
+  --g-workflow-line-color-error: var(--destructive);
 }
 .flowgram-node.selected {
   border-color: var(--canvas-selection-stroke);
@@ -944,9 +945,37 @@ button:focus-visible,
 .workflow-line-add { position:absolute; z-index:30; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:50%; color:var(--foreground); background:var(--surface-panel); box-shadow:0 2px 8px rgb(0 0 0 / 8%); }
 .workflow-line-add:hover { border-color:var(--ring); }
 .workflow-canvas-interactions .workflow-port-render { width:24px; height:24px; margin-left:-12px; margin-top:-12px; }
-.workflow-canvas-interactions .workflow-port-render .bg-circle { width:24px; height:24px; }
-.workflow-canvas-interactions .workflow-port-render .bg, .workflow-canvas-interactions .workflow-port-render .bg-circle { transition:background-color 120ms ease, transform 120ms ease; }
-@media (prefers-reduced-motion:reduce) { .workflow-canvas-interactions .workflow-port-render .bg, .workflow-canvas-interactions .workflow-port-render .bg-circle { transition:none; } }
+.workflow-canvas-interactions .workflow-port-render .bg-circle { width:24px; height:24px; background:var(--canvas-selection-halo); transform:scale(.7); opacity:0; }
+.workflow-canvas-interactions .workflow-port-render .bg { position:absolute; left:8px; top:8px; width:8px; height:8px; border:1.5px solid var(--canvas-line); background:var(--surface-node); transform:none; }
+.workflow-canvas-interactions .workflow-port-render.linked .bg:not(.hasError) { background:var(--surface-node); }
+.workflow-canvas-interactions .workflow-port-render.hovered .bg:not(.hasError) { border:1.5px solid var(--canvas-selection-stroke); background:var(--canvas-selection-stroke); transform:none; }
+.workflow-canvas-interactions .workflow-port-render.hovered .bg-circle { opacity:1; }
+.workflow-canvas-interactions .workflow-port-render .bg.hasError { border-color:var(--destructive); background:var(--destructive); }
+.workflow-canvas-interactions .workflow-port-render .bg > .symbol { display:none; }
+.workflow-canvas-interactions .workflow-port-render .bg, .workflow-canvas-interactions .workflow-port-render .bg-circle { transition:background-color 120ms ease, border-color 120ms ease, opacity 120ms ease; }
+/* Paint remains independent of the engine's curve hit testing and static port coordinates. */
+.workflow-edge { --workflow-edge-color:var(--canvas-line); }
+.workflow-edge-muted { --workflow-edge-color:var(--canvas-line-muted); }
+.workflow-edge-active { --workflow-edge-color:var(--foreground); }
+.workflow-edge-emphasized { --workflow-edge-color:var(--canvas-selection-stroke); }
+.workflow-edge-error { --workflow-edge-color:var(--destructive); }
+.workflow-edge-hidden { visibility:hidden; }
+.workflow-edge > svg > g > path { stroke:var(--workflow-edge-color); stroke-linecap:round; stroke-linejoin:round; }
+.workflow-edge-emphasized > svg > g > path:first-child { stroke-width:2; }
+.workflow-edge > svg > g > .workflow-edge-arrow { stroke:none; fill:var(--workflow-edge-color); opacity:0; transition:opacity 120ms ease; }
+.workflow-edge-return > svg > g > .workflow-edge-arrow { opacity:.65; }
+.workflow-edge-emphasized > svg > g > .workflow-edge-arrow { opacity:1; }
+.workflow-edge .flowing-line { animation-duration:1.2s; }
+:root[data-motion='reduced'] .workflow-edge .flowing-line { animation:none; }
+:root[data-motion='reduced'] .workflow-edge-arrow,
+:root[data-motion='reduced'] .workflow-port-render .bg,
+:root[data-motion='reduced'] .workflow-port-render .bg-circle { transition:none; }
+@media (prefers-reduced-motion:reduce) {
+  :root:not([data-motion='full']) .workflow-edge .flowing-line { animation:none; }
+  :root:not([data-motion='full']) .workflow-edge-arrow,
+  :root:not([data-motion='full']) .workflow-port-render .bg,
+  :root:not([data-motion='full']) .workflow-port-render .bg-circle { transition:none; }
+}
 .node-library.node-library-quick { position:fixed; inset:auto; z-index:80; width:min(440px, calc(100vw - 24px)); height:auto; max-height:calc(100vh - 24px); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 40px rgb(0 0 0 / 16%); overflow:hidden; }
 .node-library-quick .nl-header { padding:10px 12px; min-height:42px; }
 .node-library-quick .nl-header > button:first-child { display:none; }

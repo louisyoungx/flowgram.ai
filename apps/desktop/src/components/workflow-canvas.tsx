@@ -31,6 +31,7 @@ import {
   WorkflowOperationBaseService,
   FreeOperationType,
   FlowNodeTransformData,
+  FlowRendererRegistry,
   Rectangle,
   useListenEvents,
   useNodeRender,
@@ -64,6 +65,7 @@ import {
   CanvasNodeRoutes,
   CanvasNodeRunBadge,
 } from './canvas-node';
+import { CanvasEdgeArrow } from './canvas-edge-arrow';
 import '@flowgram.ai/free-layout-editor/index.css';
 
 function fitCanvas(ctx: FreeLayoutPluginContext | null) {
@@ -539,15 +541,14 @@ export const WorkflowCanvas = memo(
     executionEdges.current = edgeStates;
     function updateExecutionEdges() {
       const ctx = context.current;
-      if (!ctx || !executionEdges.current) return;
+      if (!ctx) return;
       for (const line of ctx.document.linesManager.getAllLines()) {
         const edge = line.toJSON() as Edge;
         const state =
-          executionEdges.current[
+          executionEdges.current?.[
             `${edge.sourceNodeID}:${edge.sourcePortID || ''}:${edge.targetNodeID}`
           ];
-        line.highlightColor =
-          state === 'active' ? 'var(--foreground)' : state === 'muted' ? 'var(--canvas-dot)' : '';
+        line.updateUIState({ className: state ? `workflow-edge-${state}` : '' });
       }
     }
     useEffect(updateExecutionEdges, [edgeStates]);
@@ -559,6 +560,29 @@ export const WorkflowCanvas = memo(
         initialData: initial.current,
         onInit(ctx) {
           ctx.playground.config.updateConfig({ minZoom: 0.1 });
+          ctx.document.linesManager.setDefaultUIState({
+            strokeWidth: 1.5,
+            strokeWidthSelected: 2,
+            shrink: 4,
+            curvature: 0.16,
+          });
+          ctx
+            .get<FlowRendererRegistry>(FlowRendererRegistry)
+            .registerReactComponent('arrow-renderer', CanvasEdgeArrow);
+        },
+        setLineClassName(ctx, line) {
+          return [
+            'workflow-edge',
+            (ctx.selection.selection.includes(line) ||
+              ctx.get<WorkflowHoverService>(WorkflowHoverService).isHovered(line.id) ||
+              line.isDrawing) &&
+              'workflow-edge-emphasized',
+            line.position.to.x < line.position.from.x && 'workflow-edge-return',
+            line.hasError && 'workflow-edge-error',
+            line.isHidden && 'workflow-edge-hidden',
+          ]
+            .filter(Boolean)
+            .join(' ');
         },
         onReady(ctx) {
           context.current = ctx;

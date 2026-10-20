@@ -356,6 +356,7 @@ export function themeVariables(colors: ThemeColors, mode: ColorMode): Record<str
     '--clay-light': mix(colors.background, colors.accent, dark ? 0.16 : 0.08),
     '--canvas-dot': colors.dot,
     '--canvas-line': colors.line,
+    '--canvas-line-muted': mix(colors.canvas, colors.line, 0.45),
     '--canvas-selection-stroke': colors.selection,
     '--canvas-selection-boundary': mix(colors.canvas, colors.selection, 0.72),
     '--canvas-selection-fill': colors.selection + '12',
