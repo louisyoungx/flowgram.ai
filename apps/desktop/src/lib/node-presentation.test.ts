@@ -293,7 +293,12 @@ describe('static canvas geometry', () => {
       width: 280,
       height: 110,
     });
-    const loop = staticPorts(node('loop'), { nodes: [], edges: [] });
-    expect(loop.ports.every((port) => port.locationConfig.top === 24)).toBe(true);
+    for (const type of ['loop', 'control.repeat']) {
+      const loop = staticPorts(node(type), { nodes: [], edges: [] });
+      expect(loop.ports.map((port) => port.locationConfig)).toEqual([
+        { left: 0, top: '50%' }, { right: 0, top: '50%' },
+      ]);
+      expect(loop.ports.every((port) => !('targetElement' in port))).toBe(true);
+    }
   });
 });

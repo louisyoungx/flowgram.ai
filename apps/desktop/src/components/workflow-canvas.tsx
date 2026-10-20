@@ -121,13 +121,13 @@ function NodeFields({ type }: { type: string }) {
       {!interaction.readOnly &&
         layout.output.map((port, index) => {
           const top = layout.ports.filter((port) => port.type === 'output')[index].locationConfig
-            .top as number;
+            .top;
           return (
             <button
               key={port.id}
               type="button"
               className="node-port-add flow-canvas-not-draggable"
-              style={{ top: top - 12 }}
+              style={{ top: typeof top === 'number' ? top - 12 : `calc(${top} - 12px)` }}
               aria-label={tx('在「{0}」后添加节点', [port.label])}
               title={tx('在「{0}」后添加节点', [port.label])}
               onPointerDown={(event) => event.stopPropagation()}
@@ -186,9 +186,7 @@ function NodeFields({ type }: { type: string }) {
               className="node-port-hint"
               data-side={side}
               style={{
-                top:
-                  (layout.ports.find((port) => port.type === side)?.locationConfig.top as number) ||
-                  0,
+                top: layout.ports.find((port) => port.type === side)?.locationConfig.top || 0,
               }}
             >
               {tx(side === 'input' ? '进入此步骤' : '执行后继续')}
