@@ -35,9 +35,9 @@ FlowGram Desktop is a native Agent workspace for macOS and Windows. Build, run, 
 - **Reuse:** publish versioned workflows for HTTP and MCP consumers, or call them from other workflows.
 - **Organize:** manage project-based workflows and chats, import and export projects, and work in English or Simplified Chinese with light and dark themes. Six industry example projects help you get started.
 
-[![Watch the FlowGram Desktop product video](./apps/docs/src/public/desktop/flowgram-desktop-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop.mp4?raw=1)
+[![Watch the FlowGram Desktop product video](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
-[▶ Watch the 45-second product video](./apps/docs/src/public/desktop/flowgram-desktop.mp4?raw=1) · [Desktop setup and development](./apps/desktop/README.md)
+[▶ Watch the 45-second product video (English)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [中文版](./apps/docs/src/public/desktop/flowgram-desktop.mp4?raw=1) · [Desktop setup and development](./apps/desktop/README.md)
 
 ## 🚀 Quick Start
 
