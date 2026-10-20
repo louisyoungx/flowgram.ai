@@ -1874,5 +1874,12 @@
   "模型配置无效。": "Invalid model metadata",
   "连接名称、服务商或超时配置无效。": "Invalid model connection name, provider or timeout",
   "模型服务地址无效。": "Invalid model service URL",
-  "模型服务需使用 HTTP 或 HTTPS 基础地址，不能包含凭证、查询或片段。": "Model service URL must be an HTTP or HTTPS base URL without credentials, query or fragment"
+  "模型服务需使用 HTTP 或 HTTPS 基础地址，不能包含凭证、查询或片段。": "Model service URL must be an HTTP or HTTPS base URL without credentials, query or fragment",
+  "引用工作流": "Mention a workflow",
+  "引用工作流（@）": "Mention a workflow (@)",
+  "搜索工作流": "Search workflows",
+  "没有匹配的工作流": "No matching workflows",
+  "当前项目还没有工作流": "No workflows in this project yet",
+  "工作流引用或标签位置无效。": "Invalid workflow references or mention ranges",
+  "每条消息最多引用 32 个工作流标签。": "A message may reference at most 32 workflow mentions"
 }

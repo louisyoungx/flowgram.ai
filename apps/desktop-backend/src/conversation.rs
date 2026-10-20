@@ -171,7 +171,7 @@ impl ConversationInput {
             self.content.clone()
         } else {
             format!(
-                "{}\n\nUser-referenced context: {}",
+                "{}\n\nUser-referenced context (workflow IDs are authoritative; start/end are UTF-16 offsets of inline @labels in the user message, preserving their order and surrounding instructions): {}",
                 self.content, self.references
             )
         }
@@ -219,23 +219,21 @@ impl Store {
         request: SendInput,
     ) -> Result<ConversationInput> {
         self.session(session).await?;
-        let content = nonempty(&request.content, "Message")?;
+        if request.content.len() > 20000 {
+            return Err(Error::Invalid(
+                "Message must be nonempty and no longer than 20000 characters".into(),
+            ));
+        }
+        nonempty(&request.content, "Message")?;
+        let content = request.content.clone();
         if request.client_input_id.is_empty()
             || request.client_input_id.len() > 128
             || !matches!(request.delivery_mode.as_str(), "queue" | "steer")
         {
             return Err(Error::Invalid("Invalid input ID or delivery mode".into()));
         }
-        if let Some(w) = request.references.get("workflowId").and_then(Value::as_str)
-            && self.workflow(w).await?.project_id != self.session(session).await?.project_id
-        {
-            return Err(Error::Invalid(
-                "The referenced workflow does not belong to the current project".into(),
-            ));
-        }
-        if request.references.to_string().len() > 4096 {
-            return Err(Error::Invalid("Referenced content is too long".into()));
-        }
+        self.validate_input_references(session, &content, &request.references)
+            .await?;
         let guard = self.conversation_lock.lock().await;
         self.require_unarchived("session", session).await?;
         if let Some(row) = sqlx::query(
@@ -387,6 +385,20 @@ impl Store {
         content: Option<&str>,
         steer_to: Option<&str>,
     ) -> Result<ConversationInput> {
+        self.change_queued_input_with_references(
+            session, input_id, revision, content, None, steer_to,
+        )
+        .await
+    }
+    pub async fn change_queued_input_with_references(
+        &self,
+        session: &str,
+        input_id: &str,
+        revision: i64,
+        content: Option<&str>,
+        references: Option<Value>,
+        steer_to: Option<&str>,
+    ) -> Result<ConversationInput> {
         let _guard = self.conversation_lock.lock().await;
         let row = sqlx::query("SELECT data FROM conversation_inputs WHERE id=? AND session_id=?")
             .bind(input_id)
@@ -412,7 +424,23 @@ impl Store {
             input.status = "pending".into();
             input.error = None;
         } else if let Some(content) = content {
-            input.content = nonempty(content, "Message")?;
+            if content.len() > 20000 {
+                return Err(Error::Invalid(
+                    "Message must be nonempty and no longer than 20000 characters".into(),
+                ));
+            }
+            nonempty(content, "Message")?;
+            let refs = references.unwrap_or_else(|| {
+                if input.content == content {
+                    input.references.clone()
+                } else {
+                    Value::Null
+                }
+            });
+            self.validate_input_references(session, content, &refs)
+                .await?;
+            input.content = content.to_owned();
+            input.references = refs;
             input.status = "queued".into();
             input.delivery_mode = "queue".into();
             input.turn_id = None;

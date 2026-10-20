@@ -9,6 +9,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import remarkGfm from 'remark-gfm';
 import {
   Check,
+  AtSign,
   ChevronDown,
   ChevronRight,
   CircleAlert,
@@ -20,7 +21,14 @@ import {
 } from 'lucide-react';
 
 import type { ConversationInput, ConversationItem, Run, Turn, Workflow } from '../lib/types';
+import { MentionInput, type MentionInputHandle } from './ui/mention-input';
 import { useProjectApi } from '../lib/project-context';
+import {
+  mentionParts,
+  mentionsFromReferences,
+  workflowReferences,
+  type MentionValue,
+} from '../lib/mentions';
 import { errorText, tx, localized } from '../lib/i18n';
 import type { ConversationState } from '../lib/conversation-state';
 import {
@@ -30,7 +38,6 @@ import {
   type ProcessChoice,
 } from '../lib/conversation-presentation';
 import { Collapse, usePresence } from './ui/presence';
-import { Input } from './ui/input';
 import { Button } from './ui/button';
 
 const names: Record<string, string> = localized(
@@ -179,6 +186,28 @@ function ToolGroup({ items }: { items: ConversationItem[] }) {
     </div>
   );
 }
+function MentionContent({
+  content,
+  references,
+}: {
+  content: string;
+  references?: ConversationInput['references'];
+}) {
+  return (
+    <>
+      {mentionParts({ content, mentions: mentionsFromReferences(content, references) }).map(
+        (part, index) =>
+          part.mention ? (
+            <span className="inline-mention" key={index} title={part.mention.label}>
+              {part.text}
+            </span>
+          ) : (
+            part.text
+          )
+      )}
+    </>
+  );
+}
 function UserItem({ item, workflows }: { item: ConversationItem; workflows: Workflow[] }) {
   const reference = item.payload.references?.workflowId;
   return (
@@ -193,7 +222,7 @@ function UserItem({ item, workflows }: { item: ConversationItem; workflows: Work
             {workflows.find((flow) => flow.id === reference)?.name || tx('当前工作流引用')}
           </div>
         )}
-        {item.content}
+        <MentionContent content={item.content} references={item.payload.references} />
       </div>
     </div>
   );
@@ -596,7 +625,9 @@ export function ConversationQueue({
   state,
   active,
   reload,
+  workflows,
 }: {
+  workflows: Workflow[];
   state: ConversationState;
   active: Turn | undefined;
   reload: () => Promise<void>;
@@ -605,8 +636,9 @@ export function ConversationQueue({
   const inputs = Object.values(state.inputs)
     .filter((input) => ['queued', 'pending', 'rejected'].includes(input.status))
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const editor = useRef<MentionInputHandle>(null);
   const [editing, setEditing] = useState<string | null>(null);
-  const [text, setText] = useState('');
+  const [text, setText] = useState<MentionValue>({ content: '', mentions: [] });
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState('');
   if (!inputs.length) return null;
@@ -621,7 +653,9 @@ export function ConversationQueue({
         action === 'edit' ? 'PUT' : 'POST',
         {
           revision: input.revision,
-          ...(action === 'edit' ? { content: text } : {}),
+          ...(action === 'edit'
+            ? { content: text.content, references: workflowReferences(text) }
+            : {}),
           ...(action === 'steer' ? { expectedTurnId: active?.id } : {}),
         }
       );
@@ -661,15 +695,38 @@ export function ConversationQueue({
         <div className="conversation-queue-item" key={input.id}>
           {editing === input.id ? (
             <div className="flex gap-2">
-              <Input
-                aria-label={tx('编辑待办内容')}
-                value={text}
-                onChange={(event) => setText(event.target.value)}
-              />
+              <div className="min-w-0 flex-1 rounded-lg border border-border">
+                <MentionInput
+                  ref={editor}
+                  value={text}
+                  onChange={setText}
+                  contextKey={input.id}
+                  label={tx('编辑待办内容')}
+                  placeholder={tx('编辑待办内容')}
+                  pickerLabel={tx('引用工作流')}
+                  searchLabel={tx('搜索工作流')}
+                  emptyLabel={tx('没有匹配的工作流')}
+                  items={workflows.map((w) => ({ id: w.id, label: w.name }))}
+                  onSubmit={() => {
+                    if (text.content.trim() && !busy) void change(input, 'edit');
+                  }}
+                  className="min-h-9 max-h-24"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={tx('引用工作流')}
+                  onPointerDown={(event) => event.preventDefault()}
+                  onClick={(event) => editor.current?.openPicker(event.currentTarget)}
+                >
+                  <AtSign size={14} />
+                </Button>
+              </div>
               <Button
                 size="sm"
                 variant="outline"
-                disabled={!text.trim() || !!busy}
+                disabled={!text.content.trim() || !!busy}
                 onClick={() => void change(input, 'edit')}
               >
                 {tx('保存待办')}
@@ -679,7 +736,9 @@ export function ConversationQueue({
               </Button>
             </div>
           ) : (
-            <p>{input.content}</p>
+            <p>
+              <MentionContent content={input.content} references={input.references} />
+            </p>
           )}
           {input.status === 'pending' ? (
             <p className="text-muted-foreground">{tx('等待当前步骤结束后接收')}</p>
@@ -689,7 +748,10 @@ export function ConversationQueue({
                 disabled={!!busy}
                 onClick={() => {
                   setEditing(input.id);
-                  setText(input.content);
+                  setText({
+                    content: input.content,
+                    mentions: mentionsFromReferences(input.content, input.references),
+                  });
                 }}
               >
                 {tx('编辑')}

@@ -5,6 +5,7 @@ pub mod archive;
 pub mod control;
 mod control_runtime;
 pub mod conversation;
+mod conversation_references;
 pub mod core_nodes;
 pub mod error;
 pub mod initial_projects;

@@ -1053,7 +1053,6 @@ button:focus-visible,
 
 .session-panel { container: conversation / inline-size; }
 .composer-textarea { overflow-x: hidden; overflow-wrap: anywhere; }
-.composer-context.fg-select-trigger { width: auto; min-width: 0; max-width: 140px; flex: 0 1 auto; height: 28px; padding-inline: 6px; font-size: 11px; color: var(--muted-foreground); }
 .composer-delivery.fg-select-trigger { height: 26px; padding-inline: 6px; font-size: 11px; color: var(--muted-foreground); }
 .conversation-tool-summary { display: flex; width: 100%; min-height: 26px; align-items: center; gap: 6px; color: var(--muted-foreground); font-size: 12px; text-align: left; }
 .conversation-tool-summary:hover, .conversation-process-toggle:hover { color: var(--foreground); }
@@ -1065,7 +1064,6 @@ button:focus-visible,
 @container conversation (max-width: 480px) {
   .conversation-content { padding-inline: 16px; }
   .conversation-composer { padding: 8px 12px 12px; }
-  .composer-context.fg-select-trigger { max-width: 112px; }
 }
 
 /* Layout motion is explicit; pointer resizing never interpolates dimensions. */
@@ -1113,3 +1111,14 @@ button:focus-visible,
 .fg-select-content[data-state='closed'] { animation: presence-exit var(--motion-snap) var(--ease-out) both; pointer-events: none; }
 
 @keyframes dialog-exit { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(4px); } }
+
+/* Atomic inline references share theme surfaces in drafts, queues and history. */
+.mention-input { white-space: pre-wrap; overflow-wrap: anywhere; cursor: text; }
+.mention-input[data-empty='true']::before { content: attr(data-placeholder); color: var(--muted-foreground); pointer-events: none; position: absolute; }
+.inline-mention { display: inline; padding: 1px 5px; margin: 0 1px; border-radius: 5px; background: color-mix(in srgb, var(--foreground) 9%, var(--surface-panel)); color: var(--foreground); box-shadow: inset 0 0 0 1px var(--border); box-decoration-break: clone; -webkit-box-decoration-break: clone; font-weight: 500; overflow-wrap: anywhere; }
+.mention-input .inline-mention { cursor: default; user-select: all; -webkit-user-select: all; }
+.composer-mention-button { width: 28px; height: 28px; color: var(--muted-foreground); }
+.mention-picker { display: flex; flex-direction: column; }
+.mention-option { display: block; width: 100%; flex-shrink: 0; border: 0; border-radius: 6px; padding: 8px 9px; text-align: left; white-space: normal; overflow-wrap: anywhere; color: var(--foreground); background: transparent; font-size: 13px; line-height: 20px; cursor: pointer; }
+.mention-option[aria-selected='true'], .mention-option:hover { background: var(--secondary); color: var(--foreground); }
+.mention-option:disabled { opacity: .45; cursor: default; }

@@ -3,7 +3,16 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { Fragment, useContext, useState, type ReactNode, type ButtonHTMLAttributes } from 'react';
+import { createPortal } from 'react-dom';
+import {
+  useLayoutEffect,
+  useRef,
+  Fragment,
+  useContext,
+  useState,
+  type ReactNode,
+  type ButtonHTMLAttributes,
+} from 'react';
 
 import { Check, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
 import * as SelectPrimitive from '@radix-ui/react-select';
@@ -338,5 +347,148 @@ export function GroupedSelect({
         </div>
       )}
     </Popover>
+  );
+}
+
+/** A controlled, upward anchored picker that can leave focus in a mention editor. */
+export function AnchoredSelect({
+  id,
+  anchor,
+  options,
+  label,
+  empty,
+  search,
+  owner,
+  onValueChange,
+  onClose,
+  onActiveChange,
+  keyboardReady,
+}: {
+  id: string;
+  anchor: { left: number; top: number; bottom: number };
+  options: SelectOption[];
+  label: string;
+  empty: string;
+  search?: { value: string; onChange: (value: string) => void; label: string };
+  owner: HTMLElement | null;
+  onValueChange: (value: string) => void;
+  onClose: (restoreFocus?: boolean) => void;
+  onActiveChange: (id: string | undefined) => void;
+  keyboardReady?: () => boolean;
+}) {
+  const owners = useContext(FloatingLayerOwners);
+  const panel = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState('');
+  const enabled = options.filter((option) => !option.disabled);
+  const current = enabled.find((option) => option.value === active) || enabled[0];
+  const currentId = current ? `${id}-${options.indexOf(current)}` : undefined;
+  const callbacks = useRef({ onClose, onValueChange, onActiveChange, keyboardReady });
+  callbacks.current = { onClose, onValueChange, onActiveChange, keyboardReady };
+  const state = useRef({ enabled, current });
+  state.current = { enabled, current };
+  useLayoutEffect(() => {
+    callbacks.current.onActiveChange(currentId);
+  }, [currentId]);
+  useLayoutEffect(() => {
+    panel.current?.querySelector('input')?.focus({ preventScroll: true });
+    const outside = (event: PointerEvent) => {
+      if (!panel.current?.contains(event.target as Node) && !owner?.contains(event.target as Node))
+        callbacks.current.onClose();
+    };
+    const keyboard = (event: KeyboardEvent) => {
+      if (
+        event.isComposing ||
+        callbacks.current.keyboardReady?.() === false ||
+        (!panel.current?.contains(event.target as Node) && !owner?.contains(event.target as Node))
+      )
+        return;
+      const { enabled, current } = state.current;
+      if (['ArrowUp', 'ArrowDown'].includes(event.key)) {
+        event.preventDefault();
+        event.stopPropagation();
+        const index = enabled.indexOf(current!);
+        setActive(
+          enabled[(index + (event.key === 'ArrowDown' ? 1 : enabled.length - 1)) % enabled.length]
+            ?.value || ''
+        );
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+        if (current) callbacks.current.onValueChange(current.value);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        callbacks.current.onClose(true);
+      } else if (event.key === 'Tab') callbacks.current.onClose();
+    };
+    const resize = () => callbacks.current.onClose();
+    document.addEventListener('pointerdown', outside, true);
+    document.addEventListener('keydown', keyboard, true);
+    window.addEventListener('resize', resize);
+    return () => {
+      document.removeEventListener('pointerdown', outside, true);
+      document.removeEventListener('keydown', keyboard, true);
+      window.removeEventListener('resize', resize);
+    };
+  }, [owner]);
+  useLayoutEffect(() => {
+    if (currentId) document.getElementById(currentId)?.scrollIntoView({ block: 'nearest' });
+  }, [currentId]);
+  const above = Math.max(0, anchor.top - 12);
+  const up = above >= 120 || above >= window.innerHeight - anchor.bottom - 12;
+  const available = up ? above : window.innerHeight - anchor.bottom - 12;
+  return createPortal(
+    <div
+      ref={panel}
+      className="nf-popover mention-picker"
+      data-state="open"
+      data-floating-layer-owners={owners.join(' ')}
+      style={{
+        left: Math.max(12, Math.min(anchor.left, window.innerWidth - 332)),
+        width: Math.min(320, window.innerWidth - 24),
+        maxHeight: Math.min(320, Math.max(72, available)),
+        ...(up ? { bottom: window.innerHeight - anchor.top + 6 } : { top: anchor.bottom + 6 }),
+      }}
+    >
+      {search ? (
+        <Input
+          aria-label={search.label}
+          placeholder={search.label}
+          value={search.value}
+          onChange={(event) => {
+            setActive('');
+            search.onChange(event.target.value);
+          }}
+          aria-controls={id}
+          aria-activedescendant={currentId}
+          role="combobox"
+          aria-expanded
+          aria-autocomplete="list"
+        />
+      ) : (
+        <p className="px-2 pb-2 pt-1 text-xs text-muted-foreground">{label}</p>
+      )}
+      <div id={id} role="listbox" aria-label={label} className="mt-1 min-h-0 overflow-auto">
+        {options.map((option, index) => (
+          <button
+            id={`${id}-${index}`}
+            type="button"
+            role="option"
+            aria-selected={option.value === current?.value}
+            disabled={option.disabled}
+            tabIndex={-1}
+            key={option.value}
+            className="mention-option"
+            onPointerDown={(event) => event.preventDefault()}
+            onMouseMove={() => setActive(option.value)}
+            onClick={() => onValueChange(option.value)}
+          >
+            {option.label}
+          </button>
+        ))}
+        {!options.length && <p className="px-2 py-4 text-xs text-muted-foreground">{empty}</p>}
+      </div>
+    </div>,
+    document.body
   );
 }

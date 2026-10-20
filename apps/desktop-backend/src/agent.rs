@@ -194,7 +194,7 @@ impl Store {
                 };
                 let content = if item.kind == "user" && !item.payload["references"].is_null() {
                     format!(
-                        "{}\n\nUser-referenced context: {}",
+                        "{}\n\nUser-referenced context (workflow IDs are authoritative; start/end are UTF-16 offsets of inline @labels in the user message, preserving their order and surrounding instructions): {}",
                         item.content, item.payload["references"]
                     )
                 } else {

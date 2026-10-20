@@ -80,7 +80,7 @@ export interface ConversationInput {
   clientInputId: string;
   sessionId: string;
   content: string;
-  references: { workflowId?: string } | null;
+  references: import('./mentions').WorkflowReferences | null;
   deliveryMode: DeliveryMode;
   turnId: string | null;
   status: 'queued' | 'pending' | 'accepted' | 'cancelled' | 'rejected';
@@ -120,7 +120,7 @@ export interface ConversationItem {
     startedAt?: string;
     endedAt?: string;
     isError?: boolean;
-    references?: { workflowId?: string } | null;
+    references?: import('./mentions').WorkflowReferences | null;
     attempt?: number;
   };
   createdAt: string;

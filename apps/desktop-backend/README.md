@@ -119,3 +119,7 @@ Loop 子图使用 `blocks`、`edges` 和一组 `block-start` / `block-end`。`da
 The authoring API now publishes immutable service releases, pins transitive workflow dependencies, and manages local deployments and scoped consumer credentials. Business HTTP and MCP endpoints share invocation, idempotency, validation, cancellation and result semantics. The existing development MCP remains separate from the published business tools.
 
 `flowgram-service` is a second, standalone Rust binary for importing and serving bundles without the desktop app or source project. It also provides a stdio MCP bridge. See [service publishing and consumption](../../design/workflow-service-delivery.md) for routes, contracts, host configuration, live upgrades, callback signatures, Docker configuration and verified limitations.
+
+### Inline workflow references
+
+Conversation input `references.workflows` is an ordered array of `{workflowId, name, start, end}`. Offsets use UTF-16 code units into the exact, untrimmed `content`; each range must equal `@${name}`. Multiple and repeated references are supported, with at most 32 labels per message. IDs must resolve inside the conversation project. Submit and queued-input edit use the same validation; edits send `references: null` to remove all labels. The Agent receives the ordered IDs and offsets alongside the original message. Plain `@text` is not automatically a workflow reference.

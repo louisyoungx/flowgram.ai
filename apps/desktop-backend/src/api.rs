@@ -137,6 +137,8 @@ async fn send_input(
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct InputChange {
+    #[serde(default)]
+    references: Value,
     revision: i64,
     content: Option<String>,
     expected_turn_id: Option<String>,
@@ -152,7 +154,14 @@ async fn edit_input(
         .ok_or_else(|| Error::Invalid("Enter the revised content".into()))?;
     Ok(Json(serde_json::to_value(
         s.store
-            .change_queued_input(&session, &input, change.revision, Some(content), None)
+            .change_queued_input_with_references(
+                &session,
+                &input,
+                change.revision,
+                Some(content),
+                Some(change.references),
+                None,
+            )
             .await?,
     )?))
 }

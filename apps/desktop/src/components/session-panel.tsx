@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import {
   ArrowUp,
+  AtSign,
   Loader2,
   MoreHorizontal,
   PanelRight,
@@ -14,6 +15,7 @@ import {
   Square,
 } from 'lucide-react';
 
+import { MentionInput, type MentionInputHandle } from './ui/mention-input';
 import { workflowActivity } from '../lib/workbench';
 import { useConversation } from '../lib/use-conversation';
 import type {
@@ -27,6 +29,7 @@ import type {
 } from '../lib/types';
 import { useProjectApi } from '../lib/project-context';
 import { modelUnavailable, openModelSettings, useModels, type ModelSelection } from '../lib/models';
+import { workflowReferences, type Mention } from '../lib/mentions';
 import { errorText, t, tx } from '../lib/i18n';
 import { WorkspaceHeader } from './workspace-header';
 import { Select } from './ui/select';
@@ -37,7 +40,7 @@ import { ConversationQueue, ConversationTimeline } from './conversation-timeline
 
 interface Draft {
   content: string;
-  workflowId: string;
+  mentions?: Mention[];
   model?: ModelSelection;
 }
 export function SessionPanel({
@@ -101,7 +104,7 @@ export function SessionPanel({
       return {};
     }
   });
-  const draft = drafts[key] || { content: '', workflowId: '' };
+  const draft = drafts[key] || { content: '', mentions: [] };
   const selectedModel = draft.model || conversation.state.modelSelection || {};
   const chosenModel = catalog.models.find(
     (m) => m.id === (selectedModel.modelId || catalog.defaults.chat)
@@ -128,26 +131,7 @@ export function SessionPanel({
   const [delivery, setDelivery] = useState<DeliveryMode>('queue');
   const [steerTarget, setSteerTarget] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const textarea = useRef<HTMLTextAreaElement>(null);
-  useLayoutEffect(() => {
-    const element = textarea.current;
-    if (!element) return;
-    const resize = () => {
-      if (!element.clientWidth) return;
-      element.style.height = '0px';
-      element.style.height = `${Math.max(48, Math.min(element.scrollHeight, 160))}px`;
-      element.style.overflowY = element.scrollHeight > 160 ? 'auto' : 'hidden';
-    };
-    resize();
-    let width = element.clientWidth;
-    const observer = new ResizeObserver(() => {
-      if (element.clientWidth === width) return;
-      width = element.clientWidth;
-      resize();
-    });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [draft.content, key]);
+  const composer = useRef<MentionInputHandle>(null);
   const active = Object.values(conversation.state.turns).find((turn) =>
     ['running', 'stopping'].includes(turn.status)
   );
@@ -159,14 +143,15 @@ export function SessionPanel({
   function updateDraft(patch: Partial<Draft>, target = key) {
     setDrafts((current) => ({
       ...current,
-      [target]: { ...(current[target] || { content: '', workflowId: '' }), ...patch },
+      [target]: { ...(current[target] || { content: '', mentions: [] }), ...patch },
     }));
   }
   useEffect(() => {
     sessionStorage.setItem(storageKey, JSON.stringify(drafts));
   }, [drafts, storageKey]);
   useEffect(() => {
-    if (referenceIntent) updateDraft({ workflowId: referenceIntent.workflowId || '' });
+    const workflow = workflows.find((w) => w.id === referenceIntent?.workflowId);
+    if (workflow) composer.current?.insertMention({ id: workflow.id, label: workflow.name });
   }, [referenceIntent?.sequence]);
   useEffect(() => {
     setDelivery('queue');
@@ -206,7 +191,10 @@ export function SessionPanel({
         model: submitted.model,
         deliveryMode: delivery,
         expectedTurnId: delivery === 'steer' ? steerTarget : undefined,
-        references: submitted.workflowId ? { workflowId: submitted.workflowId } : null,
+        references: workflowReferences({
+          content: submitted.content,
+          mentions: submitted.mentions || [],
+        }),
       };
       const pendingKey = `flowgram.pending.v2.${project.id}.${current}`;
       let pending: { request: typeof request; clientInputId: string } | null = null;
@@ -228,6 +216,7 @@ export function SessionPanel({
           updateDraft(
             {
               content: '',
+              mentions: [],
               model:
                 JSON.stringify(draftsRef.current[target]?.model) === JSON.stringify(draft.model)
                   ? submitted.model
@@ -317,7 +306,7 @@ export function SessionPanel({
           workflows={workflows}
           openWorkflow={onOpenWorkflow}
           openRun={onOpenRun}
-          followUp={(content) => updateDraft({ content })}
+          followUp={(content) => updateDraft({ content, mentions: [] })}
           loadOlder={conversation.loadOlder}
           loadingOlder={conversation.loadingOlder}
           error={conversation.error}
@@ -330,6 +319,7 @@ export function SessionPanel({
       )}
       <div className="conversation-composer mx-auto w-full max-w-[800px] shrink-0 px-6 pb-5 pt-3">
         <ConversationQueue
+          workflows={workflows}
           state={conversation.state}
           active={active}
           reload={conversation.reload}
@@ -357,20 +347,18 @@ export function SessionPanel({
               />
             </div>
           )}
-          <textarea
-            ref={textarea}
-            rows={2}
-            aria-label={tx('消息输入')}
-            className="composer-textarea block max-h-40 min-h-12 w-full resize-none bg-transparent px-1.5 py-1.5 text-sm leading-6 outline-none"
-            value={draft.content}
+          <MentionInput
+            ref={composer}
+            value={{ content: draft.content, mentions: draft.mentions || [] }}
+            contextKey={key}
+            label={tx('消息输入')}
             placeholder={t('placeholder')}
-            onChange={(event) => updateDraft({ content: event.target.value })}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-                event.preventDefault();
-                void send();
-              }
-            }}
+            pickerLabel={tx('引用工作流')}
+            searchLabel={tx('搜索工作流')}
+            emptyLabel={workflows.length ? tx('没有匹配的工作流') : tx('当前项目还没有工作流')}
+            items={workflows.map((workflow) => ({ id: workflow.id, label: workflow.name }))}
+            onChange={(value) => updateDraft(value)}
+            onSubmit={() => void send()}
           />
           <div className="mt-1 flex min-w-0 items-center justify-between gap-1">
             <div className="flex min-w-0 flex-1 items-center gap-1">
@@ -387,20 +375,17 @@ export function SessionPanel({
                 disabled={delivery === 'steer'}
                 parameterPlacement="popover"
               />
-              <Select
+              <Button
                 variant="ghost"
-                className="composer-context"
-                title={
-                  workflows.find((flow) => flow.id === draft.workflowId)?.name || tx('项目上下文')
-                }
-                aria-label={tx('本次引用')}
-                value={draft.workflowId}
-                onValueChange={(workflowId) => updateDraft({ workflowId })}
-                options={[
-                  { value: '', label: tx('项目上下文') },
-                  ...workflows.map((item) => ({ value: item.id, label: item.name })),
-                ]}
-              />
+                size="icon"
+                className="composer-mention-button"
+                aria-label={tx('引用工作流')}
+                title={tx('引用工作流（@）')}
+                onPointerDown={(event) => event.preventDefault()}
+                onClick={(event) => composer.current?.openPicker(event.currentTarget)}
+              >
+                <AtSign size={16} />
+              </Button>
             </div>
             <div className="flex shrink-0 items-center gap-1">
               {active && (
