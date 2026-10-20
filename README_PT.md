@@ -14,7 +14,7 @@
 
 FlowGram é uma estrutura e kit de ferramentas de desenvolvimento de fluxo de trabalho componível, visual, fácil de integrar e extensível.
 Nosso objetivo é ajudar os desenvolvedores a criar plataformas de fluxo de trabalho de IA de forma **mais rápida** e **simples**.
-O FlowGram vem com um conjunto de ferramentas integradas para o desenvolvimento de fluxo de trabalho: uma tela de fluxo visual, formulários de configuração de nós, uma cadeia de escopo de variáveis e materiais prontos para uso (LLM, Condição, Editor de Código, etc.). Não é uma plataforma de fluxo de trabalho pronta; é a estrutura e o kit de ferramentas para construir a sua.
+O FlowGram vem com um conjunto de ferramentas integradas para o desenvolvimento de fluxo de trabalho: uma tela de fluxo visual, formulários de configuração de nós, uma cadeia de escopo de variáveis e materiais prontos para uso (LLM, Condição, Editor de Código, etc.). Os pacotes da estrutura fornecem os componentes para criar sua própria plataforma de fluxos de trabalho; o FlowGram Desktop os reúne em um espaço de trabalho nativo para agentes de IA.
 
 Saiba mais em [FlowGram.AI 🌐](https://flowgram.ai)
 
@@ -25,6 +25,19 @@ Saiba mais em [FlowGram.AI 🌐](https://flowgram.ai)
 Abra no [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) ou [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
 
 Nesta demonstração, iteramos por uma lista de cidades, buscamos o clima em tempo real via HTTP, analisamos as temperaturas com um nó de Código, geramos sugestões de roupas com um LLM, controlamos por uma Condição, agregamos os resultados ao longo do loop e, finalmente, usamos um LLM Conselheiro para escolher a cidade mais confortável antes de enviar o resultado para o nó Final.
+
+## 🖥️ FlowGram Desktop
+
+O FlowGram Desktop é um espaço de trabalho nativo para agentes de IA no macOS e no Windows. Crie, execute, depure e reutilize fluxos de trabalho por meio de conversas e uma tela visual.
+
+- **Criar:** descreva uma tarefa no chat e ajuste nós, condições, ramificações paralelas, junções e loops na tela.
+- **Depurar:** teste nós individuais, inspecione entradas e saídas e consulte os caminhos de execução e os snapshots históricos dos fluxos de trabalho.
+- **Reutilizar:** publique fluxos de trabalho com versões para clientes HTTP e MCP ou invoque-os a partir de outros fluxos de trabalho.
+- **Organizar:** gerencie fluxos de trabalho e conversas por projeto, importe e exporte projetos e use a interface em inglês ou chinês simplificado com temas claro e escuro. Seis projetos de exemplo de diferentes setores ajudam você a começar.
+
+[![Assista ao vídeo de apresentação do FlowGram Desktop](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
+
+[▶ Assista ao vídeo de apresentação de 45 segundos (em inglês)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Configuração e desenvolvimento do Desktop](./apps/desktop/README.md)
 
 ## 🚀 Início rápido
 

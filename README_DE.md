@@ -14,7 +14,7 @@
 
 FlowGram ist ein zusammensetzbares, visuelles, einfach zu integrierendes und erweiterbares Workflow-Entwicklungs-Framework & Toolkit.
 Unser Ziel ist es, Entwicklern zu helfen, KI-Workflow-Plattformen **schneller** und **einfacher** zu erstellen.
-FlowGram wird mit einer Reihe von integrierten Werkzeugen für die Workflow-Entwicklung geliefert: eine visuelle Flow-Canvas, Node-Konfigurationsformulare, eine Variablen-Scope-Chain und sofort einsatzbereite Materialien (LLM, Bedingung, Code-Editor usw.). Es ist keine fertige Workflow-Plattform; es ist das Framework und Toolkit, um Ihre zu erstellen.
+FlowGram wird mit einer Reihe von integrierten Werkzeugen für die Workflow-Entwicklung geliefert: eine visuelle Flow-Canvas, Node-Konfigurationsformulare, eine Variablen-Scope-Chain und sofort einsatzbereite Materialien (LLM, Bedingung, Code-Editor usw.). Die Framework-Pakete bilden die Grundlage für Ihre eigene Workflow-Plattform; FlowGram Desktop vereint diese Bausteine in einer nativen Arbeitsumgebung für KI-Agenten.
 
 Erfahren Sie mehr unter [FlowGram.AI 🌐](https://flowgram.ai)
 
@@ -25,6 +25,19 @@ Erfahren Sie mehr unter [FlowGram.AI 🌐](https://flowgram.ai)
 Öffnen Sie in [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) oder [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
 
 In dieser Demo durchlaufen wir eine Liste von Städten, rufen das Echtzeit-Wetter über HTTP ab, parsen die Temperaturen mit einem Code-Knoten, generieren Outfit-Vorschläge mit einem LLM, steuern durch eine Bedingung, aggregieren die Ergebnisse über die Schleife und verwenden schließlich einen Berater-LLM, um die komfortabelste Stadt auszuwählen, bevor das Ergebnis an den Endknoten gesendet wird.
+
+## 🖥️ FlowGram Desktop
+
+FlowGram Desktop ist eine native Arbeitsumgebung für KI-Agenten unter macOS und Windows. Hier können Sie Workflows im Dialog und auf einer visuellen Arbeitsfläche erstellen, ausführen, debuggen und wiederverwenden.
+
+- **Erstellen:** Beschreiben Sie eine Aufgabe im Chat und passen Sie anschließend Knoten, Bedingungen, parallele Zweige, Zusammenführungen und Schleifen auf der Arbeitsfläche an.
+- **Debuggen:** Testen Sie einzelne Knoten, prüfen Sie Ein- und Ausgaben und sehen Sie sich Ausführungspfade sowie historische Workflow-Snapshots an.
+- **Wiederverwenden:** Veröffentlichen Sie versionierte Workflows für HTTP- und MCP-Clients oder rufen Sie sie aus anderen Workflows auf.
+- **Organisieren:** Verwalten Sie Workflows und Chats nach Projekten, importieren und exportieren Sie Projekte und nutzen Sie die Oberfläche auf Englisch oder vereinfachtem Chinesisch mit hellem oder dunklem Design. Sechs branchenspezifische Beispielprojekte erleichtern den Einstieg.
+
+[![FlowGram Desktop im Produktvideo ansehen](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
+
+[▶ 45-sekündiges Produktvideo ansehen (Englisch)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Desktop-Einrichtung und Entwicklung](./apps/desktop/README.md)
 
 ## 🚀 Schnellstart
 
