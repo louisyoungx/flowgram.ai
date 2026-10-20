@@ -52,6 +52,7 @@ export interface TraceDetail {
     at: number | null;
     observedAt: string | null;
     outputsAvailable: boolean;
+    origin:import('./debug-intent').DebugOrigin|null;
     format: string;
     runtime: string;
     source: string;

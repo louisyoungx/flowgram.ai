@@ -136,8 +136,7 @@ impl Store {
                 .lock()
                 .await
                 .insert(run.id.clone(), token.clone());
-            self.emit("run_started", &run.id, serde_json::to_value(&run)?)
-                .await?;
+            self.record_run_start(&run, &workflow.schema).await?;
             let store = self.clone();
             let run_id = run.id.clone();
             let workflow_id = run.workflow_id.clone();

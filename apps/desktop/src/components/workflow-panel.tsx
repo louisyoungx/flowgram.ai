@@ -53,6 +53,7 @@ import { useProjectApi } from '../lib/project-context';
 import { tx, errorText } from '../lib/i18n';
 import { t } from '../lib/i18n';
 import { eventData, executionLabel, sampleBindings } from '../lib/execution-samples';
+import { takeDebugIntent, type DebugOrigin } from '../lib/debug-intent';
 import { isLoop, mapScope, editControlConfiguration, scopeFor } from '../lib/control-nodes';
 const WorkflowCanvas = lazy(() =>
   import('./workflow-canvas').then((module) => ({
@@ -190,6 +191,7 @@ export function WorkflowPanel({
   const [jsonText, setJsonText] = useState('');
   const [jsonOpen, setJsonOpen] = useState(false);
   const [runOpen, setRunOpen] = useState(false);
+  const [debugOrigin, setDebugOrigin] = useState<DebugOrigin | null>(null);
   const [resultsVisible, setResultsVisible] = useState(
     () => localStorage.getItem('flowgram.layout.results.visible') !== 'false'
   );
@@ -215,6 +217,36 @@ export function WorkflowPanel({
     JSON.stringify(defaultRunInputs(workflow.schema), null, 2)
   );
   const [run, setRun] = useState<Run | null>(null);
+  useEffect(() => {
+    const receive = () => {
+      const intent = takeDebugIntent(workflow.projectId, workflow.id);
+      if (!intent) return;
+      setDebugOrigin(intent.origin);
+      if (intent.nodeId) {
+        const nodeId = intent.nodeId;
+        setInspector(nodeId);
+        setSelectedIds([nodeId]);
+        setBuffers((previous) => ({
+          ...previous,
+          [`${nodeId}:__test.inputs`]: {
+            text: JSON.stringify(intent.inputs, null, 2),
+            signature: '',
+          },
+          [`${nodeId}:__test.bindings`]: {
+            text: JSON.stringify(intent.bindings || {}, null, 2),
+            signature: '',
+          },
+        }));
+        setTabRequest({ nodeId, tab: 'test', sequence: Date.now() });
+      } else {
+        setInput(JSON.stringify(intent.inputs, null, 2));
+        setRunOpen(true);
+      }
+    };
+    receive();
+    window.addEventListener('flowgram:debug-inputs', receive);
+    return () => window.removeEventListener('flowgram:debug-inputs', receive);
+  }, [workflow.projectId, workflow.id]);
   const [events, setEvents] = useState<RuntimeEvent[]>([]);
   const [nodeStates, setNodeStates] = useState<Record<string, string>>({});
   const [validation, setValidation] = useState<string | null>(null);
@@ -363,7 +395,12 @@ export function WorkflowPanel({
     const result = await api<Run>(
       `/api/workflows/${workflow.id}/nodes/${encodeURIComponent(nodeId)}/test`,
       'POST',
-      { revision: saved.revision, inputs, bindings }
+      {
+        revision: saved.revision,
+        inputs,
+        bindings,
+        ...(debugOrigin ? { origin: debugOrigin } : {}),
+      }
     );
     onRun(result);
     return result;
@@ -564,6 +601,7 @@ export function WorkflowPanel({
       await flush();
       const result = await api<Run>(`/api/workflows/${workflow.id}/run`, 'POST', {
         inputs,
+        ...(debugOrigin ? { origin: debugOrigin } : {}),
       });
       setRun(result);
       setResultsVisible(true);
@@ -1152,7 +1190,7 @@ export function WorkflowPanel({
             </div>
           </div>
           {run ? (
-            <div className="h-[calc(100%-52px)] min-h-40">
+            <div className="h-[calc(100%-52px)] min-h-0">
               <RunInspector id={run.id} compact onExpand={() => onInspectRun(run.id)} />
             </div>
           ) : (
@@ -1187,6 +1225,11 @@ export function WorkflowPanel({
         </div>
       </Dialog>
       <Dialog open={runOpen} onOpenChange={setRunOpen} title={t('run')}>
+        {debugOrigin && (
+          <p className="mb-4 text-xs text-muted-foreground">
+            {tx('输入来自历史运行 {0}，请确认配置与输入后运行。', [debugOrigin.runId.slice(0, 8)])}
+          </p>
+        )}
         <RunInputForm schema={schema} value={input} onChange={setInput} />
         <details className="mt-5 text-xs text-muted-foreground">
           <summary>{tx('高级输入 JSON')}</summary>

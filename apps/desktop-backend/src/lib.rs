@@ -17,6 +17,7 @@ pub mod project;
 pub mod project_management;
 pub mod project_transfer;
 pub mod registry;
+pub mod run_debug;
 mod run_snapshot;
 pub mod run_trace;
 pub mod runtime;

@@ -700,6 +700,15 @@ export function App() {
                     <RunPage
                       key={`${projectId}:${document.id}`}
                       id={document.id}
+                      onDebugPrepared={async (workflow) => {
+                        await refresh(projectId);
+                        if (paired)
+                          dispatch({
+                            type: 'session-document',
+                            document: { kind: 'workflow', id: workflow.id },
+                          });
+                        else dispatch({ type: 'workflow', id: workflow.id });
+                      }}
                       workflows={data.workflows}
                       sessions={data.sessions}
                       headerLeading={!paired ? headerLeading() : undefined}

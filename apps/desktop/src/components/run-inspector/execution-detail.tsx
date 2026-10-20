@@ -310,7 +310,14 @@ export function ExecutionDetail({
                     <Fact label="Workflow ID" value={entry.workflowId} />
                   </>
                 )}
-                <Fact label={tx('运行时')} value={detail.trace.runtime} />
+                <Fact
+                  label={tx('运行时')}
+                  value={
+                    detail.trace.runtime === 'not_recorded'
+                      ? tx('未采集此数据')
+                      : detail.trace.runtime
+                  }
+                />
               </dl>
             </details>
           </div>

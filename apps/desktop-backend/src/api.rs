@@ -54,6 +54,7 @@ pub fn router(store: Store, token: String) -> Router {
         .route("/api/sessions/{id}/turns/{turn}/stop", post(stop_turn))
         .route("/api/sessions/{id}/queue/resume", post(resume_queue))
         .route("/api/workflows", post(create_workflow))
+        .route("/api/debug/copy",post(debug_copy).layer(axum::extract::DefaultBodyLimit::max(8_000_000)))
         .route("/api/workflows/{id}", get(workflow).put(save_workflow))
         .route("/api/workflows/{id}/validate", post(validate))
         .route("/api/workflows/{id}/run", post(run))
@@ -258,15 +259,21 @@ async fn validate(State(s): State<ApiState>, Path(id): Path<String>) -> Result<J
 struct RunInput {
     inputs: Value,
     session_id: Option<String>,
+    origin: Option<crate::run_debug::Origin>,
 }
 async fn run(
     State(s): State<ApiState>,
     Path(id): Path<String>,
     Json(i): Json<RunInput>,
 ) -> Result<Json<Value>> {
-    Ok(Json(serde_json::to_value(
-        s.store.start_run(&id, i.session_id, i.inputs).await?,
-    )?))
+    if let Some(origin) = &i.origin {
+        origin.validate()?;
+    }
+    let run = s.store.start_run(&id, i.session_id, i.inputs).await?;
+    if let Some(origin) = &i.origin {
+        s.store.link_debug_origin(&run.id, origin).await?;
+    }
+    Ok(Json(serde_json::to_value(run)?))
 }
 async fn run_detail(
     State(s): State<ApiState>,
@@ -275,14 +282,33 @@ async fn run_detail(
 ) -> Result<Json<Value>> {
     Ok(Json(s.store.inspect_trace(&id, &query).await?))
 }
+async fn debug_copy(
+    State(s): State<ApiState>,
+    Json(input): Json<crate::run_debug::DebugCopy>,
+) -> Result<Json<Value>> {
+    Ok(Json(s.store.prepare_debug_copy(input).await?))
+}
 async fn test_node(
     State(s): State<ApiState>,
     Path((id, node)): Path<(String, String)>,
-    Json(input): Json<crate::node_test::NodeTestInput>,
+    Json(input): Json<Value>,
 ) -> Result<Json<Value>> {
-    Ok(Json(serde_json::to_value(
-        s.store.start_node_test(&id, &node, input).await?,
-    )?))
+    let origin: Option<crate::run_debug::Origin> = input
+        .get("origin")
+        .cloned()
+        .map(serde_json::from_value)
+        .transpose()?;
+    if let Some(origin) = &origin {
+        origin.validate()?;
+    }
+    let run = s
+        .store
+        .start_node_test(&id, &node, serde_json::from_value(input)?)
+        .await?;
+    if let Some(origin) = &origin {
+        s.store.link_debug_origin(&run.id, origin).await?;
+    }
+    Ok(Json(serde_json::to_value(run)?))
 }
 async fn cancel(State(s): State<ApiState>, Path(id): Path<String>) -> Result<Json<Value>> {
     s.store.run(&id).await?;

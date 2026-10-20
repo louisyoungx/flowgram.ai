@@ -146,6 +146,8 @@ export function PublicationDetails({
         <ProjectScope projectId={detail.projectId} requestOverride={runRequest}>
           <RunPage
             id={viewRun.id}
+            requestRoot={viewRun.root}
+            onDebugPrepared={(workflow) => openWorkflow(detail.projectId, workflow.id)}
             workflows={detail.workflows}
             sessions={[]}
             onWorkflow={(id) => openWorkflow(detail.projectId, id)}

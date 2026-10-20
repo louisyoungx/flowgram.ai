@@ -1953,5 +1953,20 @@
   "当时画布": "Recorded canvas",
   "本次未测试": "Outside test scope",
   "会话调用": "Conversation invocation",
-  "发布运行": "Published run"
+  "发布运行": "Published run",
+  "使用历史输入测试节点": "Test node with recorded inputs",
+  "使用历史输入调试": "Debug with recorded inputs",
+  "准备中…": "Preparing…",
+  "将历史输入带入编辑器，确认后再运行。模型连接和凭证使用当前可用配置。": "Load recorded inputs into the editor and review before running. Model connections and credentials use their currently available configuration.",
+  "工作流及其依赖会一起复制，原工作流和未保存草稿保持原样。": "Copy the workflow and its dependencies together, preserving the original workflow and unsaved drafts.",
+  "当前工作流不可用": "Current workflow unavailable",
+  "当前工作流不可用，请选择当时版本。": "The current workflow is unavailable. Choose the recorded version.",
+  "当前工作流（保留草稿） · v{0}": "Current workflow (preserve draft) · v{0}",
+  "当时版本 · 创建调试副本": "Recorded version · Create debug copy",
+  "打开调试": "Open in editor",
+  "用本次输入调试": "Debug with these inputs",
+  "调试副本": "Debug copy",
+  "输入来自历史运行 {0}，请确认配置与输入后运行。": "Inputs are from run {0}. Review the configuration and inputs before running.",
+  "所需的历史依赖未被记录，无法创建完整调试副本。": "A required historical dependency was not recorded",
+  "执行记录中没有此节点的解析后输入。": "Resolved node inputs were not recorded for this execution"
 }

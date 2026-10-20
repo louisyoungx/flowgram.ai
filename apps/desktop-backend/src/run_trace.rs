@@ -180,6 +180,16 @@ impl Store {
     pub async fn inspect_trace(&self, id: &str, query: &TraceQuery) -> Result<Value> {
         let run = self.run(id).await?;
         match query.view.as_deref() {
+            Some("sample") => {
+                self.trace_sample(
+                    id,
+                    query
+                        .execution
+                        .as_deref()
+                        .ok_or_else(|| Error::Invalid("Execution ID is required".into()))?,
+                )
+                .await
+            }
             Some("snapshot") => {
                 let workflow = query.workflow_id.as_deref().unwrap_or(&run.workflow_id);
                 Ok(json!({"snapshot":self.pinned_workflow(id, workflow).await?}))
@@ -324,9 +334,12 @@ impl Store {
                     let source=lookup.get(link["executionId"].as_str()?)?;
                     (source.workflow_id==entry.workflow_id).then(||json!({"workflowId":entry.workflow_id,"scopeId":entry.scope_id,"sourceNodeId":source.node_id,"sourcePortId":link["sourcePortId"],"targetNodeId":entry.node_id}))
                 })).collect();
+                let origin:Option<String>=sqlx::query_scalar("SELECT data FROM events WHERE object_id=? AND kind='run_origin' ORDER BY sequence DESC LIMIT 1").bind(id).fetch_optional(&self.db).await?;
+                let runtime:Option<String>=sqlx::query_scalar("SELECT json_extract(data,'$.runtime') FROM events WHERE object_id=? AND kind='run_started' ORDER BY sequence LIMIT 1").bind(id).fetch_optional(&self.db).await?.flatten();
                 detail["snapshot"] = json!(snapshot);
                 detail["trace"] = json!({
-                    "format":"flowgram.trace/v1", "runtime":crate::services::RUNTIME,
+                    "format":"flowgram.trace/v1", "runtime":runtime.unwrap_or_else(||"not_recorded".into()),
+                    "origin":origin.map(|text|serde_json::from_str::<Value>(&text)).transpose()?,
                     "at":query.at,"observedAt":observed,"outputsAvailable":query.at.is_none() || ended.is_some(),
                     "source":source,"endedAt":ended,"durationMs":ended.as_ref().and_then(|end| milliseconds(&run.created_at,end)),
                     "watermark":watermark,"total":entries.len(),"counts":counts,

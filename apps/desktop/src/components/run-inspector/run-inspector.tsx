@@ -36,6 +36,7 @@ import { useRunInspection } from './use-run-inspection';
 import { TraceCanvas } from './trace-canvas';
 import { ExecutionTree, StatusIcon } from './execution-tree';
 import { ExecutionDetail } from './execution-detail';
+import { DebugDialog } from './debug-dialog';
 import './trace.css';
 
 export interface RunInspectorProps {
@@ -49,6 +50,8 @@ export interface RunInspectorProps {
   onClose?: () => void;
   onCollapse?: () => void;
   onExpand?: () => void;
+  requestRoot?: string;
+  onDebugPrepared?: (workflow: Workflow) => void | Promise<void>;
   compact?: boolean;
 }
 export function RunInspector({
@@ -62,6 +65,8 @@ export function RunInspector({
   onClose,
   onCollapse,
   onExpand,
+  requestRoot,
+  onDebugPrepared,
   compact = false,
 }: RunInspectorProps) {
   const [at, setAt] = useState<number>();
@@ -79,6 +84,7 @@ export function RunInspector({
   const container = useRef<HTMLDivElement>(null);
   const [visited, setVisited] = useState<Record<string, Workflow>>({});
   const [actionError, setActionError] = useState('');
+  const [debug, setDebug] = useState<'run' | 'node' | null>(null);
   const [stopping, setStopping] = useState(false);
   useEffect(() => {
     const element = container.current;
@@ -209,6 +215,16 @@ export function RunInspector({
         selected ? executionName(selected) : selectedNode ? names[selectedNode.id] : tx('运行概览')
       }
       onSource={selectNode}
+      onNodeTest={
+        onDebugPrepared &&
+        selected?.kind === 'node' &&
+        selectedNode &&
+        !['control.join', 'control.merge-branches', 'control.break', 'control.continue'].includes(
+          selectedNode.type
+        )
+          ? () => setDebug('node')
+          : undefined
+      }
       onDependency={
         selectedNode?.type === 'subworkflow' && selected
           ? () =>
@@ -310,6 +326,11 @@ export function RunInspector({
                   <ArrowUpRight />
                 </Button>
               )}
+            {!compact && onDebugPrepared && (
+              <Button variant="outline" size="sm" onClick={() => setDebug('run')}>
+                {tx('用本次输入调试')}
+              </Button>
+            )}
             {runStatus === 'running' && (
               <Button
                 variant="ghost"
@@ -620,6 +641,16 @@ export function RunInspector({
               </button>
             )}
         </>
+      )}
+      {detail && debug && onDebugPrepared && (
+        <DebugDialog
+          detail={detail}
+          entry={debug === 'node' ? selected : null}
+          workflows={workflows}
+          requestRoot={requestRoot}
+          onClose={() => setDebug(null)}
+          onPrepared={onDebugPrepared}
+        />
       )}
     </section>
   );

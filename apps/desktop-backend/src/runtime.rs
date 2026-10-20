@@ -448,8 +448,7 @@ impl Store {
             .await
             .insert(run.id.clone(), token.clone());
         // The persisted run is authoritative even if a client disconnects here.
-        self.emit("run_started", &run.id, serde_json::to_value(&run)?)
-            .await?;
+        self.record_run_start(&run, &workflow.schema).await?;
         let store = self.clone();
         tokio::spawn(async move {
             let future = store.execute_graph(
