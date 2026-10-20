@@ -137,7 +137,12 @@ function NodeFields({ type }: { type: string }) {
                   anchor: { x: event.clientX, y: event.clientY },
                   source: { nodeId: node.id, portId: port.id },
                   position: {
-                    x: node.transform.position.x + layout.width + 80,
+                    x:
+                      node.transform.position.x +
+                      (layout.family === 'container'
+                        ? Math.max(layout.width, node.transform.bounds.width)
+                        : layout.width) +
+                      80,
                     y: node.transform.position.y + index * 80,
                   },
                 });
