@@ -35,6 +35,20 @@ FlowGram Desktop is a native Agent workspace for macOS and Windows. Build, run, 
 - **Reuse:** publish versioned workflows for HTTP and MCP consumers, or call them from other workflows.
 - **Organize:** manage project-based workflows and chats, import and export projects, and work in English or Simplified Chinese with light and dark themes. Six industry example projects help you get started.
 
+### Download Desktop
+
+[⬇ View the latest successful builds](https://github.com/bytedance/flowgram.ai/actions/workflows/desktop-build.yml?query=is%3Asuccess)
+
+Preview installers are built by Desktop Build. The links below download the verified build; use the link above for newer successful runs, then open **Artifacts** and choose your platform.
+
+| Platform | Download verified preview |
+| --- | --- |
+| macOS · Apple Silicon (ARM64) | [Download ZIP](https://github.com/bytedance/flowgram.ai/actions/runs/39422548882/artifacts/12264454194) · `.dmg` |
+| macOS · Intel | [Download ZIP](https://github.com/bytedance/flowgram.ai/actions/runs/39422548882/artifacts/12266052754) · `.dmg` |
+| Windows 10/11 · x64 | [Download ZIP](https://github.com/bytedance/flowgram.ai/actions/runs/39422548882/artifacts/12265318840) · `-setup.exe` |
+
+Sign in to GitHub to download. Unzip the artifact and open the `.dmg` on macOS or run `-setup.exe` on Windows. Each ZIP includes the installer, `SHA256SUMS.txt` and `build-info.json`. Artifacts expire after 14 days; use the latest-builds link if a direct link has expired. These preview installers are unsigned; macOS builds are not notarized.
+
 [![Watch the FlowGram Desktop product video](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
 [▶ Watch the 45-second product video (English)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Desktop setup and development](./apps/desktop/README.md)

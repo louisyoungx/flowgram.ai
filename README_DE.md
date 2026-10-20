@@ -35,6 +35,20 @@ FlowGram Desktop ist eine native Arbeitsumgebung für KI-Agenten unter macOS und
 - **Wiederverwenden:** Veröffentlichen Sie versionierte Workflows für HTTP- und MCP-Clients oder rufen Sie sie aus anderen Workflows auf.
 - **Organisieren:** Verwalten Sie Workflows und Chats nach Projekten, importieren und exportieren Sie Projekte und nutzen Sie die Oberfläche auf Englisch oder vereinfachtem Chinesisch mit hellem oder dunklem Design. Sechs branchenspezifische Beispielprojekte erleichtern den Einstieg.
 
+### Desktop herunterladen
+
+[⬇ Neueste erfolgreiche Builds anzeigen](https://github.com/bytedance/flowgram.ai/actions/workflows/desktop-build.yml?query=is%3Asuccess)
+
+Desktop Build erstellt Vorschau-Installationspakete. Die folgenden Links laden den geprüften Build herunter. Für neuere Versionen öffnen Sie den obigen Link, wählen einen erfolgreichen Lauf und unter **Artifacts** Ihre Plattform.
+
+| Plattform | Geprüfte Vorschau herunterladen |
+| --- | --- |
+| macOS · Apple Silicon (ARM64) | [ZIP herunterladen](https://github.com/bytedance/flowgram.ai/actions/runs/39422548882/artifacts/12264454194) · `.dmg` |
+| macOS · Intel | [ZIP herunterladen](https://github.com/bytedance/flowgram.ai/actions/runs/39422548882/artifacts/12266052754) · `.dmg` |
+| Windows 10/11 · x64 | [ZIP herunterladen](https://github.com/bytedance/flowgram.ai/actions/runs/39422548882/artifacts/12265318840) · `-setup.exe` |
+
+Melden Sie sich zum Download bei GitHub an. Entpacken Sie das ZIP und öffnen Sie unter macOS die `.dmg` oder starten Sie unter Windows die `-setup.exe`. Jedes ZIP enthält das Installationspaket, `SHA256SUMS.txt` und `build-info.json`. Artefakte bleiben 14 Tage verfügbar; bei abgelaufenen Direktlinks nutzen Sie den Link zu den neuesten Builds. Die Vorschaupakete sind nicht signiert; macOS-Builds sind nicht notarisiert.
+
 [![FlowGram Desktop im Produktvideo ansehen](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
 [▶ 45-sekündiges Produktvideo ansehen (Englisch)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Desktop-Einrichtung und Entwicklung](./apps/desktop/README.md)
