@@ -9,6 +9,7 @@ import { tx } from './i18n';
 export interface Execution {
   id: string;
   parentId: string | null;
+  parentPath: string[];
   nodeId: string;
   workflowId: string;
   scopeId: string;
@@ -52,7 +53,7 @@ export interface TraceDetail {
     at: number | null;
     observedAt: string | null;
     outputsAvailable: boolean;
-    origin:import('./debug-intent').DebugOrigin|null;
+    origin: import('./debug-intent').DebugOrigin | null;
     format: string;
     runtime: string;
     source: string;
@@ -176,4 +177,44 @@ export function aggregateStatus(counts: Record<string, number>) {
       'skipped',
     ].find((status) => counts[status] > 0) || 'pending'
   );
+}
+
+export interface ComparisonGroup {
+  workflowId: string;
+  canonicalWorkflowId: string;
+  workflowName: string;
+  nodeId: string;
+  nodeType: string;
+  name: string;
+  configHash: string;
+  modelHash: string | null;
+  counts: Record<string, number>;
+  executions: number;
+  durationMs: number;
+  durationComplete?: boolean;
+  modelCalls: number;
+  toolCalls: number;
+  httpCalls: number;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  usageRecorded: number;
+}
+export const comparisonKey = (group: ComparisonGroup) =>
+  JSON.stringify([group.canonicalWorkflowId, group.nodeId]);
+export function pairGroups(left: ComparisonGroup[], right: ComparisonGroup[]) {
+  const leftMap = new Map(left.map((group) => [comparisonKey(group), group]));
+  const rightMap = new Map(right.map((group) => [comparisonKey(group), group]));
+  return [...new Set([...leftMap.keys(), ...rightMap.keys()])].map((key) => ({
+    key,
+    left: leftMap.get(key),
+    right: rightMap.get(key),
+  }));
+}
+export function instanceKey(entry: Execution) {
+  return JSON.stringify([
+    entry.parentPath || [],
+    entry.branchPath,
+    entry.iterationPath,
+    entry.attempt,
+  ]);
 }

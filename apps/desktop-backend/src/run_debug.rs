@@ -154,7 +154,27 @@ impl Store {
             workflow.revision = 1;
             workflow.updated_at = now();
             workflow.name = format!("{} · {}", workflow.name, input.name_suffix.trim());
+            let mut direct = vec![];
+            calls(&workflow.schema["nodes"], &mut direct)?;
+            let aliases: serde_json::Map<String, Value> = direct
+                .into_iter()
+                .map(|target| {
+                    let original = &sources[&target];
+                    let canonical = original.schema["canonicalWorkflowId"]
+                        .as_str()
+                        .or_else(|| original.schema["debugOrigin"]["workflowId"].as_str())
+                        .unwrap_or(&target);
+                    (ids[&target].clone(), json!(canonical))
+                })
+                .collect();
+            workflow.schema["dependencyAliases"] = Value::Object(aliases);
             rewrite(&mut workflow.schema["nodes"], &ids);
+            let canonical = workflow.schema["canonicalWorkflowId"]
+                .as_str()
+                .or_else(|| workflow.schema["debugOrigin"]["workflowId"].as_str())
+                .unwrap_or(&old)
+                .to_owned();
+            workflow.schema["canonicalWorkflowId"] = json!(canonical);
             let mut origin = input.origin.clone();
             origin.workflow_id = old.clone();
             workflow.schema["debugOrigin"] = json!(origin);
@@ -330,6 +350,45 @@ mod tests {
         assert_ne!(target, workflows[1].id);
         let copied = store.workflow(target).await.unwrap();
         assert_eq!(copied.schema["nodes"][0]["meta"]["position"]["x"], 42);
+        let definitions: Vec<Workflow> =
+            serde_json::from_value(result["workflows"].clone()).unwrap();
+        let root_workflow: Workflow = serde_json::from_value(root.clone()).unwrap();
+        let mut tx = store.db.begin().await.unwrap();
+        let copied_run = store
+            .prepare_run(&root_workflow, None, &json!({}), &definitions, &mut tx)
+            .await
+            .unwrap();
+        tx.commit().await.unwrap();
+        let original_groups = store
+            .inspect_trace(
+                &run.id,
+                &crate::run_trace::TraceQuery {
+                    view: Some("compare".into()),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        let copied_groups = store
+            .inspect_trace(
+                &copied_run.id,
+                &crate::run_trace::TraceQuery {
+                    view: Some("compare".into()),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        let call = |groups: &Value| {
+            groups["groups"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|group| group["nodeId"] == "call")
+                .unwrap()["configHash"]
+                .clone()
+        };
+        assert_eq!(call(&original_groups), call(&copied_groups));
         assert_eq!(
             store.workflow(&workflows[0].id).await.unwrap().name,
             "Changed"

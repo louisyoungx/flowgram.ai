@@ -9,6 +9,7 @@ import {
   ArrowUpRight,
   Columns2,
   ListTree,
+  MoreHorizontal,
   Loader2,
   PanelRightClose,
   Square,
@@ -17,6 +18,7 @@ import {
 
 import { WorkspaceHeader } from '../workspace-header';
 import { Select } from '../ui/select';
+import { MenuButton } from '../ui/menu-button';
 import { Button } from '../ui/button';
 import { ResizablePanel } from '../resizable-panel';
 import { flattenNodes } from '../node-inspector/model';
@@ -34,9 +36,11 @@ import { errorText, tx } from '../../lib/i18n';
 import { scopeFor } from '../../lib/control-nodes';
 import { useRunInspection } from './use-run-inspection';
 import { TraceCanvas } from './trace-canvas';
+import { RunComparison, type RunRef } from './run-comparison';
 import { ExecutionTree, StatusIcon } from './execution-tree';
 import { ExecutionDetail } from './execution-detail';
 import { DebugDialog } from './debug-dialog';
+import { ComparePicker } from './compare-picker';
 import './trace.css';
 
 export interface RunInspectorProps {
@@ -85,6 +89,8 @@ export function RunInspector({
   const [visited, setVisited] = useState<Record<string, Workflow>>({});
   const [actionError, setActionError] = useState('');
   const [debug, setDebug] = useState<'run' | 'node' | null>(null);
+  const [comparePicker, setComparePicker] = useState(false);
+  const [comparison, setComparison] = useState<RunRef | null>(null);
   const [stopping, setStopping] = useState(false);
   useEffect(() => {
     const element = container.current;
@@ -248,409 +254,451 @@ export function RunInspector({
       className={`trace-inspector ${compact ? 'trace-compact' : ''}`}
       aria-label={tx('运行详情')}
     >
-      {!compact && (
-        <WorkspaceHeader leading={headerLeading} title={documentTabs || title}>
-          {(onCollapse || onClose) && (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={onCollapse ? tx('收起工作台') : tx('关闭运行详情')}
-              onClick={onCollapse || onClose}
-            >
-              {onCollapse ? <PanelRightClose /> : <X />}
-            </Button>
-          )}
-        </WorkspaceHeader>
-      )}
-      {!detail ? (
-        <div className="p-5 text-xs text-muted-foreground">
-          {inspection.error ? (
-            <p role="alert" className="text-destructive">
-              {errorText(inspection.error)}
-            </p>
-          ) : (
-            <>
-              <Loader2 size={14} className="mr-2 inline animate-spin" />
-              {tx('加载运行记录…')}
-            </>
-          )}
-        </div>
-      ) : (
-        <>
-          <div className="trace-summary">
-            <Button
-              variant="ghost"
-              size="icon"
-              title={tx('执行过程')}
-              aria-label={tx('执行过程')}
-              aria-pressed={treeVisible}
-              onClick={() => setTreeVisible(!treeVisible)}
-            >
-              <ListTree />
-            </Button>
-            <StatusIcon status={runStatus} />
-            <span className="shrink-0 text-xs">{sourceLabel(detail.trace.source)}</span>
-            <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-              {duration(detail.trace.durationMs)}
-            </span>
-            <span className="truncate text-[10px] text-muted-foreground" title={id}>
-              {detail.trace.publication
-                ? `${detail.trace.publication.environment} · ${detail.trace.publication.version}`
-                : `v${detail.run.revision}`}{' '}
-              · {id.slice(0, 8)}
-            </span>
-            <span className="ml-auto" />
-            {!compact && (
-              <div className="trace-tabs !border-0" role="tablist" aria-label={tx('运行视图')}>
-                {[
-                  ['canvas', '当时画布'],
-                  ['timeline', '时间线'],
-                ].map(([key, label]) => (
-                  <button
-                    type="button"
-                    role="tab"
-                    key={key}
-                    aria-selected={view === key}
-                    onClick={() => setView(key)}
-                  >
-                    {tx(label)}
-                  </button>
-                ))}
-              </div>
-            )}
-            {!compact &&
-              onWorkflow &&
-              workflows.some((workflow) => workflow.id === detail.run.workflowId) && (
-                <Button variant="ghost" size="sm" onClick={() => onWorkflow(detail.run.workflowId)}>
-                  {tx('打开当前工作流')}
-                  <ArrowUpRight />
-                </Button>
-              )}
-            {!compact && onDebugPrepared && (
-              <Button variant="outline" size="sm" onClick={() => setDebug('run')}>
-                {tx('用本次输入调试')}
-              </Button>
-            )}
-            {runStatus === 'running' && (
+      <div
+        className="flex h-full min-h-0 flex-1 flex-col"
+        inert={!!comparison}
+        aria-hidden={!!comparison}
+        style={{ visibility: comparison ? 'hidden' : 'visible' }}
+      >
+        {!compact && (
+          <WorkspaceHeader leading={headerLeading} title={documentTabs || title}>
+            {(onCollapse || onClose) && (
               <Button
                 variant="ghost"
                 size="icon"
-                disabled={stopping}
-                aria-label={tx('停止运行')}
-                onClick={() => {
-                  setStopping(true);
-                  void inspection
-                    .api(`/api/runs/${id}/cancel`, 'POST', {})
-                    .catch((cause) => setActionError(cause.message))
-                    .finally(() => setStopping(false));
-                }}
+                aria-label={onCollapse ? tx('收起工作台') : tx('关闭运行详情')}
+                onClick={onCollapse || onClose}
               >
-                <Square />
+                {onCollapse ? <PanelRightClose /> : <X />}
               </Button>
             )}
-            {compact && onExpand && (
-              <Button variant="ghost" size="sm" onClick={onExpand}>
-                {tx('展开运行详情')}
-                <ArrowUpRight />
-              </Button>
-            )}
-            {!compact && (
-              <Button
-                variant="ghost"
-                size="icon"
-                title={tx('步骤详情')}
-                aria-label={tx('步骤详情')}
-                aria-pressed={inspectorVisible}
-                onClick={() => setInspectorVisible(!inspectorVisible)}
-              >
-                <Columns2 />
-              </Button>
-            )}
-          </div>
-          {(inspection.error || actionError) && (
-            <p role="alert" className="border-b border-border px-4 py-2 text-xs text-destructive">
-              {errorText(inspection.error || actionError)}
-            </p>
-          )}
-          {detail.run.error && !selected && (
-            <button
-              type="button"
-              className="trace-failure-summary"
-              onClick={() => {
-                const failure = detail.trace.focus?.at(-1);
-                if (failure) select(failure);
-              }}
-            >
-              <StatusIcon status="failed" />
-              <span className="min-w-0 truncate">{errorText(detail.run.error)}</span>
-              <span className="ml-auto shrink-0">{tx('定位错误')}</span>
-            </button>
-          )}
-          <div className="relative flex min-h-0 min-w-0 flex-1">
-            {treeVisible && (compact || width >= 950) ? (
-              <ResizablePanel
-                storageKey="flowgram.trace.tree"
-                label={tx('调整执行树宽度')}
-                initial={compact ? 220 : 252}
-                min={180}
-                max={380}
-                reserve={compact ? 240 : 650}
-                className="border-r border-border"
-              >
-                {tree}
-              </ResizablePanel>
-            ) : (
-              treeVisible && (
-                <div className="trace-tree-overlay">
-                  <div className="flex justify-end border-b border-border p-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={tx('收起步骤')}
-                      onClick={() => setTreeVisible(false)}
-                    >
-                      <X />
-                    </Button>
-                  </div>
-                  {tree}
-                </div>
-              )
-            )}
-            {compact ? (
-              <div className="min-h-0 min-w-0 flex-1">{inspect}</div>
+          </WorkspaceHeader>
+        )}
+        {!detail ? (
+          <div className="p-5 text-xs text-muted-foreground">
+            {inspection.error ? (
+              <p role="alert" className="text-destructive">
+                {errorText(inspection.error)}
+              </p>
             ) : (
               <>
-                <main
-                  className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--surface-canvas)]"
-                  aria-label={view === 'canvas' ? tx('历史画布') : tx('时间线')}
-                >
-                  <div className="flex min-h-9 shrink-0 items-center gap-2 border-b border-border px-3 py-1 text-[10px] text-muted-foreground">
-                    {snapshot?.id !== detail.run.workflowId && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={tx('返回根工作流')}
-                        onClick={() => select(null)}
-                      >
-                        <ArrowLeft />
-                      </Button>
-                    )}
-                    <span className="truncate">
-                      {snapshot?.name || title} · v{snapshot?.revision || detail.run.revision}
-                    </span>
-                    <span className="ml-auto shrink-0">{tx('只读快照')}</span>
-                  </div>
-                  <div className="relative min-h-0 flex-1">
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        visibility: view === 'canvas' ? 'visible' : 'hidden',
-                        pointerEvents: view === 'canvas' ? 'auto' : 'none',
-                      }}
-                      aria-hidden={view !== 'canvas'}
-                    >
-                      {Object.values(visited).map((frozen) => (
-                        <div
-                          key={`${id}:${frozen.id}`}
-                          className="absolute inset-0"
-                          style={{
-                            visibility: frozen.id === snapshot?.id ? 'visible' : 'hidden',
-                            pointerEvents: frozen.id === snapshot?.id ? 'auto' : 'none',
-                          }}
-                          aria-hidden={frozen.id !== snapshot?.id}
-                        >
-                          <TraceCanvas
-                            snapshot={frozen}
-                            selectedId={frozen.id === snapshot?.id ? inspection.nodeId : null}
-                            statuses={frozen.id === snapshot?.id ? nodeStatuses : {}}
-                            edgeStates={frozen.id === snapshot?.id ? edgeStates : undefined}
-                            onSelect={selectNode}
-                            active={view === 'canvas' && frozen.id === snapshot?.id}
-                          />
-                        </div>
-                      ))}
-                      {(!snapshot || inspection.snapshotError) && (
-                        <p className="p-5 text-xs text-muted-foreground">
-                          {inspection.snapshotError
-                            ? errorText(inspection.snapshotError)
-                            : tx('此运行未保留完整画布快照')}
-                        </p>
-                      )}
-                    </div>
-                    {view === 'timeline' && (
-                      <div className="absolute inset-0 overflow-auto bg-background p-4">
-                        <div className="mb-3 flex justify-between text-[10px] tabular-nums text-muted-foreground">
-                          <span>0 s</span>
-                          <span>{duration(span)}</span>
-                        </div>
-                        {allEntries.map((entry) => (
-                          <button
-                            key={entry.id}
-                            type="button"
-                            className="trace-waterfall-row"
-                            data-selected={selected?.id === entry.id}
-                            onClick={() => select(entry)}
-                          >
-                            <span className="flex min-w-0 items-center gap-2">
-                              <StatusIcon status={entry.status} />
-                              <span
-                                className="truncate"
-                                title={`${executionName(entry)} ${executionPath(entry)}`}
-                              >
-                                {executionName(entry)}
-                                {entry.iterationPath.length > 0 && (
-                                  <small className="ml-1 text-muted-foreground">
-                                    {entry.iterationPath.map((i) => i + 1).join('.')}
-                                  </small>
-                                )}
-                              </span>
-                            </span>
-                            <span className="trace-waterfall-track">
-                              <span
-                                data-status={entry.status}
-                                style={{
-                                  left: `${Math.max(
-                                    0,
-                                    ((Date.parse(entry.startedAt) - origin) / span) * 100
-                                  )}%`,
-                                  width: `${Math.min(
-                                    100,
-                                    Math.max(0.7, ((entry.durationMs || 0) / span) * 100)
-                                  )}%`,
-                                }}
-                              />
-                            </span>
-                            <span className="text-right text-[10px] tabular-nums text-muted-foreground">
-                              {duration(entry.durationMs)}
-                            </span>
-                          </button>
-                        ))}
-                        <p className="mt-4 text-[10px] text-muted-foreground">
-                          {tx('时间线显示已展开的步骤，展开执行树可查看内部调用。')}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex min-h-10 shrink-0 items-center gap-3 border-t border-border bg-background px-3 text-[10px] text-muted-foreground">
-                    <span className="shrink-0">
-                      {at === undefined ? tx('完整运行') : tx('事件 {0}', [at])}
-                    </span>
-                    <input
-                      className="min-w-12 flex-1 accent-[var(--foreground)]"
-                      aria-label={tx('历史事件位置')}
-                      type="range"
-                      min={0}
-                      max={detail.trace.watermark}
-                      value={position ?? detail.trace.watermark}
-                      onChange={(event) => setPosition(Number(event.target.value))}
-                    />
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={at === undefined}
-                      onClick={() => setPosition(undefined)}
-                    >
-                      {tx('回到完整运行')}
-                    </Button>
-                  </div>
-                </main>
-                {inspectorVisible &&
-                  (width >= 700 ? (
-                    <ResizablePanel
-                      storageKey="flowgram.trace.inspector"
-                      label={tx('调整步骤详情宽度')}
-                      initial={340}
-                      min={280}
-                      max={520}
-                      reserve={width >= 950 ? 460 : 280}
-                      edge="left"
-                      className="border-l border-border"
-                    >
-                      {inspection.instances && inspection.instances.total !== 1 && (
-                        <div className="border-b border-border p-3">
-                          <Select
-                            aria-label={tx('选择执行实例')}
-                            value={selected?.id || ''}
-                            placeholder={tx('选择执行实例')}
-                            options={[
-                              { value: '', label: tx('选择执行实例') },
-                              ...inspection.instances.executions.map((entry) => ({
-                                value: entry.id,
-                                label: `${
-                                  executionPath(entry) || tx('工作流主路径')
-                                } · ${statusLabel(entry.status)} · ${duration(
-                                  entry.durationMs
-                                )} · ${entry.id.slice(0, 6)}`,
-                              })),
-                            ]}
-                            onValueChange={(value) => {
-                              const entry = inspection.instances?.executions.find(
-                                (entry) => entry.id === value
-                              );
-                              if (entry) inspection.selectInstance(entry);
-                            }}
-                          />
-                          {inspection.instances.nextCursor != null && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() =>
-                                void inspection.selectNode(
-                                  inspection.nodeId!,
-                                  inspection.instances!.nextCursor!
-                                )
-                              }
-                            >
-                              {tx('加载更多')}
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                      {inspect}
-                    </ResizablePanel>
-                  ) : (
-                    <div className="trace-detail-overlay">
-                      <div className="flex justify-end border-b border-border p-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={tx('关闭步骤详情')}
-                          onClick={() => setInspectorVisible(false)}
-                        >
-                          <X />
-                        </Button>
-                      </div>
-                      {inspect}
-                    </div>
-                  ))}
+                <Loader2 size={14} className="mr-2 inline animate-spin" />
+                {tx('加载运行记录…')}
               </>
             )}
           </div>
-          {!compact &&
-            detail.run.sessionId &&
-            onSession &&
-            sessions.some((session) => session.id === detail.run.sessionId) && (
+        ) : (
+          <>
+            <div className="trace-summary">
+              <Button
+                variant="ghost"
+                size="icon"
+                title={tx('执行过程')}
+                aria-label={tx('执行过程')}
+                aria-pressed={treeVisible}
+                onClick={() => setTreeVisible(!treeVisible)}
+              >
+                <ListTree />
+              </Button>
+              <StatusIcon status={runStatus} />
+              <span className="shrink-0 text-xs">{sourceLabel(detail.trace.source)}</span>
+              <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                {duration(detail.trace.durationMs)}
+              </span>
+              <span className="truncate text-[10px] text-muted-foreground" title={id}>
+                {detail.trace.publication
+                  ? `${detail.trace.publication.environment} · ${detail.trace.publication.version}`
+                  : `v${detail.run.revision}`}{' '}
+                · {id.slice(0, 8)}
+              </span>
+              <span className="ml-auto" />
+              {!compact && (
+                <div className="trace-tabs !border-0" role="tablist" aria-label={tx('运行视图')}>
+                  {[
+                    ['canvas', '当时画布'],
+                    ['timeline', '时间线'],
+                  ].map(([key, label]) => (
+                    <button
+                      type="button"
+                      role="tab"
+                      key={key}
+                      aria-selected={view === key}
+                      onClick={() => setView(key)}
+                    >
+                      {tx(label)}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {!compact && (
+                <MenuButton
+                  label={tx('运行更多操作')}
+                  commands={[
+                    ...(onWorkflow &&
+                    workflows.some((workflow) => workflow.id === detail.run.workflowId)
+                      ? [{ id: 'current', label: tx('打开当前工作流') }]
+                      : []),
+                    { id: 'compare', label: tx('比较运行') },
+                    ...(detail.trace.origin ? [{ id: 'origin', label: tx('与原运行比较') }] : []),
+                  ]}
+                  onCommand={(command) => {
+                    if (command === 'current') onWorkflow?.(detail.run.workflowId);
+                    if (command === 'compare') setComparePicker(true);
+                    if (command === 'origin' && detail.trace.origin)
+                      setComparison({
+                        id: detail.trace.origin.runId,
+                        requestRoot: detail.trace.origin.requestRoot,
+                      });
+                  }}
+                >
+                  <MoreHorizontal />
+                </MenuButton>
+              )}
+              {!compact && onDebugPrepared && (
+                <Button variant="outline" size="sm" onClick={() => setDebug('run')}>
+                  {tx('用本次输入调试')}
+                </Button>
+              )}
+              {runStatus === 'running' && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={stopping}
+                  aria-label={tx('停止运行')}
+                  onClick={() => {
+                    setStopping(true);
+                    void inspection
+                      .api(`/api/runs/${id}/cancel`, 'POST', {})
+                      .catch((cause) => setActionError(cause.message))
+                      .finally(() => setStopping(false));
+                  }}
+                >
+                  <Square />
+                </Button>
+              )}
+              {compact && onExpand && (
+                <Button variant="ghost" size="sm" onClick={onExpand}>
+                  {tx('展开运行详情')}
+                  <ArrowUpRight />
+                </Button>
+              )}
+              {!compact && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title={tx('步骤详情')}
+                  aria-label={tx('步骤详情')}
+                  aria-pressed={inspectorVisible}
+                  onClick={() => setInspectorVisible(!inspectorVisible)}
+                >
+                  <Columns2 />
+                </Button>
+              )}
+            </div>
+            {(inspection.error || actionError) && (
+              <p role="alert" className="border-b border-border px-4 py-2 text-xs text-destructive">
+                {errorText(inspection.error || actionError)}
+              </p>
+            )}
+            {detail.run.error && !selected && (
               <button
                 type="button"
-                className="border-t border-border px-4 py-2 text-left text-[10px] text-muted-foreground hover:bg-secondary"
-                onClick={() => onSession(detail.run.sessionId!)}
+                className="trace-failure-summary"
+                onClick={() => {
+                  const failure = detail.trace.focus?.at(-1);
+                  if (failure) select(failure);
+                }}
               >
-                {tx('来自会话')} ·{' '}
-                {sessions.find((session) => session.id === detail.run.sessionId)?.title}
-                <ArrowUpRight size={11} className="ml-1 inline" />
+                <StatusIcon status="failed" />
+                <span className="min-w-0 truncate">{errorText(detail.run.error)}</span>
+                <span className="ml-auto shrink-0">{tx('定位错误')}</span>
               </button>
             )}
-        </>
-      )}
-      {detail && debug && onDebugPrepared && (
-        <DebugDialog
-          detail={detail}
-          entry={debug === 'node' ? selected : null}
-          workflows={workflows}
-          requestRoot={requestRoot}
-          onClose={() => setDebug(null)}
-          onPrepared={onDebugPrepared}
-        />
+            <div className="relative flex min-h-0 min-w-0 flex-1">
+              {treeVisible && (compact || width >= 950) ? (
+                <ResizablePanel
+                  storageKey="flowgram.trace.tree"
+                  label={tx('调整执行树宽度')}
+                  initial={compact ? 220 : 252}
+                  min={180}
+                  max={380}
+                  reserve={compact ? 240 : 650}
+                  className="border-r border-border"
+                >
+                  {tree}
+                </ResizablePanel>
+              ) : (
+                treeVisible && (
+                  <div className="trace-tree-overlay">
+                    <div className="flex justify-end border-b border-border p-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={tx('收起步骤')}
+                        onClick={() => setTreeVisible(false)}
+                      >
+                        <X />
+                      </Button>
+                    </div>
+                    {tree}
+                  </div>
+                )
+              )}
+              {compact ? (
+                <div className="min-h-0 min-w-0 flex-1">{inspect}</div>
+              ) : (
+                <>
+                  <main
+                    className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--surface-canvas)]"
+                    aria-label={view === 'canvas' ? tx('历史画布') : tx('时间线')}
+                  >
+                    <div className="flex min-h-9 shrink-0 items-center gap-2 border-b border-border px-3 py-1 text-[10px] text-muted-foreground">
+                      {snapshot?.id !== detail.run.workflowId && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={tx('返回根工作流')}
+                          onClick={() => select(null)}
+                        >
+                          <ArrowLeft />
+                        </Button>
+                      )}
+                      <span className="truncate">
+                        {snapshot?.name || title} · v{snapshot?.revision || detail.run.revision}
+                      </span>
+                      <span className="ml-auto shrink-0">{tx('只读快照')}</span>
+                    </div>
+                    <div className="relative min-h-0 flex-1">
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          visibility: view === 'canvas' ? 'visible' : 'hidden',
+                          pointerEvents: view === 'canvas' ? 'auto' : 'none',
+                        }}
+                        aria-hidden={view !== 'canvas'}
+                      >
+                        {Object.values(visited).map((frozen) => (
+                          <div
+                            key={`${id}:${frozen.id}`}
+                            className="absolute inset-0"
+                            style={{
+                              visibility: frozen.id === snapshot?.id ? 'visible' : 'hidden',
+                              pointerEvents: frozen.id === snapshot?.id ? 'auto' : 'none',
+                            }}
+                            aria-hidden={frozen.id !== snapshot?.id}
+                          >
+                            <TraceCanvas
+                              snapshot={frozen}
+                              selectedId={frozen.id === snapshot?.id ? inspection.nodeId : null}
+                              statuses={frozen.id === snapshot?.id ? nodeStatuses : {}}
+                              edgeStates={frozen.id === snapshot?.id ? edgeStates : undefined}
+                              onSelect={selectNode}
+                              active={view === 'canvas' && frozen.id === snapshot?.id}
+                            />
+                          </div>
+                        ))}
+                        {(!snapshot || inspection.snapshotError) && (
+                          <p className="p-5 text-xs text-muted-foreground">
+                            {inspection.snapshotError
+                              ? errorText(inspection.snapshotError)
+                              : tx('此运行未保留完整画布快照')}
+                          </p>
+                        )}
+                      </div>
+                      {view === 'timeline' && (
+                        <div className="absolute inset-0 overflow-auto bg-background p-4">
+                          <div className="mb-3 flex justify-between text-[10px] tabular-nums text-muted-foreground">
+                            <span>0 s</span>
+                            <span>{duration(span)}</span>
+                          </div>
+                          {allEntries.map((entry) => (
+                            <button
+                              key={entry.id}
+                              type="button"
+                              className="trace-waterfall-row"
+                              data-selected={selected?.id === entry.id}
+                              onClick={() => select(entry)}
+                            >
+                              <span className="flex min-w-0 items-center gap-2">
+                                <StatusIcon status={entry.status} />
+                                <span
+                                  className="truncate"
+                                  title={`${executionName(entry)} ${executionPath(entry)}`}
+                                >
+                                  {executionName(entry)}
+                                  {entry.iterationPath.length > 0 && (
+                                    <small className="ml-1 text-muted-foreground">
+                                      {entry.iterationPath.map((i) => i + 1).join('.')}
+                                    </small>
+                                  )}
+                                </span>
+                              </span>
+                              <span className="trace-waterfall-track">
+                                <span
+                                  data-status={entry.status}
+                                  style={{
+                                    left: `${Math.max(
+                                      0,
+                                      ((Date.parse(entry.startedAt) - origin) / span) * 100
+                                    )}%`,
+                                    width: `${Math.min(
+                                      100,
+                                      Math.max(0.7, ((entry.durationMs || 0) / span) * 100)
+                                    )}%`,
+                                  }}
+                                />
+                              </span>
+                              <span className="text-right text-[10px] tabular-nums text-muted-foreground">
+                                {duration(entry.durationMs)}
+                              </span>
+                            </button>
+                          ))}
+                          <p className="mt-4 text-[10px] text-muted-foreground">
+                            {tx('时间线显示已展开的步骤，展开执行树可查看内部调用。')}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex min-h-10 shrink-0 items-center gap-3 border-t border-border bg-background px-3 text-[10px] text-muted-foreground">
+                      <span className="shrink-0">
+                        {at === undefined ? tx('完整运行') : tx('事件 {0}', [at])}
+                      </span>
+                      <input
+                        className="min-w-12 flex-1 accent-[var(--foreground)]"
+                        aria-label={tx('历史事件位置')}
+                        type="range"
+                        min={0}
+                        max={detail.trace.watermark}
+                        value={position ?? detail.trace.watermark}
+                        onChange={(event) => setPosition(Number(event.target.value))}
+                      />
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={at === undefined}
+                        onClick={() => setPosition(undefined)}
+                      >
+                        {tx('回到完整运行')}
+                      </Button>
+                    </div>
+                  </main>
+                  {inspectorVisible &&
+                    (width >= 700 ? (
+                      <ResizablePanel
+                        storageKey="flowgram.trace.inspector"
+                        label={tx('调整步骤详情宽度')}
+                        initial={340}
+                        min={280}
+                        max={520}
+                        reserve={width >= 950 ? 460 : 280}
+                        edge="left"
+                        className="border-l border-border"
+                      >
+                        {inspection.instances && inspection.instances.total !== 1 && (
+                          <div className="border-b border-border p-3">
+                            <Select
+                              aria-label={tx('选择执行实例')}
+                              value={selected?.id || ''}
+                              placeholder={tx('选择执行实例')}
+                              options={[
+                                { value: '', label: tx('选择执行实例') },
+                                ...inspection.instances.executions.map((entry) => ({
+                                  value: entry.id,
+                                  label: `${
+                                    executionPath(entry) || tx('工作流主路径')
+                                  } · ${statusLabel(entry.status)} · ${duration(
+                                    entry.durationMs
+                                  )} · ${entry.id.slice(0, 6)}`,
+                                })),
+                              ]}
+                              onValueChange={(value) => {
+                                const entry = inspection.instances?.executions.find(
+                                  (entry) => entry.id === value
+                                );
+                                if (entry) inspection.selectInstance(entry);
+                              }}
+                            />
+                            {inspection.instances.nextCursor != null && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() =>
+                                  void inspection.selectNode(
+                                    inspection.nodeId!,
+                                    inspection.instances!.nextCursor!
+                                  )
+                                }
+                              >
+                                {tx('加载更多')}
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                        {inspect}
+                      </ResizablePanel>
+                    ) : (
+                      <div className="trace-detail-overlay">
+                        <div className="flex justify-end border-b border-border p-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={tx('关闭步骤详情')}
+                            onClick={() => setInspectorVisible(false)}
+                          >
+                            <X />
+                          </Button>
+                        </div>
+                        {inspect}
+                      </div>
+                    ))}
+                </>
+              )}
+            </div>
+            {!compact &&
+              detail.run.sessionId &&
+              onSession &&
+              sessions.some((session) => session.id === detail.run.sessionId) && (
+                <button
+                  type="button"
+                  className="border-t border-border px-4 py-2 text-left text-[10px] text-muted-foreground hover:bg-secondary"
+                  onClick={() => onSession(detail.run.sessionId!)}
+                >
+                  {tx('来自会话')} ·{' '}
+                  {sessions.find((session) => session.id === detail.run.sessionId)?.title}
+                  <ArrowUpRight size={11} className="ml-1 inline" />
+                </button>
+              )}
+          </>
+        )}
+        {detail && debug && onDebugPrepared && (
+          <DebugDialog
+            detail={detail}
+            entry={debug === 'node' ? selected : null}
+            workflows={workflows}
+            requestRoot={requestRoot}
+            onClose={() => setDebug(null)}
+            onPrepared={onDebugPrepared}
+          />
+        )}
+        {detail && comparePicker && (
+          <ComparePicker
+            id={id}
+            onClose={() => setComparePicker(false)}
+            onPick={(other) => {
+              setComparePicker(false);
+              setComparison({ id: other, requestRoot });
+            }}
+          />
+        )}
+      </div>
+      {comparison && (
+        <div className="absolute inset-0 z-40 bg-background">
+          <RunComparison
+            left={comparison}
+            right={{ id, requestRoot }}
+            onBack={() => setComparison(null)}
+          />
+        </div>
       )}
     </section>
   );

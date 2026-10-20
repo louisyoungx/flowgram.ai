@@ -46,6 +46,7 @@ impl TraceQuery {
 struct Execution {
     id: String,
     parent_id: Option<String>,
+    parent_path: Vec<String>,
     node_id: String,
     workflow_id: String,
     scope_id: String,
@@ -97,6 +98,7 @@ impl Store {
                 entries.push(Execution {
                     id,
                     parent_id: text(&data, "parentExecutionId"),
+                    parent_path: vec![],
                     node_id: node,
                     workflow_id: text(&data, "workflowId")
                         .unwrap_or_else(|| run.workflow_id.clone()),
@@ -175,11 +177,213 @@ impl Store {
                     Some("No terminal event was recorded for this execution".into());
             }
         }
+        for index in 0..entries.len() {
+            let mut path = vec![];
+            let mut cursor = entries[index]
+                .parent_id
+                .as_ref()
+                .and_then(|parent| lookup.get(parent).copied());
+            while let Some(parent) = cursor {
+                if path.len() >= 64 {
+                    break;
+                }
+                path.push(entries[parent].node_id.clone());
+                cursor = entries[parent]
+                    .parent_id
+                    .as_ref()
+                    .and_then(|id| lookup.get(id).copied());
+            }
+            path.reverse();
+            entries[index].parent_path = path;
+        }
         Ok(entries)
+    }
+    async fn comparison(&self, id: &str) -> Result<Value> {
+        use sha2::{Digest, Sha256};
+        let run = self.run(id).await?;
+        let entries = self.execution_index(&run, None).await?;
+        let definitions: Vec<String> = sqlx::query_scalar(
+            "SELECT definition FROM run_workflows WHERE run_id=? ORDER BY workflow_id",
+        )
+        .bind(id)
+        .fetch_all(&self.db)
+        .await?;
+        let models = self.run_model_traces(id).await?;
+        let mut groups = std::collections::BTreeMap::<(String, String), Value>::new();
+        fn walk(
+            nodes: &Value,
+            workflow: &crate::model::Workflow,
+            canonical: &str,
+            models: &Value,
+            groups: &mut std::collections::BTreeMap<(String, String), Value>,
+            canonical_ids: &HashMap<String, String>,
+            connections: &HashMap<(String, String), Vec<Value>>,
+        ) {
+            for node in nodes.as_array().into_iter().flatten() {
+                if let Some(id) = node["id"].as_str() {
+                    let model = models
+                        .as_array()
+                        .into_iter()
+                        .flatten()
+                        .find(|model| model["workflowId"] == workflow.id && model["nodeId"] == id)
+                        .map(|model| model["model"].clone());
+                    let mut configuration = node["data"].clone();
+                    if node["type"] == "subworkflow" {
+                        let binding = &mut configuration["inputsValues"]["workflowId"];
+                        let target = if binding["type"] == "constant" {
+                            binding["content"].as_str()
+                        } else {
+                            binding.as_str()
+                        };
+                        if let Some(canonical) = target.and_then(|id| canonical_ids.get(id)) {
+                            *binding = json!({"type":"constant","content":canonical});
+                        }
+                    }
+                    let hash = hex::encode(Sha256::digest(
+                        serde_json::to_vec(&json!({"type":node["type"],"data":configuration,"connections":connections.get(&(workflow.id.clone(),id.to_owned()))}))
+                            .expect("JSON node"),
+                    ));
+                    let model_hash = model.map(|model| {
+                        hex::encode(Sha256::digest(
+                            serde_json::to_vec(&model).expect("model label"),
+                        ))
+                    });
+                    groups.insert((workflow.id.clone(),id.into()),json!({"workflowId":workflow.id,"canonicalWorkflowId":canonical,"workflowName":workflow.name,"nodeId":id,"nodeType":node["type"],"name":node["data"]["title"].as_str().unwrap_or(id),"configHash":hash,"modelHash":model_hash,"counts":{},"executions":0,"durationMs":0,"durationComplete":true,"modelCalls":0,"toolCalls":0,"httpCalls":0,"inputTokens":null,"outputTokens":null,"usageRecorded":0}));
+                }
+                if let Some(blocks) = node.get("blocks") {
+                    walk(
+                        blocks,
+                        workflow,
+                        canonical,
+                        models,
+                        groups,
+                        canonical_ids,
+                        connections,
+                    );
+                }
+            }
+        }
+        let definitions: Vec<crate::model::Workflow> = definitions
+            .iter()
+            .map(|text| serde_json::from_str(text))
+            .collect::<std::result::Result<_, _>>()?;
+        let mut canonical_ids: HashMap<_, _> = definitions
+            .iter()
+            .map(|workflow| {
+                (
+                    workflow.id.clone(),
+                    workflow.schema["canonicalWorkflowId"]
+                        .as_str()
+                        .or_else(|| workflow.schema["debugOrigin"]["workflowId"].as_str())
+                        .unwrap_or(&workflow.id)
+                        .to_owned(),
+                )
+            })
+            .collect();
+        fn edges(
+            nodes: &Value,
+            links: &Value,
+            workflow: &str,
+            output: &mut HashMap<(String, String), Vec<Value>>,
+        ) {
+            for edge in links.as_array().into_iter().flatten() {
+                for key in ["sourceNodeID", "targetNodeID"] {
+                    if let Some(node) = edge[key].as_str() {
+                        output
+                            .entry((workflow.into(), node.into()))
+                            .or_default()
+                            .push(edge.clone());
+                    }
+                }
+            }
+            for node in nodes.as_array().into_iter().flatten() {
+                edges(&node["blocks"], &node["edges"], workflow, output);
+            }
+        }
+        let mut connections = HashMap::new();
+        for workflow in &definitions {
+            edges(
+                &workflow.schema["nodes"],
+                &workflow.schema["edges"],
+                &workflow.id,
+                &mut connections,
+            );
+            if let Some(aliases) = workflow.schema["dependencyAliases"].as_object() {
+                for (id, canonical) in aliases {
+                    if let Some(canonical) = canonical.as_str() {
+                        canonical_ids.insert(id.clone(), canonical.into());
+                    }
+                }
+            }
+        }
+        for values in connections.values_mut() {
+            values.sort_by_key(Value::to_string);
+        }
+        for workflow in &definitions {
+            walk(
+                &workflow.schema["nodes"],
+                workflow,
+                &canonical_ids[&workflow.id],
+                &models,
+                &mut groups,
+                &canonical_ids,
+                &connections,
+            );
+        }
+        for entry in &entries {
+            if let Some(group) = groups.get_mut(&(entry.workflow_id.clone(), entry.node_id.clone()))
+            {
+                if entry.kind == "node" {
+                    if entry.duration_ms.is_none() {
+                        group["durationComplete"] = json!(false);
+                    }
+                    group["executions"] = json!(group["executions"].as_u64().unwrap_or(0) + 1);
+                    group["durationMs"] = json!(
+                        group["durationMs"].as_i64().unwrap_or(0) + entry.duration_ms.unwrap_or(0)
+                    );
+                    group["counts"][&entry.status] =
+                        json!(group["counts"][&entry.status].as_u64().unwrap_or(0) + 1);
+                } else {
+                    let key = match entry.kind.as_str() {
+                        "model" => "modelCalls",
+                        "tool" => "toolCalls",
+                        "http" => "httpCalls",
+                        _ => continue,
+                    };
+                    group[key] = json!(group[key].as_u64().unwrap_or(0) + 1);
+                }
+            }
+        }
+        let usage:Vec<(String,String,String)>=sqlx::query_as("SELECT json_extract(data,'$.workflowId'),json_extract(data,'$.nodeId'),json_extract(data,'$.outputs.usage') FROM events WHERE object_id=? AND kind='model_finished' AND json_type(data,'$.outputs.usage')='object'").bind(id).fetch_all(&self.db).await?;
+        for (workflow, node, usage) in usage {
+            if let Some(group) = groups.get_mut(&(workflow, node)) {
+                let usage: Value = serde_json::from_str(&usage)?;
+                let input = usage["input_tokens"]
+                    .as_u64()
+                    .or_else(|| usage["prompt_tokens"].as_u64());
+                let output = usage["output_tokens"]
+                    .as_u64()
+                    .or_else(|| usage["completion_tokens"].as_u64());
+                if input.is_some() || output.is_some() {
+                    group["usageRecorded"] =
+                        json!(group["usageRecorded"].as_u64().unwrap_or(0) + 1);
+                    if let Some(value) = input {
+                        group["inputTokens"] =
+                            json!(group["inputTokens"].as_u64().unwrap_or(0) + value);
+                    }
+                    if let Some(value) = output {
+                        group["outputTokens"] =
+                            json!(group["outputTokens"].as_u64().unwrap_or(0) + value);
+                    }
+                }
+            }
+        }
+        Ok(json!({"groups":groups.into_values().collect::<Vec<_>>(),"nodeTest":run.test_node_id}))
     }
     pub async fn inspect_trace(&self, id: &str, query: &TraceQuery) -> Result<Value> {
         let run = self.run(id).await?;
         match query.view.as_deref() {
+            Some("compare") => self.comparison(id).await,
             Some("sample") => {
                 self.trace_sample(
                     id,
@@ -726,6 +930,79 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(canceled["events"][1]["kind"], "http_canceled");
+    }
+    #[tokio::test]
+    async fn comparison_preserves_repeated_failures_usage_and_definition_identity() {
+        let (_dir, store, run) = recording().await;
+        for i in 0..2 {
+            store.emit("node_started",&run.id,json!({"nodeId":"loop","executionId":format!("loop-{i}"),"workflowId":run.workflow_id,"inputs":{}})).await.unwrap();
+            store.emit(if i==0{"node_failed"}else{"node_finished"},&run.id,json!({"nodeId":"loop","executionId":format!("loop-{i}"),"workflowId":run.workflow_id,"outputs":{"value":i}})).await.unwrap();
+        }
+        store.emit("model_started",&run.id,json!({"nodeId":"loop","executionId":"model","workflowId":run.workflow_id,"parentExecutionId":"loop-0","inputs":[]})).await.unwrap();
+        store.emit("model_finished",&run.id,json!({"nodeId":"loop","executionId":"model","workflowId":run.workflow_id,"parentExecutionId":"loop-0","outputs":{"usage":{"input_tokens":12,"output_tokens":3}}})).await.unwrap();
+        let comparison = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("compare".into()),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        let group = &comparison["groups"][0];
+        assert_eq!(group["executions"], 2);
+        assert_eq!(group["counts"]["failed"], 1);
+        assert_eq!(group["inputTokens"], 12);
+        assert_eq!(group["outputTokens"], 3);
+        assert_eq!(group["modelCalls"], 1);
+        let clone = store
+            .prepare_debug_copy(crate::run_debug::DebugCopy {
+                workflow_id: run.workflow_id.clone(),
+                workflows: vec![
+                    store
+                        .pinned_workflow(&run.id, &run.workflow_id)
+                        .await
+                        .unwrap(),
+                ],
+                name_suffix: "Debug".into(),
+                origin: crate::run_debug::Origin {
+                    run_id: run.id.clone(),
+                    workflow_id: run.workflow_id.clone(),
+                    execution_id: None,
+                    request_root: None,
+                },
+            })
+            .await
+            .unwrap();
+        let workflow: crate::model::Workflow =
+            serde_json::from_value(clone["workflow"].clone()).unwrap();
+        let mut tx = store.db.begin().await.unwrap();
+        let second = store
+            .prepare_run(
+                &workflow,
+                None,
+                &json!({}),
+                std::slice::from_ref(&workflow),
+                &mut tx,
+            )
+            .await
+            .unwrap();
+        tx.commit().await.unwrap();
+        let second = store
+            .inspect_trace(
+                &second.id,
+                &TraceQuery {
+                    view: Some("compare".into()),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(second["groups"][0]["canonicalWorkflowId"], run.workflow_id);
+        assert_eq!(second["groups"][0]["configHash"], group["configHash"]);
+        assert_eq!(second["groups"][0]["executions"], 0);
+        assert!(second["groups"][0]["inputTokens"].is_null());
     }
     #[tokio::test]
     async fn terminal_runs_preserve_unfinished_spans_and_snapshot_identity() {

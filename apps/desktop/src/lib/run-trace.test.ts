@@ -6,6 +6,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   aggregateStatus,
+  pairGroups,
+  instanceKey,
+  type ComparisonGroup,
   duration,
   executionData,
   mergeExecutions,
@@ -68,5 +71,34 @@ describe('run inspection', () => {
       executionData([event(1, 'http_failed', { error: 'Connection failed' })])
         .error
     ).toBe('Connection failed');
+  });
+  it('matches debug copies by definition identity and separates repeated call paths', () => {
+    const group = {
+      canonicalWorkflowId: 'original',
+      nodeId: 'parse',
+    } as ComparisonGroup;
+    const pairs = pairGroups(
+      [group],
+      [
+        { ...group, workflowId: 'copy' },
+        { ...group, canonicalWorkflowId: 'another' },
+      ]
+    );
+    expect(pairs).toHaveLength(2);
+    expect(pairs[0].left).toBeDefined();
+    expect(pairs[0].right?.workflowId).toBe('copy');
+    expect(pairs[1].left).toBeUndefined();
+    const entry = {
+      parentPath: ['loop', 'first-call'],
+      iterationPath: [36],
+      branchPath: ['approval'],
+      attempt: 1,
+    } as Execution;
+    expect(instanceKey(entry)).not.toBe(
+      instanceKey({ ...entry, parentPath: ['loop', 'second-call'] })
+    );
+    expect(instanceKey(entry)).not.toBe(
+      instanceKey({ ...entry, iterationPath: [37] })
+    );
   });
 });
