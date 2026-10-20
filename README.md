@@ -14,7 +14,7 @@
 
 FlowGram is a composable, visual, easy-to-integrate, and extensible workflow development framework & toolkit.
 Our goal is to help developers build AI workflow platforms **faster** and **simpler**.
-FlowGram comes with a suite of built-in tools for workflow development: flow canvas, node configuration form, variable scope chain, and ready-to-use materials (LLM, Condition, Code Editor etc). It’s not a ready-made workflow platform; it’s the framework and toolkit to build yours.
+FlowGram comes with a suite of built-in tools for workflow development: flow canvas, node configuration form, variable scope chain, and ready-to-use materials (LLM, Condition, Code Editor etc). The framework packages provide the building blocks for your own workflow platform; FlowGram Desktop brings them together in a native Agent workspace.
 
 Learn more at [FlowGram.AI 🌐](https://flowgram.ai)
 
@@ -25,6 +25,19 @@ Learn more at [FlowGram.AI 🌐](https://flowgram.ai)
 Open in [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) or [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
 
 In this demo, we iterate through a list of cities, fetch real-time weather via HTTP, parse temperatures with a Code node, generate outfit suggestions with an LLM, gate by a Condition, aggregate results across the loop, and finally use an Advisor LLM to pick the most comfortable city before sending the result to the End node.
+
+## 🖥️ FlowGram Desktop
+
+FlowGram Desktop is a native Agent workspace for macOS and Windows. Build, run, debug, and reuse workflows through conversation and a visual canvas.
+
+- **Build:** describe a task in chat, then refine nodes, conditions, parallel branches, joins, and loops on the canvas.
+- **Debug:** test individual nodes, inspect inputs and outputs, and revisit execution paths and historical workflow snapshots.
+- **Reuse:** publish versioned workflows for HTTP and MCP consumers, or call them from other workflows.
+- **Organize:** manage project-based workflows and chats, import and export projects, and work in English or Simplified Chinese with light and dark themes. Six industry example projects help you get started.
+
+[![Watch the FlowGram Desktop product video](./apps/docs/src/public/desktop/flowgram-desktop-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop.mp4?raw=1)
+
+[▶ Watch the 45-second product video](./apps/docs/src/public/desktop/flowgram-desktop.mp4?raw=1) · [Desktop setup and development](./apps/desktop/README.md)
 
 ## 🚀 Quick Start
 

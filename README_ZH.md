@@ -14,7 +14,7 @@
 
 FlowGram 是一个可组合、可视化、易于集成且可扩展的工作流开发框架与工具集。
 我们的目标是帮助开发者以更快、更简单的方式搭建 AI 工作流平台。
-FlowGram 内置开箱开箱即用的工作流开发能力：可视化流程画布、节点配置表单、变量作用域链，以及开箱即用的物料（LLM、条件、代码编辑器等）。这并非一个现成的工作流平台，而是帮助你构建平台的框架与工具。
+FlowGram 内置开箱即用的工作流开发能力：可视化流程画布、节点配置表单、变量作用域链，以及开箱即用的物料（LLM、条件、代码编辑器等）。框架包提供构建工作流平台的基础能力，FlowGram Desktop 则将这些能力整合为原生桌面 Agent 工作台。
 
 了解更多 [FlowGram.AI 🌐](https://flowgram.ai)
 
@@ -25,6 +25,19 @@ FlowGram 内置开箱开箱即用的工作流开发能力：可视化流程画�
 在 [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) 或 [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo) 中打开
 
 在该演示中，我们遍历一组城市，通过 HTTP 获取实时天气，用 Code 节点解析温度，借助 LLM 生成穿搭建议，经由 Condition 进行筛选，在循环中汇总结果，最后使用 Advisor LLM 选出最舒适的城市，并将结果发送至 End 节点。
+
+## 🖥️ FlowGram Desktop
+
+FlowGram Desktop 是面向 macOS 和 Windows 的原生桌面 Agent 工作台，通过对话与可视化画布衔接工作流的搭建、运行、调试和复用。
+
+- **搭建：** 用对话描述需求，在画布中调整节点、条件、并行分支、汇合与循环。
+- **调试：** 单独测试节点，查看输入输出，回看执行路径与历史工作流快照。
+- **复用：** 发布带版本的工作流，供 HTTP、MCP 或其他工作流调用。
+- **管理：** 按项目组织工作流与会话，导入导出工程，支持中英文界面与明暗主题，并内置六套行业示例项目。
+
+[![观看 FlowGram Desktop 产品视频](./apps/docs/src/public/desktop/flowgram-desktop-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop.mp4?raw=1)
+
+[▶ 观看 45 秒产品视频](./apps/docs/src/public/desktop/flowgram-desktop.mp4?raw=1) · [Desktop 使用与开发说明](./apps/desktop/README.md)
 
 ## 🚀 快速上手
 
