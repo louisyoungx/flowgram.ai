@@ -18,12 +18,13 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
     assert!(registry.initialize_projects("zh-CN").await.unwrap());
     assert!(!registry.initialize_projects("en").await.unwrap());
     let projects = registry.projects().await;
-    assert_eq!(projects.len(), 3);
+    assert_eq!(projects.len(), 6);
     let mut workflows_count = 0;
     let mut sessions_count = 0;
     let mut turns_count = 0;
     let mut runs_count = 0;
     let mut failed_count = 0;
+    let mut canvas_nodes = 0;
     for project in &projects {
         assert!(project.name.starts_with("示例 · "));
         let store = registry.resolve(&project.id).await.unwrap();
@@ -32,6 +33,7 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
         let sessions = store.sessions().await.unwrap();
         sessions_count += sessions.len();
         for workflow in &workflows {
+            canvas_nodes += count_nodes(&workflow.schema);
             assert!(
                 runtime::validate(&workflow.schema).unwrap().is_empty(),
                 "{}",
@@ -114,7 +116,17 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
                 assert_eq!(run.status, "succeeded");
             }
             assert!(store.run_definition(&run.id).await.unwrap().is_some());
+            assert!(
+                store
+                    .run_model_traces(&run.id)
+                    .await
+                    .unwrap()
+                    .as_array()
+                    .unwrap()
+                    .is_empty()
+            );
         }
+        verify_business_outcomes(&store, &project.name).await;
         assert!(
             std::path::Path::new(&project.directory)
                 .join("assets/README.md")
@@ -134,8 +146,9 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
             runs_count,
             failed_count
         ),
-        (6, 9, 13, 6, 1)
+        (18, 18, 24, 29, 6)
     );
+    assert_eq!(canvas_nodes, 290);
     let actual: Value = serde_json::from_slice(
         &tokio::fs::read(dir.path().join("model.json"))
             .await
@@ -144,7 +157,19 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
     .unwrap();
     assert_eq!(actual, model);
     let order = registry.resolve(&projects[0].id).await.unwrap();
-    let output = &order.runs().await.unwrap()[0].outputs;
+    let batch = order
+        .workflows()
+        .await
+        .unwrap()
+        .into_iter()
+        .find(|w| w.name.contains("批量订单"))
+        .unwrap();
+    let runs = order.runs().await.unwrap();
+    let output = &runs
+        .iter()
+        .find(|r| r.workflow_id == batch.id)
+        .unwrap()
+        .outputs["result"];
     assert_eq!(output["duplicates"], 1);
     assert_eq!(output["results"].as_array().unwrap().len(), 3);
     assert!(output["errors"].as_array().unwrap().is_empty());
@@ -163,7 +188,7 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
         .unwrap();
     let copy = registry.resolve(&imported.id).await.unwrap();
     assert_eq!(copy.sessions().await.unwrap().len(), 3);
-    assert_eq!(copy.runs().await.unwrap().len(), 1);
+    assert_eq!(copy.runs().await.unwrap().len(), 5);
     let w = copy.workflows().await.unwrap().remove(0);
     copy.set_archived("workflow", &w.id, true).await.unwrap();
     copy.set_archived("workflow", &w.id, false).await.unwrap();
@@ -273,12 +298,7 @@ async fn every_offline_example_can_be_rerun_through_normal_runtime_with_its_visi
     for project in registry.projects().await {
         let store = registry.resolve(&project.id).await.unwrap();
         for workflow in store.workflows().await.unwrap() {
-            if workflow.schema["nodes"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .any(|n| n["type"] == "llm")
-            {
+            if needs_model(&workflow.schema) {
                 continue;
             }
             let start = workflow.schema["nodes"]
@@ -316,5 +336,116 @@ async fn every_offline_example_can_be_rerun_through_normal_runtime_with_its_visi
             count += 1;
         }
     }
-    assert_eq!(count, 5);
+    assert_eq!(count, 11);
+}
+
+fn needs_model(schema: &Value) -> bool {
+    schema["nodes"].as_array().into_iter().flatten().any(|n| {
+        matches!(n["type"].as_str(), Some("llm" | "agent"))
+            || needs_model(&json!({"nodes":n["blocks"]}))
+    })
+}
+
+fn count_nodes(schema: &Value) -> usize {
+    schema["nodes"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .map(|n| 1 + count_nodes(&json!({"nodes":n["blocks"]})))
+        .sum()
+}
+
+async fn verify_business_outcomes(store: &flowgram_desktop_backend::store::Store, name: &str) {
+    let runs = store.runs().await.unwrap();
+    let workflows = store.workflows().await.unwrap();
+    let results = |name: &str| {
+        let id = &workflows.iter().find(|w| w.name.contains(name)).unwrap().id;
+        runs.iter()
+            .filter(|r| &r.workflow_id == id && r.status == "succeeded")
+            .collect::<Vec<_>>()
+    };
+    if name.contains("采购") {
+        let output = &results("批量对账")
+            .into_iter()
+            .find(|r| r.inputs["invoices"].as_array().unwrap().len() == 6)
+            .unwrap()
+            .outputs;
+        let mut statuses = output["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|r| r["status"].as_str().unwrap())
+            .collect::<Vec<_>>();
+        statuses.sort();
+        assert_eq!(
+            statuses,
+            [
+                "amount-mismatch",
+                "currency-mismatch",
+                "matched",
+                "missing-po",
+                "short-receipt"
+            ]
+        );
+        assert_eq!(output["duplicates"], 1);
+        assert!(output["errors"].as_array().unwrap().is_empty());
+        let currencies = output["summary"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|r| r["key"]["currency"].as_str().unwrap())
+            .collect::<std::collections::HashSet<_>>();
+        assert_eq!(currencies.len(), 2);
+    } else if name.contains("客户支持") {
+        let cases = results("分类与敏感");
+        let sensitive = cases
+            .iter()
+            .find(|r| r.inputs["ticket"]["sensitive"] == true)
+            .unwrap();
+        assert_eq!(sensitive.outputs["result"]["queue"], "human");
+        let output = &results("工单趋势")[0].outputs;
+        assert_eq!(output["duplicates"], 1);
+        assert_eq!(output["summary"].as_array().unwrap().len(), 3);
+    } else if name.contains("媒体") {
+        let output = &results("质量与审核包")[0].outputs;
+        assert_eq!(output["results"].as_array().unwrap().len(), 2);
+        assert!(
+            output["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|r| r["status"] == "ready-for-review")
+        );
+        assert_eq!(
+            results("清理素材")[0].outputs["result"]["digest"]
+                .as_str()
+                .unwrap()
+                .len(),
+            64
+        );
+    } else if name.contains("运维") {
+        let cases = results("告警聚合");
+        let critical = cases
+            .iter()
+            .find(|r| r.inputs["severity"] == "critical")
+            .unwrap();
+        assert_eq!(critical.outputs["result"]["duplicates"], 1);
+        assert_eq!(
+            critical.outputs["result"]["services"][0]["occurrences"],
+            25.0
+        );
+        let warning = cases
+            .iter()
+            .find(|r| r.inputs["severity"] == "warning")
+            .unwrap();
+        assert_eq!(
+            warning.outputs["result"]["services"][0]["key"]["service"],
+            "inventory"
+        );
+    } else if name.contains("教育") {
+        let output = &results("班级学习周报")[0].outputs;
+        assert_eq!(output["evidence"]["scores"][0]["averageScore"], 72.0);
+        assert_eq!(output["evidence"]["scores"][0]["submitted"], 2);
+        assert_eq!(output["evidence"]["missing"].as_array().unwrap().len(), 1);
+    }
 }

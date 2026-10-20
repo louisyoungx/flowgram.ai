@@ -1,6 +1,5 @@
 //! First-use content is authored into ordinary project files and conversation records.
 mod content;
-mod graphs;
 mod history;
 
 use crate::{
@@ -51,7 +50,7 @@ impl Registry {
                 for scenario in content::scenarios(locale) {
                     let folder = id();
                     let root = stage.join(&folder);
-                    let project = write_project(&root, &scenario.name).await?;
+                    let project = write_project(&root, scenario.name()).await?;
                     let store =
                         Store::open_configured(&root, &self.directory, Some(self.model.clone()))
                             .await?;

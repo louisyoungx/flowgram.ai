@@ -79,3 +79,41 @@ python3 apps/desktop-backend/validation/service_lifecycle.py --offline
 ```
 
 This asserts that the desktop backend is unreachable, consumes all three business services, checks injected-credential redaction, cancellation and signed callback retry, restarts only the acceptance service host, and verifies that interrupted execution is retained rather than replayed. Reopen the desktop afterward. The acceptance probe is disabled at the end; the three business services remain enabled.
+
+
+## Six first-use business projects
+
+The production first-use catalog is authored in `scripts/build-example-catalog.py` and compiled from `catalog/examples/*.json` into the Rust initializer. Python is an authoring and acceptance tool, not an application runtime dependency. Regenerate catalogs with:
+
+```sh
+python3 apps/desktop-backend/scripts/build-example-catalog.py
+cargo test -p flowgram-desktop-backend --test initial_projects
+```
+
+| Project | Workflows | Canvas nodes |
+| --- | --- | --- |
+| Commerce: fulfillment decisions, batch processing, exception report | 3 | 53 |
+| Manufacturing: invoice matching, reconciliation, exception analysis | 3 | 65 |
+| SaaS: guarded ticket routing, support Agent, queue trends | 3 | 47 |
+| Media: source preparation, parallel channel drafts, quality checks | 3 | 50 |
+| IT operations: alert triage and HTTP retry, diagnostic Agent, incident review | 3 | 38 |
+| Education: submission checks, grounded feedback, class weekly report | 3 | 37 |
+
+Initialization creates 18 ordinary workflows (290 nodes including loop bodies), 18 authored conversations, 24 turns and 29 actual runs. Six failed executions are retained beside corrected successful runs. All 11 model-free workflows rerun using visible defaults; the seven AI workflows require the configured provider. Initialization makes no model requests and does not fabricate replies or tools. Every generated dependency uses an ordinary stable workflow identity; branch values leave their scopes through the paired join.
+
+For HTTP acceptance, start the loopback fixture in a persistent terminal:
+
+```sh
+python3 apps/desktop-backend/validation/example_endpoints.py --port 59146 --connection .flowgram-local/example-http-connection.json
+```
+
+Against a workspace containing these six projects, validate all workflows, actual provider requests, Agent read-only tools, generated draft handoff into quality checks, transient HTTP retry and retry exhaustion:
+
+```sh
+python3 apps/desktop-backend/validation/example_projects.py \
+  --connection "$HOME/Library/Application Support/ai.flowgram.desktop/connection.json" \
+  --output .flowgram-local/example-project-acceptance.json \
+  --models --http-connection .flowgram-local/example-http-connection.json
+```
+
+`--models` makes real calls through the application's existing configured provider. Omit it for model-free checks. `--reuse-model-runs` is intended only for continuing an acceptance pass whose definitions have not changed; it reuses a successful model run with identical inputs. Execution evidence traverses and pages the real parent/child trace, including model, tool and HTTP spans. Sample health data is controlled; HTTP requests and retry attempts are real. Model outputs remain drafts, not publication or operational side effects.
