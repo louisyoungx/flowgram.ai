@@ -2522,5 +2522,10 @@
     "Check drafts independently": "逐条检查渠道草稿",
     "Summarize business outcomes": "汇总业务处理结果",
     "Order publication review tasks": "整理发布审核事项顺序"
+  },
+  "durationEstimatesMs": {
+    "build": 210000,
+    "change": 60000,
+    "debug": [75000, 90000]
   }
 }

@@ -214,10 +214,12 @@ export function CanvasNodeRunBadge({
       ? Clock3
       : CircleMinus;
   const elapsed =
-    entry.durationMs ??
-    (status === 'running' && entry.startedAt
-      ? Math.max(0, now - Date.parse(entry.startedAt))
-      : undefined);
+    status === 'skipped'
+      ? undefined
+      : entry.durationMs ??
+        (status === 'running' && entry.startedAt
+          ? Math.max(0, now - Date.parse(entry.startedAt))
+          : undefined);
   const failed = entry.counts?.failed || 0;
   const repeated = (entry.total || 0) > 1;
   const iteration = entry.iterationPath?.map((index) => index + 1).join(' / ');

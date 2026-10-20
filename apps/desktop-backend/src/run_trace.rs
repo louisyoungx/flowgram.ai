@@ -7,7 +7,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 const PAGE_SIZE: usize = 100;
 #[derive(Default, Deserialize, Serialize)]
@@ -71,7 +71,7 @@ struct Execution {
 pub(crate) fn milliseconds(start: &str, end: &str) -> Option<i64> {
     let start = chrono::DateTime::parse_from_rfc3339(start).ok()?;
     let end = chrono::DateTime::parse_from_rfc3339(end).ok()?;
-    Some((end - start).num_milliseconds().max(0))
+    (end >= start).then(|| (end - start).num_milliseconds())
 }
 fn text(value: &Value, key: &str) -> Option<String> {
     value[key].as_str().map(str::to_owned)
@@ -85,6 +85,7 @@ impl Store {
         ).bind(&run.id).bind(at).bind(at).fetch_all(&self.db).await?;
         let mut entries = Vec::<Execution>::new();
         let mut lookup = HashMap::new();
+        let mut recorded_starts = HashSet::new();
         for (sequence, kind, timestamp, data) in rows {
             if kind == "model_usage" {
                 continue;
@@ -133,6 +134,9 @@ impl Store {
                 index
             });
             let entry = &mut entries[index];
+            if kind.ends_with("_started") {
+                recorded_starts.insert(index);
+            }
             entry.last_sequence = sequence;
             entry.inputs_available |= data["hasInputs"].as_i64() == Some(1);
             entry.outputs_available |= data["hasOutputs"].as_i64() == Some(1);
@@ -150,7 +154,11 @@ impl Store {
             if let Some(status) = terminal {
                 entry.status = status.into();
                 entry.ended_at = Some(timestamp.clone());
-                entry.duration_ms = milliseconds(&entry.started_at, &timestamp);
+                entry.duration_ms = if status != "skipped" && recorded_starts.contains(&index) {
+                    milliseconds(&entry.started_at, &timestamp)
+                } else {
+                    None
+                };
             } else if kind.ends_with("_waiting") {
                 entry.status = "waiting".into();
             }
@@ -249,7 +257,7 @@ impl Store {
                             serde_json::to_vec(&model).expect("model label"),
                         ))
                     });
-                    groups.insert((workflow.id.clone(),id.into()),json!({"workflowId":workflow.id,"canonicalWorkflowId":canonical,"workflowName":workflow.name,"nodeId":id,"nodeType":node["type"],"name":node["data"]["title"].as_str().unwrap_or(id),"configHash":hash,"modelHash":model_hash,"counts":{},"executions":0,"durationMs":0,"durationComplete":true,"modelCalls":0,"toolCalls":0,"httpCalls":0,"inputTokens":null,"outputTokens":null,"usageRecorded":0}));
+                    groups.insert((workflow.id.clone(),id.into()),json!({"workflowId":workflow.id,"canonicalWorkflowId":canonical,"workflowName":workflow.name,"nodeId":id,"nodeType":node["type"],"name":node["data"]["title"].as_str().unwrap_or(id),"configHash":hash,"modelHash":model_hash,"counts":{},"executions":0,"durationMs":null,"durationComplete":true,"modelCalls":0,"toolCalls":0,"httpCalls":0,"inputTokens":null,"outputTokens":null,"usageRecorded":0}));
                 }
                 if let Some(blocks) = node.get("blocks") {
                     walk(
@@ -335,13 +343,13 @@ impl Store {
             if let Some(group) = groups.get_mut(&(entry.workflow_id.clone(), entry.node_id.clone()))
             {
                 if entry.kind == "node" {
-                    if entry.duration_ms.is_none() {
+                    if entry.duration_ms.is_none() && entry.status != "skipped" {
                         group["durationComplete"] = json!(false);
                     }
                     group["executions"] = json!(group["executions"].as_u64().unwrap_or(0) + 1);
-                    group["durationMs"] = json!(
-                        group["durationMs"].as_i64().unwrap_or(0) + entry.duration_ms.unwrap_or(0)
-                    );
+                    if let Some(duration) = entry.duration_ms {
+                        group["durationMs"] = json!(group["durationMs"].as_i64().unwrap_or(0) + duration);
+                    }
                     group["counts"][&entry.status] =
                         json!(group["counts"][&entry.status].as_u64().unwrap_or(0) + 1);
                 } else {
@@ -688,6 +696,27 @@ pub(crate) fn safe_payload(mut value: Value) -> Value {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn timing_preserves_submillisecond_bounds_and_rejects_reversed_clocks() {
+        let start = "2026-10-20T00:00:00.000000Z";
+        assert_eq!(milliseconds(start, "2026-10-20T00:00:00.000400Z"), Some(0));
+        assert_eq!(milliseconds(start, "2026-10-19T23:59:59.999900Z"), None);
+        assert_eq!(milliseconds(start, "invalid"), None);
+    }
+    #[tokio::test]
+    async fn skipped_and_missing_start_events_have_no_measured_duration() {
+        let (_dir, store, run) = recording().await;
+        for (kind, identity) in [("node_skipped", "skipped"), ("node_finished", "no-start")] {
+            store.emit(kind, &run.id, json!({"nodeId":"loop","executionId":identity})).await.unwrap();
+        }
+        let detail = store.inspect_trace(&run.id, &TraceQuery::default()).await.unwrap();
+        for entry in detail["trace"]["executions"].as_array().unwrap() {
+            assert!(entry["durationMs"].is_null());
+        }
+        let comparison = store.inspect_trace(&run.id, &TraceQuery { view: Some("compare".into()), ..Default::default() }).await.unwrap();
+        assert!(comparison["groups"][0]["durationMs"].is_null());
+        assert_eq!(comparison["groups"][0]["durationComplete"], false);
+    }
     async fn recording() -> (tempfile::TempDir, Store, Run) {
         let dir = tempfile::tempdir().unwrap();
         let store = Store::open(dir.path()).await.unwrap();

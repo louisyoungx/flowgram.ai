@@ -41,6 +41,12 @@ struct Change {
     input: Value,
 }
 #[derive(Deserialize)]
+struct DurationEstimates {
+    build: u64,
+    change: u64,
+    debug: [u64; 2],
+}
+#[derive(Deserialize)]
 pub(super) struct Scenario {
     pub name: Copy,
     key: String,
@@ -49,6 +55,8 @@ pub(super) struct Scenario {
     change: Change,
     focus: Copy,
     walkthrough: HashMap<String, Copy>,
+    #[serde(rename = "durationEstimatesMs")]
+    duration_estimates: DurationEstimates,
     translations: HashMap<String, String>,
     #[serde(skip)]
     chinese: bool,
@@ -167,6 +175,7 @@ pub(super) async fn populate(store: &Store, project: &str, scenario: Scenario) -
         &build.id,
         scenario.walkthrough["buildPrompt"].get(zh).to_owned(),
         None,
+        scenario.duration_estimates.build,
     )
     .await?;
     let mut identities = HashMap::new();
@@ -234,6 +243,7 @@ pub(super) async fn populate(store: &Store, project: &str, scenario: Scenario) -
         &changes.id,
         scenario.walkthrough["changePrompt"].get(zh).to_owned(),
         Some(id),
+        scenario.duration_estimates.change,
     )
     .await?;
     turn.call("inspect_workflow", json!({"workflowId":id}))
@@ -286,6 +296,7 @@ pub(super) async fn populate(store: &Store, project: &str, scenario: Scenario) -
                 case.label.get(zh)
             ),
             Some(id),
+            scenario.duration_estimates.debug[index],
         )
         .await?;
         turn.call("inspect_workflow", json!({"workflowId":id}))

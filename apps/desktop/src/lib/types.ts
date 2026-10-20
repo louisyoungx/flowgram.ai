@@ -89,6 +89,8 @@ export interface ConversationInput {
   error: string | null;
 }
 export interface Turn {
+  origin?: 'agent' | 'authored';
+  estimatedDurationMs?: number | null;
   model?: import('./models').ModelTrace | null;
   id: string;
   sessionId: string;

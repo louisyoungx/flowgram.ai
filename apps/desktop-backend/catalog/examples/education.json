@@ -2074,5 +2074,10 @@
     "Serialize class report facts": "序列化班级周报事实",
     "Prepare report variables": "组装报告变量",
     "Format class learning report": "生成班级学习周报"
+  },
+  "durationEstimatesMs": {
+    "build": 195000,
+    "change": 45000,
+    "debug": [60000, 75000]
   }
 }

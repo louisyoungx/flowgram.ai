@@ -35,6 +35,8 @@ import {
   presentTurn,
   processIsOpen,
   toolCounts,
+  turnDurationMs,
+  turnDurationLabel,
   type ProcessChoice,
 } from '../lib/conversation-presentation';
 import { Collapse, usePresence } from './ui/presence';
@@ -270,9 +272,8 @@ export function ConversationTurn({
     return () => window.clearTimeout(timeout);
   }, [copied]);
   const tools = items.filter((item) => item.kind === 'tool');
-  const duration = turn.endedAt
-    ? Math.max(0, Math.round((Date.parse(turn.endedAt) - Date.parse(turn.startedAt)) / 1000))
-    : null;
+  const elapsedMs = turnDurationMs(turn);
+  const estimated = turn.origin === 'authored';
   const error = turn.status === 'failed';
   const phase =
     turn.status === 'stopping'
@@ -306,15 +307,23 @@ export function ConversationTurn({
           className="conversation-process-toggle"
           aria-expanded={open}
           aria-controls={processId}
+          title={estimated ? tx('示例时长为估算值，不代表实际模型调用耗时。') : undefined}
           onClick={() => setChoice({ baseline: defaultProcessOpen, open: !open })}
         >
           <span>
-            {turn.status === 'completed'
+            {turn.origin === 'authored'
+              ? tx('预置讲解')
+              : turn.status === 'completed'
               ? tx('已处理')
               : turn.status === 'failed'
               ? tx('本轮未完成')
               : tx('已停止 / 中断')}
-            {duration !== null && tx(' · {0} 秒', [duration])}
+            {elapsedMs !== null &&
+              ` · ${
+                estimated
+                  ? tx('约 {0}', [turnDurationLabel(elapsedMs)])
+                  : turnDurationLabel(elapsedMs)
+              }`}
           </span>
           <ChevronDown size={12} className={open ? '' : '-rotate-90'} />
           {toolCount > 0 && (

@@ -118,10 +118,13 @@ export const sourceLabel = (source: string) =>
     )[source] || source
   );
 export function duration(ms: number | null | undefined) {
-  if (ms == null) return '—';
+  if (ms == null || !Number.isFinite(ms) || ms < 0) return '—';
+  if (ms < 1) return '<1 ms';
   if (ms < 1000) return `${Math.round(ms)} ms`;
-  if (ms < 60000) return `${(ms / 1000).toFixed(1)} s`;
-  return `${Math.floor(ms / 60000)} m ${Math.round((ms % 60000) / 1000)} s`;
+  const seconds = Math.round(ms / 100) / 10;
+  if (seconds < 60) return `${seconds.toFixed(1)} s`;
+  const wholeSeconds = Math.round(ms / 1000);
+  return `${Math.floor(wholeSeconds / 60)} m ${wholeSeconds % 60} s`;
 }
 export function executionPath(execution: Execution) {
   return [
@@ -193,7 +196,7 @@ export interface ComparisonGroup {
   modelHash: string | null;
   counts: Record<string, number>;
   executions: number;
-  durationMs: number;
+  durationMs: number | null;
   durationComplete?: boolean;
   modelCalls: number;
   toolCalls: number;

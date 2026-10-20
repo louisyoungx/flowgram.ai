@@ -4,6 +4,28 @@
  */
 
 import type { ConversationItem, Turn } from './types';
+import { tx } from './i18n';
+import { duration } from './run-trace';
+
+export function turnDurationLabel(ms: number): string {
+  if (ms < 1000) return duration(ms);
+  if (ms < 60000) return tx('{0} 秒', [Number((ms / 1000).toFixed(1))]);
+  const total = Math.round(ms / 1000);
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return seconds ? tx('{0} 分 {1} 秒', [minutes, seconds]) : tx('{0} 分钟', [minutes]);
+}
+
+/** Estimates are explicit metadata, never synthesized from setup timestamps. */
+export function turnDurationMs(turn: Turn): number | null {
+  if (turn.origin === 'authored') {
+    const estimate = turn.estimatedDurationMs;
+    return estimate != null && Number.isFinite(estimate) && estimate > 0 ? estimate : null;
+  }
+  if (!turn.endedAt) return null;
+  const elapsed = Date.parse(turn.endedAt) - Date.parse(turn.startedAt);
+  return Number.isFinite(elapsed) && elapsed >= 0 ? elapsed : null;
+}
 
 export type ConversationSegment =
   | { kind: 'item'; id: string; item: ConversationItem }

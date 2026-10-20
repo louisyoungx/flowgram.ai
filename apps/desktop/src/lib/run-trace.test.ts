@@ -69,8 +69,13 @@ describe('run inspection', () => {
   });
   it('does not invent a duration for interrupted or unrecorded spans', () => {
     expect(duration(null)).toBe('—');
-    expect(duration(0)).toBe('0 ms');
+    expect(duration(0)).toBe('<1 ms');
+    expect(duration(0.4)).toBe('<1 ms');
+    expect(duration(Number.NaN)).toBe('—');
+    expect(duration(-1)).toBe('—');
     expect(duration(1250)).toBe('1.3 s');
+    expect(duration(59999)).toBe('1 m 0 s');
+    expect(duration(119999)).toBe('2 m 0 s');
     expect(
       executionData([event(1, 'http_failed', { error: 'Connection failed' })])
         .error

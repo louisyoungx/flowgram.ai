@@ -285,6 +285,8 @@ async fn restart_keeps_unstarted_inputs_but_does_not_replay_unknown_tool_results
         started_at: now(),
         ended_at: None,
         final_item_id: None,
+        origin: Default::default(),
+        estimated_duration_ms: None,
         model: None,
         error: None,
     };

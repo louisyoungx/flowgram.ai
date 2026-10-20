@@ -2001,5 +2001,10 @@
     "Prepare report variables": "组装报告变量",
     "Format evidence report": "生成证据报告",
     "Generate grounded draft": "生成有依据的草稿"
+  },
+  "durationEstimatesMs": {
+    "build": 225000,
+    "change": 60000,
+    "debug": [90000, 105000]
   }
 }

@@ -3496,5 +3496,10 @@
     "Format evidence report": "生成证据报告",
     "Generate grounded draft": "生成有依据的草稿",
     "Keep model provenance": "保留模型生成来源"
+  },
+  "durationEstimatesMs": {
+    "build": 240000,
+    "change": 75000,
+    "debug": [90000, 120000]
   }
 }

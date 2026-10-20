@@ -67,6 +67,9 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
             let items = conversation["items"].as_array().unwrap();
             for turn in turns {
                 assert_eq!(turn["status"], "completed");
+                assert_eq!(turn["origin"], "authored");
+                assert!((45000..=240000).contains(&turn["estimatedDurationMs"].as_u64().unwrap()));
+                assert!(turn["model"].is_null());
                 assert!(
                     items
                         .iter()
@@ -188,6 +191,13 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
         .unwrap();
     let copy = registry.resolve(&imported.id).await.unwrap();
     assert_eq!(copy.sessions().await.unwrap().len(), 3);
+    for session in copy.sessions().await.unwrap() {
+        let conversation = copy.conversation(&session.id, None).await.unwrap();
+        for turn in conversation["turns"].as_array().unwrap() {
+            assert_eq!(turn["origin"], "authored");
+            assert!(turn["estimatedDurationMs"].as_u64().unwrap() >= 45000);
+        }
+    }
     assert_eq!(copy.runs().await.unwrap().len(), 5);
     let w = copy.workflows().await.unwrap().remove(0);
     copy.set_archived("workflow", &w.id, true).await.unwrap();

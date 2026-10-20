@@ -38,8 +38,19 @@ pub struct Turn {
     pub ended_at: Option<String>,
     pub final_item_id: Option<String>,
     #[serde(default)]
+    pub origin: TurnOrigin,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub estimated_duration_ms: Option<u64>,
+    #[serde(default)]
     pub model: Option<crate::models::Trace>,
     pub error: Option<String>,
+}
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum TurnOrigin {
+    #[default]
+    Agent,
+    Authored,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -569,6 +580,8 @@ impl Store {
             started_at: now(),
             ended_at: None,
             final_item_id: None,
+            origin: TurnOrigin::Agent,
+            estimated_duration_ms: None,
             model: Some(crate::models::Trace::from(&frozen)),
             error: None,
         };

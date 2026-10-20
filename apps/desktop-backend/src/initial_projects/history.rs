@@ -1,5 +1,5 @@
 use crate::{
-    conversation::{ConversationInput, ConversationItem, Turn, display_payload},
+    conversation::{ConversationInput, ConversationItem, Turn, TurnOrigin, display_payload},
     error::{Error, Result},
     store::{Store, id, now},
 };
@@ -19,6 +19,7 @@ impl<'a> Walkthrough<'a> {
         session: &str,
         text: String,
         workflow: Option<&str>,
+        estimated_duration_ms: u64,
     ) -> Result<Self> {
         let input_id = id();
         let mut turn = Turn {
@@ -32,6 +33,8 @@ impl<'a> Walkthrough<'a> {
             started_at: now(),
             ended_at: None,
             final_item_id: None,
+            origin: TurnOrigin::Authored,
+            estimated_duration_ms: Some(estimated_duration_ms),
             model: None,
             error: None,
         };

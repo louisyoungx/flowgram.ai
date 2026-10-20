@@ -15,6 +15,7 @@ import {
   processIsOpen,
   segmentConversation,
   toolCounts,
+  turnDurationMs,
 } from './conversation-presentation';
 
 const turn: Turn = {
@@ -58,6 +59,17 @@ const tool = item('tool', 'tool', 3);
 const final = item('final', 'assistant', 4, 'The workflow is valid.', 'final');
 
 describe('turn presentation', () => {
+  it('keeps authored estimates separate from measured and missing timings', () => {
+    const fast = { ...turn, endedAt: '2026-10-19T00:00:00.180Z' };
+    expect(turnDurationMs(fast)).toBe(180);
+    expect(turnDurationMs({ ...fast, estimatedDurationMs: 180000 })).toBe(180);
+    expect(turnDurationMs({ ...fast, origin: 'authored', estimatedDurationMs: 180000 })).toBe(180000);
+    expect(turnDurationMs({ ...fast, origin: 'authored' })).toBeNull();
+    expect(turnDurationMs({ ...fast, origin: 'authored', estimatedDurationMs: -1 })).toBeNull();
+    expect(turnDurationMs({ ...turn, endedAt: null })).toBeNull();
+    expect(turnDurationMs({ ...turn, endedAt: 'invalid' })).toBeNull();
+    expect(turnDurationMs({ ...turn, endedAt: '2026-10-18T23:59:59Z' })).toBeNull();
+  });
   it('does not invent an empty process disclosure for a plain response', () => {
     const view = presentTurn(turn, [user, final], true);
     expect(view.initial).toBe(user);
@@ -167,6 +179,17 @@ describe('turn render boundaries', () => {
     expect(html).toContain(final.content);
     expect(html).not.toContain('conversation-process-toggle');
     expect(html).not.toContain('conversation-turn-boundary');
+  });
+  it('labels an authored duration as an estimate instead of timing the initializer', () => {
+    const html = render({ ...turn, origin: 'authored', estimatedDurationMs: 180000 }, [user, tool, final]);
+    expect(html).toContain('About 3 min');
+    expect(html).toContain('Authored walkthrough');
+    expect(html).not.toContain('9.0 s');
+  });
+  it('preserves subsecond measured Agent turn durations', () => {
+    const html = render({ ...turn, endedAt: '2026-10-19T00:00:00.180Z' }, [user, tool, final]);
+    expect(html).toContain('180 ms');
+    expect(html).not.toContain('About');
   });
   it('leaves final content visible while hiding completed process segments', () => {
     const html = render(turn, [user, commentary, tool, final]);

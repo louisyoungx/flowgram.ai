@@ -2582,5 +2582,10 @@
     "Group human tasks by priority": "按优先级整理人工事项",
     "Serialize support summary": "序列化支持汇总",
     "Format support trend report": "生成支持趋势报告"
+  },
+  "durationEstimatesMs": {
+    "build": 165000,
+    "change": 45000,
+    "debug": [60000, 75000]
   }
 }

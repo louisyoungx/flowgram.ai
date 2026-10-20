@@ -470,11 +470,29 @@ WALKTHROUGHS = {
   'debugTitle': bilingual('Debug · Score outside allowed range','排错 · 成绩超出允许范围')}
 }
 
+# Editorial estimates for the authored conversations, not runtime measurements.
+# Each scenario creates three workflows, then demonstrates a targeted edit and
+# failure diagnosis/correction. Keep estimates rounded to avoid false precision.
+DURATION_ESTIMATES_SECONDS = {
+    'commerce': {'build': 180, 'change': 45, 'debug': [60, 90]},
+    'procurement': {'build': 240, 'change': 75, 'debug': [90, 120]},
+    'support': {'build': 165, 'change': 45, 'debug': [60, 75]},
+    'media': {'build': 210, 'change': 60, 'debug': [75, 90]},
+    'operations': {'build': 225, 'change': 60, 'debug': [90, 105]},
+    'education': {'build': 195, 'change': 45, 'debug': [60, 75]},
+}
+
 def main():
     total = 0
     for factory in [commerce, procurement, support, media, operations, education]:
         TRANSLATIONS.clear()
         blueprint = factory()
+        estimate = DURATION_ESTIMATES_SECONDS[blueprint['key']]
+        blueprint['durationEstimatesMs'] = {
+            'build': estimate['build'] * 1000,
+            'change': estimate['change'] * 1000,
+            'debug': [value * 1000 for value in estimate['debug']],
+        }
         count = sum(count_nodes(w['schema']) for w in blueprint['workflows'])
         total += count
         target = ROOT / 'catalog' / 'examples' / (blueprint['key'] + '.json')

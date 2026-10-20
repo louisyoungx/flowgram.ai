@@ -63,7 +63,9 @@ function Metrics({ group, nodeTest }: { group?: ComparisonGroup; nodeTest: boole
       <span className="block text-[10px] text-muted-foreground">
         {tx('累计节点耗时')}{' '}
         {group.executions
-          ? `${group.durationComplete === false ? '≥ ' : ''}${duration(group.durationMs)}`
+          ? `${group.durationMs != null && group.durationComplete === false ? '≥ ' : ''}${duration(
+              group.durationMs
+            )}`
           : '—'}
         {group.modelCalls ? ` · ${group.modelCalls} ${tx('模型调用')}` : ''}
       </span>
