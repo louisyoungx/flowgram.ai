@@ -274,8 +274,12 @@ describe('static canvas geometry', () => {
     const http = staticPorts(node('http'), graph);
     expect(wait.height).toBe(84);
     expect(http.height).toBe(110);
-    expect(wait.ports.map((port) => port.locationConfig.top)).toEqual([24, 24]);
-    expect(http.ports.map((port) => port.locationConfig.top)).toEqual([24, 24]);
+    expect(wait.ports.map((port) => port.locationConfig.top)).toEqual([42, 42]);
+    expect(http.ports.map((port) => port.locationConfig.top)).toEqual([55, 55]);
+    for (const type of ['start', 'end', 'block-start', 'block-end', 'control.break', 'control.continue']) {
+      const layout = staticPorts(node(type), graph);
+      expect(layout.ports.every((port) => port.locationConfig.top === layout.height / 2)).toBe(true);
+    }
     expect(staticPorts(node('wait', { title: 'Very long name '.repeat(20) }), graph)).toEqual(wait);
   });
   it('keeps terminal controls compact and never invents a forward output', () => {
