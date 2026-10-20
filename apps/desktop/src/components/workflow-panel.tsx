@@ -951,12 +951,12 @@ export function WorkflowPanel({
           reserve={240}
           edge="left"
           fill={editorExpanded || hostWidth < 600}
-          className={`border-l border-border ${
+          className={`workflow-node-panel ${
             editorExpanded || hostWidth < 600 ? 'nf-inspector-expanded' : ''
           }`}
         >
           {selectedNode && (
-            <>
+            <div className="workflow-node-panel-surface">
               {multiple && (
                 <div className="workflow-selection-summary">
                   <strong>{tx('已选中 {0} 个节点', [selectedIds.length])}</strong>
@@ -1074,7 +1074,7 @@ export function WorkflowPanel({
                   />
                 </FormSessionProvider>
               </div>
-            </>
+            </div>
           )}
         </ResizablePanel>
         <NodePalette

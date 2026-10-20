@@ -5,6 +5,9 @@
 
 .node-inspector-workspace{display:flex;flex:1;min-width:0;min-height:0;background:var(--surface-panel);color:var(--foreground)}
 .node-inspector-workspace.is-expanded{position:absolute;inset:0;z-index:12}
+.workflow-node-panel{background:var(--surface-canvas)}
+.workflow-node-panel-surface{position:relative;display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;margin:12px;overflow:hidden;border-radius:var(--radius-dialog);background:var(--surface-panel);box-shadow:var(--shadow-surface)}
+.workflow-node-panel>.panel-divider-left{left:7px;top:24px;bottom:24px}
 .nf-inspector-expanded{position:absolute;inset:0;z-index:25}
 .node-inspector{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;background:var(--surface-panel);container-type:inline-size}
 .nf-header{display:flex;align-items:center;gap:10px;padding:20px 20px 15px;flex-shrink:0}
@@ -173,7 +176,7 @@
 .nf-output-reference h3:not(:first-child){margin-top:26px}
 .nf-reference-detail{font-size:12px;margin:10px 0}
 .nf-reference-detail>summary{cursor:pointer;overflow-wrap:anywhere}
-.nf-expanded-host{position:relative;container-type:inline-size;min-width:0;min-height:0}
+.nf-expanded-host{position:relative;container-type:inline-size;min-width:0;min-height:0;background:var(--surface-canvas)}
 @container (max-width:760px){.nf-output-reference{display:none}}
 @container (max-width:520px){.nf-node-navigation{flex-basis:120px}.nf-schema-row{grid-template-columns:minmax(0,1fr) 75px 18px 22px}}
 @container (max-width:440px){.nf-node-navigation{display:none}}
