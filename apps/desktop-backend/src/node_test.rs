@@ -149,7 +149,7 @@ impl Store {
                     .emit(
                         "node_started",
                         &run_id,
-                        root.trace(json!({"nodeId":node.id,"executionId":execution_id,"inputs":input.inputs})),
+                        root.trace(json!({"nodeId":node.id,"executionId":execution_id,"name":node.data["title"],"inputs":input.inputs})),
                     )
                     .await;
                 let context = root.with_parent(execution_id.clone());

@@ -78,6 +78,7 @@ interface CanvasInteraction {
   rename: (id: string, title: string) => void;
   endRename: () => void;
   suppressClick: () => boolean;
+  readOnly: boolean;
 }
 const InteractionContext = createContext<CanvasInteraction>(null!);
 const PortContext = createContext<ReturnType<typeof portModels>>({});
@@ -94,59 +95,71 @@ function NodeFields({ type }: { type: string }) {
   const status = statuses[node.id];
   return (
     <>
-      {labels.output.map((port, index) => (
-        <button
-          key={port.id}
-          type="button"
-          className="node-port-add flow-canvas-not-draggable"
-          style={{ top: rows > 1 ? 123 + index * 28 : 'calc(50% - 12px)' }}
-          aria-label={tx('在「{0}」后添加节点', [port.label])}
-          title={tx('在「{0}」后添加节点', [port.label])}
-          onPointerDown={(event) => event.stopPropagation()}
-          onClick={(event) => {
-            event.stopPropagation();
-            interaction.add({
-              anchor: { x: event.clientX, y: event.clientY },
-              source: { nodeId: node.id, portId: port.id },
-              position: {
-                x: node.transform.position.x + 360,
-                y: node.transform.position.y + index * 80,
-              },
-            });
-          }}
-        >
-          <Plus size={13} />
-        </button>
-      ))}
+      {!interaction.readOnly &&
+        labels.output.map((port, index) => (
+          <button
+            key={port.id}
+            type="button"
+            className="node-port-add flow-canvas-not-draggable"
+            style={{ top: rows > 1 ? 123 + index * 28 : 'calc(50% - 12px)' }}
+            aria-label={tx('在「{0}」后添加节点', [port.label])}
+            title={tx('在「{0}」后添加节点', [port.label])}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              interaction.add({
+                anchor: { x: event.clientX, y: event.clientY },
+                source: { nodeId: node.id, portId: port.id },
+                position: {
+                  x: node.transform.position.x + 360,
+                  y: node.transform.position.y + index * 80,
+                },
+              });
+            }}
+          >
+            <Plus size={13} />
+          </button>
+        ))}
       <div className="workflow-node-heading">
         <span className={`node-icon node-tone-${spec.tone}`}>
           <Icon size={18} strokeWidth={1.7} />
         </span>
         <div className="min-w-0 flex-1">
           <Field<string> name="title">
-            {({ field }) => (
-              <InlineRename
-                value={field.value || spec.title}
-                editing={interaction.renameId === node.id}
-                onStart={() => {}}
-                onCommit={(title) => interaction.rename(node.id, title)}
-                onEnd={interaction.endRename}
-              />
-            )}
+            {({ field }) =>
+              interaction.readOnly ? (
+                <span
+                  className="block truncate text-sm font-medium"
+                  title={field.value || spec.title}
+                >
+                  {field.value || spec.title}
+                </span>
+              ) : (
+                <InlineRename
+                  value={field.value || spec.title}
+                  editing={interaction.renameId === node.id}
+                  onStart={() => {}}
+                  onCommit={(title) => interaction.rename(node.id, title)}
+                  onEnd={interaction.endRename}
+                />
+              )
+            }
           </Field>
           <span className="node-type-label">{spec.title}</span>
         </div>
-        <button
-          type="button"
-          className="node-config-button flow-canvas-not-draggable"
-          aria-label={tx('节点更多操作')}
-          onClick={(event) => {
-            event.stopPropagation();
-            interaction.menu(node.id, event);
-          }}
-        >
-          <MoreHorizontal size={18} />
-        </button>
+        {!interaction.readOnly && (
+          <button
+            type="button"
+            className="node-config-button flow-canvas-not-draggable"
+            aria-label={tx('节点更多操作')}
+            onClick={(event) => {
+              event.stopPropagation();
+              interaction.menu(node.id, event);
+            }}
+          >
+            <MoreHorizontal size={18} />
+          </button>
+        )}
       </div>
       <div className="node-content-summary">
         {type === 'start' ? (
@@ -185,6 +198,18 @@ function NodeFields({ type }: { type: string }) {
             ? tx('已完成')
             : status === 'failed'
             ? tx('执行失败')
+            : status === 'untested'
+            ? tx('本次未测试')
+            : status === 'pending'
+            ? tx('未执行')
+            : status === 'skipped'
+            ? tx('已跳过')
+            : status === 'waiting'
+            ? tx('等待中')
+            : status === 'canceled'
+            ? tx('已取消')
+            : status === 'interrupted'
+            ? tx('已中断')
             : type === 'condition'
             ? tx('通过 / 否则')
             : tx('输出')}
@@ -205,6 +230,7 @@ function NodeCard(props: WorkflowNodeProps) {
   return (
     <div
       data-workflow-node-id={node.id}
+      data-execution-status={useContext(ExecutionContext)[node.id]}
       tabIndex={0}
       role="group"
       aria-label={String(form?.values?.title || nodeSpec(String(node.flowNodeType)).title)}
@@ -213,6 +239,7 @@ function NodeCard(props: WorkflowNodeProps) {
       }}
       onDragStartCapture={(event) => {
         if (
+          interaction.readOnly ||
           (container && !(event.target as Element).closest('.workflow-node-heading')) ||
           (event.target as Element).closest('button,input,.flow-canvas-not-draggable')
         ) {
@@ -240,7 +267,8 @@ function NodeCard(props: WorkflowNodeProps) {
       onDoubleClick={(event) => {
         event.stopPropagation();
         if ((event.target as Element).closest('button,input,[data-port-entity-id]')) return;
-        if (container && !(event.target as Element).closest('.workflow-node-heading'))
+        if (interaction.readOnly) interaction.click(node.id);
+        else if (container && !(event.target as Element).closest('.workflow-node-heading'))
           interaction.addInside(node.id, event);
         else interaction.open(node.id);
       }}
@@ -272,12 +300,16 @@ export interface CanvasHandle {
   focus: () => void;
   undo: () => void;
   redo: () => void;
+  reveal: (id: string) => void;
 }
 export const WorkflowCanvas = memo(
   forwardRef<
     CanvasHandle,
     {
       schema: WorkflowSchema;
+      readOnly?: boolean;
+      selectedIds?: string[];
+      edgeStates?: Record<string, string>;
       onChange: (schema: WorkflowSchema) => void;
       onOpen: (id: string) => void;
       onNodeClick: (id: string) => void;
@@ -303,6 +335,9 @@ export const WorkflowCanvas = memo(
   >(function WorkflowCanvas(
     {
       schema,
+      readOnly = false,
+      selectedIds,
+      edgeStates,
       onChange,
       onOpen,
       onNodeClick,
@@ -358,7 +393,10 @@ export const WorkflowCanvas = memo(
       const layout = staticPorts(model, graph);
       const ports = layout.ports;
       if (!isLoop(model.type))
-        entity.getData(FlowNodeTransformData).size = { width: 280, height: layout.height };
+        entity.getData(FlowNodeTransformData).size = {
+          width: 280,
+          height: layout.height,
+        };
       const signature = JSON.stringify(ports);
       if (portCache.current.get(entity) === signature) return;
       portCache.current.set(entity, signature);
@@ -366,6 +404,8 @@ export const WorkflowCanvas = memo(
     }
     const callback = useRef(onChange);
     callback.current = onChange;
+    const selectedRef = useRef(selectedIds);
+    selectedRef.current = selectedIds;
     const latest = useRef(schema);
     latest.current = schema;
     const initial = useRef(schema);
@@ -375,7 +415,7 @@ export const WorkflowCanvas = memo(
     const historyBusy = useRef(false);
     async function runHistory(redo = false) {
       const ctx = context.current;
-      if (!ctx || historyBusy.current) return;
+      if (!ctx || readOnly || historyBusy.current) return;
       historyBusy.current = true;
       updating.current = true;
       try {
@@ -393,6 +433,16 @@ export const WorkflowCanvas = memo(
     useImperativeHandle(
       ref,
       () => ({
+        reveal(id) {
+          const ctx = context.current;
+          const node = ctx?.document.getNode(id);
+          if (ctx && node)
+            void ctx.playground.config.scrollToView({
+              entities: [node],
+              zoom: Math.max(ctx.playground.config.zoom, 0.6),
+              easing: false,
+            });
+        },
         select(ids) {
           const ctx = context.current;
           if (!ctx) return;
@@ -449,8 +499,34 @@ export const WorkflowCanvas = memo(
         if (model) updatePorts(entity, model, graph);
       });
     }, [portSignature]);
+    useEffect(() => {
+      const ctx = context.current;
+      if (ctx && selectedIds)
+        ctx.selection.selection = ctx.document
+          .getAllNodes()
+          .filter((node) => selectedIds.includes(node.id));
+    }, [selectedIds]);
+    const executionEdges = useRef(edgeStates);
+    executionEdges.current = edgeStates;
+    function updateExecutionEdges() {
+      const ctx = context.current;
+      if (!ctx || !executionEdges.current) return;
+      for (const line of ctx.document.linesManager.getAllLines()) {
+        const edge = line.toJSON() as Edge;
+        const state =
+          executionEdges.current[
+            `${edge.sourceNodeID}:${edge.sourcePortID || ''}:${edge.targetNodeID}`
+          ];
+        line.highlightColor =
+          state === 'active' ? 'var(--foreground)' : state === 'muted' ? 'var(--canvas-dot)' : '';
+      }
+    }
+    useEffect(updateExecutionEdges, [edgeStates]);
     const props = useMemo<FreeLayoutProps>(
       () => ({
+        readonly: readOnly,
+        enableReadonlyNodeDragging: false,
+        canDeleteNode: () => !readOnly,
         initialData: initial.current,
         onInit(ctx) {
           ctx.playground.config.updateConfig({ minZoom: 0.1 });
@@ -519,8 +595,9 @@ export const WorkflowCanvas = memo(
         },
         canDropToNode: () => false,
         // A missed/cancelled reconnection must retain the original edge.
-        canDeleteLine: (_ctx, _line, next) => !!next && !lineCanceled.current,
+        canDeleteLine: (_ctx, _line, next) => !readOnly && !!next && !lineCanceled.current,
         canResetLine(ctx, old, next) {
+          if (readOnly) return false;
           if (lineCanceled.current) return false;
           const from = ctx.document.getNode(next.from);
           const to = ctx.document.getNode(next.to);
@@ -541,6 +618,7 @@ export const WorkflowCanvas = memo(
           );
         },
         canAddLine(ctx, from, to, _lines, silent) {
+          if (readOnly) return false;
           if (lineCanceled.current) return false;
           const reason =
             from.node.parent !== to.node.parent
@@ -559,6 +637,7 @@ export const WorkflowCanvas = memo(
           return !reason;
         },
         async onDragLineEnd(ctx, params) {
+          if (readOnly) return;
           lineCanceled.current =
             !Number.isFinite(params.mousePos.x) || !Number.isFinite(params.mousePos.y);
           if (lineCanceled.current) return;
@@ -566,7 +645,10 @@ export const WorkflowCanvas = memo(
           handlers.current.onAdd({
             position: params.mousePos,
             anchor: { x: params.event.clientX, y: params.event.clientY },
-            source: { nodeId: params.fromPort.node.id, portId: String(params.fromPort.portID) },
+            source: {
+              nodeId: params.fromPort.node.id,
+              portId: String(params.fromPort.portID),
+            },
           });
         },
         background: {
@@ -578,7 +660,11 @@ export const WorkflowCanvas = memo(
           backgroundColor: 'var(--surface-canvas)',
         },
         nodeEngine: { enable: true },
-        history: { enable: true, enableChangeNode: true, disableShortcuts: true },
+        history: {
+          enable: true,
+          enableChangeNode: true,
+          disableShortcuts: true,
+        },
         nodeRegistries: [...nodeCatalog.map((node) => node.type), 'block-start', 'block-end'].map(
           (type) => ({
             type,
@@ -598,11 +684,14 @@ export const WorkflowCanvas = memo(
           return json;
         },
         getNodeDefaultRegistry(type) {
-          return { type, formMeta: { render: () => <NodeFields type={String(type)} /> } };
+          return {
+            type,
+            formMeta: { render: () => <NodeFields type={String(type)} /> },
+          };
         },
         materials: { renderDefaultNode: NodeCard },
         onContentChange(ctx) {
-          if (ready.current && !updating.current)
+          if (!readOnly && ready.current && !updating.current)
             callback.current(ctx.document.toJSON() as WorkflowSchema);
         },
         onAllLayersRendered(ctx) {
@@ -628,7 +717,21 @@ export const WorkflowCanvas = memo(
               fitted = true;
               observer.disconnect();
               window.removeEventListener('flowgram:layout-settled', settled);
-              fitCanvas(ctx);
+              updateExecutionEdges();
+              const selected =
+                readOnly && selectedRef.current?.length
+                  ? ctx.document
+                      .getAllNodes()
+                      .filter((node) => selectedRef.current!.includes(node.id))
+                  : [];
+              if (selected.length) {
+                ctx.selection.selection = selected;
+                void ctx.playground.config.scrollToView({
+                  entities: selected,
+                  zoom: 0.6,
+                  easing: false,
+                });
+              } else fitCanvas(ctx);
               delete root.current.dataset.viewportPending;
             };
             const settled = () => {
@@ -655,6 +758,7 @@ export const WorkflowCanvas = memo(
       <PortContext.Provider value={models}>
         <InteractionContext.Provider
           value={{
+            readOnly,
             click: onNodeClick,
             open: onOpen,
             renameId,
@@ -708,8 +812,19 @@ export const WorkflowCanvas = memo(
             <FreeLayoutEditorProvider {...props}>
               <div
                 ref={root}
-                className="workflow-canvas-interactions h-full w-full"
+                className={`workflow-canvas-interactions h-full w-full ${
+                  readOnly ? 'workflow-canvas-readonly' : ''
+                }`}
+                onPasteCapture={
+                  readOnly
+                    ? (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                      }
+                    : undefined
+                }
                 onPointerMove={(event) => {
+                  if (readOnly) return;
                   if ((event.target as Element).closest('.workflow-line-add')) return;
                   const ctx = context.current;
                   if (!ctx || event.buttons) {
@@ -770,6 +885,23 @@ export const WorkflowCanvas = memo(
                     event.stopPropagation();
                 }}
                 onKeyDownCapture={(event) => {
+                  if (readOnly) {
+                    if (event.key === 'Enter') {
+                      const node = context.current?.selection.selection.find(
+                        (entity) => entity instanceof WorkflowNodeEntity
+                      );
+                      if (node) onNodeClick(node.id);
+                    }
+                    if (
+                      ['Delete', 'Backspace', 'F2'].includes(event.key) ||
+                      ((event.metaKey || event.ctrlKey) &&
+                        ['v', 'x', 'z', 'd'].includes(event.key.toLowerCase()))
+                    ) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    return;
+                  }
                   if (
                     event.defaultPrevented ||
                     event.nativeEvent.isComposing ||
@@ -845,7 +977,11 @@ export const WorkflowCanvas = memo(
                           const center = node.getData(FlowNodeTransformData).bounds.center;
                           const primary = horizontal ? center.x - origin.x : center.y - origin.y;
                           const cross = horizontal ? center.y - origin.y : center.x - origin.x;
-                          return { node, primary, score: Math.abs(primary) + 2 * Math.abs(cross) };
+                          return {
+                            node,
+                            primary,
+                            score: Math.abs(primary) + 2 * Math.abs(cross),
+                          };
                         })
                         .filter((item) => (positive ? item.primary > 0 : item.primary < 0))
                         .sort((a, b) => a.score - b.score);
@@ -860,7 +996,9 @@ export const WorkflowCanvas = memo(
                   if (!modifier && key === 'n') {
                     event.preventDefault();
                     event.stopPropagation();
-                    onAdd({ position: ctx.playground.config.getViewport(true).center });
+                    onAdd({
+                      position: ctx.playground.config.getViewport(true).center,
+                    });
                   }
                   if (key === 'escape') {
                     event.preventDefault();
@@ -871,10 +1009,17 @@ export const WorkflowCanvas = memo(
                     event.preventDefault();
                     event.stopPropagation();
                     const rect = root.current!.getBoundingClientRect();
-                    onMenu({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }, ids);
+                    onMenu(
+                      {
+                        x: rect.left + rect.width / 2,
+                        y: rect.top + rect.height / 2,
+                      },
+                      ids
+                    );
                   }
                 }}
                 onDoubleClick={(event) => {
+                  if (readOnly) return;
                   if (
                     (event.target as Element).closest(
                       '[data-workflow-node-id],button,input,[data-port-entity-id]'
@@ -893,6 +1038,7 @@ export const WorkflowCanvas = memo(
                     return;
                   event.preventDefault();
                   event.stopPropagation();
+                  if (readOnly) return;
                   const ctx = context.current;
                   if (!ctx) return;
                   const hovered = ctx.get<WorkflowHoverService>(WorkflowHoverService).someHovered;
@@ -946,6 +1092,7 @@ export const WorkflowCanvas = memo(
                 )}
               </div>
               <WorkflowCanvasToolbar
+                readOnly={readOnly}
                 leading={toolbarLeading}
                 trailing={toolbarTrailing}
                 onHistory={runHistory}

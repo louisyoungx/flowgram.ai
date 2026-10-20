@@ -660,6 +660,14 @@ export function App() {
                             documentTabs={
                               isPaired ? tabsFor(scope, state, { kind: 'workflow', id }) : undefined
                             }
+                            onInspectRun={(runId) =>
+                              isPaired
+                                ? sessionDocument({ kind: 'run', id: runId }, scope)
+                                : dispatch(
+                                    { type: 'view', view: { kind: 'run', id: runId } },
+                                    scope
+                                  )
+                            }
                             onRun={() => {
                               void refresh(scope).catch((cause) => report(cause.message, scope));
                             }}

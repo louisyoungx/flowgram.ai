@@ -65,6 +65,7 @@ import { MenuButton } from './ui/menu-button';
 import { Dialog } from './ui/dialog';
 import { CommandMenu, type MenuCommand } from './ui/command-menu';
 import { Button } from './ui/button';
+import { RunInspector } from './run-inspector/run-inspector';
 import { ResizablePanel } from './resizable-panel';
 import { NodePalette } from './node-palette';
 import { NodeInspector, type RunDetail } from './node-inspector/node-inspector';
@@ -91,6 +92,7 @@ export function WorkflowPanel({
   onSaved,
   onClose,
   onRun,
+  onInspectRun,
   onAssist,
   onPublish,
   onCollapse,
@@ -112,6 +114,7 @@ export function WorkflowPanel({
   onSaved: (workflow: Workflow) => void;
   onClose: () => void;
   onRun: (run: Run) => void;
+  onInspectRun: (id: string) => void;
   onAssist: () => void;
   onPublish: (workflow: Workflow) => void;
   onCollapse?: () => void;
@@ -1123,7 +1126,7 @@ export function WorkflowPanel({
           id={resultsId}
           role="region"
           aria-label={tx('运行结果')}
-          className="min-h-0 flex-1 overflow-auto"
+          className="min-h-0 flex-1 overflow-hidden"
         >
           <div className="flex items-center justify-between px-4 py-3 text-xs">
             <span className="font-medium">{t('output')}</span>
@@ -1149,64 +1152,8 @@ export function WorkflowPanel({
             </div>
           </div>
           {run ? (
-            <div className="px-4 pb-4">
-              <pre className="max-h-28 overflow-auto rounded-lg bg-secondary/70 p-3 text-xs">
-                {run.error ? errorText(run.error) : JSON.stringify(run.outputs, null, 2)}
-              </pre>
-              <details className="mt-3 text-xs text-muted-foreground">
-                <summary>
-                  {t('details')} · {events.length}
-                </summary>
-                <div className="mt-2 space-y-2">
-                  {events
-                    .filter((e) => e.kind.startsWith('node_'))
-                    .map((event) => {
-                      const data = JSON.parse(event.data);
-                      return (
-                        <div
-                          key={event.sequence}
-                          className="flex items-center justify-between gap-3 border-b border-border/50 py-1"
-                        >
-                          <button
-                            type="button"
-                            className="workflow-result-link"
-                            onClick={() => {
-                              selectNode(data.nodeId);
-                              setSelectedExecutions((current) => ({
-                                ...current,
-                                [data.nodeId]: data.executionId,
-                              }));
-                              setTabRequest({
-                                nodeId: data.nodeId,
-                                tab: 'output',
-                                sequence: event.sequence,
-                              });
-                            }}
-                          >
-                            {String(findNode(schema.nodes, data.nodeId)?.data.title || data.nodeId)}
-                            <small className="ml-2">
-                              {data.iterationPath?.length || data.branchPath?.length
-                                ? executionLabel(data)
-                                : ''}
-                            </small>
-                          </button>
-                          <span>
-                            {(
-                              {
-                                node_started: tx('开始'),
-                                node_finished: tx('完成'),
-                                node_skipped: tx('跳过'),
-                                node_failed: tx('失败'),
-                                node_waiting: tx('等待汇合'),
-                                node_canceled: tx('取消'),
-                              } as Record<string, string>
-                            )[event.kind] || event.kind}
-                          </span>
-                        </div>
-                      );
-                    })}
-                </div>
-              </details>
+            <div className="h-[calc(100%-52px)] min-h-40">
+              <RunInspector id={run.id} compact onExpand={() => onInspectRun(run.id)} />
             </div>
           ) : (
             <p className="px-4 pb-5 text-xs text-muted-foreground">{t('runEmpty')}</p>

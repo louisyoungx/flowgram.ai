@@ -15,9 +15,11 @@ import { Button } from './ui/button';
 export function WorkflowCanvasToolbar({
   leading,
   trailing,
+  readOnly = false,
   onHistory,
   onFit,
 }: {
+  readOnly?: boolean;
   leading?: ReactNode;
   trailing?: ReactNode;
   onHistory: (redo: boolean) => Promise<void>;
@@ -25,7 +27,10 @@ export function WorkflowCanvasToolbar({
 }) {
   const { playground, history } = useClientContext();
   const [zoom, setZoom] = useState(() => playground.config.zoom);
-  const [historyState, setHistoryState] = useState({ undo: false, redo: false });
+  const [historyState, setHistoryState] = useState({
+    undo: false,
+    redo: false,
+  });
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     const updateHistory = () =>
@@ -54,29 +59,31 @@ export function WorkflowCanvasToolbar({
   return (
     <div className="workflow-canvas-tools">
       <div role="group" aria-label={tx('画布工具栏')} className="workflow-canvas-toolbar">
-        <div className="workflow-canvas-tool-group">
-          {leading}
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={tx('撤销更改')}
-            title={`${tx('撤销更改')} (⌘/Ctrl Z)`}
-            disabled={busy || !historyState.undo}
-            onClick={() => void changeHistory(false)}
-          >
-            <Undo2 />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={tx('重做更改')}
-            title={`${tx('重做更改')} (⌘/Ctrl Shift Z)`}
-            disabled={busy || !historyState.redo}
-            onClick={() => void changeHistory(true)}
-          >
-            <Redo2 />
-          </Button>
-        </div>
+        {!readOnly && (
+          <div className="workflow-canvas-tool-group">
+            {leading}
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={tx('撤销更改')}
+              title={`${tx('撤销更改')} (⌘/Ctrl Z)`}
+              disabled={busy || !historyState.undo}
+              onClick={() => void changeHistory(false)}
+            >
+              <Undo2 />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={tx('重做更改')}
+              title={`${tx('重做更改')} (⌘/Ctrl Shift Z)`}
+              disabled={busy || !historyState.redo}
+              onClick={() => void changeHistory(true)}
+            >
+              <Redo2 />
+            </Button>
+          </div>
+        )}
         <div className="workflow-canvas-tool-group workflow-canvas-viewport-tools">
           <Button
             variant="ghost"
@@ -96,7 +103,10 @@ export function WorkflowCanvasToolbar({
             value={String(zoom)}
             options={[...new Set([0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, zoom])]
               .sort((a, b) => a - b)
-              .map((value) => ({ value: String(value), label: `${Math.round(value * 100)}%` }))}
+              .map((value) => ({
+                value: String(value),
+                label: `${Math.round(value * 100)}%`,
+              }))}
             onValueChange={(value) => playground.config.updateZoom(Number(value), false)}
             placeholder={percentage}
           />

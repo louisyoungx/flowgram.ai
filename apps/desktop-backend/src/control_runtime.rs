@@ -103,7 +103,10 @@ impl Store {
             let mut active = context.active.lock().unwrap();
             let keys: Vec<_> = active
                 .iter()
-                .filter(|(_, event)| {
+                .filter(|(key, event)| {
+                    if context.parent.as_ref() == Some(*key) {
+                        return false;
+                    }
                     let path: Vec<String> = event["branchPath"]
                         .as_array()
                         .into_iter()
@@ -183,6 +186,7 @@ impl Store {
             let mut output = input.clone();
             let mut seen = HashSet::new();
             let mut previous_execution: Option<String> = None;
+            let mut previous_port: Option<String> = None;
             loop {
                 if cancel.is_cancelled() {
                     return Err(Error::Cancelled);
@@ -220,7 +224,7 @@ impl Store {
                     }
                 };
                 let started = context
-                    .trace(json!({"nodeId":node.id,"nodeType":node.kind,"executionId":execution,"inputs":incoming,"links":previous_execution.iter().map(|id|json!({"executionId":id,"type":"flow"})).collect::<Vec<_>>()}));
+                    .trace(json!({"nodeId":node.id,"nodeType":node.kind,"name":node.data["title"],"executionId":execution,"inputs":incoming,"links":previous_execution.as_ref().or(context.parent.as_ref()).iter().map(|id|json!({"executionId":id,"sourcePortId":previous_port.as_ref().or(context.branches.last()),"type":"flow"})).collect::<Vec<_>>()}));
                 context
                     .active
                     .lock()
@@ -231,18 +235,24 @@ impl Store {
                 let result = self
                     .execute_scoped_node(node, incoming, &values, run, &cancel, &step_context)
                     .await;
-                context.active.lock().unwrap().remove(&execution);
+                if !control::is_fork(&node.kind) {
+                    context.active.lock().unwrap().remove(&execution);
+                }
                 let (out, route) = match result {
                     Ok(result) => result,
                     Err(error) => {
                         self.cancel_scope(run, &step_context, "parent_failed")
                             .await?;
+                        context.active.lock().unwrap().remove(&execution);
                         self.emit(if matches!(error,Error::Cancelled){"node_canceled"}else{"node_failed"},run,context.trace(json!({"nodeId":node.id,"executionId":execution,"error":error.to_string()}))).await?;
                         return Err(error);
                     }
                 };
-                self.emit("node_finished",run,context.trace(json!({"nodeId":node.id,"nodeType":node.kind,"executionId":execution,"outputs":out,"branch":route}))).await?;
+                if !control::is_fork(&node.kind) {
+                    self.emit("node_finished",run,context.trace(json!({"nodeId":node.id,"nodeType":node.kind,"executionId":execution,"outputs":out,"branch":route}))).await?;
+                }
                 previous_execution = Some(execution.clone());
+                previous_port = route.clone();
                 output = out.clone();
                 values.insert(node.id.clone(), out);
                 if matches!(node.kind.as_str(), "control.break" | "control.continue") {
@@ -265,6 +275,8 @@ impl Store {
                 }
                 if control::is_fork(&node.kind) {
                     let selected = control::select(node, &values)?;
+                    let activated = selected.clone();
+                    self.emit("node_dispatched",run,context.trace(json!({"nodeId":node.id,"executionId":execution,"activatedBranchIds":activated}))).await?;
                     let joined = match self
                         .execute_region(
                             graph.clone(),
@@ -281,10 +293,13 @@ impl Store {
                         Err(error) => {
                             self.cancel_scope(run, &step_context, "scope_failed")
                                 .await?;
-                            self.emit("node_failed", run, context.trace(json!({"nodeId":control::option(node,"joinId",""),"executionId":id(),"error":error.to_string()}))).await?;
+                            context.active.lock().unwrap().remove(&execution);
+                            self.emit(if matches!(error,Error::Cancelled){"node_canceled"}else{"node_failed"}, run, context.trace(json!({"nodeId":node.id,"executionId":execution,"error":error.to_string()}))).await?;
                             return Err(error);
                         }
                     };
+                    context.active.lock().unwrap().remove(&execution);
+                    self.emit("node_finished",run,context.trace(json!({"nodeId":node.id,"executionId":execution,"outputs":{"activatedBranchIds":activated}}))).await?;
                     if joined.signal.is_some() {
                         return Ok(joined);
                     }
@@ -412,13 +427,9 @@ impl Store {
             let mut results = serde_json::Map::new();
             let mut successful = vec![];
             let join_execution = id();
-            self.emit(
-                "node_waiting",
-                run,
-                context
-                    .trace(json!({"nodeId":join.id,"executionId":join_execution,"activatedBranchIds":selected,"policy":policy})),
-            )
-            .await?;
+            let waiting=context.trace(json!({"nodeId":join.id,"executionId":join_execution,"activatedBranchIds":selected,"policy":policy}));
+            context.register_call(waiting.clone());
+            self.emit("node_waiting", run, waiting).await?;
             while let Some(result) = pending.next().await {
                 let (branch, result) = result?;
                 match result {
@@ -542,6 +553,7 @@ impl Store {
             };
             crate::nodes::check_size(&output)?;
             let execution = join_execution;
+            context.finish_call(&execution);
             self.emit(
                 "node_started",
                 run,

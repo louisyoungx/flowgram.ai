@@ -20,6 +20,8 @@ pub struct TraceQuery {
     pub parent: Option<String>,
     pub cursor: Option<i64>,
     pub at: Option<i64>,
+    pub node_id: Option<String>,
+    pub scope_id: Option<String>,
 }
 impl TraceQuery {
     pub fn query_string(&self) -> String {
@@ -211,26 +213,67 @@ impl Store {
                 let filtered: Vec<_> = entries
                     .iter()
                     .filter(|e| {
+                        if let Some(node) = &query.node_id {
+                            return &e.node_id == node
+                                && e.kind == "node"
+                                && query
+                                    .workflow_id
+                                    .as_ref()
+                                    .is_none_or(|w| w == &e.workflow_id);
+                        }
+                        if let Some(scope) = &query.scope_id {
+                            return &e.scope_id == scope && e.kind == "node";
+                        }
                         e.parent_id.as_deref() == query.parent.as_deref()
-                            && e.first_sequence > query.cursor.unwrap_or(0)
                     })
                     .collect();
-                let more = filtered.len() > PAGE_SIZE;
-                let page: Vec<_> = filtered.into_iter().take(PAGE_SIZE).collect();
-                let cursor = more.then(|| page.last().unwrap().first_sequence);
-                Ok(json!({"executions":page,"nextCursor":cursor}))
+                let start = if let Some(focus) = &query.execution {
+                    filtered.iter().position(|e| &e.id == focus).unwrap_or(0) / PAGE_SIZE
+                        * PAGE_SIZE
+                } else {
+                    filtered
+                        .iter()
+                        .take_while(|e| e.first_sequence <= query.cursor.unwrap_or(0))
+                        .count()
+                };
+                let page: Vec<_> = filtered
+                    .iter()
+                    .skip(start)
+                    .take(PAGE_SIZE)
+                    .copied()
+                    .collect();
+                let cursor = (start + PAGE_SIZE < filtered.len())
+                    .then(|| page.last().unwrap().first_sequence);
+                let previous = if start > 0 {
+                    Some(if start <= PAGE_SIZE {
+                        0
+                    } else {
+                        filtered[start - PAGE_SIZE - 1].first_sequence
+                    })
+                } else {
+                    None
+                };
+                Ok(
+                    json!({"executions":page,"nextCursor":cursor,"previousCursor":previous,"total":filtered.len()}),
+                )
             }
-            Some(_) => Err(Error::Invalid("Unknown run inspection view".into())),
-            None => {
-                let mut detail = self
-                    .inspect_run(id, query.after.unwrap_or(0), query.workflow_id.as_deref())
-                    .await?;
-                let entries = self.execution_index(&run, None).await?;
+            Some(other) if other != "overview" => {
+                Err(Error::Invalid("Unknown run inspection view".into()))
+            }
+            _ => {
+                let mut detail = if query.view.as_deref() == Some("overview") {
+                    json!({"run":run,"models":self.run_model_traces(id).await?,"nodeTest":self.node_test_definition(id).await?,"manifest":self.run_manifest(id).await?})
+                } else {
+                    self.inspect_run(id, query.after.unwrap_or(0), query.workflow_id.as_deref())
+                        .await?
+                };
+                let entries = self.execution_index(&run, query.at).await?;
                 let mut counts = HashMap::<String, usize>::new();
                 for entry in &entries {
                     *counts.entry(entry.status.clone()).or_default() += 1;
                 }
-                let ended: Option<String> = sqlx::query_scalar("SELECT created_at FROM events WHERE object_id=? AND kind='run_finished' ORDER BY sequence DESC LIMIT 1").bind(id).fetch_optional(&self.db).await?;
+                let ended: Option<String> = sqlx::query_scalar("SELECT created_at FROM events WHERE object_id=? AND kind='run_finished' AND (? IS NULL OR sequence<=?) ORDER BY sequence DESC LIMIT 1").bind(id).bind(query.at).bind(query.at).fetch_optional(&self.db).await?;
+                let observed:Option<String>=sqlx::query_scalar("SELECT created_at FROM events WHERE object_id=? AND (? IS NULL OR sequence<=?) ORDER BY sequence DESC LIMIT 1").bind(id).bind(query.at).bind(query.at).fetch_optional(&self.db).await?;
                 let watermark: i64 = sqlx::query_scalar(
                     "SELECT COALESCE(MAX(sequence),0) FROM events WHERE object_id=?",
                 )
@@ -259,11 +302,37 @@ impl Store {
                     .collect();
                 let root_count = entries.iter().filter(|e| e.parent_id.is_none()).count();
                 let snapshot = self.pinned_workflow(id, &run.workflow_id).await.ok();
+                let mut nodes = HashMap::<String, Value>::new();
+                for entry in entries.iter().filter(|e| e.kind == "node") {
+                    let key = format!("{}:{}", entry.workflow_id, entry.node_id);
+                    let node=nodes.entry(key).or_insert_with(||json!({"workflowId":entry.workflow_id,"nodeId":entry.node_id,"counts":{},"total":0}));
+                    let count = node["counts"][&entry.status].as_u64().unwrap_or(0) + 1;
+                    node["counts"][&entry.status] = json!(count);
+                    node["total"] = json!(node["total"].as_u64().unwrap_or(0) + 1);
+                }
+                if query.at.is_some() && ended.is_none() {
+                    let started:bool=sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM events WHERE object_id=? AND kind='run_started' AND sequence<=?)").bind(id).bind(query.at).fetch_one(&self.db).await?;
+                    detail["run"]["status"] = json!(if started { "running" } else { "pending" });
+                    detail["run"]["outputs"] = Value::Null;
+                    detail["run"]["error"] = Value::Null;
+                }
+                let lookup: HashMap<_, _> = entries
+                    .iter()
+                    .map(|entry| (entry.id.as_str(), entry))
+                    .collect();
+                let links:Vec<_>=entries.iter().filter(|entry|entry.kind=="node").flat_map(|entry|entry.links.as_array().into_iter().flatten().filter_map(|link|{
+                    let source=lookup.get(link["executionId"].as_str()?)?;
+                    (source.workflow_id==entry.workflow_id).then(||json!({"workflowId":entry.workflow_id,"scopeId":entry.scope_id,"sourceNodeId":source.node_id,"sourcePortId":link["sourcePortId"],"targetNodeId":entry.node_id}))
+                })).collect();
                 detail["snapshot"] = json!(snapshot);
                 detail["trace"] = json!({
                     "format":"flowgram.trace/v1", "runtime":crate::services::RUNTIME,
+                    "at":query.at,"observedAt":observed,"outputsAvailable":query.at.is_none() || ended.is_some(),
                     "source":source,"endedAt":ended,"durationMs":ended.as_ref().and_then(|end| milliseconds(&run.created_at,end)),
                     "watermark":watermark,"total":entries.len(),"counts":counts,
+                    "links":links,
+                    "nodes":nodes.into_values().collect::<Vec<_>>(),
+                    "focus":failure_path(&entries).iter().filter_map(|id|entries.iter().find(|entry|&entry.id==id)).collect::<Vec<_>>(),
                     "executions":roots,"nextCursor":if root_count>PAGE_SIZE { roots.last().map(|e|e.first_sequence) } else { None },
                     "failureId":entries.iter().rev().find(|e|e.status=="failed" && e.children==0).map(|e|&e.id),
                     "failurePath":failure_path(&entries),
@@ -506,6 +575,34 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(at["executions"][0]["children"], 0);
+        let focused = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("executions".into()),
+                    parent: Some("outer".into()),
+                    execution: Some("iteration-259".into()),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(focused["executions"][0]["iterationPath"], json!([200]));
+        assert!(focused["previousCursor"].is_i64());
+        let initial = store
+            .inspect_trace(
+                &run.id,
+                &TraceQuery {
+                    view: Some("overview".into()),
+                    at: Some(0),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(initial["run"]["status"], "pending");
+        assert_eq!(initial["trace"]["total"], 0);
+        assert_eq!(initial["trace"]["outputsAvailable"], false);
     }
     #[tokio::test]
     async fn call_lifecycles_keep_parent_scope_failures_and_redaction() {

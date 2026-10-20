@@ -37,7 +37,6 @@ export function PublicationDetails({
   onConfigure,
   reload,
   openWorkflow,
-  openRun,
 }: {
   active: boolean;
   detail: PublicationDetail;
@@ -51,7 +50,7 @@ export function PublicationDetails({
 }) {
   const [releaseWorkflows, setReleaseWorkflows] = useState<Workflow[]>([]);
   const [tab, setTab] = useState('overview');
-  const [viewRun, setViewRun] = useState<string | null>(null);
+  const [viewRun, setViewRun] = useState<{ id: string; root: string } | null>(null);
   const [selection, setSelection] = useState(0);
   const [target, setTarget] = useState<TargetDetail | null>(null);
   const [error, setError] = useState('');
@@ -82,8 +81,13 @@ export function PublicationDetails({
     : '';
   const runRequest = useCallback(
     <T,>(path: string, method = 'GET', body?: unknown, signal?: AbortSignal) =>
-      api<T>(path.replace('/api/runs', `${targetRoot}/runs`), method, body, signal),
-    [targetRoot]
+      api<T>(
+        path.replace('/api/runs', `${viewRun?.root || targetRoot}/runs`),
+        method,
+        body,
+        signal
+      ),
+    [viewRun?.root, targetRoot]
   );
 
   useEffect(() => {
@@ -141,7 +145,7 @@ export function PublicationDetails({
       <div className="h-[calc(100vh-240px)] min-h-96">
         <ProjectScope projectId={detail.projectId} requestOverride={runRequest}>
           <RunPage
-            id={viewRun}
+            id={viewRun.id}
             workflows={detail.workflows}
             sessions={[]}
             onWorkflow={(id) => openWorkflow(detail.projectId, id)}
@@ -340,11 +344,7 @@ export function PublicationDetails({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() =>
-                        deployed?.targetId === 'local'
-                          ? openRun(detail.projectId, run.runId)
-                          : setViewRun(run.runId)
-                      }
+                      onClick={() => setViewRun({ id: run.runId, root: targetRoot })}
                     >
                       {tx('查看运行')}
                     </Button>
@@ -661,7 +661,10 @@ export function PublicationDetails({
                 }
                 options={[
                   { value: 'local', label: tx('本机运行服务') },
-                  ...inventory.targets.map((t) => ({ value: t.id, label: t.name })),
+                  ...inventory.targets.map((t) => ({
+                    value: t.id,
+                    label: t.name,
+                  })),
                 ]}
               />
             </DeploymentField>
