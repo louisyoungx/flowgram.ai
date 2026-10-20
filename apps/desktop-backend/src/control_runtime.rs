@@ -69,6 +69,20 @@ impl ExecutionContext {
             self.active.lock().unwrap().insert(id.to_owned(), data);
         }
     }
+    pub(crate) fn update_partial(&self, id: &str, value: Option<Value>) {
+        if let Some(call) = self.active.lock().unwrap().get_mut(id) {
+            if let Some(value) = value {
+                call["outputs"] = value;
+                call["partial"] = json!(true);
+            } else {
+                call.as_object_mut().unwrap().remove("outputs");
+                call.as_object_mut().unwrap().remove("partial");
+            }
+        }
+    }
+    pub(crate) fn take_call(&self, id: &str) -> Option<Value> {
+        self.active.lock().unwrap().remove(id)
+    }
     pub(crate) fn finish_call(&self, id: &str) {
         self.active.lock().unwrap().remove(id);
     }

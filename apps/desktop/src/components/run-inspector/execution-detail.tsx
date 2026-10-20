@@ -186,6 +186,17 @@ export function ExecutionDetail({
                   : tx('此节点没有执行记录，请检查分支条件和上游状态。')}
               </p>
             )}
+            {metadata.errorDetails !== undefined && (
+              <section>
+                <h4 className="mb-2 text-xs font-medium">{tx('模型服务响应')}</h4>
+                <DataViewer value={metadata.errorDetails} label={tx('模型服务响应')} />
+              </section>
+            )}
+            {metadata.partial === true && (
+              <p className="text-xs text-muted-foreground">
+                {tx('此处保留中断前的部分输出，并非完整结果。')}
+              </p>
+            )}
             <dl>
               {entry ? (
                 <>

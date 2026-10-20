@@ -589,3 +589,118 @@ async fn json_only_responses_are_not_reported_as_streaming_and_legacy_settings_i
     );
     server.abort();
 }
+
+#[tokio::test]
+async fn failed_model_calls_retain_redacted_responses_and_partial_output() {
+    let (url,server)=mock(Router::new().route("/responses",post(|Json(body):Json<Value>|async move {
+        match body["model"].as_str().unwrap() {
+            "quota"=>Response::builder().status(429).header("content-type","application/json").body(Body::from(json!({"error":{"message":"Rejected fixture-provider-key","code":"quota"}}).to_string())).unwrap(),
+            "invalid-json"=>Response::builder().header("content-type","application/json").body(Body::from(json!({"output":[text("not valid JSON")],"usage":{"input_tokens":11,"output_tokens":4}}).to_string())).unwrap(),
+            _=>Response::builder().header("content-type","text/event-stream").body(Body::from_stream(async_stream::stream! {
+                yield Ok::<_,std::io::Error>(format!("data: {}\n\n",json!({"type":"response.output_text.delta","delta":"Partial answer before timeout"})));
+                std::future::pending::<()>().await;
+            })).unwrap(),
+        }
+    }))).await;
+    let dir = tempfile::tempdir().unwrap();
+    let registry = Registry::open(dir.path()).await.unwrap();
+    let project = registry.create("Trace failures", None).await.unwrap();
+    let store = registry.resolve(&project.id).await.unwrap();
+    let credential = uuid::Uuid::new_v4().to_string();
+    registry
+        .deployment_settings
+        .save_credential(
+            &credential,
+            flowgram_desktop_backend::deployment_settings::CredentialInput {
+                name: "Fixture credential".into(),
+                purpose: "connection".into(),
+                project_ids: None,
+                value: Some("fixture-provider-key".into()),
+            },
+        )
+        .await
+        .unwrap();
+    let mut c = connection(&registry, &url, Protocol::Responses).await;
+    c.credential_id = Some(credential);
+    let c = registry
+        .deployment_settings
+        .save_model_connection(c)
+        .await
+        .unwrap();
+    for name in ["quota", "invalid-json", "partial"] {
+        let mut model = entry(&registry, &c, name, true).await;
+        model.capabilities.structured_output = Some(true);
+        let model = registry
+            .deployment_settings
+            .save_model_entry(model)
+            .await
+            .unwrap();
+        let mut schema = graph(&model.id);
+        if name == "invalid-json" {
+            schema["nodes"][2]["data"]["model"]["parameters"]["outputSchema"] =
+                json!({"type":"object","required":["result"]});
+        }
+        if name == "partial" {
+            schema["nodes"][2]["data"]["runtime"] = json!({"timeoutMs":100});
+        }
+        let workflow = store
+            .create_workflow(&project.id, name, schema)
+            .await
+            .unwrap();
+        let run = store
+            .start_run(&workflow.id, None, json!({}))
+            .await
+            .unwrap();
+        assert_eq!(finished(&store, &run.id).await["status"], "failed");
+        let events = store.history(0, Some(&run.id)).await.unwrap();
+        assert!(
+            !events
+                .iter()
+                .any(|event| event.data.contains("fixture-provider-key"))
+        );
+        if name == "quota" {
+            let data: Value = serde_json::from_str(
+                &events
+                    .iter()
+                    .find(|event| event.kind == "model_transport_error")
+                    .unwrap()
+                    .data,
+            )
+            .unwrap();
+            assert_eq!(data["httpStatus"], 429);
+            assert_eq!(
+                data["errorDetails"]["error"]["message"],
+                "Rejected [redacted]"
+            );
+        } else if name == "invalid-json" {
+            let data: Value = serde_json::from_str(
+                &events
+                    .iter()
+                    .find(|event| event.kind == "model_response")
+                    .unwrap()
+                    .data,
+            )
+            .unwrap();
+            assert_eq!(data["outputs"]["usage"]["input_tokens"], 11);
+            assert_eq!(
+                data["outputs"]["output"][0]["content"][0]["text"],
+                "not valid JSON"
+            );
+        } else {
+            let data: Value = serde_json::from_str(
+                &events
+                    .iter()
+                    .find(|event| event.kind == "model_canceled")
+                    .unwrap()
+                    .data,
+            )
+            .unwrap();
+            assert_eq!(data["partial"], true);
+            assert_eq!(
+                data["outputs"]["partialText"],
+                "Partial answer before timeout"
+            );
+        }
+    }
+    server.abort();
+}

@@ -354,7 +354,7 @@ impl Store {
                 }
             }
         }
-        let usage:Vec<(String,String,String)>=sqlx::query_as("SELECT json_extract(data,'$.workflowId'),json_extract(data,'$.nodeId'),json_extract(data,'$.outputs.usage') FROM events WHERE object_id=? AND kind='model_finished' AND json_type(data,'$.outputs.usage')='object'").bind(id).fetch_all(&self.db).await?;
+        let usage:Vec<(String,String,String)>=sqlx::query_as("SELECT json_extract(data,'$.workflowId'),json_extract(data,'$.nodeId'),json_extract(data,'$.outputs.usage') FROM events WHERE object_id=? AND kind IN ('model_finished','model_response') AND json_type(data,'$.outputs.usage')='object'").bind(id).fetch_all(&self.db).await?;
         for (workflow, node, usage) in usage {
             if let Some(group) = groups.get_mut(&(workflow, node)) {
                 let usage: Value = serde_json::from_str(&usage)?;
@@ -612,12 +612,19 @@ impl Store {
         result: &Result<Value>,
         context: &crate::control_runtime::ExecutionContext,
     ) -> Result<()> {
-        context.finish_call(id);
-        let (status, value) = match result {
+        let prior = context.take_call(id);
+        let (status, mut value) = match result {
             Ok(value) => ("finished", json!({"outputs":value})),
             Err(Error::Cancelled) => ("canceled", json!({"error":"Execution canceled"})),
             Err(error) => ("failed", json!({"error":error.to_string()})),
         };
+        if result.is_err()
+            && let Some(prior) = prior
+            && prior["partial"] == true
+        {
+            value["outputs"] = prior["outputs"].clone();
+            value["partial"] = json!(true);
+        }
         let mut data = context.trace(json!({"nodeId":node,"executionId":id,"callKind":kind}));
         data.as_object_mut()
             .unwrap()

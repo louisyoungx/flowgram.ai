@@ -380,15 +380,17 @@ pub(crate) async fn request(
         if config.protocol == Protocol::Anthropic {
             request = request.header("anthropic-version", "2023-06-01");
         }
+        let mut credential_secret = None;
         if let Some(credential) = &config.credential_id {
             let secret = catalog
                 .secret(credential, Some(&config.project_id), "connection")
                 .await?;
             request = if config.protocol == Protocol::Anthropic {
-                request.header("x-api-key", secret)
+                request.header("x-api-key", secret.clone())
             } else {
-                request.bearer_auth(secret)
+                request.bearer_auth(secret.clone())
             };
+            credential_secret = Some(secret);
         }
         let response = request.send().await.map_err(|_| {
             Error::Execution(
@@ -396,9 +398,29 @@ pub(crate) async fn request(
             )
         })?;
         if !response.status().is_success() {
+            let status = response.status().as_u16();
+            if let (Some(trace), Some(store)) = (&query.trace, store) {
+                let mut chunks = response.bytes_stream();
+                let mut bytes = vec![];
+                let mut truncated = false;
+                while let Some(Ok(chunk)) = chunks.next().await {
+                    let remaining = 32768 - bytes.len();
+                    bytes.extend_from_slice(&chunk[..chunk.len().min(remaining)]);
+                    if chunk.len() > remaining || bytes.len() == 32768 {
+                        truncated = true;
+                        break;
+                    }
+                }
+                let text = String::from_utf8_lossy(&bytes);
+                let text = credential_secret
+                    .as_ref()
+                    .map(|secret| text.replace(secret, "[redacted]"))
+                    .unwrap_or_else(|| text.into_owned());
+                let value = serde_json::from_str::<Value>(&text).unwrap_or(json!(text));
+                store.emit("model_transport_error",trace.run,trace.context.trace(json!({"nodeId":trace.node,"executionId":trace.id,"httpStatus":status,"errorDetails":crate::run_trace::safe_payload(value),"truncated":truncated}))).await?;
+            }
             return Err(Error::Execution(format!(
-                "Model service returned HTTP {}",
-                response.status().as_u16()
+                "Model service returned HTTP {status}"
             )));
         }
         let json_response = response
@@ -412,6 +434,9 @@ pub(crate) async fn request(
         let mut total = 0;
         let mut data = Vec::<String>::new();
         let mut adapter = Adapter::default();
+        let mut partial = String::new();
+        let mut last_partial = None::<std::time::Instant>;
+        let mut partial_truncated = false;
         while let Some(chunk) = chunks.next().await {
             let chunk =
                 chunk.map_err(|_| Error::Execution("Model event stream disconnected".into()))?;
@@ -442,6 +467,32 @@ pub(crate) async fn request(
                     let event = serde_json::from_str(&text)
                         .map_err(|_| Error::Execution("Invalid model event JSON".into()))?;
                     let (events, complete) = adapter.event(config.protocol, event)?;
+                    for delta in events
+                        .iter()
+                        .filter(|event| event["type"] == "response.output_text.delta")
+                        .filter_map(|event| event["delta"].as_str())
+                    {
+                        for ch in delta.chars() {
+                            if partial.len() + ch.len_utf8() > 32768 {
+                                partial_truncated = true;
+                                break;
+                            }
+                            partial.push(ch);
+                        }
+                    }
+                    if !partial.is_empty()
+                        && last_partial
+                            .is_none_or(|at| at.elapsed() >= std::time::Duration::from_millis(200))
+                    {
+                        last_partial = Some(std::time::Instant::now());
+                        if let Some(trace) = &query.trace {
+                            trace.context.update_partial(
+                                trace.id,
+                                Some(json!({"partialText":partial,"truncated":partial_truncated})),
+                            );
+                        }
+                    }
+
                     if !first_output
                         && events.iter().any(|event| {
                             event["type"] == "response.output_text.delta"
@@ -480,22 +531,36 @@ pub(crate) async fn request(
     let result = tokio::select! {_ =cancel.cancelled()=>Err(Error::Cancelled),result=tokio::time::timeout(std::time::Duration::from_millis(config.timeout_ms),execute)=>result.map_err(|_|Error::Execution("Model request timed out".into())).and_then(|v|v)};
     match result {
         Ok((response, streamed)) => {
-            if let Some(schema) = &config.parameters.output_schema {
-                let has_calls = response["output"]
-                    .as_array()
-                    .is_some_and(|items| items.iter().any(|v| v["type"] == "function_call"));
-                if !has_calls {
-                    let text = crate::agent::output_text(&response);
-                    let value: Value = serde_json::from_str(&text)
-                        .map_err(|_| Error::Execution("Model output is not valid JSON".into()))?;
-                    let validator = jsonschema::validator_for(schema)
-                        .map_err(|_| Error::Invalid("Invalid model output JSON schema".into()))?;
-                    if !validator.is_valid(&value) {
-                        return Err(Error::Execution(
-                            "Model output does not match its JSON schema".into(),
-                        ));
+            if let Some(trace) = &query.trace {
+                trace.context.update_partial(trace.id, None);
+            }
+            let validation: Result<()> = (|| {
+                if let Some(schema) = &config.parameters.output_schema {
+                    let has_calls = response["output"].as_array().is_some_and(|items| {
+                        items.iter().any(|value| value["type"] == "function_call")
+                    });
+                    if !has_calls {
+                        let text = crate::agent::output_text(&response);
+                        let value: Value = serde_json::from_str(&text).map_err(|_| {
+                            Error::Execution("Model output is not valid JSON".into())
+                        })?;
+                        let validator = jsonschema::validator_for(schema).map_err(|_| {
+                            Error::Invalid("Invalid model output JSON schema".into())
+                        })?;
+                        if !validator.is_valid(&value) {
+                            return Err(Error::Execution(
+                                "Model output does not match its JSON schema".into(),
+                            ));
+                        }
                     }
                 }
+                Ok(())
+            })();
+            if let Err(error) = validation {
+                if let (Some(trace), Some(store)) = (&query.trace, store) {
+                    store.emit("model_response",trace.run,trace.context.trace(json!({"nodeId":trace.node,"executionId":trace.id,"outputs":response}))).await?;
+                }
+                return Err(error);
             }
 
             if let (Some(projection), Some(store)) = (projection, store) {

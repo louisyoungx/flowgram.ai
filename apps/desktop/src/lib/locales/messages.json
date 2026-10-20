@@ -2011,5 +2011,8 @@
   "选择对比执行实例": "Comparison execution",
   "选择对比运行": "Select a run to compare",
   "配置变化": "Configuration changed",
-  "节点汇总": "Node summary"
+  "节点汇总": "Node summary",
+  "模型服务响应": "Model service response",
+  "此处保留中断前的部分输出，并非完整结果。": "This is partial output captured before interruption, not a complete result.",
+  "模型服务返回 HTTP {0}": "Model service returned HTTP {0}"
 }
