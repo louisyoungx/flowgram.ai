@@ -13,7 +13,7 @@ function run(command, args, cwd = root) {
   const result = spawnSync(command, args, { cwd, stdio: 'inherit' });
   if (result.status !== 0) process.exit(result.status || 1);
 }
-run('cargo', ['build', '-p', 'flowgram-desktop-backend', ...(production ? ['--release'] : [])]);
+run('cargo', ['build', '--locked', '-p', 'flowgram-desktop-backend', ...(production ? ['--release'] : [])]);
 const target = spawnSync('rustc', ['-vV'], { encoding: 'utf8' }).stdout.match(/^host: (.+)$/m)[1];
 const suffix = process.platform === 'win32' ? '.exe' : '';
 const binaries = resolve(root, 'apps/desktop/src-tauri/binaries');

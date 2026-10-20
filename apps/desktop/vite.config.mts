@@ -8,9 +8,10 @@ const connectionPath = process.env.FLOWGRAM_CONNECTION_FILE || fileURLToPath(new
 function connection(): { endpoint: string; token: string } {
   return JSON.parse(readFileSync(connectionPath, 'utf8'));
 }
-export default defineConfig({
+export default defineConfig(({ command, mode }) => ({
   plugins: [react(), tailwindcss()],
-  server: {
+  // Builds and unit tests run without a backend or its private connection file.
+  server: command === 'serve' && mode !== 'test' ? {
     host: '127.0.0.1', port: 1420, strictPort: true,
     proxy: {
       '/v1': { target: connection().endpoint },
@@ -23,7 +24,7 @@ export default defineConfig({
         },
       },
     },
-  },
+  } : undefined,
   resolve: { dedupe: ['react', 'react-dom'] },
   build: { target: 'es2022', chunkSizeWarningLimit: 800 },
-});
+}));

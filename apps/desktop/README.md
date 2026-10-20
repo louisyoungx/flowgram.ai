@@ -136,6 +136,32 @@ Windows 共运行 118 项 Rust 测试；修复后复测受影响的导入、删�
 
 最终安装包的真实后端另通过 [Windows 验收脚本](../desktop-backend/validation/windows_desktop.py)：六个项目、18 个工作流、294 个节点、11 个离线流程重跑、中文与空格路径、工作流保存与历史图快照、归档恢复、带历史导入导出、项目重命名、重新打开与完整名称确认删除均通过。重新启动后保留 18 个会话和 40 次运行，MCP 初始化正常。Windows 本轮未配置真实模型连接；Windows 11 尚未单独实机验收。
 
+## GitHub Actions 安装包流水线
+
+[Desktop Build](../../.github/workflows/desktop-build.yml) 在桌面、Rust 后端、共享库及构建配置相关的 PR / main 提交时执行，支持合并队列，也可在 GitHub 的 Actions → Desktop Build → Run workflow 手动选择分支运行。
+
+三个原生 GitHub 托管 runner 分别构建安装包，不依赖私人编译机、SSH、本机服务或本地数据：
+
+| 平台 | Runner | 下载产物 |
+| --- | --- | --- |
+| macOS Apple Silicon | `macos-15` | `FlowGram-aarch64-apple-darwin`，包含 `.dmg` |
+| macOS Intel | `macos-15-intel` | `FlowGram-x86_64-apple-darwin`，包含 `.dmg` |
+| Windows x64 | `windows-2022` | `FlowGram-x86_64-pc-windows-msvc`，包含 `-setup.exe` |
+
+流水线使用 Node.js 22、仓库指定的 Rush / pnpm、Rust 1.97.0 stable，以及已提交的 pnpm / Cargo 锁文件。先构建桌面所需的共享库，再运行前端单测与 lint、Rust Clippy 与后端 / 工作流运行时测试，最后打包 GUI 和两个原生 Rust sidecar。Rust 测试串行执行，避免多份首次示例初始化争抢磁盘；缓存按平台和架构隔离。
+
+产物检查在临时中文与空格路径内使用独立数据目录。macOS 挂载实际 DMG；Windows 解包实际 NSIS 安装器，核对三个二进制齐备，并运行包内服务验证 HTTP、MCP 初始化 / 工具目录及独立服务数据库可用性。此检查不启动 GUI，也不替代实机交互验收。
+
+成功后在对应 Actions run 的 Artifacts 下载，保留 14 天。每份产物包含带版本与目标架构的安装包、`SHA256SUMS.txt` 和记录源码提交的 `build-info.json`。当前生成未配置发布者签名 / Apple 公证的测试包，不需要发布凭证；不会创建 GitHub Release、推送标签或发布 npm 包。正式签名、公证及自动更新需另行配置。
+
+本地复查流水线脚本（先完成对应平台打包）：
+
+```sh
+# 仓库根目录；Windows 设为 x86_64-pc-windows-msvc
+DESKTOP_TARGET=aarch64-apple-darwin python3 .github/scripts/desktop-smoke.py
+DESKTOP_TARGET=aarch64-apple-darwin DESKTOP_ARTIFACT_DIR=.flowgram-local/ci-artifacts node .github/scripts/desktop-artifacts.mjs
+```
+
 ## 当前可用范围
 
 - 新建 / 打开工程目录，切换项目恢复各自的工作区；工作流、会话、运行、资源分别导航，项目内搜索；独立设置页面，包含模型、外观、动效、MCP 和快捷键。
