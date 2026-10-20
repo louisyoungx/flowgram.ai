@@ -5,6 +5,7 @@
 
 import { localized } from './i18n';
 import { tx } from './i18n';
+import { nodeLayout, NODE_LAYOUT } from './node-layout';
 import catalog from '../../../desktop-backend/catalog/control-nodes.json';
 import type { AtomicNodeDefinition } from './atomic-nodes';
 import type { WorkflowNode, WorkflowSchema } from './types';
@@ -47,16 +48,18 @@ export function portLabels(node: WorkflowNode, graph: WorkflowSchema) {
 // Explicit static port coordinates: no DOM scanning, useDynamicPort, or targetElement.
 export function staticPorts(node: WorkflowNode, graph: WorkflowSchema) {
   const labels = portLabels(node, graph);
-  const count = Math.max(labels.input.length, labels.output.length);
-  const height = count > 1 ? 153 + count * 28 : 150;
+  const layout = nodeLayout(node, labels.input.length, labels.output.length);
+  const rowSide = (type: 'input' | 'output') => layout.family === 'route' &&
+    ((isJoin(node.type) && type === 'input') || (!isJoin(node.type) && type === 'output'));
   return {
-    height,
+    ...layout,
     ports: (['input', 'output'] as const).flatMap((type) => labels[type].map((port, index) => ({
       type,
       ...(port.id ? { portID: port.id } : {}),
       locationConfig: {
         ...(type === 'input' ? { left: 0 } : { right: 0 }),
-        top: count > 1 ? 121 + index * 28 + 14 : '50%',
+        top: rowSide(type) ? NODE_LAYOUT.rowTop + index * NODE_LAYOUT.rowHeight + NODE_LAYOUT.rowHeight / 2
+          : layout.family === 'container' ? 36 : layout.family === 'route' ? 42 : layout.height / 2,
       },
     }))),
   };

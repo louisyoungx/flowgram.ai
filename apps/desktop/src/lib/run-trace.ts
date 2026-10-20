@@ -77,6 +77,8 @@ export interface TraceDetail {
       workflowId: string;
       nodeId: string;
       total: number;
+      durationMs?: number | null;
+      startedAt?: string | null;
       counts: Record<string, number>;
     }[];
     publication: {

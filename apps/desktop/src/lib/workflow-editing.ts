@@ -235,7 +235,7 @@ export function insertNode(schema: WorkflowSchema, kind: string, intent: Inserti
       const target = graph.nodes.find((node) => node.id === intent.edge!.targetNodeID);
       const box = (node: WorkflowNode, owner: WorkflowSchema) => ({
         x: node.meta?.position?.x || 0, y: node.meta?.position?.y || 0,
-        width: isLoop(node.type) ? 720 : 280,
+        width: staticPorts(node, owner).width,
         height: isLoop(node.type) ? 330 : staticPorts(node, owner).height,
       });
       if (target) {

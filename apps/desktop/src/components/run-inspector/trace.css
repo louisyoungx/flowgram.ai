@@ -196,9 +196,6 @@
 .workflow-canvas-readonly .workflow-line-add {
   display: none;
 }
-[data-execution-status="failed"] > .flowgram-node {
-  border-color: var(--destructive);
-}
 [data-execution-status="skipped"] > .flowgram-node,
 [data-execution-status="untested"] > .flowgram-node,
 [data-execution-status="pending"] > .flowgram-node {

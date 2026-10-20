@@ -6,6 +6,8 @@ import { lazy, Suspense, useEffect, useMemo, useRef } from 'react';
 
 import type { CanvasHandle } from '../workflow-canvas';
 import type { Workflow } from '../../lib/types';
+import type { CanvasExecution } from '../../lib/node-execution';
+import type { ModelTrace } from '../../lib/models';
 import { tx } from '../../lib/i18n';
 
 const Canvas = lazy(() =>
@@ -18,6 +20,9 @@ export function TraceCanvas({
   snapshot,
   selectedId,
   statuses,
+  executions,
+  workflowNames,
+  modelTraces,
   edgeStates,
   onSelect,
   active,
@@ -25,6 +30,9 @@ export function TraceCanvas({
   snapshot: Workflow;
   selectedId: string | null;
   statuses: Record<string, string>;
+  executions: Record<string, CanvasExecution>;
+  workflowNames: Record<string, string>;
+  modelTraces: Record<string, ModelTrace>;
   edgeStates?: Record<string, string>;
   onSelect: (node: string) => void;
   active: boolean;
@@ -46,6 +54,10 @@ export function TraceCanvas({
         readOnly
         selectedIds={selected}
         statuses={statuses}
+        executions={executions}
+        workflowNames={workflowNames}
+        modelTraces={modelTraces}
+        onInspectExecution={onSelect}
         edgeStates={edgeStates}
         onNodeClick={onSelect}
         onOpen={onSelect}

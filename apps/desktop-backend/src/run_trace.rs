@@ -533,10 +533,14 @@ impl Store {
                 let mut nodes = HashMap::<String, Value>::new();
                 for entry in entries.iter().filter(|e| e.kind == "node") {
                     let key = format!("{}:{}", entry.workflow_id, entry.node_id);
-                    let node=nodes.entry(key).or_insert_with(||json!({"workflowId":entry.workflow_id,"nodeId":entry.node_id,"counts":{},"total":0}));
+                    let node=nodes.entry(key).or_insert_with(||json!({"workflowId":entry.workflow_id,"nodeId":entry.node_id,"counts":{},"total":0,"durationMs":0,"startedAt":entry.started_at}));
                     let count = node["counts"][&entry.status].as_u64().unwrap_or(0) + 1;
                     node["counts"][&entry.status] = json!(count);
                     node["total"] = json!(node["total"].as_u64().unwrap_or(0) + 1);
+                    node["durationMs"] = match (node["durationMs"].as_i64(), entry.duration_ms) {
+                        (Some(total), Some(duration)) => json!(total + duration),
+                        _ => Value::Null,
+                    };
                 }
                 if query.at.is_some() && ended.is_none() {
                     let started:bool=sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM events WHERE object_id=? AND kind='run_started' AND sequence<=?)").bind(id).bind(query.at).fetch_one(&self.db).await?;

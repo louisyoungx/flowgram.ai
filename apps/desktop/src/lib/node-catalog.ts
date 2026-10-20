@@ -257,40 +257,6 @@ export function createNode(type: string, index: number): WorkflowNode {
   }
   return node;
 }
-export function nodeSummary(
-  type: string,
-  data: Record<string, unknown>,
-): string {
-  const inputs = (data.inputsValues || {}) as Record<
-    string,
-    { type?: string; content?: unknown }
-  >;
-  const key =
-    type === "http"
-      ? "url"
-      : type === "llm" || type === "agent"
-        ? "prompt"
-        : type === "text"
-          ? "operation"
-          : type === "array"
-            ? "operation"
-            : type === "subworkflow"
-              ? "workflowId"
-              : "text";
-  const value = inputs[key];
-  if (value?.type === "ref" && Array.isArray(value.content))
-    return tx("引用 {0}", [value.content.join(".")]);
-  if (typeof value?.content === "string" && value.content) return value.content;
-  if (type === "start")
-    return (
-      Object.keys(
-        (data.outputs as { properties?: object })?.properties || {},
-      ).join("、") || tx("配置输入字段")
-    );
-  if (type === "assign" || type === "end")
-    return Object.keys(inputs).join("、") || tx("配置返回字段");
-  return nodeSpec(type).description;
-}
 const node = (
   id: string,
   type: string,

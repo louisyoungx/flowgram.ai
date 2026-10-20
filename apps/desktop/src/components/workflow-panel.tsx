@@ -51,6 +51,7 @@ import type {
 } from '../lib/types';
 import { aggregateStatus, type TraceDetail } from '../lib/run-trace';
 import { useProjectApi } from '../lib/project-context';
+import { canvasExecutions, type CanvasExecution } from '../lib/node-execution';
 import { tx, errorText } from '../lib/i18n';
 import { t } from '../lib/i18n';
 import { eventData, executionLabel, sampleBindings } from '../lib/execution-samples';
@@ -249,6 +250,8 @@ export function WorkflowPanel({
     return () => window.removeEventListener('flowgram:debug-inputs', receive);
   }, [workflow.projectId, workflow.id]);
   const [events, setEvents] = useState<RuntimeEvent[]>([]);
+  const [nodeExecutions, setNodeExecutions] = useState<Record<string, CanvasExecution>>({});
+  const [traceFocus, setTraceFocus] = useState<{ nodeId: string; sequence: number }>();
   const [nodeStates, setNodeStates] = useState<Record<string, string>>({});
   const [validation, setValidation] = useState<string | null>(null);
   const localRevision = useRef<number>(
@@ -324,6 +327,7 @@ export function WorkflowPanel({
     let disposed = false;
     setEvents([]);
     setNodeStates({});
+    setNodeExecutions({});
     api<{ run: Run; events: RuntimeEvent[]; nodeStates?: Record<string, string> }>(
       `/api/runs/${run.id}?workflowId=${encodeURIComponent(workflow.id)}`
     )
@@ -331,6 +335,7 @@ export function WorkflowPanel({
         if (!disposed) {
           setEvents(detail.events);
           const projection = (detail as typeof detail & Pick<TraceDetail, 'trace'>).trace;
+          if (projection) setNodeExecutions(canvasExecutions({ trace: projection }, workflow.id));
           setNodeStates(
             projection
               ? Object.fromEntries(
@@ -908,6 +913,18 @@ export function WorkflowPanel({
             <WorkflowCanvas
               ref={canvas}
               statuses={statuses}
+              executions={nodeExecutions}
+              workflowNames={Object.fromEntries(
+                workflows
+                  .filter((item) => item.projectId === workflow.projectId)
+                  .map((item) => [item.id, item.name])
+              )}
+              onInspectExecution={(nodeId) => {
+                if (run) {
+                  setResultsVisible(true);
+                  setTraceFocus({ nodeId, sequence: Date.now() });
+                }
+              }}
               toolbarLeading={
                 <Button
                   size="sm"
@@ -1203,15 +1220,17 @@ export function WorkflowPanel({
               <RunInspector
                 id={run.id}
                 compact
-                onProjection={(detail) =>
+                focusRequest={traceFocus}
+                onProjection={(detail) => {
+                  setNodeExecutions(canvasExecutions(detail, workflow.id));
                   setNodeStates(
                     Object.fromEntries(
                       detail.trace.nodes
                         .filter((node) => node.workflowId === workflow.id)
                         .map((node) => [node.nodeId, aggregateStatus(node.counts)])
                     )
-                  )
-                }
+                  );
+                }}
                 onSelectExecution={(entry) => {
                   if (
                     entry.workflowId === workflow.id &&

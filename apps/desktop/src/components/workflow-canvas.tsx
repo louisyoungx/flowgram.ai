@@ -17,10 +17,9 @@ import {
   type ReactNode,
 } from 'react';
 
-import { Check, Circle, Loader2, MoreHorizontal, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import {
   EditorRenderer,
-  Field,
   FreeLayoutEditorProvider,
   WorkflowNodeRenderer,
   WorkflowNodePortsData,
@@ -35,6 +34,7 @@ import {
   Rectangle,
   useListenEvents,
   useNodeRender,
+  useWatchFormValues,
   type FreeLayoutProps,
   type WorkflowNodeProps,
   type FlowNodeEntity,
@@ -43,7 +43,11 @@ import {
 
 import type { InsertionIntent, NodeCommand, Edge } from '../lib/workflow-editing';
 import type { WorkflowNode, WorkflowSchema } from '../lib/types';
-import { nodeCatalog, nodeSpec, nodeSummary } from '../lib/node-catalog';
+import { presentNode, nodeNames, loopOwners, type NodeResources } from '../lib/node-presentation';
+import { nodeFamily, NODE_LAYOUT } from '../lib/node-layout';
+import type { CanvasExecution } from '../lib/node-execution';
+import { nodeCatalog, nodeSpec } from '../lib/node-catalog';
+import { useModels, type ModelTrace } from '../lib/models';
 import { tx, useLocale } from '../lib/i18n';
 import {
   isLoop,
@@ -52,8 +56,14 @@ import {
   scopeFor,
   staticPorts,
 } from '../lib/control-nodes';
+import { isJoin } from '../lib/control-nodes';
 import { WorkflowCanvasToolbar } from './workflow-canvas-toolbar';
-import { InlineRename } from './ui/inline-rename';
+import {
+  CanvasNodeHeader,
+  CanvasNodeSummary,
+  CanvasNodeRoutes,
+  CanvasNodeRunBadge,
+} from './canvas-node';
 import '@flowgram.ai/free-layout-editor/index.css';
 
 function fitCanvas(ctx: FreeLayoutPluginContext | null) {
@@ -79,142 +89,103 @@ interface CanvasInteraction {
   endRename: () => void;
   suppressClick: () => boolean;
   readOnly: boolean;
+  inspect: (id: string) => void;
 }
 const InteractionContext = createContext<CanvasInteraction>(null!);
 const PortContext = createContext<ReturnType<typeof portModels>>({});
-const ExecutionContext = createContext<Record<string, string>>({});
+const ExecutionContext = createContext<{
+  entries: Record<string, CanvasExecution>;
+  now: number;
+  resources: NodeResources;
+}>({
+  entries: {},
+  now: 0,
+  resources: { names: {}, workflows: {} },
+});
 function NodeFields({ type }: { type: string }) {
   const interaction = useContext(InteractionContext);
-  const statuses = useContext(ExecutionContext);
+  const { entries, now, resources } = useContext(ExecutionContext);
   const { node } = useNodeRender();
+  const values = useWatchFormValues<Record<string, unknown>>(node) || {};
   const models = useContext(PortContext);
-  const labels = models[node.id] || { input: [], output: [] };
-  const rows = Math.max(labels.input.length, labels.output.length);
+  const layout = models[node.id];
+  if (!layout) return null;
   const spec = nodeSpec(type);
-  const Icon = spec.icon;
-  const status = statuses[node.id];
+  const model: WorkflowNode = { id: node.id, type, data: values };
+  const presentation = presentNode(model, resources);
+  const routeSide = isJoin(type) ? 'input' : 'output';
+  const routePorts = layout[routeSide];
+  const title = String(values.title || spec.title);
   return (
     <>
       {!interaction.readOnly &&
-        labels.output.map((port, index) => (
-          <button
-            key={port.id}
-            type="button"
-            className="node-port-add flow-canvas-not-draggable"
-            style={{ top: rows > 1 ? 123 + index * 28 : 'calc(50% - 12px)' }}
-            aria-label={tx('在「{0}」后添加节点', [port.label])}
-            title={tx('在「{0}」后添加节点', [port.label])}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={(event) => {
-              event.stopPropagation();
-              interaction.add({
-                anchor: { x: event.clientX, y: event.clientY },
-                source: { nodeId: node.id, portId: port.id },
-                position: {
-                  x: node.transform.position.x + 360,
-                  y: node.transform.position.y + index * 80,
-                },
-              });
-            }}
-          >
-            <Plus size={13} />
-          </button>
-        ))}
-      <div className="workflow-node-heading">
-        <span className={`node-icon node-tone-${spec.tone}`}>
-          <Icon size={18} strokeWidth={1.7} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <Field<string> name="title">
-            {({ field }) =>
-              interaction.readOnly ? (
-                <span
-                  className="block truncate text-sm font-medium"
-                  title={field.value || spec.title}
-                >
-                  {field.value || spec.title}
-                </span>
-              ) : (
-                <InlineRename
-                  value={field.value || spec.title}
-                  editing={interaction.renameId === node.id}
-                  onStart={() => {}}
-                  onCommit={(title) => interaction.rename(node.id, title)}
-                  onEnd={interaction.endRename}
-                />
-              )
-            }
-          </Field>
-          <span className="node-type-label">{spec.title}</span>
-        </div>
-        {!interaction.readOnly && (
-          <button
-            type="button"
-            className="node-config-button flow-canvas-not-draggable"
-            aria-label={tx('节点更多操作')}
-            onClick={(event) => {
-              event.stopPropagation();
-              interaction.menu(node.id, event);
-            }}
-          >
-            <MoreHorizontal size={18} />
-          </button>
-        )}
-      </div>
-      <div className="node-content-summary">
-        {type === 'start' ? (
-          <Field<Record<string, unknown>> name="outputs">
-            {({ field }) => <span>{nodeSummary(type, { outputs: field.value })}</span>}
-          </Field>
-        ) : (
-          <Field<Record<string, unknown>> name="inputsValues">
-            {({ field }) => <span>{nodeSummary(type, { inputsValues: field.value })}</span>}
-          </Field>
-        )}
-      </div>
-      {rows > 1 && (
-        <div className="node-port-rows">
-          {Array.from({ length: rows }, (_, index) => (
-            <div className="node-port-row" key={index}>
-              <span>{labels.input[index]?.label}</span>
-              <span>{labels.output[index]?.label}</span>
-            </div>
-          ))}
-        </div>
+        layout.output.map((port, index) => {
+          const top = layout.ports.filter((port) => port.type === 'output')[index].locationConfig
+            .top as number;
+          return (
+            <button
+              key={port.id}
+              type="button"
+              className="node-port-add flow-canvas-not-draggable"
+              style={{ top: top - 12 }}
+              aria-label={tx('在「{0}」后添加节点', [port.label])}
+              title={tx('在「{0}」后添加节点', [port.label])}
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                interaction.add({
+                  anchor: { x: event.clientX, y: event.clientY },
+                  source: { nodeId: node.id, portId: port.id },
+                  position: {
+                    x: node.transform.position.x + layout.width + 80,
+                    y: node.transform.position.y + index * 80,
+                  },
+                });
+              }}
+            >
+              <Plus size={13} />
+            </button>
+          );
+        })}
+      <CanvasNodeHeader
+        title={title}
+        spec={spec}
+        issue={resources.readOnly ? undefined : presentation.issue}
+        readOnly={interaction.readOnly}
+        renaming={interaction.renameId === node.id}
+        onRename={(title) => interaction.rename(node.id, title)}
+        onEndRename={interaction.endRename}
+        onMenu={(event) => interaction.menu(node.id, event)}
+      />
+      <CanvasNodeSummary lines={presentation.lines} />
+      {layout.family === 'route' && (
+        <CanvasNodeRoutes node={model} side={routeSide} ports={routePorts} resources={resources} />
       )}
-      <div className="node-footer">
-        <span>{type === 'start' || type === 'block-start' ? tx('运行输入') : tx('输入')}</span>
-        <span className="node-execution-state">
-          {status === 'running' ? (
-            <Loader2 size={12} className="animate-spin" />
-          ) : status === 'succeeded' ? (
-            <Check size={12} />
-          ) : (
-            <Circle size={8} />
-          )}{' '}
-          {status === 'running'
-            ? tx('运行中')
-            : status === 'succeeded'
-            ? tx('已完成')
-            : status === 'failed'
-            ? tx('执行失败')
-            : status === 'untested'
-            ? tx('本次未测试')
-            : status === 'pending'
-            ? tx('未执行')
-            : status === 'skipped'
-            ? tx('已跳过')
-            : status === 'waiting'
-            ? tx('等待中')
-            : status === 'canceled'
-            ? tx('已取消')
-            : status === 'interrupted'
-            ? tx('已中断')
-            : type === 'condition'
-            ? tx('通过 / 否则')
-            : tx('输出')}
-        </span>
-      </div>
+      {(['input', 'output'] as const).map(
+        (side) =>
+          layout[side].length === 1 &&
+          layout.family !== 'route' && (
+            <span
+              key={side}
+              className="node-port-hint"
+              data-side={side}
+              style={{
+                top:
+                  (layout.ports.find((port) => port.type === side)?.locationConfig.top as number) ||
+                  0,
+              }}
+            >
+              {tx(side === 'input' ? '进入此步骤' : '执行后继续')}
+            </span>
+          )
+      )}
+      {entries[node.id] && (
+        <CanvasNodeRunBadge
+          entry={entries[node.id]}
+          now={now}
+          onInspect={() => interaction.inspect(node.id)}
+        />
+      )}
     </>
   );
 }
@@ -223,14 +194,20 @@ function NodeCard(props: WorkflowNodeProps) {
   const interaction = useContext(InteractionContext);
   const pointer = useRef({ x: 0, y: 0 });
   const models = useContext(PortContext);
-  const height = models[node.id]?.height || 150;
+  const layout = models[node.id] || {
+    width: NODE_LAYOUT.width,
+    height: NODE_LAYOUT.height,
+    family: nodeFamily(String(node.flowNodeType)),
+  };
+  const execution = useContext(ExecutionContext).entries[node.id];
   const transform = node.getData(FlowNodeTransformData);
   useListenEvents(transform.onDataChange);
   const container = isLoop(String(node.flowNodeType));
   return (
     <div
       data-workflow-node-id={node.id}
-      data-execution-status={useContext(ExecutionContext)[node.id]}
+      data-execution-status={execution?.status}
+      data-node-family={layout.family}
       tabIndex={0}
       role="group"
       aria-label={String(form?.values?.title || nodeSpec(String(node.flowNodeType)).title)}
@@ -282,11 +259,12 @@ function NodeCard(props: WorkflowNodeProps) {
                 width: transform.bounds.width || 720,
                 height: transform.bounds.height || 330,
               }
-            : { height }
+            : { width: layout.width, height: layout.height }
         }
         portPrimaryColor="var(--foreground)"
         portSecondaryColor="var(--muted-foreground)"
-        portBackgroundColor="var(--surface-panel)"
+        portBackgroundColor="var(--surface-node)"
+        portErrorColor="var(--destructive)"
       >
         {form?.render()}
       </WorkflowNodeRenderer>
@@ -329,6 +307,10 @@ export const WorkflowCanvas = memo(
       onRename: (id: string, title: string) => void;
       onEndRename: () => void;
       statuses?: Record<string, string>;
+      executions?: Record<string, CanvasExecution>;
+      workflowNames?: Record<string, string>;
+      modelTraces?: Record<string, ModelTrace>;
+      onInspectExecution?: (id: string) => void;
       toolbarLeading?: ReactNode;
       toolbarTrailing?: ReactNode;
     }
@@ -352,6 +334,10 @@ export const WorkflowCanvas = memo(
       onRename,
       onEndRename,
       statuses = {},
+      executions = {},
+      workflowNames = {},
+      modelTraces,
+      onInspectExecution,
       toolbarLeading,
       toolbarTrailing,
     },
@@ -387,6 +373,35 @@ export const WorkflowCanvas = memo(
     const root = useRef<HTMLDivElement>(null);
     const portSignature = portModelSignature(schema);
     const locale = useLocale();
+    const modelInventory = useModels();
+    const resources = useMemo<NodeResources>(
+      () => ({
+        names: nodeNames(schema),
+        owners: loopOwners(schema),
+        workflows: workflowNames,
+        models: modelInventory,
+        modelTraces,
+        readOnly,
+      }),
+      [schema, workflowNames, modelInventory, modelTraces, readOnly, locale]
+    );
+    const [now, setNow] = useState(() => Date.now());
+    const activeExecution = Object.values(statuses).some((status) => status === 'running');
+    useEffect(() => {
+      if (!activeExecution) return;
+      const timer = setInterval(() => setNow(Date.now()), 1000);
+      return () => clearInterval(timer);
+    }, [activeExecution]);
+    const executionContext = useMemo(
+      () => ({
+        entries: Object.fromEntries(
+          Object.entries(statuses).map(([id, status]) => [id, { ...executions[id], status }])
+        ),
+        now,
+        resources,
+      }),
+      [statuses, executions, now, resources]
+    );
     const models = useMemo(() => portModels(schema), [portSignature, locale]);
     const portCache = useRef(new WeakMap<object, string>());
     function updatePorts(entity: FlowNodeEntity, model: WorkflowNode, graph: WorkflowSchema) {
@@ -394,7 +409,7 @@ export const WorkflowCanvas = memo(
       const ports = layout.ports;
       if (!isLoop(model.type))
         entity.getData(FlowNodeTransformData).size = {
-          width: 280,
+          width: layout.width,
           height: layout.height,
         };
       const signature = JSON.stringify(ports);
@@ -533,6 +548,13 @@ export const WorkflowCanvas = memo(
         },
         onReady(ctx) {
           context.current = ctx;
+          const updateDensity = (zoom: number) => {
+            if (root.current)
+              root.current.dataset.nodeDensity =
+                zoom < 0.32 ? 'overview' : zoom < 0.55 ? 'compact' : 'detail';
+          };
+          updateDensity(ctx.playground.config.zoom);
+          disposables.current.push(ctx.playground.onZoom(updateDensity));
           const selector = ctx.playground.entityManager.getEntity<SelectorBoxConfigEntity>(
             SelectorBoxConfigEntity,
             true
@@ -671,7 +693,9 @@ export const WorkflowCanvas = memo(
             meta: {
               isStart: type === 'start' || type === 'block-start',
               isContainer: isLoop(type),
-              size: isLoop(type) ? { width: 720, height: 330 } : { width: 280, height: 150 },
+              size: isLoop(type)
+                ? { width: NODE_LAYOUT.containerWidth, height: NODE_LAYOUT.containerHeight }
+                : { width: NODE_LAYOUT.width, height: NODE_LAYOUT.height },
               padding: isLoop(type) ? { top: 120, left: 40, right: 40, bottom: 50 } : undefined,
               defaultPorts: [],
               useDynamicPort: false,
@@ -760,6 +784,7 @@ export const WorkflowCanvas = memo(
           value={{
             readOnly,
             click: onNodeClick,
+            inspect: onInspectExecution || onNodeClick,
             open: onOpen,
             renameId,
             rename: onRename,
@@ -808,7 +833,7 @@ export const WorkflowCanvas = memo(
             add: onAdd,
           }}
         >
-          <ExecutionContext.Provider value={statuses}>
+          <ExecutionContext.Provider value={executionContext}>
             <FreeLayoutEditorProvider {...props}>
               <div
                 ref={root}

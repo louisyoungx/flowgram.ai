@@ -33,6 +33,7 @@ import {
   type Execution,
   type TraceDetail,
 } from '../../lib/run-trace';
+import { canvasExecutions, scopedCanvasExecutions } from '../../lib/node-execution';
 import { nodeSpec } from '../../lib/node-catalog';
 import { errorText, tx } from '../../lib/i18n';
 import { scopeFor } from '../../lib/control-nodes';
@@ -65,6 +66,7 @@ export interface RunInspectorProps {
   onCollapse?: () => void;
   onExpand?: () => void;
   onHide?: () => void;
+  focusRequest?: { nodeId: string; sequence: number };
   onProjection?: (detail: TraceDetail) => void;
   onSelectExecution?: (entry: Execution) => void;
   requestRoot?: string;
@@ -84,6 +86,7 @@ export function RunInspector({
   onExpand,
   onHide,
   onProjection,
+  focusRequest,
   onSelectExecution,
   requestRoot,
   onDebugPrepared,
@@ -102,6 +105,13 @@ export function RunInspector({
   useEffect(() => {
     if (detail) projectionCallback.current?.(detail);
   }, [detail]);
+  const requestedFocus = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (detail && focusRequest && requestedFocus.current !== focusRequest.sequence) {
+      requestedFocus.current = focusRequest.sequence;
+      void inspection.selectNode(focusRequest.nodeId);
+    }
+  }, [!!detail, focusRequest?.sequence]);
   const [view, setView] = useState('canvas');
   const [treeVisible, setTreeVisible] = useState(true);
   const [inspectorVisible, setInspectorVisible] = useState(true);
@@ -164,6 +174,31 @@ export function RunInspector({
     }
     return statuses;
   }, [detail?.trace.nodes, snapshot, detail?.nodeTest, selected?.scopeId, inspection.scopeEntries]);
+  const nodeExecutions = useMemo(() => {
+    if (!detail || !snapshot) return {};
+    const entries = canvasExecutions(detail, snapshot.id);
+    if (
+      selected &&
+      (selected.iterationPath.length || selected.workflowId !== detail.run.workflowId)
+    ) {
+      for (const node of scopeFor(snapshot.schema, selected.nodeId).nodes) delete entries[node.id];
+      Object.assign(
+        entries,
+        scopedCanvasExecutions(
+          inspection.scopeEntries.filter((entry) => entry.scopeId === selected.scopeId),
+          snapshot.id
+        )
+      );
+    }
+    return entries;
+  }, [detail, snapshot, selected?.scopeId, inspection.scopeEntries]);
+  const referenceNames = useMemo(
+    () =>
+      Object.fromEntries(
+        (detail?.manifest?.workflows || []).map((item) => [item.workflowId, item.name])
+      ),
+    [detail?.manifest]
+  );
   const edgeStates = useMemo(() => {
     const states: Record<string, string> = {};
     if (!snapshot) return states;
@@ -231,45 +266,90 @@ export function RunInspector({
       span={span}
     />
   );
+  const instancePicker = inspection.instances && inspection.instances.total !== 1 && (
+    <div className={compact ? 'border-b border-border px-3 py-1' : 'border-b border-border p-3'}>
+      <Select
+        aria-label={tx('选择执行实例')}
+        value={selected?.id || ''}
+        placeholder={tx('选择执行实例')}
+        options={[
+          { value: '', label: tx('选择执行实例') },
+          ...inspection.instances.executions.map((entry) => ({
+            value: entry.id,
+            label: `${executionPath(entry) || tx('工作流主路径')} · ${statusLabel(
+              entry.status
+            )} · ${duration(entry.durationMs)} · ${entry.id.slice(0, 6)}`,
+          })),
+        ]}
+        onValueChange={(value) => {
+          const entry = inspection.instances?.executions.find((entry) => entry.id === value);
+          if (entry) inspection.selectInstance(entry);
+        }}
+      />
+      {inspection.instances.nextCursor != null && (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() =>
+            void inspection.selectNode(inspection.nodeId!, inspection.instances!.nextCursor!)
+          }
+        >
+          {tx('加载更多')}
+        </Button>
+      )}
+    </div>
+  );
   const inspect = detail ? (
-    <ExecutionDetail
-      detail={detail}
-      entry={selected}
-      node={selectedNode}
-      events={inspection.events}
-      loading={inspection.selectionLoading}
-      error={inspection.eventError || inspection.instanceError}
-      name={
-        selected ? executionName(selected) : selectedNode ? names[selectedNode.id] : tx('运行概览')
-      }
-      compact={compact}
-      onSource={selectNode}
-      onNodeTest={
-        onDebugPrepared &&
-        selected?.kind === 'node' &&
-        selectedNode &&
-        !['control.join', 'control.merge-branches', 'control.break', 'control.continue'].includes(
-          selectedNode.type
-        )
-          ? () => setDebug('node')
-          : undefined
-      }
-      onDependency={
-        selectedNode?.type === 'subworkflow' && selected
-          ? () =>
-              void inspection
-                .loadPage(selected.id)
-                .then((page) => {
-                  const entry = page?.executions.find(
-                    (entry) => entry.workflowId !== selected.workflowId
-                  );
-                  if (entry) select(entry);
-                  else setActionError(tx('此调用没有可用的子工作流执行记录'));
-                })
-                .catch((cause) => setActionError(cause.message))
-          : undefined
-      }
-    />
+    <div className="flex h-full min-h-0 flex-col">
+      {instancePicker}
+      <div className="min-h-0 flex-1">
+        <ExecutionDetail
+          detail={detail}
+          entry={selected}
+          node={selectedNode}
+          events={inspection.events}
+          loading={inspection.selectionLoading}
+          error={inspection.eventError || inspection.instanceError}
+          name={
+            selected
+              ? executionName(selected)
+              : selectedNode
+              ? names[selectedNode.id]
+              : tx('运行概览')
+          }
+          compact={compact}
+          onSource={selectNode}
+          onNodeTest={
+            onDebugPrepared &&
+            selected?.kind === 'node' &&
+            selectedNode &&
+            ![
+              'control.join',
+              'control.merge-branches',
+              'control.break',
+              'control.continue',
+            ].includes(selectedNode.type)
+              ? () => setDebug('node')
+              : undefined
+          }
+          onDependency={
+            selectedNode?.type === 'subworkflow' && selected
+              ? () =>
+                  void inspection
+                    .loadPage(selected.id)
+                    .then((page) => {
+                      const entry = page?.executions.find(
+                        (entry) => entry.workflowId !== selected.workflowId
+                      );
+                      if (entry) select(entry);
+                      else setActionError(tx('此调用没有可用的子工作流执行记录'));
+                    })
+                    .catch((cause) => setActionError(cause.message))
+              : undefined
+          }
+        />
+      </div>
+    </div>
   ) : null;
   return (
     <section
@@ -469,7 +549,7 @@ export function RunInspector({
                 {errorText(inspection.error || actionError)}
               </p>
             )}
-            {detail.run.error && !selected && (
+            {detail.run.error && !selected && !inspection.nodeId && (
               <button
                 type="button"
                 className="trace-failure-summary"
@@ -560,6 +640,13 @@ export function RunInspector({
                               snapshot={frozen}
                               selectedId={frozen.id === snapshot?.id ? inspection.nodeId : null}
                               statuses={frozen.id === snapshot?.id ? nodeStatuses : {}}
+                              executions={frozen.id === snapshot?.id ? nodeExecutions : {}}
+                              workflowNames={referenceNames}
+                              modelTraces={Object.fromEntries(
+                                (detail.models || [])
+                                  .filter((item) => item.workflowId === frozen.id)
+                                  .map((item) => [item.nodeId, item.model])
+                              )}
                               edgeStates={frozen.id === snapshot?.id ? edgeStates : undefined}
                               onSelect={selectNode}
                               active={view === 'canvas' && frozen.id === snapshot?.id}
@@ -665,46 +752,6 @@ export function RunInspector({
                         edge="left"
                         className="border-l border-border"
                       >
-                        {inspection.instances && inspection.instances.total !== 1 && (
-                          <div className="border-b border-border p-3">
-                            <Select
-                              aria-label={tx('选择执行实例')}
-                              value={selected?.id || ''}
-                              placeholder={tx('选择执行实例')}
-                              options={[
-                                { value: '', label: tx('选择执行实例') },
-                                ...inspection.instances.executions.map((entry) => ({
-                                  value: entry.id,
-                                  label: `${
-                                    executionPath(entry) || tx('工作流主路径')
-                                  } · ${statusLabel(entry.status)} · ${duration(
-                                    entry.durationMs
-                                  )} · ${entry.id.slice(0, 6)}`,
-                                })),
-                              ]}
-                              onValueChange={(value) => {
-                                const entry = inspection.instances?.executions.find(
-                                  (entry) => entry.id === value
-                                );
-                                if (entry) inspection.selectInstance(entry);
-                              }}
-                            />
-                            {inspection.instances.nextCursor != null && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() =>
-                                  void inspection.selectNode(
-                                    inspection.nodeId!,
-                                    inspection.instances!.nextCursor!
-                                  )
-                                }
-                              >
-                                {tx('加载更多')}
-                              </Button>
-                            )}
-                          </div>
-                        )}
                         {inspect}
                       </ResizablePanel>
                     ) : (

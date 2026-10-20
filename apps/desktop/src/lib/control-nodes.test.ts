@@ -22,7 +22,7 @@ describe('structured workflow port contracts', () => {
     expect(layout.ports.filter((p) => p.type === 'output').map((p) => p.portID)).toEqual(['a', 'b', 'else']);
     expect(staticPorts(join, schema).ports.filter((p) => p.type === 'input').map((p) => p.portID)).toEqual(['a', 'b', 'else']);
     expect(layout.ports.every((p) => !('targetElement' in p))).toBe(true);
-    expect(layout.ports[1].locationConfig.top).toBe(135);
+    expect(layout.ports[1].locationConfig.top).toBe(106);
   });
   it('keeps identities on rename and reorder, and excludes pointer movement from port invalidation', () => {
     const next = { ...fork, data: { ...fork.data, branches: [{ id: 'b', label: '新名字' }, { id: 'a', label: 'A' }] } };
