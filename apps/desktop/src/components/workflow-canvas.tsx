@@ -444,6 +444,34 @@ export const WorkflowCanvas = memo(
     const context = useRef<FreeLayoutPluginContext | null>(null);
     const updating = useRef(false);
     const historyBusy = useRef(false);
+    async function autoLayout() {
+      const ctx = context.current;
+      if (!ctx || readOnly || historyBusy.current) return;
+      historyBusy.current = true;
+      updating.current = true;
+      suppressed.current = true;
+      try {
+        await ctx.tools.autoLayout({
+          enableAnimation: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+          animationDuration: 180,
+          disableFitView: true,
+          layoutConfig: {
+            rankdir: 'LR',
+            nodesep: NODE_LAYOUT.nodeGap,
+            ranksep: NODE_LAYOUT.rankGap,
+          },
+        });
+        callback.current(ctx.document.toJSON() as WorkflowSchema);
+        fitCanvas(ctx);
+      } catch (cause) {
+        handlers.current.onConnectionError((cause as Error).message);
+      } finally {
+        updating.current = false;
+        historyBusy.current = false;
+        suppressed.current = false;
+        ctx.playground.node.focus({ preventScroll: true });
+      }
+    }
     async function runHistory(redo = false) {
       const ctx = context.current;
       if (!ctx || readOnly || historyBusy.current) return;
@@ -733,7 +761,14 @@ export const WorkflowCanvas = memo(
               size: isLoop(type)
                 ? { width: NODE_LAYOUT.containerWidth, height: NODE_LAYOUT.containerHeight }
                 : { width: NODE_LAYOUT.width, height: NODE_LAYOUT.height },
-              padding: isLoop(type) ? { top: 128, left: 28, right: 28, bottom: 36 } : undefined,
+              padding: isLoop(type)
+                ? {
+                    top: NODE_LAYOUT.containerTop,
+                    left: NODE_LAYOUT.containerSide,
+                    right: NODE_LAYOUT.containerSide,
+                    bottom: NODE_LAYOUT.containerBottom,
+                  }
+                : undefined,
               defaultPorts: [],
               useDynamicPort: false,
             },
@@ -1159,6 +1194,7 @@ export const WorkflowCanvas = memo(
                 trailing={toolbarTrailing}
                 onHistory={runHistory}
                 onFit={() => fitCanvas(context.current)}
+                onAutoLayout={autoLayout}
               />
             </FreeLayoutEditorProvider>
           </ExecutionContext.Provider>

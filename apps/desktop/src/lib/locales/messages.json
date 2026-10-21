@@ -2081,5 +2081,6 @@
   "方法": "Method",
   "地址": "URL",
   "时长": "Duration",
-  "直到": "Until"
+  "直到": "Until",
+  "自动布局": "Auto layout"
 }

@@ -47,6 +47,7 @@ const names: Record<string, string> = localized(
     list_workflows: '查看项目工作流',
     inspect_workflow: '读取工作流',
     create_workflow: '创建工作流',
+    layout_workflow: '自动布局',
     save_workflow: '保存草稿',
     validate_workflow: '校验工作流',
     run_workflow: '发起试运行',
@@ -66,7 +67,7 @@ export function toolStatus(item: ConversationItem) {
   if (item.payload.name === 'run_workflow') return tx('已发起');
   if (item.payload.name === 'validate_workflow')
     return item.payload.result?.valid ? tx('校验通过') : tx('发现问题');
-  if (['save_workflow', 'create_workflow'].includes(item.payload.name || ''))
+  if (['save_workflow', 'create_workflow', 'layout_workflow'].includes(item.payload.name || ''))
     return tx('已保存 · v{0}', [item.payload.result?.revision || '?']);
   return tx('已完成');
 }
@@ -288,7 +289,9 @@ export function ConversationTurn({
   for (const item of tools) {
     if (
       item.status === 'completed' &&
-      ['create_workflow', 'save_workflow', 'run_workflow'].includes(item.payload.name || '')
+      ['create_workflow', 'save_workflow', 'layout_workflow', 'run_workflow'].includes(
+        item.payload.name || ''
+      )
     ) {
       const id = item.payload.result?.id;
       if (typeof id === 'string')

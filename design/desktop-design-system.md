@@ -226,6 +226,14 @@
 
 选中运行后，卡片外侧显示可操作的执行标记：单次耗时、重复次数与失败数，或选定轮次与重试。点击定位共享运行检查器；后续成功不覆盖此前失败，模型 / 工具子调用不计入节点重复次数。标记更新不改变尺寸；失败只强调标记，选中描边继续使用主题令牌。缩放保留标题、配置预览和分支条件，避免隐藏文字留下空壳；仅在概览缩放下简化非失败运行标记的文字，不移动端口或重建画布。
 
+## 自动布局
+
+基础节点尺寸、容器留白和布局间距共享 `apps/desktop-backend/catalog/node-layout.json`，前端通过 `node-layout` 使用。布局按从左到右的层级排列，先处理容器内的子图，再为父图中的容器预留完整空间；分支按静态端口顺序排列，不扫描 DOM 或启用动态端口。
+
+Agent 和 MCP 的 `create_workflow`、结构性 `save_workflow` 自动执行 Rust 后端布局，无需打开画布。只改参数或标题时保留已有位置；`layout_workflow` 可显式整理已有画布，按预期 revision 保存，保持节点 ID、配置和连线不变。模型提示不再要求手算坐标。
+
+画布底部提供纯图标“自动布局”按钮，保留悬停提示与可访问名称，历史只读画布隐藏该按钮。手动操作复用 FlowGram `tools.autoLayout`，整体作为一次撤销操作，并在布局结束后统一同步草稿。节点位置过渡为 180ms，减少动态效果时直接完成；视口只在显式整理结束后适应内容，编辑器实例和选中节点保持不变。
+
 ## 画布连线
 
 参考 [Dify 的工作流连线](https://github.com/langgenius/dify/blob/main/web/app/components/workflow/custom-edge.tsx) 将默认路径与按需操作分开；参考 [n8n 的画布边](https://github.com/n8n-io/n8n/blob/master/packages/frontend/editor-ui/src/features/workflows/canvas/components/elements/edges/CanvasEdge.vue) 与 [React Flow BaseEdge](https://reactflow.dev/api-reference/components/base-edge) 区分可见描边与交互热区。保留引擎曲线及命中计算，不另绘一条与真实路径不一致的交互线。
