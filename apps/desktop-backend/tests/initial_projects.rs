@@ -175,7 +175,11 @@ async fn initial_content_has_real_workflows_runs_and_consistent_editable_convers
         .outputs["result"];
     assert_eq!(output["duplicates"], 1);
     assert_eq!(output["results"].as_array().unwrap().len(), 3);
-    assert!(output["errors"].as_array().unwrap().is_empty());
+    assert!(
+        output["errors"].as_array().unwrap().is_empty(),
+        "Order fulfillment errors: {}",
+        output["errors"]
+    );
     assert_eq!(
         output["results"]
             .as_array()

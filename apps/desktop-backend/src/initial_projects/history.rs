@@ -124,7 +124,11 @@ impl<'a> Walkthrough<'a> {
             .await?;
         let run_id = run["id"].as_str().unwrap();
         tokio::time::timeout(std::time::Duration::from_secs(60), async {
-            while self.store.run(run_id).await?.status == "running" {
+            // The status row is committed before the final event. Capture the
+            // walkthrough only after the owned worker has flushed the trace.
+            while self.store.run(run_id).await?.status == "running"
+                || self.store.active.lock().await.contains_key(run_id)
+            {
                 tokio::time::sleep(std::time::Duration::from_millis(5)).await;
             }
             self.call("get_run", json!({"runId":run_id})).await
