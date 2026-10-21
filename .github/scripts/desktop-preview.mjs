@@ -45,13 +45,6 @@ export function preparePreview({ input, output, commit }) {
     builds: builds.map(({ source, info, ...build }) => ({ ...build, run: info.run, signed: info.signed })),
   };
   writeFileSync(join(output, 'build-info.json'), `${JSON.stringify(metadata, null, 2)}\n`);
-  writeFileSync(join(output, 'release-notes.md'),
-    `FlowGram Desktop preview **${metadata.version}** for macOS Apple Silicon, macOS Intel and Windows x64.\n\n` +
-    `Download the installer for your platform below. The download URLs stay the same when this preview is updated.\n\n` +
-    `Source: https://github.com/bytedance/flowgram.ai/commit/${commit}\n\n` +
-    `Build: https://github.com/bytedance/flowgram.ai/actions/runs/${builds[0].info.run}\n\n` +
-    `Checksums: SHA256SUMS.txt. Build provenance: build-info.json.\n\n` +
-    `Preview installers are unsigned; macOS builds are not notarized.\n`);
   return metadata;
 }
 

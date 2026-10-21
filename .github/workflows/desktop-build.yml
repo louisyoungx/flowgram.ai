@@ -166,7 +166,7 @@ jobs:
           retention-days: 14
 
   publish-preview:
-    name: Publish Desktop preview
+    name: Update Desktop preview assets
     needs: package
     if: github.repository == 'bytedance/flowgram.ai' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
@@ -201,15 +201,10 @@ jobs:
           PREVIEW_DIRECTORY: ${{ runner.temp }}/desktop-preview
         run: |
           set -euo pipefail
-          if ! gh release view desktop-preview >/dev/null 2>&1; then
-            gh release create desktop-preview --target "$GITHUB_SHA" \
-              --title "FlowGram Desktop Preview" --draft --prerelease --latest=false \
-              --notes-file "$PREVIEW_DIRECTORY/release-notes.md"
-          fi
+          # Tag and release events notify the group. Update assets only;
+          # a missing channel must fail rather than creating or publishing one.
+          gh release view desktop-preview --json isDraft --jq \
+            'if .isDraft then error("Desktop preview channel must already be published") else empty end'
           gh release upload desktop-preview \
             "$PREVIEW_DIRECTORY"/*.dmg "$PREVIEW_DIRECTORY"/*.exe \
             "$PREVIEW_DIRECTORY/SHA256SUMS.txt" "$PREVIEW_DIRECTORY/build-info.json" --clobber
-          gh release edit desktop-preview --draft=false --prerelease --latest=false \
-            --notes-file "$PREVIEW_DIRECTORY/release-notes.md"
-          gh api --method PATCH "repos/$GH_REPO/git/refs/tags/desktop-preview" \
-            -f sha="$GITHUB_SHA" -F force=true
