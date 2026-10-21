@@ -18,14 +18,6 @@ FlowGram поставляется со встроенным набором ин�
 
 Узнайте больше на [FlowGram.AI 🌐](https://flowgram.ai)
 
-## 🎬 Демо
-
-<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
-
-Откройте в [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) или [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
-
-В этом демо мы перебираем список городов, получаем погоду в реальном времени по HTTP, анализируем температуру с помощью узла «Код», генерируем предложения по одежде с помощью LLM, управляем с помощью «Условия», агрегируем результаты по циклу и, наконец, используем LLM-советника, чтобы выбрать самый комфортный город, прежде чем отправить результат в конечный узел.
-
 ## 🖥️ FlowGram Desktop
 
 FlowGram Desktop — нативная рабочая среда для ИИ-агентов на macOS и Windows. Создавайте, запускайте, отлаживайте и повторно используйте рабочие процессы с помощью диалога и визуального холста.
@@ -52,6 +44,14 @@ Desktop Build создаёт предварительные установочн
 [![Смотреть презентационное видео FlowGram Desktop](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
 [▶ Смотреть презентационное видео: 45 секунд, на английском](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Настройка и разработка Desktop](./apps/desktop/README.md)
+
+## 🎬 Демо
+
+<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
+
+Откройте в [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) или [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
+
+В этом демо мы перебираем список городов, получаем погоду в реальном времени по HTTP, анализируем температуру с помощью узла «Код», генерируем предложения по одежде с помощью LLM, управляем с помощью «Условия», агрегируем результаты по циклу и, наконец, используем LLM-советника, чтобы выбрать самый комфортный город, прежде чем отправить результат в конечный узел.
 
 ## 🚀 Быстрый старт
 

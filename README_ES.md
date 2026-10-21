@@ -18,14 +18,6 @@ FlowGram viene con un conjunto de herramientas integradas para el desarrollo de 
 
 Obtenga más información en [FlowGram.AI 🌐](https://flowgram.ai)
 
-## 🎬 Demostración
-
-<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
-
-Abra en [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) o [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
-
-En esta demostración, iteramos a través de una lista de ciudades, obtenemos el clima en tiempo real a través de HTTP, analizamos las temperaturas con un nodo de código, generamos sugerencias de atuendos con un LLM, controlamos mediante una condición, agregamos los resultados a lo largo del bucle y, finalmente, usamos un LLM asesor para elegir la ciudad más cómoda antes de enviar el resultado al nodo final.
-
 ## 🖥️ FlowGram Desktop
 
 FlowGram Desktop es un espacio de trabajo nativo para agentes de IA en macOS y Windows. Cree, ejecute, depure y reutilice flujos de trabajo mediante conversaciones y un lienzo visual.
@@ -52,6 +44,14 @@ Inicie sesión en GitHub para descargar. Descomprima el ZIP y abra el archivo `.
 [![Ver el vídeo de presentación de FlowGram Desktop](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
 [▶ Ver el vídeo de presentación de 45 segundos (en inglés)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Configuración y desarrollo de Desktop](./apps/desktop/README.md)
+
+## 🎬 Demostración
+
+<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
+
+Abra en [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) o [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
+
+En esta demostración, iteramos a través de una lista de ciudades, obtenemos el clima en tiempo real a través de HTTP, analizamos las temperaturas con un nodo de código, generamos sugerencias de atuendos con un LLM, controlamos mediante una condición, agregamos los resultados a lo largo del bucle y, finalmente, usamos un LLM asesor para elegir la ciudad más cómoda antes de enviar el resultado al nodo final.
 
 ## 🚀 Inicio rápido
 

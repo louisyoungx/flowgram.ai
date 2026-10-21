@@ -18,14 +18,6 @@ FlowGram comes with a suite of built-in tools for workflow development: flow can
 
 Learn more at [FlowGram.AI 🌐](https://flowgram.ai)
 
-## 🎬 Demo
-
-<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
-
-Open in [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) or [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
-
-In this demo, we iterate through a list of cities, fetch real-time weather via HTTP, parse temperatures with a Code node, generate outfit suggestions with an LLM, gate by a Condition, aggregate results across the loop, and finally use an Advisor LLM to pick the most comfortable city before sending the result to the End node.
-
 ## 🖥️ FlowGram Desktop
 
 FlowGram Desktop is a native Agent workspace for macOS and Windows. Build, run, debug, and reuse workflows through conversation and a visual canvas.
@@ -52,6 +44,14 @@ Sign in to GitHub to download. Unzip the artifact and open the `.dmg` on macOS o
 [![Watch the FlowGram Desktop product video](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
 [▶ Watch the 45-second product video (English)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Desktop setup and development](./apps/desktop/README.md)
+
+## 🎬 Demo
+
+<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
+
+Open in [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) or [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
+
+In this demo, we iterate through a list of cities, fetch real-time weather via HTTP, parse temperatures with a Code node, generate outfit suggestions with an LLM, gate by a Condition, aggregate results across the loop, and finally use an Advisor LLM to pick the most comfortable city before sending the result to the End node.
 
 ## 🚀 Quick Start
 

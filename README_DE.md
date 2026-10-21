@@ -18,14 +18,6 @@ FlowGram wird mit einer Reihe von integrierten Werkzeugen für die Workflow-Entw
 
 Erfahren Sie mehr unter [FlowGram.AI 🌐](https://flowgram.ai)
 
-## 🎬 Demo
-
-<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
-
-Öffnen Sie in [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) oder [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
-
-In dieser Demo durchlaufen wir eine Liste von Städten, rufen das Echtzeit-Wetter über HTTP ab, parsen die Temperaturen mit einem Code-Knoten, generieren Outfit-Vorschläge mit einem LLM, steuern durch eine Bedingung, aggregieren die Ergebnisse über die Schleife und verwenden schließlich einen Berater-LLM, um die komfortabelste Stadt auszuwählen, bevor das Ergebnis an den Endknoten gesendet wird.
-
 ## 🖥️ FlowGram Desktop
 
 FlowGram Desktop ist eine native Arbeitsumgebung für KI-Agenten unter macOS und Windows. Hier können Sie Workflows im Dialog und auf einer visuellen Arbeitsfläche erstellen, ausführen, debuggen und wiederverwenden.
@@ -52,6 +44,14 @@ Melden Sie sich zum Download bei GitHub an. Entpacken Sie das ZIP und öffnen Si
 [![FlowGram Desktop im Produktvideo ansehen](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
 [▶ 45-sekündiges Produktvideo ansehen (Englisch)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Desktop-Einrichtung und Entwicklung](./apps/desktop/README.md)
+
+## 🎬 Demo
+
+<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
+
+Öffnen Sie in [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) oder [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
+
+In dieser Demo durchlaufen wir eine Liste von Städten, rufen das Echtzeit-Wetter über HTTP ab, parsen die Temperaturen mit einem Code-Knoten, generieren Outfit-Vorschläge mit einem LLM, steuern durch eine Bedingung, aggregieren die Ergebnisse über die Schleife und verwenden schließlich einen Berater-LLM, um die komfortabelste Stadt auszuwählen, bevor das Ergebnis an den Endknoten gesendet wird.
 
 ## 🚀 Schnellstart
 

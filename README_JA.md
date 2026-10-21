@@ -18,14 +18,6 @@ FlowGramには、ワークフロー開発用の組み込みツール一式が付
 
 詳細は[FlowGram.AI 🌐](https://flowgram.ai)をご覧ください。
 
-## 🎬 デモ
-
-<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
-
-[CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main)または[StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)で開く
-
-このデモでは、都市のリストを反復処理し、HTTP経由でリアルタイムの天気を取得し、コードノードで気温を解析し、LLMで服装の提案を生成し、条件でゲートし、ループ全体で結果を集計し、最後にアドバイザーLLMを使用して最も快適な都市を選択してから、結果を終了ノードに送信します。
-
 ## 🖥️ FlowGram Desktop
 
 FlowGram Desktopは、macOSとWindows向けのネイティブなAIエージェント用ワークスペースです。対話とビジュアルキャンバスを使って、ワークフローの構築、実行、デバッグ、再利用を行えます。
@@ -52,6 +44,14 @@ FlowGram Desktopは、macOSとWindows向けのネイティブなAIエージェ�
 [![FlowGram Desktopの紹介動画を見る](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
 [▶ 45秒の紹介動画を見る（英語）](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Desktopのセットアップと開発](./apps/desktop/README.md)
+
+## 🎬 デモ
+
+<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
+
+[CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main)または[StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)で開く
+
+このデモでは、都市のリストを反復処理し、HTTP経由でリアルタイムの天気を取得し、コードノードで気温を解析し、LLMで服装の提案を生成し、条件でゲートし、ループ全体で結果を集計し、最後にアドバイザーLLMを使用して最も快適な都市を選択してから、結果を終了ノードに送信します。
 
 ## 🚀 クイックスタート
 

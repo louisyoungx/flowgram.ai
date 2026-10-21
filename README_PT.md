@@ -18,14 +18,6 @@ O FlowGram vem com um conjunto de ferramentas integradas para o desenvolvimento 
 
 Saiba mais em [FlowGram.AI 🌐](https://flowgram.ai)
 
-## 🎬 Demonstração
-
-<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
-
-Abra no [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) ou [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
-
-Nesta demonstração, iteramos por uma lista de cidades, buscamos o clima em tempo real via HTTP, analisamos as temperaturas com um nó de Código, geramos sugestões de roupas com um LLM, controlamos por uma Condição, agregamos os resultados ao longo do loop e, finalmente, usamos um LLM Conselheiro para escolher a cidade mais confortável antes de enviar o resultado para o nó Final.
-
 ## 🖥️ FlowGram Desktop
 
 O FlowGram Desktop é um espaço de trabalho nativo para agentes de IA no macOS e no Windows. Crie, execute, depure e reutilize fluxos de trabalho por meio de conversas e uma tela visual.
@@ -52,6 +44,14 @@ Entre no GitHub para baixar. Extraia o ZIP e abra o arquivo `.dmg` no macOS ou e
 [![Assista ao vídeo de apresentação do FlowGram Desktop](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
 [▶ Assista ao vídeo de apresentação de 45 segundos (em inglês)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Configuração e desenvolvimento do Desktop](./apps/desktop/README.md)
+
+## 🎬 Demonstração
+
+<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
+
+Abra no [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) ou [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo)
+
+Nesta demonstração, iteramos por uma lista de cidades, buscamos o clima em tempo real via HTTP, analisamos as temperaturas com um nó de Código, geramos sugestões de roupas com um LLM, controlamos por uma Condição, agregamos os resultados ao longo do loop e, finalmente, usamos um LLM Conselheiro para escolher a cidade mais confortável antes de enviar o resultado para o nó Final.
 
 ## 🚀 Início rápido
 

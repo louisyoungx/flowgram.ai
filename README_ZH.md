@@ -18,14 +18,6 @@ FlowGram 内置开箱即用的工作流开发能力：可视化流程画布、�
 
 了解更多 [FlowGram.AI 🌐](https://flowgram.ai)
 
-## 🎬 演示
-
-<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
-
-在 [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) 或 [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo) 中打开
-
-在该演示中，我们遍历一组城市，通过 HTTP 获取实时天气，用 Code 节点解析温度，借助 LLM 生成穿搭建议，经由 Condition 进行筛选，在循环中汇总结果，最后使用 Advisor LLM 选出最舒适的城市，并将结果发送至 End 节点。
-
 ## 🖥️ FlowGram Desktop
 
 FlowGram Desktop 是面向 macOS 和 Windows 的原生桌面 Agent 工作台，通过对话与可视化画布衔接工作流的搭建、运行、调试和复用。
@@ -52,6 +44,14 @@ FlowGram Desktop 是面向 macOS 和 Windows 的原生桌面 Agent 工作台，�
 [![观看 FlowGram Desktop 英文产品视频](./apps/docs/src/public/desktop/flowgram-desktop-en-poster.jpg)](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1)
 
 [▶ 观看 45 秒产品视频（英文）](./apps/docs/src/public/desktop/flowgram-desktop-en.mp4?raw=1) · [Desktop 使用与开发说明](./apps/desktop/README.md)
+
+## 🎬 演示
+
+<https://github.com/user-attachments/assets/fee87890-ceec-4c07-b659-08afc4dedc26>
+
+在 [CodeSandbox 🌐](https://codesandbox.io/p/github/louisyoungx/flowgram-demo/main) 或 [StackBlitz 🌐](https://stackblitz.com/~/github.com/louisyoungx/flowgram-demo) 中打开
+
+在该演示中，我们遍历一组城市，通过 HTTP 获取实时天气，用 Code 节点解析温度，借助 LLM 生成穿搭建议，经由 Condition 进行筛选，在循环中汇总结果，最后使用 Advisor LLM 选出最舒适的城市，并将结果发送至 End 节点。
 
 ## 🚀 快速上手
 
