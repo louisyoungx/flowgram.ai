@@ -4,16 +4,19 @@
  */
 
 import type { ConversationItem, Turn } from './types';
-import { tx } from './i18n';
 import { duration } from './run-trace';
 
 export function turnDurationLabel(ms: number): string {
   if (ms < 1000) return duration(ms);
-  if (ms < 60000) return tx('{0} 秒', [Number((ms / 1000).toFixed(1))]);
   const total = Math.round(ms / 1000);
-  const minutes = Math.floor(total / 60);
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
   const seconds = total % 60;
-  return seconds ? tx('{0} 分 {1} 秒', [minutes, seconds]) : tx('{0} 分钟', [minutes]);
+  return [
+    ...(hours > 0 ? [`${hours}h`] : []),
+    ...(minutes > 0 ? [`${minutes}m`] : []),
+    ...(seconds > 0 ? [`${seconds}s`] : []),
+  ].join(' ');
 }
 
 /** Estimates are explicit metadata, never synthesized from setup timestamps. */

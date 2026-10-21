@@ -16,6 +16,7 @@ import {
   segmentConversation,
   toolCounts,
   turnDurationMs,
+  turnDurationLabel,
 } from './conversation-presentation';
 
 const turn: Turn = {
@@ -59,6 +60,14 @@ const tool = item('tool', 'tool', 3);
 const final = item('final', 'assistant', 4, 'The workflow is valid.', 'final');
 
 describe('turn presentation', () => {
+  it('formats compact elapsed times without redundant units or rollover errors', () => {
+    expect(turnDurationLabel(180000)).toBe('3m');
+    expect(turnDurationLabel(90000)).toBe('1m 30s');
+    expect(turnDurationLabel(3723000)).toBe('1h 2m 3s');
+    expect(turnDurationLabel(35000)).toBe('35s');
+    expect(turnDurationLabel(59999)).toBe('1m');
+    expect(turnDurationLabel(180)).toBe('180 ms');
+  });
   it('keeps authored estimates separate from measured and missing timings', () => {
     const fast = { ...turn, endedAt: '2026-10-19T00:00:00.180Z' };
     expect(turnDurationMs(fast)).toBe(180);
@@ -180,11 +189,12 @@ describe('turn render boundaries', () => {
     expect(html).not.toContain('conversation-process-toggle');
     expect(html).not.toContain('conversation-turn-boundary');
   });
-  it('labels an authored duration as an estimate instead of timing the initializer', () => {
+  it('uses the standard process header with the authored duration instead of setup time', () => {
     const html = render({ ...turn, origin: 'authored', estimatedDurationMs: 180000 }, [user, tool, final]);
-    expect(html).toContain('About 3 min');
-    expect(html).toContain('Authored walkthrough');
-    expect(html).not.toContain('9.0 s');
+    expect(html).toContain('Processed 3m');
+    expect(html).not.toContain('About');
+    expect(html).not.toContain('Authored walkthrough');
+    expect(html).not.toContain('Processed 9s');
   });
   it('preserves subsecond measured Agent turn durations', () => {
     const html = render({ ...turn, endedAt: '2026-10-19T00:00:00.180Z' }, [user, tool, final]);
