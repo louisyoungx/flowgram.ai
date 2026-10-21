@@ -14,7 +14,6 @@ import {
   ChevronRight,
   CircleAlert,
   Copy,
-  Wrench,
   Loader2,
   Square,
   Workflow as WorkflowIcon,
@@ -41,6 +40,7 @@ import {
 } from '../lib/conversation-presentation';
 import { Collapse, usePresence } from './ui/presence';
 import { Button } from './ui/button';
+import { ConversationToolIcon } from './conversation-tool-icon';
 
 const names: Record<string, string> = localized(
   {
@@ -54,6 +54,7 @@ const names: Record<string, string> = localized(
     get_run: '读取运行记录',
     test_node: '测试节点',
     list_node_types: '查看可用节点',
+    list_models: '查看可用模型',
   },
   'labels'
 );
@@ -62,7 +63,7 @@ export function toolStatus(item: ConversationItem) {
   if (item.status === 'pending') return tx('等待执行');
   if (item.status === 'running') return tx('执行中');
   if (item.status === 'uncertain') return tx('结果待核实');
-  if (item.status === 'failed') return tx('调用失败');
+  if (item.status === 'failed' || item.payload.isError) return tx('调用失败');
   if (item.status === 'cancelled' || item.status === 'interrupted') return tx('未执行');
   if (item.payload.name === 'run_workflow') return tx('已发起');
   if (item.payload.name === 'validate_workflow')
@@ -102,11 +103,28 @@ function ToolRow({ item }: { item: ConversationItem }) {
         aria-controls={detailId}
         onClick={() => setOpen(!open)}
       >
-        <StatusIcon status={item.status} />
+        <ConversationToolIcon names={[item.payload.name || '']} />
         <span className="min-w-0 truncate">
           {names[item.payload.name || ''] || item.payload.name || tx('准备工具调用')}
         </span>
-        <span className="conversation-tool-status">{toolStatus(item)}</span>
+        <span className="conversation-tool-status">
+          {([
+            'drafting',
+            'pending',
+            'running',
+            'stopping',
+            'failed',
+            'uncertain',
+            'cancelled',
+            'interrupted',
+          ].includes(item.status) ||
+            bad) && (
+            <span aria-hidden="true">
+              <StatusIcon status={bad ? 'failed' : item.status} />
+            </span>
+          )}
+          {toolStatus(item)}
+        </span>
         <ChevronRight size={12} className={open ? 'rotate-90' : ''} />
       </button>
       <Collapse open={open} id={detailId}>
@@ -169,12 +187,9 @@ function ToolGroup({ items }: { items: ConversationItem[] }) {
         onClick={() => setOpen(!open)}
         title={label}
       >
-        {running ? (
-          <Loader2 size={13} className="shrink-0 animate-spin" />
-        ) : (
-          <Wrench size={13} className="shrink-0" />
-        )}
+        <ConversationToolIcon names={items.map((item) => item.payload.name || '')} />
         <span className="min-w-0 truncate">{label}</span>
+        {running && <Loader2 size={13} className="shrink-0 animate-spin" aria-hidden="true" />}
         {!!failed && (
           <span className="shrink-0 text-destructive">{tx('{0} 次失败', [failed])}</span>
         )}
