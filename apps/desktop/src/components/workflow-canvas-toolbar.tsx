@@ -19,6 +19,7 @@ export function WorkflowCanvasToolbar({
   onHistory,
   onFit,
   onAutoLayout,
+  onNavigate,
 }: {
   readOnly?: boolean;
   leading?: ReactNode;
@@ -26,6 +27,7 @@ export function WorkflowCanvasToolbar({
   onHistory: (redo: boolean) => Promise<void>;
   onFit: () => void;
   onAutoLayout: () => Promise<void>;
+  onNavigate?: () => void;
 }) {
   const { playground, history } = useClientContext();
   const [zoom, setZoom] = useState(() => playground.config.zoom);
@@ -68,7 +70,27 @@ export function WorkflowCanvasToolbar({
   }
   const percentage = `${Math.round(zoom * 100)}%`;
   return (
-    <div className="workflow-canvas-tools">
+    <div
+      className="workflow-canvas-tools"
+      onPointerDownCapture={(event) => {
+        if (
+          !(event.target as Element).closest(
+            '[data-run-follow-control], [data-preserve-run-follow]'
+          )
+        )
+          onNavigate?.();
+      }}
+      onKeyDownCapture={(event) => {
+        if (
+          ['Enter', ' '].includes(event.key) &&
+          !(event.target as Element).closest(
+            '[data-run-follow-control], [data-preserve-run-follow]'
+          )
+        )
+          onNavigate?.();
+      }}
+      onWheelCapture={onNavigate}
+    >
       <div role="group" aria-label={tx('画布工具栏')} className="workflow-canvas-toolbar">
         {!readOnly && (
           <div className="workflow-canvas-tool-group">

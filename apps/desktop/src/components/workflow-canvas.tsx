@@ -44,10 +44,12 @@ import {
 
 import type { InsertionIntent, NodeCommand, Edge } from '../lib/workflow-editing';
 import type { WorkflowNode, WorkflowSchema } from '../lib/types';
+import { RunFollowCamera } from '../lib/run-follow';
 import { presentNode, nodeNames, loopOwners, type NodeResources } from '../lib/node-presentation';
 import { nodeFamily, NODE_LAYOUT } from '../lib/node-layout';
 import type { CanvasExecution } from '../lib/node-execution';
 import { nodeCatalog, nodeSpec } from '../lib/node-catalog';
+import { motionDuration, observeMotionPreference } from '../lib/motion';
 import { useModels, type ModelTrace } from '../lib/models';
 import { tx, useLocale } from '../lib/i18n';
 import {
@@ -327,6 +329,9 @@ export const WorkflowCanvas = memo(
       workflowNames?: Record<string, string>;
       modelTraces?: Record<string, ModelTrace>;
       onInspectExecution?: (id: string) => void;
+      followNodeId?: string | null;
+      followRequest?: number;
+      onManualNavigate?: () => void;
       toolbarLeading?: ReactNode;
       toolbarTrailing?: ReactNode;
     }
@@ -354,6 +359,9 @@ export const WorkflowCanvas = memo(
       workflowNames = {},
       modelTraces,
       onInspectExecution,
+      followNodeId,
+      followRequest,
+      onManualNavigate,
       toolbarLeading,
       toolbarTrailing,
     },
@@ -442,6 +450,58 @@ export const WorkflowCanvas = memo(
     const initial = useRef(schema);
     const ready = useRef(false);
     const context = useRef<FreeLayoutPluginContext | null>(null);
+    const [viewportReady, setViewportReady] = useState(false);
+    const navigation = useRef(onManualNavigate);
+    navigation.current = onManualNavigate;
+    const camera = useMemo(
+      () =>
+        new RunFollowCamera(
+          async (id) => {
+            const ctx = context.current;
+            const node = ctx?.document.getNode(id);
+            if (
+              !ctx ||
+              !node ||
+              !root.current?.clientWidth ||
+              !root.current?.clientHeight ||
+              root.current.closest('[inert], [hidden]')
+            )
+              return;
+            const duration = motionDuration('panel') * 2;
+            await ctx.playground.config.scrollToView({
+              entities: [node],
+              zoom: Math.max(ctx.playground.config.zoom, 0.65),
+              scrollToCenter: true,
+              easing: duration > 0,
+              easingDuration: duration,
+            });
+          },
+          () => {
+            void context.current?.playground.config.scroll({}, false);
+          }
+        ),
+      []
+    );
+    function manualNavigate() {
+      camera.stop();
+      navigation.current?.();
+    }
+    useEffect(() => {
+      if (viewportReady && followNodeId) camera.follow(followNodeId);
+      else camera.stop();
+    }, [viewportReady, followNodeId, followRequest, camera]);
+    const followTarget = useRef(followNodeId);
+    followTarget.current = followNodeId;
+    useEffect(() => {
+      const dispose = observeMotionPreference(() => {
+        camera.stop();
+        if (followTarget.current) camera.follow(followTarget.current);
+      });
+      return () => {
+        camera.stop();
+        dispose();
+      };
+    }, [camera]);
     const updating = useRef(false);
     const historyBusy = useRef(false);
     async function autoLayout() {
@@ -829,6 +889,7 @@ export const WorkflowCanvas = memo(
                 });
               } else fitCanvas(ctx);
               delete root.current.dataset.viewportPending;
+              setViewportReady(true);
             };
             const settled = () => {
               cancelAnimationFrame(frame);
@@ -912,6 +973,8 @@ export const WorkflowCanvas = memo(
                 className={`workflow-canvas-interactions h-full w-full ${
                   readOnly ? 'workflow-canvas-readonly' : ''
                 }`}
+                onPointerDownCapture={manualNavigate}
+                onWheelCapture={manualNavigate}
                 onPasteCapture={
                   readOnly
                     ? (event) => {
@@ -982,6 +1045,19 @@ export const WorkflowCanvas = memo(
                     event.stopPropagation();
                 }}
                 onKeyDownCapture={(event) => {
+                  if (
+                    [
+                      ' ',
+                      'ArrowUp',
+                      'ArrowDown',
+                      'ArrowLeft',
+                      'ArrowRight',
+                      '+',
+                      '-',
+                      '0',
+                    ].includes(event.key)
+                  )
+                    manualNavigate();
                   if (readOnly) {
                     if (event.key === 'Enter') {
                       const node = context.current?.selection.selection.find(
@@ -1192,6 +1268,7 @@ export const WorkflowCanvas = memo(
                 readOnly={readOnly}
                 leading={toolbarLeading}
                 trailing={toolbarTrailing}
+                onNavigate={manualNavigate}
                 onHistory={runHistory}
                 onFit={() => fitCanvas(context.current)}
                 onAutoLayout={autoLayout}

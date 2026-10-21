@@ -2082,5 +2082,7 @@
   "地址": "URL",
   "时长": "Duration",
   "直到": "Until",
-  "自动布局": "Auto layout"
+  "自动布局": "Auto layout",
+  "继续跟随运行": "Resume following run",
+  "暂停跟随运行": "Pause following run"
 }

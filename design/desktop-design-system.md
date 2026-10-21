@@ -241,3 +241,10 @@ Agent 和 MCP 的 `create_workflow`、结构性 `save_workflow` 自动执行 Rus
 默认连线为 1.5px 中性圆端曲线，选中与悬停为 2px，使用主题 selection 令牌。移除常驻的大号空心箭头，交互时显示紧凑的实心方向提示；回向连接常驻弱化方向提示。端点缩进 4px，与 8px 圆环端口相接，不叠加大箭头、断口和实心圆点。端口保留 24px 热区；悬停仅强化圆环和轻量光晕，不膨胀成大圆。连线插入按钮继续按需出现。
 
 调试与历史画布共用上述规则：实际路径用 foreground，未激活路径用独立 canvas-line-muted，悬停和选中优先恢复可辨识的强调；错误使用 destructive。运行投影不锁定颜色，不压过交互状态；重连过程的隐藏旧线保持隐藏。主题直接更新 CSS 令牌，不重建编辑器。路径与端口坐标不做过渡；颜色、透明度反馈为 120ms，流动虚线放慢到 1.2s，系统与应用减少动态效果时停止流动与过渡。
+
+
+### Trial run camera
+
+New trial runs follow the active node without changing selection or opening the node inspector. Node starts come from the run-scoped event stream, independently of the results panel. Center the active step with a 600ms pan (twice the shared panel duration), maintaining a readable minimum zoom of 65%. Coalesce steps within 120ms and finish each camera move before following the latest step; never replay intermediate queued steps. Parallel branches retain the current active branch until it finishes; nested executions focus the child rather than the container bounds. Completion preserves the final viewport, with failures focused at their originating node.
+
+Manual canvas pointer, wheel, navigation keys, toolbar camera actions, or execution inspection cancel the current move and pause following. During a trial run, the icon-only follow control in the bottom toolbar exposes its state through `aria-pressed` and resumes at the currently active step. Historical runs and mismatched/edited revisions never initiate following. Hiding the results panel preserves following. Reduced motion uses immediate positioning; theme, locale, and run changes preserve the mounted editor and graph data.
