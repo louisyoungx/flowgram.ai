@@ -126,6 +126,9 @@ jobs:
         working-directory: apps/desktop
         run: node ../../common/scripts/install-run-rushx.js test
 
+      - name: Test preview packaging
+        run: node --test .github/scripts/desktop-preview.test.mjs
+
       - name: Lint desktop frontend
         working-directory: apps/desktop
         run: node ../../common/scripts/install-run-rushx.js lint
@@ -161,3 +164,52 @@ jobs:
           if-no-files-found: error
           compression-level: 0
           retention-days: 14
+
+  publish-preview:
+    name: Publish Desktop preview
+    needs: package
+    if: github.repository == 'bytedance/flowgram.ai' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          pattern: FlowGram-*
+          path: ${{ runner.temp }}/desktop-input
+
+      - name: Verify and prepare preview installers
+        env:
+          DESKTOP_PREVIEW_INPUT: ${{ runner.temp }}/desktop-input
+          DESKTOP_PREVIEW_OUTPUT: ${{ runner.temp }}/desktop-preview
+        run: |
+          node --test .github/scripts/desktop-preview.test.mjs
+          node .github/scripts/desktop-preview.mjs
+
+      - name: Update public preview downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PREVIEW_DIRECTORY: ${{ runner.temp }}/desktop-preview
+        run: |
+          set -euo pipefail
+          if ! gh release view desktop-preview >/dev/null 2>&1; then
+            gh release create desktop-preview --target "$GITHUB_SHA" \
+              --title "FlowGram Desktop Preview" --draft --prerelease --latest=false \
+              --notes-file "$PREVIEW_DIRECTORY/release-notes.md"
+          fi
+          gh release upload desktop-preview \
+            "$PREVIEW_DIRECTORY"/*.dmg "$PREVIEW_DIRECTORY"/*.exe \
+            "$PREVIEW_DIRECTORY/SHA256SUMS.txt" "$PREVIEW_DIRECTORY/build-info.json" --clobber
+          gh release edit desktop-preview --draft=false --prerelease --latest=false \
+            --notes-file "$PREVIEW_DIRECTORY/release-notes.md"
+          gh api --method PATCH "repos/$GH_REPO/git/refs/tags/desktop-preview" \
+            -f sha="$GITHUB_SHA" -F force=true
