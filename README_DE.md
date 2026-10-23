@@ -31,6 +31,14 @@ FlowGram Desktop ist eine native Arbeitsumgebung für KI-Agenten unter macOS und
 
 ### Desktop herunterladen
 
+**macOS — mit einem Befehl installieren** (Apple Silicon und Intel):
+
+```sh
+curl --fail --silent --show-error https://flowgram.ai/desktop/install.sh | sh
+```
+
+Im Terminal ausführen, um die neueste Vorschau herunterzuladen, die SHA-256-Prüfsumme zu prüfen und FlowGram zu installieren. Das Skript entfernt das Quarantäneattribut nur für die installierte App, damit die unsignierte Vorschau geöffnet werden kann. Kein `sudo` erforderlich. Zum Aktualisieren FlowGram beenden und denselben Befehl erneut ausführen.
+
 [⬇ Neueste Vorschauversion](https://github.com/bytedance/flowgram.ai/releases/tag/desktop-preview)
 
 Wählen Sie Ihre Plattform für die neueste Vorschau. Die dauerhaften Links werden automatisch aktualisiert, sobald alle drei Plattformen erfolgreich gebaut wurden.

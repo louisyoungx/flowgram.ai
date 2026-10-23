@@ -31,6 +31,14 @@ FlowGram Desktop 是面向 macOS 和 Windows 的原生桌面 Agent 工作台，�
 
 ### 下载 Desktop
 
+**macOS 一键安装**（支持 Apple Silicon 和 Intel）：
+
+```sh
+curl --fail --silent --show-error https://flowgram.ai/desktop/install.sh | sh
+```
+
+复制到终端运行，自动下载最新预览版、校验 SHA-256 并安装 FlowGram。脚本仅移除已安装应用的隔离标记，使未签名预览版能够打开，无需 `sudo`。更新时先退出 FlowGram，再次运行同一命令即可。
+
 [⬇ 最新预览版](https://github.com/bytedance/flowgram.ai/releases/tag/desktop-preview)
 
 选择平台下载最新预览版。三个平台全部构建成功后自动更新安装包，下载地址保持不变。

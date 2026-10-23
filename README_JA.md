@@ -31,6 +31,14 @@ FlowGram Desktopは、macOSとWindows向けのネイティブなAIエージェ�
 
 ### Desktopをダウンロード
 
+**macOS — コマンド1つでインストール**（Apple Silicon / Intel対応）：
+
+```sh
+curl --fail --silent --show-error https://flowgram.ai/desktop/install.sh | sh
+```
+
+ターミナルで実行すると、最新のプレビュー版をダウンロードし、SHA-256を検証してFlowGramをインストールします。未署名のプレビュー版を開けるように、インストールしたアプリだけの隔離属性を削除します。`sudo`は不要です。更新する場合はFlowGramを終了してから同じコマンドを実行してください。
+
 [⬇ 最新のプレビュー版](https://github.com/bytedance/flowgram.ai/releases/tag/desktop-preview)
 
 プラットフォームを選んで最新のプレビュー版をダウンロードできます。3つのプラットフォームのビルドがすべて成功すると自動更新され、ダウンロードURLは変わりません。

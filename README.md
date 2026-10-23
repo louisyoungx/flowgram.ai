@@ -31,6 +31,14 @@ FlowGram Desktop is a native Agent workspace for macOS and Windows. Build, run, 
 
 ### Download Desktop
 
+**macOS — install with one command** (Apple Silicon and Intel):
+
+```sh
+curl --fail --silent --show-error https://flowgram.ai/desktop/install.sh | sh
+```
+
+Paste into Terminal to download the latest preview, verify its SHA-256 checksum, and install FlowGram. The script removes quarantine only from the installed app so the unsigned preview can open. No `sudo` is required. Run the same command to update; quit FlowGram first.
+
 [⬇ Latest preview release](https://github.com/bytedance/flowgram.ai/releases/tag/desktop-preview)
 
 Choose your platform to download the latest preview. These permanent links are updated automatically after all three platform builds succeed.
