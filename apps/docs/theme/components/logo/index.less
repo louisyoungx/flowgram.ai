@@ -41,6 +41,14 @@
   }
 }
 
+.flowgram-logo-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  // Fade the blurred decoration before the clip boundary, leaving nodes crisp.
+  mask-image: radial-gradient(ellipse at center, #000 15%, transparent 70%);
+}
+
 .flowgram-logo-mask {
   background-image: conic-gradient(from 180deg at 50% 50%, #4161a6, #5681bd, #4a9da3, #479590, #4161a6);
   filter: blur(120px);
