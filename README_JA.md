@@ -27,7 +27,7 @@ FlowGram Desktopは、macOSとWindows向けのネイティブなAIエージェ�
 - **再利用：** バージョン管理されたワークフローを公開してHTTPやMCP経由で呼び出したり、別のワークフローから利用したりできます。
 - **管理：** プロジェクトごとにワークフローとチャットを整理し、プロジェクトをインポート・エクスポートできます。UIは英語と簡体字中国語に対応し、ライト・ダークテーマを選べます。6つの業界別サンプルプロジェクトで始められます。
 
-[![FlowGram Desktopの紹介動画を見る](https://flowgram.ai/desktop/flowgram-desktop-en-poster.jpg)](https://flowgram.ai/desktop/flowgram-desktop-en.mp4)
+<https://github.com/user-attachments/assets/48c0e187-5bd8-40b2-9a96-60d3839db170>
 
 [▶ 45秒の紹介動画を見る（英語）](https://flowgram.ai/desktop/flowgram-desktop-en.mp4) · [Desktopのセットアップと開発](./apps/desktop/README.md)
 

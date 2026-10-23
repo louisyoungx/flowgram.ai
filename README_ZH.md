@@ -27,7 +27,7 @@ FlowGram Desktop 是面向 macOS 和 Windows 的原生桌面 Agent 工作台，�
 - **复用：** 发布带版本的工作流，供 HTTP、MCP 或其他工作流调用。
 - **管理：** 按项目组织工作流与会话，导入导出工程，支持中英文界面与明暗主题，并内置六套行业示例项目。
 
-[![观看 FlowGram Desktop 英文产品视频](https://flowgram.ai/desktop/flowgram-desktop-en-poster.jpg)](https://flowgram.ai/desktop/flowgram-desktop-en.mp4)
+<https://github.com/user-attachments/assets/48c0e187-5bd8-40b2-9a96-60d3839db170>
 
 [▶ 观看 45 秒产品视频（英文）](https://flowgram.ai/desktop/flowgram-desktop-en.mp4) · [Desktop 使用与开发说明](./apps/desktop/README.md)
 
