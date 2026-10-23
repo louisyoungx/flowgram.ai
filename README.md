@@ -29,8 +29,6 @@ FlowGram Desktop is a native Agent workspace for macOS and Windows. Build, run, 
 
 <https://github.com/user-attachments/assets/48c0e187-5bd8-40b2-9a96-60d3839db170>
 
-[▶ Watch the 45-second product video (English)](https://flowgram.ai/desktop/flowgram-desktop-en.mp4) · [Desktop setup and development](./apps/desktop/README.md)
-
 ### Download Desktop
 
 [⬇ Latest preview release](https://github.com/bytedance/flowgram.ai/releases/tag/desktop-preview)

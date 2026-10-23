@@ -29,8 +29,6 @@ FlowGram Desktop — нативная рабочая среда для ИИ-аг
 
 <https://github.com/user-attachments/assets/48c0e187-5bd8-40b2-9a96-60d3839db170>
 
-[▶ Смотреть презентационное видео: 45 секунд, на английском](https://flowgram.ai/desktop/flowgram-desktop-en.mp4) · [Настройка и разработка Desktop](./apps/desktop/README.md)
-
 ### Скачать Desktop
 
 [⬇ Последняя предварительная версия](https://github.com/bytedance/flowgram.ai/releases/tag/desktop-preview)

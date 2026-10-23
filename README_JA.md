@@ -29,8 +29,6 @@ FlowGram Desktopは、macOSとWindows向けのネイティブなAIエージェ�
 
 <https://github.com/user-attachments/assets/48c0e187-5bd8-40b2-9a96-60d3839db170>
 
-[▶ 45秒の紹介動画を見る（英語）](https://flowgram.ai/desktop/flowgram-desktop-en.mp4) · [Desktopのセットアップと開発](./apps/desktop/README.md)
-
 ### Desktopをダウンロード
 
 [⬇ 最新のプレビュー版](https://github.com/bytedance/flowgram.ai/releases/tag/desktop-preview)

@@ -29,8 +29,6 @@ FlowGram Desktop es un espacio de trabajo nativo para agentes de IA en macOS y W
 
 <https://github.com/user-attachments/assets/48c0e187-5bd8-40b2-9a96-60d3839db170>
 
-[▶ Ver el vídeo de presentación de 45 segundos (en inglés)](https://flowgram.ai/desktop/flowgram-desktop-en.mp4) · [Configuración y desarrollo de Desktop](./apps/desktop/README.md)
-
 ### Descargar Desktop
 
 [⬇ Última versión preliminar](https://github.com/bytedance/flowgram.ai/releases/tag/desktop-preview)
